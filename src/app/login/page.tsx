@@ -11,7 +11,7 @@ export default function LoginPage() {
   return (
     <div className="auth-container">
       <h1 className="auth-heading">Sign In</h1>
-      
+
       {error && (
         <div className="error-message" style={{ color: 'var(--error)', marginBottom: '1rem', textAlign: 'center' }}>
           {error === 'OAuthAccountNotLinked'
@@ -19,9 +19,12 @@ export default function LoginPage() {
             : 'An error occurred during sign in'}
         </div>
       )}
-      
+
       <button
-        onClick={() => signIn('google', { callbackUrl })}
+        onClick={() => {
+          console.log('[client][login] Signing in with Google', { callbackUrl });
+          signIn('google', { callbackUrl });
+        }}
         className="provider-btn"
       >
         <svg className="provider-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -32,9 +35,12 @@ export default function LoginPage() {
         </svg>
         Sign in with Google
       </button>
-      
+
       <button
-        onClick={() => signIn('github', { callbackUrl })}
+        onClick={() => {
+          console.log('[client][login] Signing in with GitHub', { callbackUrl });
+          signIn('github', { callbackUrl });
+        }}
         className="provider-btn"
       >
         <svg className="provider-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

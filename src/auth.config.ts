@@ -15,18 +15,20 @@ export const authConfig: NextAuthConfig = {
   ],
   pages: {
     signIn: "/login",
+    error: "/auth-error",
   },
+  debug: true,
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnProtectedPage = nextUrl.pathname.startsWith("/protected");
       const isOnProfilePage = nextUrl.pathname.startsWith("/profile");
-      
+
       if (isOnProtectedPage || isOnProfilePage) {
         if (isLoggedIn) return true;
         return false; // Redirect to login page
       }
-      
+
       return true;
     },
     jwt({ token, user, account }) {

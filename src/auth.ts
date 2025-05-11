@@ -16,15 +16,15 @@ declare module "next-auth" {
   }
 }
 
-export const { 
+export const {
   handlers: { GET, POST },
-  auth, 
-  signIn, 
-  signOut 
+  auth,
+  signIn,
+  signOut
 } = NextAuth({
   ...authConfig,
   session: { strategy: "jwt" },
   secret: process.env.AUTH_SECRET,
   trustHost: true,
-  debug: process.env.NODE_ENV === "development",
+  debug: true, // Force debug mode on
 });
