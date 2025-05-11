@@ -72,7 +72,7 @@ export default async function Home() {
           <li>Sign in with your Google or GitHub account</li>
           <li>Access protected content</li>
           <li>View your profile information</li>
-          <li>Sign out when you're done</li>
+          <li>Sign out when you&apos;re done</li>
         </ol>
       </div>
     </div>
