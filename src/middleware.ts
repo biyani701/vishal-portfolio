@@ -8,27 +8,26 @@ export async function middleware(request: NextRequest) {
 
   // Handle CORS for all routes, not just API routes
   const origin = request.headers.get('origin') || '';
-  const allowedOrigins = [
-    'http://localhost:3000',
-    'http://localhost:4000',
-    'https://vishal.biyani.xyz',
-    'https://my-oauth-proxy.vercel.app'
-  ];
-  const isAllowedOrigin = allowedOrigins.includes(origin);
+  // For debugging: Allow any origin (not recommended for production)
 
   // Handle preflight requests for all routes
   if (request.method === 'OPTIONS') {
     const response = new NextResponse(null, { status: 204 });
 
-    if (isAllowedOrigin) {
+    // For debugging: Set permissive CORS headers (not recommended for production)
+    // When using wildcard '*' for origin, credentials cannot be true
+    // So we'll use the actual origin if it's provided, or '*' if not
+    if (origin) {
       response.headers.set('Access-Control-Allow-Origin', origin);
-      response.headers.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
-      response.headers.set('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, Origin, Cache-Control, Pragma');
       response.headers.set('Access-Control-Allow-Credentials', 'true');
-      response.headers.set('Access-Control-Max-Age', '86400');
-      response.headers.set('Access-Control-Expose-Headers', 'Content-Length, Content-Type');
-      response.headers.set('Vary', 'Origin');
+    } else {
+      response.headers.set('Access-Control-Allow-Origin', '*');
     }
+    response.headers.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
+    response.headers.set('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, Origin, Cache-Control, Pragma');
+    response.headers.set('Access-Control-Max-Age', '86400');
+    response.headers.set('Access-Control-Expose-Headers', 'Content-Length, Content-Type');
+    response.headers.set('Vary', 'Origin');
 
     return response;
   }
@@ -49,14 +48,19 @@ export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   // Add CORS headers to all responses, not just API routes
-  if (isAllowedOrigin) {
+  // For debugging: Set permissive CORS headers (not recommended for production)
+  // When using wildcard '*' for origin, credentials cannot be true
+  // So we'll use the actual origin if it's provided, or '*' if not
+  if (origin) {
     response.headers.set('Access-Control-Allow-Origin', origin);
     response.headers.set('Access-Control-Allow-Credentials', 'true');
-    response.headers.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
-    response.headers.set('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, Origin, Cache-Control, Pragma');
-    response.headers.set('Access-Control-Expose-Headers', 'Content-Length, Content-Type');
-    response.headers.set('Vary', 'Origin');
+  } else {
+    response.headers.set('Access-Control-Allow-Origin', '*');
   }
+  response.headers.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
+  response.headers.set('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, Origin, Cache-Control, Pragma');
+  response.headers.set('Access-Control-Expose-Headers', 'Content-Length, Content-Type');
+  response.headers.set('Vary', 'Origin');
 
   return response;
 }

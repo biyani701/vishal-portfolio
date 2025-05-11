@@ -25,7 +25,6 @@ export const {
   ...authConfig,
   session: { strategy: "jwt" },
   secret: process.env.AUTH_SECRET,
-  trustHost: true,
   debug: true, // Force debug mode on
   cookies: {
     sessionToken: {
@@ -35,10 +34,8 @@ export const {
         sameSite: 'none',  // 'none' is required for cross-origin requests
         path: '/',
         secure: true,      // Must be true when sameSite is 'none'
-        // This is important - it allows cookies to be sent cross-origin
-        domain: process.env.NODE_ENV === 'production'
-          ? '.biyani.xyz'  // Use your actual domain in production
-          : undefined      // Let the browser handle it for local development
+        // No domain restriction for debugging cross-origin issues
+        domain: undefined  // Let the browser handle it for local development
       }
     },
     callbackUrl: {
@@ -48,9 +45,8 @@ export const {
         sameSite: 'none',  // 'none' is required for cross-origin requests
         path: '/',
         secure: true,      // Must be true when sameSite is 'none'
-        domain: process.env.NODE_ENV === 'production'
-          ? '.biyani.xyz'
-          : undefined
+        // No domain restriction for debugging cross-origin issues
+        domain: undefined  // Let the browser handle it for local development
       }
     },
     csrfToken: {
@@ -60,9 +56,8 @@ export const {
         sameSite: 'none',  // 'none' is required for cross-origin requests
         path: '/',
         secure: true,      // Must be true when sameSite is 'none'
-        domain: process.env.NODE_ENV === 'production'
-          ? '.biyani.xyz'
-          : undefined
+        // No domain restriction for debugging cross-origin issues
+        domain: undefined  // Let the browser handle it for local development
       }
     }
   }

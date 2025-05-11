@@ -75,6 +75,39 @@ export default async function Home() {
           <li>Sign out when you&apos;re done</li>
         </ol>
       </div>
+
+      <div style={{
+        padding: '1.5rem',
+        backgroundColor: 'var(--secondary)',
+        borderRadius: '0.5rem',
+        marginBottom: '1.5rem'
+      }}>
+        <h2 style={{ marginBottom: '1rem' }}>Test Pages</h2>
+        <ul style={{
+          textAlign: 'left',
+          paddingLeft: '1.5rem',
+          lineHeight: '1.6'
+        }}>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <Link href="/auth-test" style={{ fontWeight: 'bold' }}>
+              Auth Test
+            </Link>
+            {' '}- Test authentication status and session information
+          </li>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <Link href="/auth-flow-test" style={{ fontWeight: 'bold' }}>
+              Auth Flow Test
+            </Link>
+            {' '}- Test the authentication flow with direct links
+          </li>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <Link href="/auth-v5-test" style={{ fontWeight: 'bold' }}>
+              Auth.js v5 Test
+            </Link>
+            {' '}- Test Auth.js v5 specific features
+          </li>
+        </ul>
+      </div>
     </div>
   );
 }

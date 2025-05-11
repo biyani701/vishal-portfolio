@@ -1,6 +1,7 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
+// Import signIn from our client-side auth utility
+import { signIn } from '@/lib/auth-client';
 import { useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
@@ -24,10 +25,9 @@ export default function LoginPage() {
         onClick={() => {
           console.log('[client][login] Signing in with Google', { callbackUrl });
 
-          // Use the callbackUrl parameter to ensure proper redirection after authentication
+          // Use our client-side auth utility
           signIn('google', {
-            callbackUrl,
-            redirect: true,
+            redirectTo: callbackUrl
           });
         }}
         className="provider-btn"
@@ -45,10 +45,9 @@ export default function LoginPage() {
         onClick={() => {
           console.log('[client][login] Signing in with GitHub', { callbackUrl });
 
-          // Use the callbackUrl parameter to ensure proper redirection after authentication
+          // Use our client-side auth utility
           signIn('github', {
-            callbackUrl,
-            redirect: true,
+            redirectTo: callbackUrl
           });
         }}
         className="provider-btn"

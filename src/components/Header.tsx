@@ -2,13 +2,12 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useSession, signOut } from 'next-auth/react';
-import { useState } from 'react';
+import { useSession } from 'next-auth/react';
+import LogoutButton from './LogoutButton';
 
 export default function Header() {
   const { data: session, status } = useSession();
   const isAuthenticated = status === 'authenticated';
-  const [isSigningOut, setIsSigningOut] = useState(false);
 
   return (
     <header className="header">
@@ -42,20 +41,7 @@ export default function Header() {
             <Link href="/protected" className="nav-link">
               Protected
             </Link>
-            <button
-              onClick={() => {
-                setIsSigningOut(true);
-                // Use a direct approach to sign out
-                signOut({
-                  callbackUrl: '/',
-                  redirect: true
-                });
-              }}
-              disabled={isSigningOut}
-              className="btn btn-secondary"
-            >
-              {isSigningOut ? 'Signing Out...' : 'Sign Out'}
-            </button>
+            <LogoutButton callbackUrl="/" />
           </>
         ) : (
           <Link href="/login" className="btn btn-primary">

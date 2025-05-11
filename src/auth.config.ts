@@ -18,6 +18,7 @@ export const authConfig: NextAuthConfig = {
     error: "/auth-error",
   },
   debug: true,
+  trustHost: true,
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
