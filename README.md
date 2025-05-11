@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OAuth Provider for Google and GitHub
 
-## Getting Started
+This is an OAuth provider for Google and GitHub authentication built with Next.js and Auth.js (NextAuth). It can be used for authentication in GitHub Pages or any other static site.
 
-First, run the development server:
+## Features
+
+- Google OAuth authentication
+- GitHub OAuth authentication
+- Protected routes
+- User profile page
+- JWT-based session management
+- Responsive design
+
+## Prerequisites
+
+- Node.js 18.x or later
+- A Google OAuth client ID and secret
+- A GitHub OAuth client ID and secret
+
+## Setup
+
+1. Clone the repository:
+
+```bash
+git clone <repository-url>
+cd my-auth-backend
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Create a `.env.local` file in the root directory with the following variables:
+
+```
+# Auth
+AUTH_SECRET=your-secret-key-at-least-32-chars-long
+AUTH_URL=http://localhost:3000
+
+# Google OAuth
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# GitHub OAuth
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+```
+
+### Setting up Google OAuth
+
+1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Navigate to "APIs & Services" > "Credentials"
+4. Click "Create Credentials" > "OAuth client ID"
+5. Select "Web application" as the application type
+6. Add "http://localhost:3000" to the Authorized JavaScript origins
+7. Add "http://localhost:3000/api/auth/callback/google" to the Authorized redirect URIs
+8. Click "Create" and note your Client ID and Client Secret
+
+### Setting up GitHub OAuth
+
+1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
+2. Click "New OAuth App"
+3. Fill in the application details:
+   - Application name: Your app name
+   - Homepage URL: http://localhost:3000
+   - Authorization callback URL: http://localhost:3000/api/auth/callback/github
+4. Click "Register application"
+5. Note your Client ID and generate a Client Secret
+
+## Running Locally
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deployment on Vercel
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Push your code to a GitHub repository
+2. Go to [Vercel](https://vercel.com) and create a new project
+3. Import your GitHub repository
+4. Add the environment variables from your `.env.local` file
+5. Deploy the application
 
-## Learn More
+## Using with GitHub Pages
 
-To learn more about Next.js, take a look at the following resources:
+To use this OAuth provider with GitHub Pages:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Deploy this application to Vercel
+2. In your GitHub Pages site, redirect users to your Vercel deployment for authentication
+3. After successful authentication, redirect back to your GitHub Pages site with the authenticated user information
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the MIT License.
