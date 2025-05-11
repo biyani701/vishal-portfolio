@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSession, signOut } from 'next-auth/react';
 
 export default function Header() {
@@ -21,13 +22,26 @@ export default function Header() {
         {isAuthenticated ? (
           <>
             <Link href="/profile" className="nav-link">
-              Profile
+              {session?.user?.image ? (
+                <div className="user-avatar-container">
+                  <Image
+                    src={session.user.image}
+                    alt={session.user.name || 'User'}
+                    width={24}
+                    height={24}
+                    className="user-avatar"
+                  />
+                  <span>{session.user.name?.split(' ')[0] || 'User'}</span>
+                </div>
+              ) : (
+                <span>Profile</span>
+              )}
             </Link>
             <Link href="/protected" className="nav-link">
               Protected
             </Link>
-            <button 
-              onClick={() => signOut({ callbackUrl: '/' })} 
+            <button
+              onClick={() => signOut({ callbackUrl: '/' })}
               className="btn btn-secondary"
             >
               Sign Out

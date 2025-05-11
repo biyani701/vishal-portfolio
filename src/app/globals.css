@@ -69,6 +69,17 @@ a {
   align-items: center;
 }
 
+.user-avatar-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-avatar {
+  border-radius: 50%;
+  object-fit: cover;
+}
+
 .btn {
   display: inline-block;
   padding: 0.5rem 1rem;
