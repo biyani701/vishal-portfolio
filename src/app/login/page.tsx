@@ -23,7 +23,12 @@ export default function LoginPage() {
       <button
         onClick={() => {
           console.log('[client][login] Signing in with Google', { callbackUrl });
-          signIn('google', { callbackUrl });
+
+          // Use the callbackUrl parameter to ensure proper redirection after authentication
+          signIn('google', {
+            callbackUrl,
+            redirect: true,
+          });
         }}
         className="provider-btn"
       >
@@ -39,7 +44,12 @@ export default function LoginPage() {
       <button
         onClick={() => {
           console.log('[client][login] Signing in with GitHub', { callbackUrl });
-          signIn('github', { callbackUrl });
+
+          // Use the callbackUrl parameter to ensure proper redirection after authentication
+          signIn('github', {
+            callbackUrl,
+            redirect: true,
+          });
         }}
         className="provider-btn"
       >

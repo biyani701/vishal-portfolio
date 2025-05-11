@@ -27,4 +27,43 @@ export const {
   secret: process.env.AUTH_SECRET,
   trustHost: true,
   debug: true, // Force debug mode on
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'none',  // 'none' is required for cross-origin requests
+        path: '/',
+        secure: true,      // Must be true when sameSite is 'none'
+        // This is important - it allows cookies to be sent cross-origin
+        domain: process.env.NODE_ENV === 'production'
+          ? '.biyani.xyz'  // Use your actual domain in production
+          : undefined      // Let the browser handle it for local development
+      }
+    },
+    callbackUrl: {
+      name: `next-auth.callback-url`,
+      options: {
+        httpOnly: true,
+        sameSite: 'none',  // 'none' is required for cross-origin requests
+        path: '/',
+        secure: true,      // Must be true when sameSite is 'none'
+        domain: process.env.NODE_ENV === 'production'
+          ? '.biyani.xyz'
+          : undefined
+      }
+    },
+    csrfToken: {
+      name: `next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'none',  // 'none' is required for cross-origin requests
+        path: '/',
+        secure: true,      // Must be true when sameSite is 'none'
+        domain: process.env.NODE_ENV === 'production'
+          ? '.biyani.xyz'
+          : undefined
+      }
+    }
+  }
 });
