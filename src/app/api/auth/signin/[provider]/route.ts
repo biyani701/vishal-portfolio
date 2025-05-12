@@ -1,14 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { signIn } from '@/auth';
 
+// First, define an interface for objects with a digest property
+interface ErrorWithDigest {
+  digest: string;
+  [key: string]: unknown;
+}
+
+// Define a type for Auth.js redirect errors
+interface AuthRedirectError extends ErrorWithDigest {
+  digest: string;
+}
+
+// Check if an error is an Auth.js redirect error
+function isAuthRedirectError(error: unknown): error is AuthRedirectError {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'digest' in error &&
+    typeof (error as ErrorWithDigest).digest === 'string' &&
+    (error as ErrorWithDigest).digest.startsWith('NEXT_REDIRECT')
+  );
+}
+
 // Custom sign-in handler for Auth.js v5
 export async function GET(
   request: NextRequest,
-  context: { params: { provider: string } }
+  { params }: { params: { provider: string } }
 ) {
   try {
-    // Get the provider from the URL parameters - properly await the context
-    const { provider } = context.params;
+    // Get the provider from the URL parameters
+    const { provider } = params;
 
     // Get the callback URL from the query parameters
     const searchParams = request.nextUrl.searchParams;
@@ -31,7 +53,7 @@ export async function GET(
       return NextResponse.redirect(signInUrl);
     } catch (error: unknown) {
       // If this is a redirect error from Auth.js, handle it
-      if (error?.digest?.startsWith('NEXT_REDIRECT')) {
+      if (isAuthRedirectError(error)) {
         console.log('[auth][signin] Handling NEXT_REDIRECT:', error.digest);
 
         // Extract the URL from the digest
@@ -55,7 +77,7 @@ export async function GET(
     }
   } catch (error: unknown) {
     // If this is a redirect error from Auth.js, handle it
-    if (error?.digest?.startsWith('NEXT_REDIRECT')) {
+    if (isAuthRedirectError(error)) {
       console.log('[auth][signin] Handling NEXT_REDIRECT in outer catch:', error.digest);
 
       // Extract the URL from the digest

@@ -1,6 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { signOut } from '@/auth';
 
+// First, define an interface for objects with a digest property
+interface ErrorWithDigest {
+  digest: string;
+  [key: string]: unknown;
+}
+
+// Define a type for Auth.js redirect errors
+interface AuthRedirectError extends ErrorWithDigest {
+  digest: string;
+}
+
+// Check if an error is an Auth.js redirect error
+function isAuthRedirectError(error: unknown): error is AuthRedirectError {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'digest' in error &&
+    typeof (error as ErrorWithDigest).digest === 'string' &&
+    (error as ErrorWithDigest).digest.startsWith('NEXT_REDIRECT')
+  );
+}
+
 // Custom sign-out handler for Auth.js v5
 export async function GET(request: NextRequest) {
   try {
@@ -20,7 +42,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(signOutUrl);
     } catch (error: unknown) {
       // If this is a redirect error from Auth.js, let it propagate
-      if (error?.digest?.startsWith('NEXT_REDIRECT')) {
+      if (isAuthRedirectError(error)) {
         console.log('[auth][signout] Handling NEXT_REDIRECT:', error.digest);
 
         // Extract the URL from the digest
@@ -44,7 +66,7 @@ export async function GET(request: NextRequest) {
     }
   } catch (error: unknown) {
     // If this is a redirect error from Auth.js, let it propagate
-    if (error?.digest?.startsWith('NEXT_REDIRECT')) {
+    if (isAuthRedirectError(error)) {
       console.log('[auth][signout] Handling NEXT_REDIRECT in outer catch:', error.digest);
 
       // Extract the URL from the digest
