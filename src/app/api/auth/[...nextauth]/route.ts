@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // Wrap the Auth.js handlers with CORS
 export async function GET(
   request: NextRequest,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   { params }: { params: { nextauth: string[] } }
 ) {
   const origin = request.headers.get('origin') || '';
@@ -54,6 +55,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   { params }: { params: { nextauth: string[] } }
 ) {
   const origin = request.headers.get('origin') || '';
@@ -105,6 +107,7 @@ export async function POST(
 // Handle OPTIONS requests for preflight
 export async function OPTIONS(
   request: NextRequest,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   { params }: { params: { nextauth: string[] } }
 ) {
   const origin = request.headers.get('origin') || '';
