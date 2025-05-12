@@ -1,15 +1,17 @@
 # OAuth Provider for Google and GitHub
 
-This is an OAuth provider for Google and GitHub authentication built with Next.js and Auth.js (NextAuth). It can be used for authentication in GitHub Pages or any other static site.
+A customized OAuth provider built with Next.js and Auth.js v5 that supports Google and GitHub authentication. This server can be deployed on Vercel and used for authentication in GitHub Pages or other static sites.
 
 ## Features
 
 - Google OAuth authentication
 - GitHub OAuth authentication
-- Protected routes
-- User profile page
+- Cross-origin authentication support
 - JWT-based session management
-- Responsive design
+- Protected routes
+- User profile access
+- Comprehensive CORS handling
+- Development proxy for local testing
 
 ## Prerequisites
 
@@ -35,17 +37,20 @@ npm install
 3. Create a `.env.local` file in the root directory with the following variables:
 
 ```
-# Auth
-AUTH_SECRET=your-secret-key-at-least-32-chars-long
-AUTH_URL=http://localhost:3000
+# Auth.js Secret - generate a random string (e.g., openssl rand -base64 32)
+AUTH_SECRET=your_auth_secret_here
 
-# Google OAuth
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
+# Google OAuth credentials
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
 
-# GitHub OAuth
-GITHUB_CLIENT_ID=your-github-client-id
-GITHUB_CLIENT_SECRET=your-github-client-secret
+# GitHub OAuth credentials
+GITHUB_CLIENT_ID=your_github_client_id
+GITHUB_CLIENT_SECRET=your_github_client_secret
+
+# URLs
+NEXTAUTH_URL=http://localhost:4000
+CLIENT_URL=http://localhost:3000
 ```
 
 ### Setting up Google OAuth
@@ -55,8 +60,8 @@ GITHUB_CLIENT_SECRET=your-github-client-secret
 3. Navigate to "APIs & Services" > "Credentials"
 4. Click "Create Credentials" > "OAuth client ID"
 5. Select "Web application" as the application type
-6. Add "http://localhost:3000" to the Authorized JavaScript origins
-7. Add "http://localhost:3000/api/auth/callback/google" to the Authorized redirect URIs
+6. Add "http://localhost:4000" to the Authorized JavaScript origins
+7. Add "http://localhost:4000/api/auth/callback/google" to the Authorized redirect URIs
 8. Click "Create" and note your Client ID and Client Secret
 
 ### Setting up GitHub OAuth
@@ -65,8 +70,8 @@ GITHUB_CLIENT_SECRET=your-github-client-secret
 2. Click "New OAuth App"
 3. Fill in the application details:
    - Application name: Your app name
-   - Homepage URL: http://localhost:3000
-   - Authorization callback URL: http://localhost:3000/api/auth/callback/github
+   - Homepage URL: http://localhost:4000
+   - Authorization callback URL: http://localhost:4000/api/auth/callback/github
 4. Click "Register application"
 5. Note your Client ID and generate a Client Secret
 
@@ -78,7 +83,7 @@ Start the development server:
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
+Open [http://localhost:4000](http://localhost:4000) with your browser to see the application.
 
 ## Deployment on Vercel
 
@@ -88,14 +93,83 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 4. Add the environment variables from your `.env.local` file
 5. Deploy the application
 
-## Using with GitHub Pages
+## Client Integration
 
-To use this OAuth provider with GitHub Pages:
+### Endpoints
 
-1. Deploy this application to Vercel
-2. In your GitHub Pages site, redirect users to your Vercel deployment for authentication
-3. After successful authentication, redirect back to your GitHub Pages site with the authenticated user information
+For a client running on a different origin (e.g., localhost:3000 or GitHub Pages):
+
+1. **Sign In Endpoints**:
+   ```
+   https://my-oauth-proxy.vercel.app/api/auth/signin/google
+   https://my-oauth-proxy.vercel.app/api/auth/signin/github
+   ```
+
+2. **Session Endpoint** (to check if user is authenticated):
+   ```
+   https://my-oauth-proxy.vercel.app/api/auth/session
+   ```
+
+3. **Sign Out Endpoint**:
+   ```
+   https://my-oauth-proxy.vercel.app/api/auth/signout
+   ```
+
+### Example Integration
+
+```javascript
+// Example sign-in function for a React client
+function handleSignIn(provider) {
+  const callbackUrl = encodeURIComponent(window.location.origin);
+  const signInUrl = `https://my-oauth-proxy.vercel.app/api/auth/signin/${provider}?callbackUrl=${callbackUrl}`;
+  window.location.href = signInUrl;
+}
+
+// Example session check
+async function checkSession() {
+  try {
+    const response = await fetch('https://my-oauth-proxy.vercel.app/api/auth/session', {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      const session = await response.json();
+      return session;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error checking session:', error);
+    return null;
+  }
+}
+```
+
+## Project Structure
+
+- `src/app/api/auth/` - Auth.js API routes
+- `src/auth.ts` - Auth.js configuration
+- `src/auth.config.ts` - Auth provider configuration
+- `src/middleware.ts` - CORS and authentication middleware
+- `src/lib/auth-client.ts` - Client-side authentication utilities
+- `src/components/` - Reusable components
+- `src/app/` - Next.js app router pages
+
+## Local Development with Multiple Clients
+
+When developing locally, the server uses a proxy to handle requests from clients on different origins:
+
+1. OAuth server runs on `http://localhost:4000`
+2. Client app runs on `http://localhost:3000`
+
+The proxy middleware handles CORS and cookie issues during development.
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under a custom license. Usage requires permission from the author.
+
+© 2023 Vishal Biyani. All rights reserved.

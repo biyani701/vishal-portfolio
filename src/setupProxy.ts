@@ -1,5 +1,5 @@
 // src/setupProxy.ts
-import { createProxyMiddleware, RequestHandler } from 'http-proxy-middleware';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 import { Express, Request, Response, NextFunction } from 'express';
 
 // This module is used by Create React App development server
@@ -19,8 +19,9 @@ module.exports = function(app: Express): void {
     cookieDomainRewrite: { '*': '' }, // Remove domain from cookies
     onProxyReq: (proxyReq: { setHeader: (name: string, value: string) => void }, req: Request) => {
       // Add origin header for the auth server to identify the client
-      const origin = req.headers.origin || `http://${req.headers.host}`;
-      proxyReq.setHeader('X-Forwarded-Host', req.headers.host);
+      const host = req.headers.host || 'localhost';
+      const origin = req.headers.origin || `http://${host}`;
+      proxyReq.setHeader('X-Forwarded-Host', host);
       proxyReq.setHeader('X-Client-Origin', origin);
       proxyReq.setHeader('Origin', origin);
 
@@ -40,7 +41,8 @@ module.exports = function(app: Express): void {
       console.log(`[Proxy] Received ${proxyRes.statusCode} for ${req.method} ${req.url}`);
 
       // Add CORS headers to the response
-      const origin = req.headers.origin || `http://${req.headers.host}`;
+      const host = req.headers.host || 'localhost';
+      const origin = req.headers.origin || `http://${host}`;
       proxyRes.headers['access-control-allow-origin'] = origin;
       proxyRes.headers['access-control-allow-methods'] = 'GET, POST, PUT, DELETE, OPTIONS';
       proxyRes.headers['access-control-allow-headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization';
@@ -74,7 +76,7 @@ module.exports = function(app: Express): void {
   app.use('/api/auth', createProxyMiddleware({
     ...commonOptions,
     pathRewrite: undefined // No path rewriting for /api/auth
-  }) as RequestHandler);
+  }));
 
   // Also proxy the /auth/* path for compatibility
   app.use('/auth', createProxyMiddleware({
@@ -82,12 +84,13 @@ module.exports = function(app: Express): void {
     pathRewrite: {
       '^/auth': '/api/auth', // Rewrite /auth to /api/auth
     }
-  }) as RequestHandler);
+  }));
 
   // Handle preflight OPTIONS requests
   app.use('/api/auth', (req: Request, res: Response, next: NextFunction) => {
     if (req.method === 'OPTIONS') {
-      const origin = req.headers.origin || `http://${req.headers.host}`;
+      const host = req.headers.host || 'localhost';
+      const origin = req.headers.origin || `http://${host}`;
       res.header('Access-Control-Allow-Origin', origin);
       res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
       res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
