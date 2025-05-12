@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { signIn } from '@/auth';
 
-// First, define an interface for objects with a digest property
-interface ErrorWithDigest {
-  digest: string;
-  [key: string]: unknown;
-}
-
 // Define a type for Auth.js redirect errors
-interface AuthRedirectError extends ErrorWithDigest {
+interface AuthRedirectError extends Error {
   digest: string;
 }
 
@@ -18,16 +12,18 @@ function isAuthRedirectError(error: unknown): error is AuthRedirectError {
     typeof error === 'object' &&
     error !== null &&
     'digest' in error &&
-    typeof (error as ErrorWithDigest).digest === 'string' &&
-    (error as ErrorWithDigest).digest.startsWith('NEXT_REDIRECT')
+    typeof (error as { digest: string }).digest === 'string' &&
+    (error as { digest: string }).digest.startsWith('NEXT_REDIRECT')
   );
 }
 
 // Custom sign-in handler for Auth.js v5
+// Use the exact type signature expected by Next.js
 export async function GET(
   request: NextRequest,
-  { params }: { params: { provider: string } }
+  context: { params: { provider: string } }
 ) {
+  const { params } = context;
   try {
     // Get the provider from the URL parameters
     const { provider } = params;

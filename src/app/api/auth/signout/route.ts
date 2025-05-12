@@ -1,14 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { signOut } from '@/auth';
 
-// First, define an interface for objects with a digest property
-interface ErrorWithDigest {
-  digest: string;
-  [key: string]: unknown;
-}
-
 // Define a type for Auth.js redirect errors
-interface AuthRedirectError extends ErrorWithDigest {
+interface AuthRedirectError extends Error {
   digest: string;
 }
 
@@ -18,8 +12,8 @@ function isAuthRedirectError(error: unknown): error is AuthRedirectError {
     typeof error === 'object' &&
     error !== null &&
     'digest' in error &&
-    typeof (error as ErrorWithDigest).digest === 'string' &&
-    (error as ErrorWithDigest).digest.startsWith('NEXT_REDIRECT')
+    typeof (error as { digest: string }).digest === 'string' &&
+    (error as { digest: string }).digest.startsWith('NEXT_REDIRECT')
   );
 }
 
