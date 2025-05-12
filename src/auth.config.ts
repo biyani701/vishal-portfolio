@@ -17,7 +17,7 @@ export const authConfig: NextAuthConfig = {
     signIn: "/login",
     error: "/auth-error",
   },
-  debug: true,
+  debug: process.env.NODE_ENV === 'development',
   trustHost: true,
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {

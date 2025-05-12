@@ -25,7 +25,7 @@ export const {
   ...authConfig,
   session: { strategy: "jwt" },
   secret: process.env.AUTH_SECRET,
-  debug: true, // Force debug mode on
+  debug: process.env.NODE_ENV === 'development', // Enable debug mode only in development
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`,

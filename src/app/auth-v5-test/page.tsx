@@ -120,6 +120,83 @@ export default function AuthV5TestPage() {
 
       <div style={{
         padding: '1.5rem',
+        backgroundColor: '#f0f8f4',
+        borderRadius: '0.5rem',
+        marginBottom: '2rem',
+        border: '1px solid #d0f9e1'
+      }}>
+        <h2 style={{ marginTop: 0, marginBottom: '1rem' }}>Auth.js v5 Endpoints</h2>
+
+        <ul style={{ paddingLeft: '1.5rem' }}>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <a href="/api/auth/signin" target="_blank" rel="noopener noreferrer">
+              /api/auth/signin
+            </a>
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
+              - Sign-in page
+            </span>
+          </li>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <a href="/api/auth/signin/google" target="_blank" rel="noopener noreferrer">
+              /api/auth/signin/google
+            </a>
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
+              - Google sign-in
+            </span>
+          </li>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <a href="/api/auth/signin/github" target="_blank" rel="noopener noreferrer">
+              /api/auth/signin/github
+            </a>
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
+              - GitHub sign-in
+            </span>
+          </li>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <a href="/api/auth/signout" target="_blank" rel="noopener noreferrer">
+              /api/auth/signout
+            </a>
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
+              - Sign out
+            </span>
+          </li>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <a href="/api/auth/session" target="_blank" rel="noopener noreferrer">
+              /api/auth/session
+            </a>
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
+              - Get current session
+            </span>
+          </li>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <a href="/api/auth/debug" target="_blank" rel="noopener noreferrer">
+              /api/auth/debug
+            </a>
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
+              - Debug information
+            </span>
+          </li>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <a href="/api/auth/callback/google" target="_blank" rel="noopener noreferrer">
+              /api/auth/callback/google
+            </a>
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
+              - Google OAuth callback
+            </span>
+          </li>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <a href="/api/auth/callback/github" target="_blank" rel="noopener noreferrer">
+              /api/auth/callback/github
+            </a>
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
+              - GitHub OAuth callback
+            </span>
+          </li>
+        </ul>
+      </div>
+
+      <div style={{
+        padding: '1.5rem',
         backgroundColor: '#f8f0f4',
         borderRadius: '0.5rem',
         border: '1px solid #f9d0e1'
