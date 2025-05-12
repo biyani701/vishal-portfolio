@@ -21,12 +21,14 @@ function isAuthRedirectError(error: unknown): error is AuthRedirectError {
 // Use the exact type signature expected by Next.js
 export async function GET(
   request: NextRequest,
-  context: { params: { provider: string } }
+  // context: { params: { provider: string } }
+  { params }: { params: { provider: string } }
 ) {
-  const { params } = context;
+  // const { params } = context;
   try {
     // Get the provider from the URL parameters
-    const { provider } = params;
+    // const { provider } = params;
+     const provider = params.provider;
 
     // Get the callback URL from the query parameters
     const searchParams = request.nextUrl.searchParams;
