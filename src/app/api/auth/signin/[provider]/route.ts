@@ -17,23 +17,14 @@ function isAuthRedirectError(error: unknown): error is AuthRedirectError {
   );
 }
 
-type RouteParams = {
-  params: {
-    provider: string;
-  }
-};
 // Custom sign-in handler for Auth.js v5
-// Use the exact type signature expected by Next.js
 export async function GET(
   request: NextRequest,
-  // context: { params: { provider: string } }
-  { params }: RouteParams
+  { params }: { params: { provider: string } }
 ) {
-  // const { params } = context;
   try {
     // Get the provider from the URL parameters
-    // const { provider } = params;
-     const provider = params.provider;
+    const provider = params.provider;
 
     // Get the callback URL from the query parameters
     const searchParams = request.nextUrl.searchParams;

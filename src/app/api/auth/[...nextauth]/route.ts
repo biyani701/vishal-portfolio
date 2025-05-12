@@ -2,7 +2,10 @@ import { GET as AuthGET, POST as AuthPOST } from "@/auth";
 import { NextRequest, NextResponse } from 'next/server';
 
 // Wrap the Auth.js handlers with CORS
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { nextauth: string[] } }
+) {
   const origin = request.headers.get('origin') || '';
 
   try {
@@ -49,7 +52,10 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { nextauth: string[] } }
+) {
   const origin = request.headers.get('origin') || '';
 
   try {
@@ -97,7 +103,10 @@ export async function POST(request: NextRequest) {
 }
 
 // Handle OPTIONS requests for preflight
-export async function OPTIONS(request: NextRequest) {
+export async function OPTIONS(
+  request: NextRequest,
+  { params }: { params: { nextauth: string[] } }
+) {
   const origin = request.headers.get('origin') || '';
 
   const response = new NextResponse(null, { status: 204 });
