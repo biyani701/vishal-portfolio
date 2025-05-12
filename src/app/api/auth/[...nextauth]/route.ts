@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(
   request: NextRequest,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  { params }: { params: { nextauth: string[] } }
+  { params }: { params: Promise<{ nextauth: string[] }> }
 ) {
   const origin = request.headers.get('origin') || '';
 
@@ -56,7 +56,7 @@ export async function GET(
 export async function POST(
   request: NextRequest,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  { params }: { params: { nextauth: string[] } }
+  { params }: { params: Promise<{ nextauth: string[] }> }
 ) {
   const origin = request.headers.get('origin') || '';
 
@@ -108,7 +108,7 @@ export async function POST(
 export async function OPTIONS(
   request: NextRequest,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  { params }: { params: { nextauth: string[] } }
+  { params }: { params: Promise<{ nextauth: string[] }> }
 ) {
   const origin = request.headers.get('origin') || '';
 

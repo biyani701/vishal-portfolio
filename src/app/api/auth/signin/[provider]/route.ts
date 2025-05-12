@@ -20,11 +20,11 @@ function isAuthRedirectError(error: unknown): error is AuthRedirectError {
 // Custom sign-in handler for Auth.js v5
 export async function GET(
   request: NextRequest,
-  { params }: { params: { provider: string } }
+  { params }: { params: Promise<{ provider: string }> }
 ) {
   try {
     // Get the provider from the URL parameters
-    const provider = params.provider;
+    const { provider } = await params;
 
     // Get the callback URL from the query parameters
     const searchParams = request.nextUrl.searchParams;
