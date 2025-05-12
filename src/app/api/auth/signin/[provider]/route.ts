@@ -29,7 +29,7 @@ export async function GET(
 
       // Create a redirect response
       return NextResponse.redirect(signInUrl);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If this is a redirect error from Auth.js, handle it
       if (error?.digest?.startsWith('NEXT_REDIRECT')) {
         console.log('[auth][signin] Handling NEXT_REDIRECT:', error.digest);
@@ -53,7 +53,7 @@ export async function GET(
         )}`, request.url)
       );
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     // If this is a redirect error from Auth.js, handle it
     if (error?.digest?.startsWith('NEXT_REDIRECT')) {
       console.log('[auth][signin] Handling NEXT_REDIRECT in outer catch:', error.digest);

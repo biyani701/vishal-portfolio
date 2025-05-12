@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
 
       // Create a redirect response
       return NextResponse.redirect(signOutUrl);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // If this is a redirect error from Auth.js, let it propagate
       if (error?.digest?.startsWith('NEXT_REDIRECT')) {
         console.log('[auth][signout] Handling NEXT_REDIRECT:', error.digest);
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
         )}`, request.url)
       );
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     // If this is a redirect error from Auth.js, let it propagate
     if (error?.digest?.startsWith('NEXT_REDIRECT')) {
       console.log('[auth][signout] Handling NEXT_REDIRECT in outer catch:', error.digest);

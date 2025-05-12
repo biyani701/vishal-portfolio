@@ -68,8 +68,8 @@ export default function AuthFlowTestPage() {
             marginTop: '0.25rem',
             marginLeft: '0.5rem'
           }}>
-            This is the URL where you'll be redirected after signing in or out.
-            For testing, it's best to set this to the current page URL.
+            This is the URL where you&apos;ll be redirected after signing in or out.
+            For testing, it&apos;s best to set this to the current page URL.
           </p>
         </div>
 

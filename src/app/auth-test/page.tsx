@@ -5,7 +5,17 @@ import Link from 'next/link';
 import AuthStatus from '@/components/auth-status';
 
 export default function AuthTestPage() {
-  const [debugInfo, setDebugInfo] = useState<any>(null);
+  // Define a proper type for the debug info
+  interface DebugInfo {
+    session: Record<string, unknown> | null;
+    environment: Record<string, unknown>;
+    authConfig: Record<string, unknown>;
+    request: Record<string, unknown>;
+    timestamp?: string;
+    [key: string]: unknown;
+  }
+
+  const [debugInfo, setDebugInfo] = useState<DebugInfo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

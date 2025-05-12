@@ -7,7 +7,7 @@ import { Express, Request, Response, NextFunction } from 'express';
 module.exports = function(app: Express): void {
   // Get the Auth.js server URL from environment variable or use a default for development
   const AUTH_SERVER_URL = process.env.REACT_APP_AUTH_SERVER_URL || 'http://localhost:4000';
-  
+
   console.log(`[Proxy] Using Auth server URL: ${AUTH_SERVER_URL}`);
 
   // Common proxy options
@@ -17,7 +17,7 @@ module.exports = function(app: Express): void {
     secure: false, // Don't verify SSL certificates
     logLevel: 'debug',
     cookieDomainRewrite: { '*': '' }, // Remove domain from cookies
-    onProxyReq: (proxyReq: any, req: Request) => {
+    onProxyReq: (proxyReq: { setHeader: (name: string, value: string) => void }, req: Request) => {
       // Add origin header for the auth server to identify the client
       const origin = req.headers.origin || `http://${req.headers.host}`;
       proxyReq.setHeader('X-Forwarded-Host', req.headers.host);
@@ -32,32 +32,36 @@ module.exports = function(app: Express): void {
         referer: req.headers.referer
       });
     },
-    onProxyRes: (proxyRes: any, req: Request) => {
+    onProxyRes: (proxyRes: {
+      statusCode: number;
+      headers: Record<string, string | string[]>;
+    }, req: Request) => {
       // Log the response for debugging
       console.log(`[Proxy] Received ${proxyRes.statusCode} for ${req.method} ${req.url}`);
-      
+
       // Add CORS headers to the response
       const origin = req.headers.origin || `http://${req.headers.host}`;
       proxyRes.headers['access-control-allow-origin'] = origin;
       proxyRes.headers['access-control-allow-methods'] = 'GET, POST, PUT, DELETE, OPTIONS';
       proxyRes.headers['access-control-allow-headers'] = 'Origin, X-Requested-With, Content-Type, Accept, Authorization';
       proxyRes.headers['access-control-allow-credentials'] = 'true';
-      
+
       // Handle cookies properly
       if (proxyRes.headers['set-cookie']) {
         const cookies = proxyRes.headers['set-cookie'];
         // Ensure cookies work across domains
-        const modifiedCookies = cookies.map((cookie: string) => {
-          return cookie
-            .replace(/Domain=[^;]+;/i, '')
-            .replace(/SameSite=[^;]+;/i, 'SameSite=Lax;');
-        });
-        proxyRes.headers['set-cookie'] = modifiedCookies;
-        
-        console.log('[Proxy] Modified cookies:', modifiedCookies);
+        if (Array.isArray(cookies)) {
+          const modifiedCookies = cookies.map((cookie: string) => {
+            return cookie
+              .replace(/Domain=[^;]+;/i, '')
+              .replace(/SameSite=[^;]+;/i, 'SameSite=Lax;');
+          });
+          proxyRes.headers['set-cookie'] = modifiedCookies;
+          console.log('[Proxy] Modified cookies:', modifiedCookies);
+        }
       }
     },
-    onError: (err: Error, req: Request, res: Response) => {
+    onError: (err: Error, _req: Request, res: Response) => {
       console.error('[Proxy] Error:', err);
       res.writeHead(500, {
         'Content-Type': 'text/plain',
