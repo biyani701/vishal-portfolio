@@ -1,3 +1,7 @@
+'use client';
+
+import Link from 'next/link';
+
 export default function SignOutPage() {
   return (
     <div style={{
@@ -29,7 +33,7 @@ export default function SignOutPage() {
       </form>
 
       <div style={{ marginTop: '1rem' }}>
-        <a href="/" style={{
+        <Link href="/" style={{
           display: 'inline-block',
           padding: '0.5rem 1rem',
           backgroundColor: '#757575',
@@ -39,7 +43,7 @@ export default function SignOutPage() {
           fontWeight: 'bold'
         }}>
           Cancel
-        </a>
+        </Link>
       </div>
     </div>
   );

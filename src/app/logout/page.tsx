@@ -8,7 +8,8 @@ export default function LogoutPage() {
   const searchParams = useSearchParams();
   // Get the callback URL from the query parameters, defaulting to the home page
   const callbackUrl = searchParams.get('callbackUrl') || '/';
-  const [isLoading, setIsLoading] = useState(true);
+  // We don't need isLoading state since we redirect immediately
+  const [, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {

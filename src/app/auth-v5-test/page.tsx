@@ -69,8 +69,8 @@ export default function AuthV5TestPage() {
             marginTop: '0.25rem',
             marginLeft: '0.5rem'
           }}>
-            This is the URL where you'll be redirected after signing in or out.
-            For testing, it's best to set this to the current page URL.
+            This is the URL where you&apos;ll be redirected after signing in or out.
+            For testing, it&apos;s best to set this to the current page URL.
           </p>
         </div>
 
@@ -209,7 +209,7 @@ export default function AuthV5TestPage() {
 
         <ul style={{ paddingLeft: '1.5rem', marginBottom: '1rem' }}>
           <li style={{ marginBottom: '0.5rem' }}>
-            <strong>Redirect Handling:</strong> Auth.js v5 uses Next.js's built-in redirect mechanism, which throws a NEXT_REDIRECT error.
+            <strong>Redirect Handling:</strong> Auth.js v5 uses Next.js&apos;s built-in redirect mechanism, which throws a NEXT_REDIRECT error.
           </li>
           <li style={{ marginBottom: '0.5rem' }}>
             <strong>Dynamic Routes:</strong> When using dynamic routes, you need to properly handle the params object.

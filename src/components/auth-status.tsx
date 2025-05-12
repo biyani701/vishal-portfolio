@@ -6,7 +6,18 @@ import Link from 'next/link';
 import SignOutButton from './sign-out-button';
 
 export default function AuthStatus() {
-  const [session, setSession] = useState<any>(null);
+  // Define a proper type for the session
+  interface UserSession {
+    user?: {
+      id?: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      provider?: string;
+    } | null;
+  }
+
+  const [session, setSession] = useState<UserSession | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

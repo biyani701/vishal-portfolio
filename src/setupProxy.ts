@@ -1,7 +1,10 @@
-// src/setupProxy.js
-const { createProxyMiddleware } = require('http-proxy-middleware');
+// src/setupProxy.ts
+import { createProxyMiddleware, RequestHandler } from 'http-proxy-middleware';
+import { Express, Request, Response, NextFunction } from 'express';
 
-module.exports = function(app) {
+// This module is used by Create React App development server
+// It's not used in production builds
+module.exports = function(app: Express): void {
   // Get the Auth.js server URL from environment variable or use a default for development
   const AUTH_SERVER_URL = process.env.REACT_APP_AUTH_SERVER_URL || 'http://localhost:4000';
   
@@ -14,7 +17,7 @@ module.exports = function(app) {
     secure: false, // Don't verify SSL certificates
     logLevel: 'debug',
     cookieDomainRewrite: { '*': '' }, // Remove domain from cookies
-    onProxyReq: (proxyReq, req, res) => {
+    onProxyReq: (proxyReq: any, req: Request) => {
       // Add origin header for the auth server to identify the client
       const origin = req.headers.origin || `http://${req.headers.host}`;
       proxyReq.setHeader('X-Forwarded-Host', req.headers.host);
@@ -29,7 +32,7 @@ module.exports = function(app) {
         referer: req.headers.referer
       });
     },
-    onProxyRes: (proxyRes, req, res) => {
+    onProxyRes: (proxyRes: any, req: Request) => {
       // Log the response for debugging
       console.log(`[Proxy] Received ${proxyRes.statusCode} for ${req.method} ${req.url}`);
       
@@ -44,7 +47,7 @@ module.exports = function(app) {
       if (proxyRes.headers['set-cookie']) {
         const cookies = proxyRes.headers['set-cookie'];
         // Ensure cookies work across domains
-        const modifiedCookies = cookies.map(cookie => {
+        const modifiedCookies = cookies.map((cookie: string) => {
           return cookie
             .replace(/Domain=[^;]+;/i, '')
             .replace(/SameSite=[^;]+;/i, 'SameSite=Lax;');
@@ -54,7 +57,7 @@ module.exports = function(app) {
         console.log('[Proxy] Modified cookies:', modifiedCookies);
       }
     },
-    onError: (err, req, res) => {
+    onError: (err: Error, req: Request, res: Response) => {
       console.error('[Proxy] Error:', err);
       res.writeHead(500, {
         'Content-Type': 'text/plain',
@@ -67,7 +70,7 @@ module.exports = function(app) {
   app.use('/api/auth', createProxyMiddleware({
     ...commonOptions,
     pathRewrite: undefined // No path rewriting for /api/auth
-  }));
+  }) as RequestHandler);
 
   // Also proxy the /auth/* path for compatibility
   app.use('/auth', createProxyMiddleware({
@@ -75,10 +78,10 @@ module.exports = function(app) {
     pathRewrite: {
       '^/auth': '/api/auth', // Rewrite /auth to /api/auth
     }
-  }));
+  }) as RequestHandler);
 
   // Handle preflight OPTIONS requests
-  app.use('/api/auth', (req, res, next) => {
+  app.use('/api/auth', (req: Request, res: Response, next: NextFunction) => {
     if (req.method === 'OPTIONS') {
       const origin = req.headers.origin || `http://${req.headers.host}`;
       res.header('Access-Control-Allow-Origin', origin);
