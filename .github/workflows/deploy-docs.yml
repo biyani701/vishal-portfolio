@@ -35,15 +35,15 @@ jobs:
           cache: npm
           cache-dependency-path: docs/package-lock.json
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v3
+#      - name: Setup Pages
+#        uses: actions/configure-pages@v3
 
       - name: Install dependencies
         run: |
           cd docs
           npm ci
 
-      - name: Build website
+      - name: Build Docusaurus
         run: |
           cd docs
           npm run build
