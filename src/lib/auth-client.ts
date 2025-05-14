@@ -13,7 +13,7 @@
 export async function signIn(provider: string, options?: { redirectTo?: string }) {
   try {
     // Validate the provider
-    if (!provider || !['google', 'github'].includes(provider)) {
+    if (!provider || !['google', 'github', 'facebook', 'linkedin', 'auth0'].includes(provider)) {
       throw new Error(`Invalid provider: ${provider}`);
     }
 

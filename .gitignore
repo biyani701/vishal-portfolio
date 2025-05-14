@@ -1,5 +1,5 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
+*.docx
 # dependencies
 /node_modules
 /.pnp
@@ -39,3 +39,27 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Docusaurus
+/docs/node_modules
+/docs/.docusaurus
+/docs/build
+/docs/.cache-loader
+/docs/.env*
+
+# Duplicate project directory (if it exists in the same workspace)
+/my-auth-backend/
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.temp
+.DS_Store
+
+# Log files
+*.log

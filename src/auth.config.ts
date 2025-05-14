@@ -1,18 +1,135 @@
 import type { NextAuthConfig } from "next-auth";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
+import Facebook from "next-auth/providers/facebook";
+import LinkedIn from "next-auth/providers/linkedin";
+import Auth0Provider from "next-auth/providers/auth0";
 
-export const authConfig: NextAuthConfig = {
-  providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
-    GitHub({
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    }),
-  ],
+/**
+ * @fileoverview Auth.js configuration for multi-client support
+ *
+ * This file contains the configuration for Auth.js with support for multiple clients.
+ * It provides functions to identify clients based on their origin and to select
+ * the appropriate OAuth credentials for each client.
+ *
+ * @module auth.config
+ */
+
+/**
+ * Enum representing different client identifiers
+ * Used to map origins to specific client configurations
+ *
+ * @enum {string}
+ */
+export enum ClientId {
+  /** Default client when no specific client is identified */
+  DEFAULT = 'default',
+  /** Client 1 - typically running on localhost:3001 in development */
+  CLIENT1 = 'client1',
+  /** Client 2 - typically running on localhost:3002 in development */
+  CLIENT2 = 'client2',
+  /** Portfolio client - running on GitHub Pages or vishal.biyani.xyz */
+  PORTFOLIO = 'portfolio'
+}
+
+/**
+ * Identifies the client based on the request origin
+ *
+ * @param {string} [origin] - The origin header from the request
+ * @returns {ClientId} The identified client ID
+ *
+ * @example
+ * // Returns ClientId.PORTFOLIO
+ * identifyClient('https://vishal.biyani.xyz')
+ *
+ * @example
+ * // Returns ClientId.CLIENT1
+ * identifyClient('http://localhost:3001')
+ */
+export const identifyClient = (origin?: string): ClientId => {
+  if (!origin) return ClientId.DEFAULT;
+
+  // Map origins to client IDs
+  if (origin.includes('client1.com') || origin.includes('localhost:3001')) {
+    return ClientId.CLIENT1;
+  } else if (origin.includes('client2.com') || origin.includes('localhost:3002')) {
+    return ClientId.CLIENT2;
+  } else if (origin.includes('vishal.biyani.xyz') || origin.includes('github.io')) {
+    return ClientId.PORTFOLIO;
+  }
+
+  // Default fallback
+  return ClientId.DEFAULT;
+};
+
+// Helper function to get OAuth credentials based on origin
+export const getProviderCredentials = (origin?: string) => {
+  const clientId = identifyClient(origin);
+
+  // Get GitHub credentials based on client ID
+  let githubClientId: string;
+  let githubClientSecret: string;
+
+  switch (clientId) {
+    case ClientId.CLIENT1:
+      githubClientId = process.env.GITHUB_CLIENT_ID_CLIENT1!;
+      githubClientSecret = process.env.GITHUB_CLIENT_SECRET_CLIENT1!;
+      break;
+    case ClientId.CLIENT2:
+      githubClientId = process.env.GITHUB_CLIENT_ID_CLIENT2!;
+      githubClientSecret = process.env.GITHUB_CLIENT_SECRET_CLIENT2!;
+      break;
+    case ClientId.PORTFOLIO:
+      githubClientId = process.env.GITHUB_CLIENT_ID_PORTFOLIO!;
+      githubClientSecret = process.env.GITHUB_CLIENT_SECRET_PORTFOLIO!;
+      break;
+    default:
+      githubClientId = process.env.GITHUB_CLIENT_ID_DEFAULT!;
+      githubClientSecret = process.env.GITHUB_CLIENT_SECRET_DEFAULT!;
+  }
+
+  // Log which client credentials we're using (in development only)
+  if (process.env.NODE_ENV === 'development') {
+    console.log(`[auth] Using ${clientId} GitHub credentials for origin: ${origin || 'unknown'}`);
+  }
+
+  return {
+    // GitHub credentials
+    githubClientId,
+    githubClientSecret,
+
+    // Google credentials
+    googleClientId: process.env.GOOGLE_CLIENT_ID!,
+    googleClientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+
+    // Facebook credentials
+    facebookClientId: process.env.FACEBOOK_CLIENT_ID!,
+    facebookClientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+
+    // LinkedIn credentials
+    linkedinClientId: process.env.LINKEDIN_CLIENT_ID!,
+    linkedinClientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
+
+    // Auth0 credentials
+    auth0ClientId: process.env.AUTH0_CLIENT_ID!,
+    auth0ClientSecret: process.env.AUTH0_CLIENT_SECRET!,
+    auth0Issuer: process.env.AUTH0_ISSUER!,
+
+    // Return the identified client ID for reference
+    clientId: clientId
+  };
+};
+
+// Helper function to check if a user is authorized for debug access
+const isAuthorizedForDebug = (email?: string | null): boolean => {
+  if (!email) return false;
+
+  const authorizedEmails = process.env.AUTHORIZED_DEBUG_EMAILS?.split(',') || [];
+  return authorizedEmails.includes(email);
+};
+
+// Base configuration without providers (providers will be added dynamically)
+export const baseAuthConfig: Omit<NextAuthConfig, "providers"> = {
   pages: {
     signIn: "/login",
     error: "/auth-error",
@@ -24,7 +141,17 @@ export const authConfig: NextAuthConfig = {
       const isLoggedIn = !!auth?.user;
       const isOnProtectedPage = nextUrl.pathname.startsWith("/protected");
       const isOnProfilePage = nextUrl.pathname.startsWith("/profile");
+      const isOnDebugPage = nextUrl.pathname.startsWith("/protected/debug");
 
+      // Special handling for debug page - only authorized users
+      if (isOnDebugPage) {
+        if (isLoggedIn && isAuthorizedForDebug(auth.user.email)) {
+          return true;
+        }
+        return false; // Redirect to login page
+      }
+
+      // Regular protected pages
       if (isOnProtectedPage || isOnProfilePage) {
         if (isLoggedIn) return true;
         return false; // Redirect to login page
@@ -32,13 +159,20 @@ export const authConfig: NextAuthConfig = {
 
       return true;
     },
-    jwt({ token, user, account }) {
+    jwt({ token, user, account, profile }) {
       // Initial sign in
       if (account && user) {
+        // Get the client ID from the account if available
+        const clientId = account.clientOrigin
+          ? identifyClient(account.clientOrigin as string)
+          : ClientId.DEFAULT;
+
         return {
           ...token,
           userId: user.id,
           provider: account.provider,
+          clientOrigin: account.clientOrigin as string | undefined,
+          clientId: clientId
         };
       }
       return token;
@@ -47,8 +181,109 @@ export const authConfig: NextAuthConfig = {
       if (token && session.user) {
         session.user.id = token.userId as string;
         session.user.provider = token.provider as string;
+
+        // Add client information to the session
+        session.user.clientOrigin = token.clientOrigin as string | undefined;
+        session.user.clientId = token.clientId as string | undefined;
       }
       return session;
     },
   },
 };
+
+// Create the full config with providers based on context
+export const createAuthConfig = (origin?: string): NextAuthConfig => {
+  const {
+    githubClientId,
+    githubClientSecret,
+    googleClientId,
+    googleClientSecret,
+    facebookClientId,
+    facebookClientSecret,
+    linkedinClientId,
+    linkedinClientSecret,
+    auth0ClientId,
+    auth0ClientSecret,
+    auth0Issuer
+  } = getProviderCredentials(origin);
+
+  return {
+    ...baseAuthConfig,
+    providers: [
+      Google({
+        clientId: googleClientId,
+        clientSecret: googleClientSecret,
+      }),
+      GitHub({
+        clientId: githubClientId,
+        clientSecret: githubClientSecret,
+      }),
+      Facebook({
+        clientId: facebookClientId,
+        clientSecret: facebookClientSecret,
+      }),
+      LinkedIn({
+        clientId: linkedinClientId,
+        clientSecret: linkedinClientSecret,
+      }),
+      Auth0Provider({
+        clientId: auth0ClientId,
+        clientSecret: auth0ClientSecret,
+        issuer: auth0Issuer,
+      }),
+    ],
+  };
+};
+
+export const authConfig = createAuthConfig();
+
+// export const authConfig: NextAuthConfig = {
+//   providers: [
+//     Google({
+//       clientId: process.env.GOOGLE_CLIENT_ID!,
+//       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+//     }),
+//     GitHub({
+//       clientId: process.env.GITHUB_CLIENT_ID!,
+//       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+//     }),
+//   ],
+//   pages: {
+//     signIn: "/login",
+//     error: "/auth-error",
+//   },
+//   debug: process.env.NODE_ENV === 'development',
+//   trustHost: true,
+//   callbacks: {
+//     authorized({ auth, request: { nextUrl } }) {
+//       const isLoggedIn = !!auth?.user;
+//       const isOnProtectedPage = nextUrl.pathname.startsWith("/protected");
+//       const isOnProfilePage = nextUrl.pathname.startsWith("/profile");
+
+//       if (isOnProtectedPage || isOnProfilePage) {
+//         if (isLoggedIn) return true;
+//         return false; // Redirect to login page
+//       }
+
+//       return true;
+//     },
+//     jwt({ token, user, account }) {
+//       // Initial sign in
+//       if (account && user) {
+//         return {
+//           ...token,
+//           userId: user.id,
+//           provider: account.provider,
+//         };
+//       }
+//       return token;
+//     },
+//     session({ session, token }) {
+//       if (token && session.user) {
+//         session.user.id = token.userId as string;
+//         session.user.provider = token.provider as string;
+//       }
+//       return session;
+//     },
+//   },
+// };
