@@ -59,6 +59,12 @@ const createDynamicHandler = (origin?: string | null) => {
   // Create dynamic config based on origin
   const dynamicAuthConfig = createAuthConfig(origin || undefined);
 
+  // Ensure we have a valid NEXTAUTH_URL
+  const nextAuthUrl = process.env.NEXTAUTH_URL ||
+                     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:4000');
+
+  console.log(`[auth] Using NEXTAUTH_URL: ${nextAuthUrl}`);
+
   // Create the Auth.js handler with dynamic config
   return NextAuth({
     ...dynamicAuthConfig,
@@ -73,6 +79,7 @@ const createDynamicHandler = (origin?: string | null) => {
           sameSite: 'none',
           path: '/',
           secure: true,
+          domain: process.env.COOKIE_DOMAIN,
         }
       },
       callbackUrl: {
@@ -82,6 +89,7 @@ const createDynamicHandler = (origin?: string | null) => {
           sameSite: 'none',
           path: '/',
           secure: true,
+          domain: process.env.COOKIE_DOMAIN,
         }
       },
       csrfToken: {
@@ -91,6 +99,7 @@ const createDynamicHandler = (origin?: string | null) => {
           sameSite: 'none',
           path: '/',
           secure: true,
+          domain: process.env.COOKIE_DOMAIN,
         }
       }
     },
@@ -154,6 +163,7 @@ const handler = NextAuth({
         sameSite: 'none',
         path: '/',
         secure: true,
+        domain: process.env.COOKIE_DOMAIN,
       }
     },
     callbackUrl: {
@@ -163,6 +173,7 @@ const handler = NextAuth({
         sameSite: 'none',
         path: '/',
         secure: true,
+        domain: process.env.COOKIE_DOMAIN,
       }
     },
     csrfToken: {
@@ -172,6 +183,7 @@ const handler = NextAuth({
         sameSite: 'none',
         path: '/',
         secure: true,
+        domain: process.env.COOKIE_DOMAIN,
       }
     }
   }

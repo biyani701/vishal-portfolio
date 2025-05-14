@@ -38,8 +38,12 @@ export async function GET(
     }
 
     try {
+      // Ensure we have a valid callback URL
+      const validCallbackUrl = callbackUrl || '/';
+
       // Get the sign-in URL from Auth.js v5
-      const signInUrl = await signIn(provider, { redirectTo: callbackUrl });
+      console.log(`[auth][signin] Calling signIn with provider: ${provider}, redirectTo: ${validCallbackUrl}`);
+      const signInUrl = await signIn(provider, { redirectTo: validCallbackUrl });
 
       console.log(`[auth][signin] Redirecting to: ${signInUrl}`);
 

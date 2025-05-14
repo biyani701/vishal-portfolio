@@ -17,15 +17,16 @@ const config = {
   },
 
   // Set the production url of your site here
-  url: 'https://vishal.biyani.xyz',
+  url: 'https://biyani701.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/auth-docs/',
+  baseUrl: '/my-oauth-proxy/',
 
   // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
   organizationName: 'biyani701', // Usually your GitHub org/user name.
   projectName: 'my-oauth-proxy', // Usually your repo name.
+  trailingSlash: false,
+  deploymentBranch: 'gh-pages',
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -49,9 +50,9 @@ const config = {
           // Remove this to remove the "edit this page" links.
           editUrl:
             'https://github.com/biyani701/my-oauth-proxy/tree/main/docs/',
-          // remarkPlugins: [require('mdx-mermaid')],   
-          
-          
+          // remarkPlugins: [require('mdx-mermaid')],
+
+
         },
         blog: {
           showReadingTime: true,

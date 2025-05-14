@@ -33,11 +33,26 @@ The built site will be in the `build` directory.
 
 ## Deployment
 
-The documentation site can be deployed to GitHub Pages:
+### Manual Deployment
+
+The documentation site can be manually deployed to GitHub Pages:
 
 ```bash
 npm run deploy
 ```
+
+### Automated Deployment with GitHub Actions
+
+This repository is configured to automatically deploy the documentation to GitHub Pages when changes are pushed to the `main` branch. The deployment is handled by a GitHub Actions workflow defined in `.github/workflows/deploy-docs.yml`.
+
+To trigger a manual deployment:
+
+1. Go to the GitHub repository
+2. Navigate to the "Actions" tab
+3. Select the "Deploy Docusaurus to GitHub Pages" workflow
+4. Click "Run workflow"
+
+The documentation will be deployed to: https://biyani701.github.io/my-oauth-proxy/
 
 ## Project Structure
 
