@@ -43,6 +43,9 @@ export default function AuthV5TestPage() {
             >
               <option value="google">Google</option>
               <option value="github">GitHub</option>
+              <option value="facebook">Facebook</option>
+              <option value="linkedin">LinkedIn</option>
+              <option value="auth0">Auth0</option>
             </select>
           </label>
         </div>
@@ -153,6 +156,30 @@ export default function AuthV5TestPage() {
             </span>
           </li>
           <li style={{ marginBottom: '0.5rem' }}>
+            <a href="/api/auth/signin/facebook" target="_blank" rel="noopener noreferrer">
+              /api/auth/signin/facebook
+            </a>
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
+              - Facebook sign-in
+            </span>
+          </li>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <a href="/api/auth/signin/linkedin" target="_blank" rel="noopener noreferrer">
+              /api/auth/signin/linkedin
+            </a>
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
+              - LinkedIn sign-in
+            </span>
+          </li>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <a href="/api/auth/signin/auth0" target="_blank" rel="noopener noreferrer">
+              /api/auth/signin/auth0
+            </a>
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
+              - Auth0 sign-in
+            </span>
+          </li>
+          <li style={{ marginBottom: '0.5rem' }}>
             <a href="/api/auth/signout" target="_blank" rel="noopener noreferrer">
               /api/auth/signout
             </a>
@@ -190,6 +217,30 @@ export default function AuthV5TestPage() {
             </a>
             <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
               - GitHub OAuth callback
+            </span>
+          </li>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <a href="/api/auth/callback/facebook" target="_blank" rel="noopener noreferrer">
+              /api/auth/callback/facebook
+            </a>
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
+              - Facebook OAuth callback
+            </span>
+          </li>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <a href="/api/auth/callback/linkedin" target="_blank" rel="noopener noreferrer">
+              /api/auth/callback/linkedin
+            </a>
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
+              - LinkedIn OAuth callback
+            </span>
+          </li>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <a href="/api/auth/callback/auth0" target="_blank" rel="noopener noreferrer">
+              /api/auth/callback/auth0
+            </a>
+            <span style={{ marginLeft: '0.5rem', fontSize: '0.85rem', color: '#666' }}>
+              - Auth0 OAuth callback
             </span>
           </li>
         </ul>

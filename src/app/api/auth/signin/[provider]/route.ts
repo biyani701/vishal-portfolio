@@ -33,7 +33,7 @@ export async function GET(
     console.log(`[auth][signin] Provider: ${provider}, CallbackUrl: ${callbackUrl}`);
 
     // Validate the provider
-    if (!provider || !['google', 'github'].includes(provider)) {
+    if (!provider || !['google', 'github', 'facebook', 'linkedin', 'auth0'].includes(provider)) {
       return NextResponse.redirect(new URL(`/auth-error?error=InvalidProvider&provider=${provider}`, request.url));
     }
 

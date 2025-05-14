@@ -36,9 +36,9 @@ declare module "next-auth" {
 }
 
 // Helper function to get the request origin from headers
-const getOriginFromRequest = () => {
+const getOriginFromRequest = async () => {
   try {
-    const headersList = headers();
+    const headersList = await headers();
     // Check for origin header first
     const origin = headersList.get("origin");
     if (origin) return origin;
@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
 // Create an auth function for use in server components
 export async function auth() {
   // For server components, we need to use the headers() API
-  const origin = getOriginFromRequest();
+  const origin = await getOriginFromRequest();
 
   // Create the Auth.js handler with dynamic config
   const handler = createDynamicHandler(origin);

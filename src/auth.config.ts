@@ -159,7 +159,7 @@ export const baseAuthConfig: Omit<NextAuthConfig, "providers"> = {
 
       return true;
     },
-    jwt({ token, user, account, profile }) {
+    jwt({ token, user, account }) {
       // Initial sign in
       if (account && user) {
         // Get the client ID from the account if available

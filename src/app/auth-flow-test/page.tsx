@@ -42,6 +42,9 @@ export default function AuthFlowTestPage() {
             >
               <option value="google">Google</option>
               <option value="github">GitHub</option>
+              <option value="facebook">Facebook</option>
+              <option value="linkedin">LinkedIn</option>
+              <option value="auth0">Auth0</option>
             </select>
           </label>
         </div>
@@ -128,6 +131,21 @@ export default function AuthFlowTestPage() {
           <li style={{ marginBottom: '0.5rem' }}>
             <a href="/api/auth/signin/github" target="_blank" rel="noopener noreferrer">
               /api/auth/signin/github
+            </a>
+          </li>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <a href="/api/auth/signin/facebook" target="_blank" rel="noopener noreferrer">
+              /api/auth/signin/facebook
+            </a>
+          </li>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <a href="/api/auth/signin/linkedin" target="_blank" rel="noopener noreferrer">
+              /api/auth/signin/linkedin
+            </a>
+          </li>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <a href="/api/auth/signin/auth0" target="_blank" rel="noopener noreferrer">
+              /api/auth/signin/auth0
             </a>
           </li>
           <li style={{ marginBottom: '0.5rem' }}>

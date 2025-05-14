@@ -123,7 +123,7 @@ export default function AuthTestPage() {
         )}
       </div>
 
-      <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
+      <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
         <button
           onClick={async () => {
             try {
@@ -168,6 +168,75 @@ export default function AuthTestPage() {
           }}
         >
           Sign In with GitHub
+        </button>
+
+        <button
+          onClick={async () => {
+            try {
+              // Import the signIn function from our client-side auth utility
+              const { signIn } = await import('@/lib/auth-client');
+              await signIn('facebook', { redirectTo: window.location.href });
+            } catch (err) {
+              console.error('Error signing in with Facebook:', err);
+              alert('Error signing in with Facebook: ' + (err instanceof Error ? err.message : 'Unknown error'));
+            }
+          }}
+          style={{
+            padding: '0.5rem 1rem',
+            backgroundColor: '#1877F2',
+            color: 'white',
+            border: 'none',
+            borderRadius: '0.25rem',
+            cursor: 'pointer'
+          }}
+        >
+          Sign In with Facebook
+        </button>
+
+        <button
+          onClick={async () => {
+            try {
+              // Import the signIn function from our client-side auth utility
+              const { signIn } = await import('@/lib/auth-client');
+              await signIn('linkedin', { redirectTo: window.location.href });
+            } catch (err) {
+              console.error('Error signing in with LinkedIn:', err);
+              alert('Error signing in with LinkedIn: ' + (err instanceof Error ? err.message : 'Unknown error'));
+            }
+          }}
+          style={{
+            padding: '0.5rem 1rem',
+            backgroundColor: '#0077B5',
+            color: 'white',
+            border: 'none',
+            borderRadius: '0.25rem',
+            cursor: 'pointer'
+          }}
+        >
+          Sign In with LinkedIn
+        </button>
+
+        <button
+          onClick={async () => {
+            try {
+              // Import the signIn function from our client-side auth utility
+              const { signIn } = await import('@/lib/auth-client');
+              await signIn('auth0', { redirectTo: window.location.href });
+            } catch (err) {
+              console.error('Error signing in with Auth0:', err);
+              alert('Error signing in with Auth0: ' + (err instanceof Error ? err.message : 'Unknown error'));
+            }
+          }}
+          style={{
+            padding: '0.5rem 1rem',
+            backgroundColor: '#EB5424',
+            color: 'white',
+            border: 'none',
+            borderRadius: '0.25rem',
+            cursor: 'pointer'
+          }}
+        >
+          Sign In with Auth0
         </button>
       </div>
     </div>

@@ -7,11 +7,11 @@ export default async function Home() {
   return (
     <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
       <h1 style={{ fontSize: '2.5rem', marginBottom: '1.5rem' }}>
-        OAuth Provider for Google and GitHub
+        OAuth Provider for Google, GitHub, Faacebook, X, Auth0
       </h1>
 
-      <p style={{ fontSize: '1.2rem', marginBottom: '2rem', lineHeight: '1.6' }}>
-        This is a simple OAuth provider that allows you to authenticate with Google and GitHub.
+      <p style={{ fontSize: '1.2rem', marginBottom: '2rem', lineHeight: '1.6', textAlign: 'left' }}>
+        This is a simple OAuth provider that allows you to authenticate with Google, GitHub, Faacebook, X and Auth0.
         It can be used for authentication in GitHub Pages or any other static site.
       </p>
 
