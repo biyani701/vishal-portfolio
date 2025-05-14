@@ -8,8 +8,8 @@ export async function middleware(request: NextRequest) {
 
   // Handle CORS for all routes, not just API routes
   const origin = request.headers.get('origin') || '';
+  
   // For debugging: Allow any origin (not recommended for production)
-
   // Handle preflight requests for all routes
   if (request.method === 'OPTIONS') {
     const response = new NextResponse(null, { status: 204 });
