@@ -33,14 +33,6 @@ The built site will be in the `build` directory.
 
 ## Deployment
 
-### Manual Deployment
-
-The documentation site can be manually deployed to GitHub Pages:
-
-```bash
-npm run deploy
-```
-
 ### Automated Deployment with GitHub Actions
 
 This repository is configured to automatically deploy the documentation to GitHub Pages when changes are pushed to the `main` branch. The deployment is handled by a GitHub Actions workflow defined in `.github/workflows/deploy-docs.yml`.
@@ -53,6 +45,18 @@ To trigger a manual deployment:
 4. Click "Run workflow"
 
 The documentation will be deployed to: https://biyani701.github.io/my-oauth-proxy/
+
+### GitHub Pages Configuration
+
+For this deployment to work, you need to configure GitHub Pages in your repository settings:
+
+1. Go to your repository on GitHub
+2. Navigate to "Settings" > "Pages"
+3. Under "Build and deployment":
+   - Source: Select "GitHub Actions"
+   - This will use the workflow file we've created
+
+No need to manually select a branch or directory - the GitHub Actions workflow handles everything automatically.
 
 ## Project Structure
 

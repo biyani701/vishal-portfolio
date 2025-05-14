@@ -245,9 +245,16 @@ export const createAuthConfig = (origin?: string): NextAuthConfig => {
       Auth0Provider({
         clientId: auth0ClientId,
         clientSecret: auth0ClientSecret,
-        issuer: auth0Issuer,
+        // Ensure the issuer URL has https:// prefix
+        issuer: auth0Issuer && auth0Issuer.startsWith('https://')
+          ? auth0Issuer
+          : `https://${auth0Issuer}`,
         // Explicitly define the well-known configuration endpoints
-        wellKnown: auth0Issuer ? `${auth0Issuer}/.well-known/openid-configuration` : undefined,
+        wellKnown: auth0Issuer
+          ? (auth0Issuer.startsWith('https://')
+              ? `${auth0Issuer}/.well-known/openid-configuration`
+              : `https://${auth0Issuer}/.well-known/openid-configuration`)
+          : undefined,
         // Add explicit authorization and token endpoints
         authorization: { params: { scope: "openid email profile" } },
       }),

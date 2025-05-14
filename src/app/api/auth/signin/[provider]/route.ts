@@ -47,6 +47,20 @@ export async function GET(
         console.log(`[auth][signin][auth0] AUTH0_ISSUER: ${process.env.AUTH0_ISSUER || 'not set'}`);
         console.log(`[auth][signin][auth0] AUTH0_CLIENT_ID: ${process.env.AUTH0_CLIENT_ID ? 'set' : 'not set'}`);
         console.log(`[auth][signin][auth0] AUTH0_CLIENT_SECRET: ${process.env.AUTH0_CLIENT_SECRET ? 'set' : 'not set'}`);
+
+        // Log the actual issuer URL that will be used (with https:// prefix if needed)
+        const issuerUrl = process.env.AUTH0_ISSUER && process.env.AUTH0_ISSUER.startsWith('https://')
+          ? process.env.AUTH0_ISSUER
+          : `https://${process.env.AUTH0_ISSUER || ''}`;
+        console.log(`[auth][signin][auth0] Actual issuer URL to be used: ${issuerUrl}`);
+
+        // Log the well-known configuration URL
+        const wellKnownUrl = process.env.AUTH0_ISSUER
+          ? (process.env.AUTH0_ISSUER.startsWith('https://')
+              ? `${process.env.AUTH0_ISSUER}/.well-known/openid-configuration`
+              : `https://${process.env.AUTH0_ISSUER}/.well-known/openid-configuration`)
+          : 'not available';
+        console.log(`[auth][signin][auth0] Well-known configuration URL: ${wellKnownUrl}`);
       }
 
       // Get the sign-in URL from Auth.js v5

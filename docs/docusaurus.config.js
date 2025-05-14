@@ -26,7 +26,9 @@ const config = {
   organizationName: 'biyani701', // Usually your GitHub org/user name.
   projectName: 'my-oauth-proxy', // Usually your repo name.
   trailingSlash: false,
-  deploymentBranch: 'gh-pages',
+
+  // Don't specify deploymentBranch with the new GitHub Pages deployment method
+  // deploymentBranch: 'gh-pages',
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
