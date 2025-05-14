@@ -62,6 +62,23 @@ AUTH_SECRET="your-auth-secret-here"
 GITHUB_CLIENT_ID_DEFAULT="default-github-client-id"
 GITHUB_CLIENT_SECRET_DEFAULT="default-github-client-secret"
 
+# Google OAuth credentials
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
+
+# Facebook OAuth credentials
+FACEBOOK_CLIENT_ID="your-facebook-client-id"
+FACEBOOK_CLIENT_SECRET="your-facebook-client-secret"
+
+# LinkedIn OAuth credentials
+LINKEDIN_CLIENT_ID="your-linkedin-client-id"
+LINKEDIN_CLIENT_SECRET="your-linkedin-client-secret"
+
+# Auth0 credentials
+AUTH0_CLIENT_ID="your-auth0-client-id"
+AUTH0_CLIENT_SECRET="your-auth0-client-secret"
+AUTH0_ISSUER="your-auth0-issuer-url"
+
 # Client 1 specific GitHub credentials
 GITHUB_CLIENT_ID_CLIENT1="client1-github-client-id"
 GITHUB_CLIENT_SECRET_CLIENT1="client1-github-client-secret"
@@ -94,6 +111,9 @@ This file contains the configuration for Auth.js, including client identificatio
 import type { NextAuthConfig } from "next-auth";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
+import Facebook from "next-auth/providers/facebook";
+import LinkedIn from "next-auth/providers/linkedin";
+import Auth0Provider from "next-auth/providers/auth0";
 
 /**
  * Enum representing different client identifiers
@@ -110,7 +130,7 @@ export enum ClientId {
  */
 export const identifyClient = (origin?: string): ClientId => {
   if (!origin) return ClientId.DEFAULT;
-  
+
   if (origin.includes('client1.com') || origin.includes('localhost:3001')) {
     return ClientId.CLIENT1;
   } else if (origin.includes('client2.com') || origin.includes('localhost:3002')) {
@@ -118,18 +138,18 @@ export const identifyClient = (origin?: string): ClientId => {
   } else if (origin.includes('vishal.biyani.xyz') || origin.includes('github.io')) {
     return ClientId.PORTFOLIO;
   }
-  
+
   return ClientId.DEFAULT;
 };
 
 // Helper function to get OAuth credentials based on origin
 export const getProviderCredentials = (origin?: string) => {
   const clientId = identifyClient(origin);
-  
+
   // Get GitHub credentials based on client ID
   let githubClientId: string;
   let githubClientSecret: string;
-  
+
   switch (clientId) {
     case ClientId.CLIENT1:
       githubClientId = process.env.GITHUB_CLIENT_ID_CLIENT1!;
@@ -147,12 +167,30 @@ export const getProviderCredentials = (origin?: string) => {
       githubClientId = process.env.GITHUB_CLIENT_ID_DEFAULT!;
       githubClientSecret = process.env.GITHUB_CLIENT_SECRET_DEFAULT!;
   }
-  
+
   return {
+    // GitHub credentials
     githubClientId,
     githubClientSecret,
+
+    // Google credentials
     googleClientId: process.env.GOOGLE_CLIENT_ID!,
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+
+    // Facebook credentials
+    facebookClientId: process.env.FACEBOOK_CLIENT_ID!,
+    facebookClientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+
+    // LinkedIn credentials
+    linkedinClientId: process.env.LINKEDIN_CLIENT_ID!,
+    linkedinClientSecret: process.env.LINKEDIN_CLIENT_SECRET!,
+
+    // Auth0 credentials
+    auth0ClientId: process.env.AUTH0_CLIENT_ID!,
+    auth0ClientSecret: process.env.AUTH0_CLIENT_SECRET!,
+    auth0Issuer: process.env.AUTH0_ISSUER!,
+
+    // Return the identified client ID for reference
     clientId: clientId
   };
 };
@@ -164,9 +202,20 @@ export const baseAuthConfig: Omit<NextAuthConfig, "providers"> = {
 
 // Create the full config with providers based on context
 export const createAuthConfig = (origin?: string): NextAuthConfig => {
-  const { githubClientId, githubClientSecret, googleClientId, googleClientSecret } = 
-    getProviderCredentials(origin);
-  
+  const {
+    githubClientId,
+    githubClientSecret,
+    googleClientId,
+    googleClientSecret,
+    facebookClientId,
+    facebookClientSecret,
+    linkedinClientId,
+    linkedinClientSecret,
+    auth0ClientId,
+    auth0ClientSecret,
+    auth0Issuer
+  } = getProviderCredentials(origin);
+
   return {
     ...baseAuthConfig,
     providers: [
@@ -177,6 +226,19 @@ export const createAuthConfig = (origin?: string): NextAuthConfig => {
       GitHub({
         clientId: githubClientId,
         clientSecret: githubClientSecret,
+      }),
+      Facebook({
+        clientId: facebookClientId,
+        clientSecret: facebookClientSecret,
+      }),
+      LinkedIn({
+        clientId: linkedinClientId,
+        clientSecret: linkedinClientSecret,
+      }),
+      Auth0Provider({
+        clientId: auth0ClientId,
+        clientSecret: auth0ClientSecret,
+        issuer: auth0Issuer,
       }),
     ],
   };

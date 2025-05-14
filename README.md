@@ -1,11 +1,15 @@
-# OAuth Provider for Google and GitHub
+# OAuth Provider for Multiple Authentication Providers
 
-A customized OAuth provider built with Next.js and Auth.js v5 that supports Google and GitHub authentication. This server can be deployed on Vercel and used for authentication in GitHub Pages or other static sites.
+A customized OAuth provider built with Next.js and Auth.js v5 that supports Google, GitHub, Facebook, LinkedIn, and Auth0 authentication. This server can be deployed on Vercel and used for authentication in GitHub Pages or other static sites.
 
 ## Features
 
 - Google OAuth authentication
 - GitHub OAuth authentication
+- Facebook OAuth authentication
+- LinkedIn OAuth authentication
+- Auth0 authentication
+- Multi-client support (different OAuth credentials per client)
 - Cross-origin authentication support
 - JWT-based session management
 - Protected routes
@@ -16,8 +20,12 @@ A customized OAuth provider built with Next.js and Auth.js v5 that supports Goog
 ## Prerequisites
 
 - Node.js 18.x or later
-- A Google OAuth client ID and secret
-- A GitHub OAuth client ID and secret
+- OAuth credentials for the providers you want to use:
+  - Google OAuth client ID and secret
+  - GitHub OAuth client ID and secret
+  - Facebook OAuth client ID and secret
+  - LinkedIn OAuth client ID and secret
+  - Auth0 client ID, client secret, and issuer URL
 
 ## Setup
 
@@ -44,9 +52,22 @@ AUTH_SECRET=your_auth_secret_here
 GOOGLE_CLIENT_ID=your_google_client_id
 GOOGLE_CLIENT_SECRET=your_google_client_secret
 
-# GitHub OAuth credentials
-GITHUB_CLIENT_ID=your_github_client_id
-GITHUB_CLIENT_SECRET=your_github_client_secret
+# GitHub OAuth credentials (default)
+GITHUB_CLIENT_ID_DEFAULT=your_github_client_id
+GITHUB_CLIENT_SECRET_DEFAULT=your_github_client_secret
+
+# Facebook OAuth credentials
+FACEBOOK_CLIENT_ID=your_facebook_client_id
+FACEBOOK_CLIENT_SECRET=your_facebook_client_secret
+
+# LinkedIn OAuth credentials
+LINKEDIN_CLIENT_ID=your_linkedin_client_id
+LINKEDIN_CLIENT_SECRET=your_linkedin_client_secret
+
+# Auth0 credentials
+AUTH0_CLIENT_ID=your_auth0_client_id
+AUTH0_CLIENT_SECRET=your_auth0_client_secret
+AUTH0_ISSUER=your_auth0_issuer_url
 
 # URLs
 NEXTAUTH_URL=http://localhost:4000
@@ -103,6 +124,9 @@ For a client running on a different origin (e.g., localhost:3000 or GitHub Pages
    ```
    https://my-oauth-proxy.vercel.app/api/auth/signin/google
    https://my-oauth-proxy.vercel.app/api/auth/signin/github
+   https://my-oauth-proxy.vercel.app/api/auth/signin/facebook
+   https://my-oauth-proxy.vercel.app/api/auth/signin/linkedin
+   https://my-oauth-proxy.vercel.app/api/auth/signin/auth0
    ```
 
 2. **Session Endpoint** (to check if user is authenticated):
@@ -120,6 +144,7 @@ For a client running on a different origin (e.g., localhost:3000 or GitHub Pages
 ```javascript
 // Example sign-in function for a React client
 function handleSignIn(provider) {
+  // provider can be 'google', 'github', 'facebook', 'linkedin', or 'auth0'
   const callbackUrl = encodeURIComponent(window.location.origin);
   const signInUrl = `https://my-oauth-proxy.vercel.app/api/auth/signin/${provider}?callbackUrl=${callbackUrl}`;
   window.location.href = signInUrl;

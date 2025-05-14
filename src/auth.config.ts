@@ -56,6 +56,9 @@ export const identifyClient = (origin?: string): ClientId => {
     return ClientId.CLIENT2;
   } else if (origin.includes('vishal.biyani.xyz') || origin.includes('github.io')) {
     return ClientId.PORTFOLIO;
+  } else if (origin.includes('my-oauth-proxy.vercel.app')) {
+    // Vercel deployment domain
+    return ClientId.DEFAULT;
   }
 
   // Default fallback

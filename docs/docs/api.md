@@ -18,7 +18,7 @@ This page documents the API endpoints and functions available in the Auth.js Mul
 Initiates the sign-in process with the specified OAuth provider.
 
 **Parameters:**
-- `provider` (path parameter): The OAuth provider to use (e.g., `github`, `google`)
+- `provider` (path parameter): The OAuth provider to use (e.g., `github`, `google`, `facebook`, `linkedin`, `auth0`)
 - `callbackUrl` (query parameter): The URL to redirect to after successful authentication
 
 **Example:**
@@ -89,7 +89,7 @@ Displays authentication errors.
 Initiates the sign-in process with the specified provider.
 
 **Parameters:**
-- `provider` (string): The OAuth provider to use (e.g., `'github'`, `'google'`)
+- `provider` (string): The OAuth provider to use (e.g., `'github'`, `'google'`, `'facebook'`, `'linkedin'`, `'auth0'`)
 - `options` (object, optional): Additional options
   - `redirectTo` (string, optional): The URL to redirect to after authentication
 
@@ -155,7 +155,7 @@ import { auth } from '@/auth';
 // In a server component or API route
 async function ServerComponent() {
   const session = await auth();
-  
+
   if (session) {
     return <div>Hello, {session.user.name}</div>;
   } else {

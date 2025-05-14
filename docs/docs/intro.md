@@ -18,6 +18,13 @@ This is particularly useful when:
 
 ## Key Features
 
+- Support for multiple OAuth providers:
+  - Google
+  - GitHub
+  - Facebook
+  - LinkedIn
+  - Auth0
+
 - **Dynamic Client Detection**: Automatically detects which client is making the authentication request based on the origin header
 - **Client-Specific Credentials**: Uses different OAuth credentials for different clients
 - **Origin Tracking**: Stores the client origin in the user's session for future reference
