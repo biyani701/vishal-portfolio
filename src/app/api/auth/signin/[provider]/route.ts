@@ -41,6 +41,14 @@ export async function GET(
       // Ensure we have a valid callback URL
       const validCallbackUrl = callbackUrl || '/';
 
+      // Log Auth0 configuration if this is an Auth0 sign-in attempt
+      if (provider === 'auth0') {
+        console.log('[auth][signin][auth0] Auth0 configuration:');
+        console.log(`[auth][signin][auth0] AUTH0_ISSUER: ${process.env.AUTH0_ISSUER || 'not set'}`);
+        console.log(`[auth][signin][auth0] AUTH0_CLIENT_ID: ${process.env.AUTH0_CLIENT_ID ? 'set' : 'not set'}`);
+        console.log(`[auth][signin][auth0] AUTH0_CLIENT_SECRET: ${process.env.AUTH0_CLIENT_SECRET ? 'set' : 'not set'}`);
+      }
+
       // Get the sign-in URL from Auth.js v5
       console.log(`[auth][signin] Calling signIn with provider: ${provider}, redirectTo: ${validCallbackUrl}`);
       const signInUrl = await signIn(provider, { redirectTo: validCallbackUrl });
@@ -65,6 +73,16 @@ export async function GET(
       }
 
       console.error('[auth][signin] Error during sign-in:', error);
+
+      // Add more detailed error logging for Auth0
+      if (provider === 'auth0') {
+        console.error('[auth][signin][auth0] Auth0 sign-in error:');
+        if (error instanceof Error) {
+          console.error(`[auth][signin][auth0] Error name: ${error.name}`);
+          console.error(`[auth][signin][auth0] Error message: ${error.message}`);
+          console.error(`[auth][signin][auth0] Error stack: ${error.stack}`);
+        }
+      }
 
       // Redirect to the error page for other errors
       return NextResponse.redirect(

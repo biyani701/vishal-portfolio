@@ -91,9 +91,14 @@ export const getProviderCredentials = (origin?: string) => {
       githubClientSecret = process.env.GITHUB_CLIENT_SECRET_DEFAULT!;
   }
 
-  // Log which client credentials we're using (in development only)
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`[auth] Using ${clientId} GitHub credentials for origin: ${origin || 'unknown'}`);
+  // Log which client credentials we're using (always log in Vercel)
+  console.log(`[auth] Using ${clientId} credentials for origin: ${origin || 'unknown'}`);
+
+  // Log Auth0 configuration to help debug
+  if (process.env.AUTH0_ISSUER) {
+    console.log(`[auth] Auth0 issuer configured: ${process.env.AUTH0_ISSUER}`);
+  } else {
+    console.log(`[auth] Warning: Auth0 issuer not configured`);
   }
 
   return {
@@ -224,6 +229,14 @@ export const createAuthConfig = (origin?: string): NextAuthConfig => {
       Facebook({
         clientId: facebookClientId,
         clientSecret: facebookClientSecret,
+        // Add explicit redirect URI for Facebook
+        authorization: {
+          params: {
+            redirect_uri: process.env.NEXTAUTH_URL
+              ? `${process.env.NEXTAUTH_URL}/api/auth/callback/facebook`
+              : `https://my-oauth-proxy.vercel.app/api/auth/callback/facebook`
+          }
+        }
       }),
       LinkedIn({
         clientId: linkedinClientId,
@@ -233,6 +246,10 @@ export const createAuthConfig = (origin?: string): NextAuthConfig => {
         clientId: auth0ClientId,
         clientSecret: auth0ClientSecret,
         issuer: auth0Issuer,
+        // Explicitly define the well-known configuration endpoints
+        wellKnown: auth0Issuer ? `${auth0Issuer}/.well-known/openid-configuration` : undefined,
+        // Add explicit authorization and token endpoints
+        authorization: { params: { scope: "openid email profile" } },
       }),
     ],
   };

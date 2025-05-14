@@ -56,7 +56,9 @@ To get started with Auth.js Multi-Client, follow these steps:
 
 1. [Install the required dependencies](installation.md)
 2. [Configure your environment variables](configuration.md)
-3. [Set up your OAuth providers](github-setup.md)
+3. Set up your OAuth providers:
+   - [GitHub Setup Guide](github-setup.md)
+   - [Auth0 Setup Guide](auth0-setup.md)
 4. [Deploy your authentication server](vercel-deployment.md)
 
 ## Example Use Cases
