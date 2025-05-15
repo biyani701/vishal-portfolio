@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { signIn } from '@/auth';
+import { signIn, auth } from '@/auth';
 
 // Define a type for Auth.js redirect errors
 interface AuthRedirectError extends Error {
@@ -42,6 +42,13 @@ export async function GET(
 
       // This won't modify the original request, but it will be available for logging
       console.log(`[auth][signin] Set x-client-origin header to: ${origin}`);
+
+      // Store the origin in the session for later use
+      const session = await auth();
+      if (session) {
+        session.clientOrigin = origin;
+        console.log(`[auth][signin] Stored client origin in session: ${origin}`);
+      }
     }
 
     // Validate the provider
