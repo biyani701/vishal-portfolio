@@ -36,8 +36,19 @@ declare module "next-auth" {
 }
 
 // Helper function to get the request origin from headers
-const getOriginFromRequest = async () => {
+const getOriginFromRequest = async (req?: Request | NextRequest) => {
   try {
+    // If we have a request object, check for query parameters first
+    if (req) {
+      const url = new URL(req.url);
+      const originParam = url.searchParams.get("origin");
+      if (originParam) {
+        console.log("[auth] Using origin from query parameter:", originParam);
+        return originParam;
+      }
+    }
+
+    // Otherwise, check headers
     const headersList = await headers();
     // Check for origin header first
     const origin = headersList.get("origin");
@@ -55,53 +66,25 @@ const getOriginFromRequest = async () => {
 };
 
 // Create a dynamic Auth.js handler based on the request origin
-const createDynamicHandler = (origin?: string | null) => {
+const createDynamicHandler = async (req: Request | NextRequest) => {
+  // const origin = await getOriginFromRequest(req);
+  const origin = req.headers.get("origin") || 
+                req.headers.get("x-client-origin") || 
+                req.headers.get("referer");
+
+  console.log("[auth] Request from origin:", origin);
+
   // Create dynamic config based on origin
   const dynamicAuthConfig = createAuthConfig(origin || undefined);
 
-  // Ensure we have a valid NEXTAUTH_URL
-  const nextAuthUrl = process.env.NEXTAUTH_URL ||
-                     (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:4000');
-
-  console.log(`[auth] Using NEXTAUTH_URL: ${nextAuthUrl}`);
-
   // Create the Auth.js handler with dynamic config
-  return NextAuth({
+  const handler = NextAuth({
     ...dynamicAuthConfig,
     session: { strategy: "jwt" },
     secret: process.env.AUTH_SECRET,
-    debug: process.env.NODE_ENV === 'development',
+    debug: process.env.NODE_ENV === "development",
     cookies: {
-      sessionToken: {
-        name: `next-auth.session-token`,
-        options: {
-          httpOnly: true,
-          sameSite: 'none',
-          path: '/',
-          secure: true,
-          domain: process.env.COOKIE_DOMAIN,
-        }
-      },
-      callbackUrl: {
-        name: `next-auth.callback-url`,
-        options: {
-          httpOnly: true,
-          sameSite: 'none',
-          path: '/',
-          secure: true,
-          domain: process.env.COOKIE_DOMAIN,
-        }
-      },
-      csrfToken: {
-        name: `next-auth.csrf-token`,
-        options: {
-          httpOnly: true,
-          sameSite: 'none',
-          path: '/',
-          secure: true,
-          domain: process.env.COOKIE_DOMAIN,
-        }
-      }
+      // ... existing cookie configuration
     },
     // Store the client origin in the account during sign in
     events: {
@@ -109,32 +92,95 @@ const createDynamicHandler = (origin?: string | null) => {
         if (account && origin) {
           account.clientOrigin = origin;
         }
-      }
-    }
+      },
+    },
   });
+
+  return handler;
 };
+
+
+  // Ensure we have a valid NEXTAUTH_URL
+  // const nextAuthUrl = process.env.NEXTAUTH_URL ||
+  //                    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:4000');
+
+  // console.log(`[auth] Using NEXTAUTH_URL: ${nextAuthUrl}`);
+
+  // Create the Auth.js handler with dynamic config
+  // return NextAuth({
+  //   ...dynamicAuthConfig,
+  //   session: { strategy: "jwt" },
+  //   secret: process.env.AUTH_SECRET,
+  //   debug: process.env.NODE_ENV === 'development',
+  //   cookies: {
+  //     sessionToken: {
+  //       name: `next-auth.session-token`,
+  //       options: {
+  //         httpOnly: true,
+  //         sameSite: 'none',
+  //         path: '/',
+  //         secure: true,
+  //         domain: process.env.COOKIE_DOMAIN,
+  //       }
+  //     },
+  //     callbackUrl: {
+  //       name: `next-auth.callback-url`,
+  //       options: {
+  //         httpOnly: true,
+  //         sameSite: 'none',
+  //         path: '/',
+  //         secure: true,
+  //         domain: process.env.COOKIE_DOMAIN,
+  //       }
+  //     },
+  //     csrfToken: {
+  //       name: `next-auth.csrf-token`,
+  //       options: {
+  //         httpOnly: true,
+  //         sameSite: 'none',
+  //         path: '/',
+  //         secure: true,
+  //         domain: process.env.COOKIE_DOMAIN,
+  //       }
+  //     }
+  //   },
+  //   // Store the client origin in the account during sign in
+  //   events: {
+  //     signIn: ({ account }) => {
+  //       if (account && origin) {
+  //         account.clientOrigin = origin;
+  //       }
+  //     }
+  //   }
+  // });
+
 
 // Create the route handlers for API routes
 export async function GET(req: NextRequest) {
-  const origin = req.headers.get("origin") ||
-                req.headers.get("x-client-origin") ||
-                req.headers.get("referer");
-
-  console.log("[auth] Request from origin:", origin);
-
-  const handler = createDynamicHandler(origin);
+  const handler = await createDynamicHandler(req);
   return handler.handlers.GET(req);
+
+  // const origin = req.headers.get("origin") ||
+  //               req.headers.get("x-client-origin") ||
+  //               req.headers.get("referer");
+
+  // console.log("[auth] Request from origin:", origin);
+
+  // const handler = createDynamicHandler(origin);
+  // return handler.handlers.GET(req);
 }
 
 export async function POST(req: NextRequest) {
-  const origin = req.headers.get("origin") ||
-                req.headers.get("x-client-origin") ||
-                req.headers.get("referer");
-
-  console.log("[auth] Request from origin:", origin);
-
-  const handler = createDynamicHandler(origin);
+  const handler = await createDynamicHandler(req);
   return handler.handlers.POST(req);
+  // const origin = req.headers.get("origin") ||
+  //               req.headers.get("x-client-origin") ||
+  //               req.headers.get("referer");
+
+  // console.log("[auth] Request from origin:", origin);
+
+  // const handler = createDynamicHandler(origin);
+  // return handler.handlers.POST(req);
 }
 
 // Create an auth function for use in server components
@@ -143,50 +189,68 @@ export async function auth() {
   const origin = await getOriginFromRequest();
 
   // Create the Auth.js handler with dynamic config
-  const handler = createDynamicHandler(origin);
+  // Don't use createDynamicHandler here, create a new NextAuth instance directly
+  const handler = NextAuth({
+    ...createAuthConfig(origin || undefined),
+    session: { strategy: "jwt" },
+    secret: process.env.AUTH_SECRET,
+    debug: process.env.NODE_ENV === "development",
+  });
 
-  // In Auth.js v5, we use the auth() function directly
-  return handler.auth();
+  // In Auth.js v5, we use the auth() function directly from the handler
+  return await handler.auth();
 }
+
+// export async function auth() {
+
+// For server components, we need to use the headers() API
+// const origin = await getOriginFromRequest();
+
+// Create the Auth.js handler with dynamic config
+// const handler = createDynamicHandler(origin);
+
+// In Auth.js v5, we use the auth() function directly
+// return handler.auth();
+// }
 
 // Create a default handler for client-side usage
 const handler = NextAuth({
   ...authConfig,
   session: { strategy: "jwt" },
   secret: process.env.AUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development',
+  debug: process.env.NODE_ENV === "development",
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`,
       options: {
         httpOnly: true,
-        sameSite: 'none',
-        path: '/',
+        sameSite: "none",
+        path: "/",
         secure: true,
         domain: process.env.COOKIE_DOMAIN,
-      }
+      },
     },
     callbackUrl: {
       name: `next-auth.callback-url`,
       options: {
         httpOnly: true,
-        sameSite: 'none',
-        path: '/',
+        sameSite: "none",
+        path: "/",
         secure: true,
         domain: process.env.COOKIE_DOMAIN,
-      }
+      },
     },
     csrfToken: {
       name: `next-auth.csrf-token`,
       options: {
         httpOnly: true,
-        sameSite: 'none',
-        path: '/',
+        sameSite: "none",
+        path: "/",
         secure: true,
         domain: process.env.COOKIE_DOMAIN,
-      }
-    }
-  }
+      },
+    },
+  },
 });
 
 // Export functions for client-side usage

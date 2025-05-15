@@ -26,11 +26,23 @@ export async function GET(
     // Get the provider from the URL parameters
     const { provider } = await params;
 
-    // Get the callback URL from the query parameters
+    // Get the callback URL and origin from the query parameters
     const searchParams = request.nextUrl.searchParams;
     const callbackUrl = searchParams.get('callbackUrl') || '/';
+    const origin = searchParams.get('origin');
+    const clientId = searchParams.get('clientId');
 
-    console.log(`[auth][signin] Provider: ${provider}, CallbackUrl: ${callbackUrl}`);
+    console.log(`[auth][signin] Provider: ${provider}, CallbackUrl: ${callbackUrl}, Origin: ${origin}, ClientId: ${clientId}`);
+
+    // Store the origin in the request headers for later use
+    if (origin) {
+      // Create a new request with the origin header
+      const headers = new Headers(request.headers);
+      headers.set('x-client-origin', origin);
+
+      // This won't modify the original request, but it will be available for logging
+      console.log(`[auth][signin] Set x-client-origin header to: ${origin}`);
+    }
 
     // Validate the provider
     if (!provider || !['google', 'github', 'facebook', 'linkedin', 'auth0'].includes(provider)) {

@@ -54,7 +54,8 @@ export const identifyClient = (origin?: string): ClientId => {
     return ClientId.CLIENT1;
   } else if (origin.includes('client2.com') || origin.includes('localhost:3002')) {
     return ClientId.CLIENT2;
-  } else if (origin.includes('vishal.biyani.xyz') || origin.includes('github.io')) {
+  } else if (origin.includes('vishal.biyani.xyz') || origin.includes('github.io') || origin.includes('localhost:3000')) {
+    console.log('portfolio', ClientId.PORTFOLIO);
     return ClientId.PORTFOLIO;
   } else if (origin.includes('my-oauth-proxy.vercel.app')) {
     // Vercel deployment domain
@@ -68,6 +69,7 @@ export const identifyClient = (origin?: string): ClientId => {
 // Helper function to get OAuth credentials based on origin
 export const getProviderCredentials = (origin?: string) => {
   const clientId = identifyClient(origin);
+  console.log('clientId', clientId);
 
   // Get GitHub credentials based on client ID
   let githubClientId: string;
@@ -92,7 +94,7 @@ export const getProviderCredentials = (origin?: string) => {
   }
 
   // Log which client credentials we're using (always log in Vercel)
-  console.log(`[auth] Using ${clientId} credentials for origin: ${origin || 'unknown'}`);
+  console.log(`[auth] Using ${clientId} credentials for origin: ${origin || 'unknown'}, githubClientId: ${githubClientId}`);
 
   // Log Auth0 configuration to help debug
   if (process.env.AUTH0_ISSUER) {
