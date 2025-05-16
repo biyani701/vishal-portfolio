@@ -8,7 +8,7 @@ export async function middleware(request: NextRequest) {
 
   // Handle CORS for all routes, not just API routes
   const origin = request.headers.get('origin') || '';
-  
+
   // For debugging: Allow any origin (not recommended for production)
   // Handle preflight requests for all routes
   if (request.method === 'OPTIONS') {
@@ -24,10 +24,18 @@ export async function middleware(request: NextRequest) {
       response.headers.set('Access-Control-Allow-Origin', '*');
     }
     response.headers.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
-    response.headers.set('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, Origin, Cache-Control, Pragma');
+    response.headers.set('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, Origin, Cache-Control, Pragma, X-Client-Origin');
     response.headers.set('Access-Control-Max-Age', '86400');
     response.headers.set('Access-Control-Expose-Headers', 'Content-Length, Content-Type');
     response.headers.set('Vary', 'Origin');
+
+    // Removed CSP header to avoid conflicts
+
+    // Add cache control headers to prevent caching
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Expires', '0');
+    response.headers.set('Surrogate-Control', 'no-store');
 
     return response;
   }
@@ -58,9 +66,17 @@ export async function middleware(request: NextRequest) {
     response.headers.set('Access-Control-Allow-Origin', '*');
   }
   response.headers.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH');
-  response.headers.set('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, Origin, Cache-Control, Pragma');
+  response.headers.set('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, Origin, Cache-Control, Pragma, X-Client-Origin');
   response.headers.set('Access-Control-Expose-Headers', 'Content-Length, Content-Type');
   response.headers.set('Vary', 'Origin');
+
+  // Removed CSP header to avoid conflicts
+
+  // Add cache control headers to prevent caching
+  response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  response.headers.set('Pragma', 'no-cache');
+  response.headers.set('Expires', '0');
+  response.headers.set('Surrogate-Control', 'no-store');
 
   return response;
 }

@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AuthStatus from '@/components/auth-status';
+import { useSession } from 'next-auth/react';
+import { SignInButton, SignOutButton, AuthStatus as NewAuthStatus } from '@/components/AuthButtons';
 
 export default function AuthTestPage() {
   // Define a proper type for the debug info
@@ -71,8 +73,39 @@ export default function AuthTestPage() {
         marginBottom: '1.5rem',
         border: '1px solid #d0e1f9'
       }}>
-        <h2 style={{ marginTop: 0 }}>Authentication Status</h2>
+        <h2 style={{ marginTop: 0 }}>Authentication Status (Legacy)</h2>
         <AuthStatus />
+      </div>
+
+      <div style={{
+        padding: '1rem',
+        backgroundColor: '#f0f4f8',
+        borderRadius: '0.5rem',
+        marginBottom: '1.5rem',
+        border: '1px solid #d0e1f9'
+      }}>
+        <h2 style={{ marginTop: 0 }}>Authentication Status (New)</h2>
+        <NewAuthStatus />
+      </div>
+
+      <div style={{
+        padding: '1rem',
+        backgroundColor: '#e8f5e9',
+        borderRadius: '0.5rem',
+        marginBottom: '1.5rem',
+        border: '1px solid #c8e6c9'
+      }}>
+        <h2 style={{ marginTop: 0 }}>Next-Auth Sign In Buttons</h2>
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+          <SignInButton provider="google" />
+          <SignInButton provider="github" />
+          <SignInButton provider="facebook" />
+          <SignInButton provider="linkedin" />
+          <SignInButton provider="auth0" />
+        </div>
+        <div style={{ marginTop: '1rem' }}>
+          <SignOutButton />
+        </div>
       </div>
 
       <div style={{ marginBottom: '1.5rem' }}>
@@ -123,121 +156,60 @@ export default function AuthTestPage() {
         )}
       </div>
 
-      <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-        <button
-          onClick={async () => {
-            try {
-              // Import the signIn function from our client-side auth utility
-              const { signIn } = await import('@/lib/auth-client');
-              await signIn('google', { redirectTo: window.location.href });
-            } catch (err) {
-              console.error('Error signing in with Google:', err);
-              alert('Error signing in with Google: ' + (err instanceof Error ? err.message : 'Unknown error'));
-            }
-          }}
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#4285F4',
-            color: 'white',
-            border: 'none',
-            borderRadius: '0.25rem',
-            cursor: 'pointer'
-          }}
-        >
-          Sign In with Google
-        </button>
+      <div style={{ marginTop: '2rem', padding: '1rem', backgroundColor: '#f0f8ff', borderRadius: '0.5rem', border: '1px solid #d0e1f9' }}>
+        <h2 style={{ marginTop: 0 }}>Sign In with Next-Auth Buttons</h2>
+        <p>These buttons use the next-auth/react signIn function directly:</p>
 
-        <button
-          onClick={async () => {
-            try {
-              // Import the signIn function from our client-side auth utility
-              const { signIn } = await import('@/lib/auth-client');
-              await signIn('github', { redirectTo: window.location.href });
-            } catch (err) {
-              console.error('Error signing in with GitHub:', err);
-              alert('Error signing in with GitHub: ' + (err instanceof Error ? err.message : 'Unknown error'));
-            }
-          }}
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#333',
-            color: 'white',
-            border: 'none',
-            borderRadius: '0.25rem',
-            cursor: 'pointer'
-          }}
-        >
-          Sign In with GitHub
-        </button>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+          <SignInButton provider="google" redirectTo={`${window.location.origin}/auth-success?provider=google`} />
+          <SignInButton provider="github" redirectTo={`${window.location.origin}/auth-success?provider=github`} />
+          <SignInButton provider="facebook" redirectTo={`${window.location.origin}/auth-success?provider=facebook`} />
+          <SignInButton provider="linkedin" redirectTo={`${window.location.origin}/auth-success?provider=linkedin`} />
+          <SignInButton provider="auth0" redirectTo={`${window.location.origin}/auth-success?provider=auth0`} />
+        </div>
+      </div>
 
-        <button
-          onClick={async () => {
-            try {
-              // Import the signIn function from our client-side auth utility
-              const { signIn } = await import('@/lib/auth-client');
-              await signIn('facebook', { redirectTo: window.location.href });
-            } catch (err) {
-              console.error('Error signing in with Facebook:', err);
-              alert('Error signing in with Facebook: ' + (err instanceof Error ? err.message : 'Unknown error'));
-            }
-          }}
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#1877F2',
-            color: 'white',
-            border: 'none',
-            borderRadius: '0.25rem',
-            cursor: 'pointer'
-          }}
-        >
-          Sign In with Facebook
-        </button>
+      <div style={{ marginTop: '2rem', padding: '1rem', backgroundColor: '#fff8e1', borderRadius: '0.5rem', border: '1px solid #ffe082' }}>
+        <h2 style={{ marginTop: 0 }}>Direct Sign-In (Emergency Fallback)</h2>
+        <p>This button uses a direct approach that bypasses the normal flow:</p>
 
-        <button
-          onClick={async () => {
-            try {
-              // Import the signIn function from our client-side auth utility
-              const { signIn } = await import('@/lib/auth-client');
-              await signIn('linkedin', { redirectTo: window.location.href });
-            } catch (err) {
-              console.error('Error signing in with LinkedIn:', err);
-              alert('Error signing in with LinkedIn: ' + (err instanceof Error ? err.message : 'Unknown error'));
-            }
-          }}
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#0077B5',
-            color: 'white',
-            border: 'none',
-            borderRadius: '0.25rem',
-            cursor: 'pointer'
-          }}
-        >
-          Sign In with LinkedIn
-        </button>
+        <div style={{ marginTop: '1rem' }}>
+          <button
+            onClick={() => {
+              // Reset the attempt counter
+              localStorage.removeItem('auth-callback-attempt-count');
 
-        <button
-          onClick={async () => {
-            try {
-              // Import the signIn function from our client-side auth utility
-              const { signIn } = await import('@/lib/auth-client');
-              await signIn('auth0', { redirectTo: window.location.href });
-            } catch (err) {
-              console.error('Error signing in with Auth0:', err);
-              alert('Error signing in with Auth0: ' + (err instanceof Error ? err.message : 'Unknown error'));
-            }
-          }}
-          style={{
-            padding: '0.5rem 1rem',
-            backgroundColor: '#EB5424',
-            color: 'white',
-            border: 'none',
-            borderRadius: '0.25rem',
-            cursor: 'pointer'
-          }}
-        >
-          Sign In with Auth0
-        </button>
+              // Construct the sign-in URL directly
+              const url = new URL('/api/auth/signin/google', window.location.origin);
+
+              // Add callback to our direct handler
+              url.searchParams.set('callbackUrl', `${window.location.origin}/api/auth/direct-callback/google`);
+
+              // Add state with timestamp to prevent caching
+              const state = JSON.stringify({
+                timestamp: new Date().toISOString(),
+                origin: window.location.origin
+              });
+              url.searchParams.set('state', state);
+
+              console.log(`[auth-test] Direct sign-in, redirecting to: ${url.toString()}`);
+
+              // Redirect to the sign-in URL
+              window.location.href = url.toString();
+            }}
+            style={{
+              padding: '0.5rem 1rem',
+              backgroundColor: '#ff9800',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0.25rem',
+              cursor: 'pointer',
+              fontWeight: 'bold'
+            }}
+          >
+            Emergency Google Sign-In
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -3,7 +3,18 @@
 /**
  * Client-side authentication utilities
  * This file provides client-safe wrappers for authentication functions
+ *
+ * IMPORTANT: This file is now just a re-export of next-auth/react functions
+ * with some additional logging. Use these functions instead of importing
+ * directly from next-auth/react to ensure consistent behavior.
  */
+
+import {
+  signIn as nextAuthSignIn,
+  signOut as nextAuthSignOut,
+  useSession as nextAuthUseSession,
+  getSession as nextAuthGetSession
+} from 'next-auth/react';
 
 /**
  * Sign in with a specific provider
@@ -17,21 +28,45 @@ export async function signIn(provider: string, options?: { redirectTo?: string }
       throw new Error(`Invalid provider: ${provider}`);
     }
 
-    // Construct the sign-in URL using our custom route
-    const customSignInUrl = `/api/auth/signin/${provider}`;
+    // Add state with client information
+    const state = JSON.stringify({
+      clientOrigin: window.location.origin,
+      callbackUrl: options?.redirectTo || `${window.location.origin}/auth-success`,
+      timestamp: new Date().toISOString()
+    });
 
-    // Add redirectTo parameter if provided
-    const redirectTo = options?.redirectTo || window.location.href;
-    const url = new URL(customSignInUrl, window.location.origin);
-    url.searchParams.set('callbackUrl', redirectTo);
+    console.log(`[auth-client] Signing in with ${provider} using next-auth/react`);
 
-    console.log(`[auth-client] Redirecting to ${url.toString()}`);
+    // Create the callback URL
+    const callbackUrl = options?.redirectTo || `${window.location.origin}/auth-success`;
 
-    // Redirect to the sign-in URL
-    window.location.href = url.toString();
+    // Instead of using the signIn function directly, we'll construct the URL and redirect
+    // This avoids CORS issues when the browser tries to make an XHR request to the OAuth provider
+    if (typeof window !== 'undefined') {
+      // Construct the sign-in URL
+      const baseUrl = window.location.origin;
+      const signInUrl = new URL(`/api/auth/signin/${provider}`, baseUrl);
 
-    // Return a promise that never resolves since we're redirecting
-    return new Promise<void>(() => {});
+      // Add the callback URL and state as query parameters
+      signInUrl.searchParams.set('callbackUrl', callbackUrl);
+      signInUrl.searchParams.set('state', state);
+      signInUrl.searchParams.set('x-client-origin', window.location.origin);
+
+      console.log(`[auth-client] Redirecting to: ${signInUrl.toString()}`);
+
+      // Redirect to the sign-in URL
+      window.location.href = signInUrl.toString();
+
+      // Return a promise that never resolves since we're redirecting
+      return new Promise(() => {});
+    } else {
+      // Fallback to the next-auth/react signIn function for SSR
+      return nextAuthSignIn(provider, {
+        callbackUrl,
+        redirect: true,
+        state
+      });
+    }
   } catch (error) {
     console.error('[auth-client] Error during sign-in:', error);
     throw error;
@@ -44,21 +79,13 @@ export async function signIn(provider: string, options?: { redirectTo?: string }
  */
 export async function signOut(options?: { redirectTo?: string }) {
   try {
-    // Construct the sign-out URL using our custom route
-    const customSignOutUrl = '/api/auth/signout';
+    console.log(`[auth-client] Signing out using next-auth/react`);
 
-    // Add redirectTo parameter if provided
-    const redirectTo = options?.redirectTo || window.location.href;
-    const url = new URL(customSignOutUrl, window.location.origin);
-    url.searchParams.set('callbackUrl', redirectTo);
-
-    console.log(`[auth-client] Redirecting to ${url.toString()}`);
-
-    // Use direct window.location.href instead of fetch to avoid JSON parsing issues
-    window.location.href = url.toString();
-
-    // Return a promise that never resolves since we're redirecting
-    return new Promise<void>(() => {});
+    // Use next-auth/react signOut function
+    return nextAuthSignOut({
+      callbackUrl: options?.redirectTo || '/',
+      redirect: true
+    });
   } catch (error) {
     console.error('[auth-client] Error during sign-out:', error);
     throw error;
@@ -71,22 +98,19 @@ export async function signOut(options?: { redirectTo?: string }) {
  */
 export async function getSession() {
   try {
-    const response = await fetch('/api/auth/session', {
-      method: 'GET',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    console.log('[auth-client] Getting session using next-auth/react');
 
-    if (!response.ok) {
-      throw new Error(`Failed to get session: ${response.status} ${response.statusText}`);
-    }
-
-    const session = await response.json();
+    // Use next-auth/react getSession function
+    const session = await nextAuthGetSession();
+    console.log('[auth-client] Session retrieved:', session);
     return session;
   } catch (error) {
     console.error('[auth-client] Error getting session:', error);
     return null;
   }
 }
+
+/**
+ * Re-export useSession hook from next-auth/react
+ */
+export const useSession = nextAuthUseSession;

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { signIn, auth } from '@/auth';
+import { withCors } from '@/app/api/cors';
 
 // Define a type for Auth.js redirect errors
 interface AuthRedirectError extends Error {
@@ -26,28 +27,30 @@ export async function GET(
     // Get the provider from the URL parameters
     const { provider } = await params;
 
-    // Get the callback URL and origin from the query parameters
+    // Get the callback URL and client origin from the query parameters
     const searchParams = request.nextUrl.searchParams;
     const callbackUrl = searchParams.get('callbackUrl') || '/';
+    const clientOrigin = searchParams.get('x-client-origin');
     const origin = searchParams.get('origin');
     const clientId = searchParams.get('clientId');
 
-    console.log(`[auth][signin] Provider: ${provider}, CallbackUrl: ${callbackUrl}, Origin: ${origin}, ClientId: ${clientId}`);
+    console.log(`[auth][signin] Provider: ${provider}, CallbackUrl: ${callbackUrl}, ClientOrigin: ${clientOrigin}, Origin: ${origin}, ClientId: ${clientId}`);
 
-    // Store the origin in the request headers for later use
-    if (origin) {
-      // Create a new request with the origin header
+    // Store the client origin in the request headers for later use
+    const effectiveClientOrigin = clientOrigin || origin;
+    if (effectiveClientOrigin) {
+      // Create a new request with the client origin header
       const headers = new Headers(request.headers);
-      headers.set('x-client-origin', origin);
+      headers.set('x-client-origin', effectiveClientOrigin);
 
       // This won't modify the original request, but it will be available for logging
-      console.log(`[auth][signin] Set x-client-origin header to: ${origin}`);
+      console.log(`[auth][signin] Set x-client-origin header to: ${effectiveClientOrigin}`);
 
-      // Store the origin in the session for later use
+      // Store the client origin in the session for later use
       const session = await auth();
       if (session) {
-        session.clientOrigin = origin;
-        console.log(`[auth][signin] Stored client origin in session: ${origin}`);
+        session.clientOrigin = effectiveClientOrigin;
+        console.log(`[auth][signin] Stored client origin in session: ${effectiveClientOrigin}`);
       }
     }
 
@@ -84,7 +87,17 @@ export async function GET(
 
       // Get the sign-in URL from Auth.js v5
       console.log(`[auth][signin] Calling signIn with provider: ${provider}, redirectTo: ${validCallbackUrl}`);
-      const signInUrl = await signIn(provider, { redirectTo: validCallbackUrl });
+
+      // Create a custom state parameter that includes the client origin
+      const stateParam = effectiveClientOrigin ? {
+        clientOrigin: effectiveClientOrigin,
+        callbackUrl: validCallbackUrl
+      } : undefined;
+
+      const signInUrl = await signIn(provider, {
+        redirectTo: validCallbackUrl,
+        state: stateParam ? JSON.stringify(stateParam) : undefined
+      });
 
       console.log(`[auth][signin] Redirecting to: ${signInUrl}`);
 
@@ -148,4 +161,37 @@ export async function GET(
       )}`, request.url)
     );
   }
+}
+
+// Add a POST handler that does the same thing as the GET handler
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ provider: string }> }
+) {
+  console.log('[auth][signin] POST request received');
+  // Just call the GET handler with the same request and params
+  return GET(request, { params });
+}
+
+// Add an OPTIONS handler for CORS preflight requests
+export async function OPTIONS(
+  request: NextRequest,
+  { params }: { params: Promise<{ provider: string }> }
+) {
+  const origin = request.headers.get('origin') || '';
+
+  const response = new NextResponse(null, { status: 204 });
+
+  // Add CORS headers
+  if (origin) {
+    response.headers.set('Access-Control-Allow-Origin', origin);
+    response.headers.set('Access-Control-Allow-Credentials', 'true');
+  } else {
+    response.headers.set('Access-Control-Allow-Origin', '*');
+  }
+  response.headers.set('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, Origin, Cache-Control, Pragma');
+  response.headers.set('Access-Control-Max-Age', '86400');
+
+  return response;
 }

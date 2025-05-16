@@ -18,6 +18,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "OAuth Provider",
   description: "OAuth provider for Google and GitHub authentication",
+  // Removed CSP meta tag to avoid conflicts
 };
 
 export default async function RootLayout({

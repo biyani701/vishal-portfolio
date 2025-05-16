@@ -18,12 +18,13 @@ const nextConfig: NextConfig = {
              },
              {
                key: 'Access-Control-Allow-Headers',
-               value: 'X-Requested-With, Content-Type, Accept, Origin, Authorization',
+               value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, Origin, Cache-Control, Pragma',
              },
              {
                key: 'Access-Control-Allow-Credentials',
                value: 'true',
              },
+             // Removed CSP header to avoid conflicts with Next.js's built-in CSP
            ],
          },
        ];

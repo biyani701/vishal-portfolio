@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSP Test Page</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src * 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' http://localhost:* https://* wss://*; img-src 'self' data: https://*.googleusercontent.com https://avatars.githubusercontent.com https://platform-lookaside.fbsbx.com https://*.fbcdn.net https://graph.facebook.com https://media.licdn.com https://*.licdn.com https://*.auth0.com https://s.gravatar.com; style-src 'self' 'unsafe-inline'; font-src 'self'; frame-src 'self' https://accounts.google.com https://*.github.com https://*.facebook.com https://*.linkedin.com https://*.auth0.com;">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .test-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Content Security Policy Test Page</h1>
+    
+    <div class="test-section">
+        <h2>Inline Script Test</h2>
+        <p>Testing if inline scripts are allowed:</p>
+        <div id="inline-script-result">Waiting...</div>
+        <script>
+            document.getElementById('inline-script-result').innerHTML = '<span class="success">Success! Inline scripts are working.</span>';
+        </script>
+    </div>
+
+    <div class="test-section">
+        <h2>External Script Test</h2>
+        <p>Testing if external scripts are allowed:</p>
+        <div id="external-script-result">Waiting...</div>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js" 
+                integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" 
+                crossorigin="anonymous"></script>
+        <script>
+            // This will only work if jQuery loaded successfully
+            setTimeout(function() {
+                if (window.jQuery) {
+                    document.getElementById('external-script-result').innerHTML = 
+                        '<span class="success">Success! External scripts (jQuery) are working.</span>';
+                } else {
+                    document.getElementById('external-script-result').innerHTML = 
+                        '<span class="error">Error! External scripts (jQuery) are not working.</span>';
+                }
+            }, 1000);
+        </script>
+    </div>
+
+    <div class="test-section">
+        <h2>Fetch API Test</h2>
+        <p>Testing if fetch API is allowed:</p>
+        <div id="fetch-result">Waiting...</div>
+        <script>
+            fetch('https://jsonplaceholder.typicode.com/todos/1')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('fetch-result').innerHTML = 
+                        '<span class="success">Success! Fetch API is working. Received data: ' + 
+                        JSON.stringify(data) + '</span>';
+                })
+                .catch(error => {
+                    document.getElementById('fetch-result').innerHTML = 
+                        '<span class="error">Error! Fetch API failed: ' + error.message + '</span>';
+                });
+        </script>
+    </div>
+
+    <div class="test-section">
+        <h2>Iframe Test</h2>
+        <p>Testing if iframes are allowed:</p>
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.215256264726!2d-73.98784532342249!3d40.75798597138789!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25855c6480299%3A0x55194ec5a1ae072e!2sTimes%20Square!5e0!3m2!1sen!2sus!4v1710284346979!5m2!1sen!2sus" 
+                width="400" height="300" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+    </div>
+
+    <p><a href="/">Back to Home</a></p>
+</body>
+</html>

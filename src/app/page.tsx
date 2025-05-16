@@ -106,6 +106,12 @@ export default async function Home() {
             </Link>
             {' '}- Test Auth.js v5 specific features
           </li>
+          <li style={{ marginBottom: '0.5rem' }}>
+            <Link href="/mui-auth" style={{ fontWeight: 'bold' }}>
+              MUI Toolpad Auth
+            </Link>
+            {' '}- Test MUI Toolpad Core authentication components
+          </li>
         </ul>
       </div>
     </div>

@@ -68,8 +68,8 @@ const getOriginFromRequest = async (req?: Request | NextRequest) => {
 // Create a dynamic Auth.js handler based on the request origin
 const createDynamicHandler = async (req: Request | NextRequest) => {
   // const origin = await getOriginFromRequest(req);
-  const origin = req.headers.get("origin") || 
-                req.headers.get("x-client-origin") || 
+  const origin = req.headers.get("origin") ||
+                req.headers.get("x-client-origin") ||
                 req.headers.get("referer");
 
   console.log("[auth] Request from origin:", origin);
@@ -84,14 +84,94 @@ const createDynamicHandler = async (req: Request | NextRequest) => {
     secret: process.env.AUTH_SECRET,
     debug: process.env.NODE_ENV === "development",
     cookies: {
-      // ... existing cookie configuration
+      sessionToken: {
+        name: `next-auth.session-token`,
+        options: {
+          httpOnly: true,
+          sameSite: "none", // Use none to allow cross-site cookies
+          path: "/",
+          secure: true, // Always use secure for cross-site cookies
+        },
+      },
+      callbackUrl: {
+        name: `next-auth.callback-url`,
+        options: {
+          httpOnly: true,
+          sameSite: "none", // Use none to allow cross-site cookies
+          path: "/",
+          secure: true, // Always use secure for cross-site cookies
+        },
+      },
+      csrfToken: {
+        name: `next-auth.csrf-token`,
+        options: {
+          httpOnly: true,
+          sameSite: "none", // Use none to allow cross-site cookies
+          path: "/",
+          secure: true, // Always use secure for cross-site cookies
+        },
+      },
     },
-    // Store the client origin in the account during sign in
+    // Add callbacks to debug and fix authentication issues
+    callbacks: {
+      async signIn({ user, account, profile }) {
+        console.log('[auth][callbacks] Sign in callback:', {
+          user: user ? { id: user.id, email: user.email } : null,
+          provider: account?.provider,
+          profile: profile ? { email: profile.email } : null
+        });
+
+        return true;
+      },
+      async jwt({ token, user, account }) {
+        console.log('[auth][callbacks] JWT callback:', {
+          tokenSub: token?.sub,
+          user: user ? { id: user.id } : null,
+          provider: account?.provider
+        });
+
+        // Initial sign in
+        if (account && user) {
+          token.userId = user.id;
+          token.provider = account.provider;
+          token.clientOrigin = account.clientOrigin as string | undefined;
+        }
+
+        return token;
+      },
+      async session({ session, token }) {
+        console.log('[auth][callbacks] Session callback:', {
+          user: session?.user ? { email: session.user.email } : null,
+          tokenSub: token?.sub
+        });
+
+        if (token && session.user) {
+          session.user.id = token.userId as string;
+          session.user.provider = token.provider as string;
+          session.user.clientOrigin = token.clientOrigin as string | undefined;
+        }
+
+        return session;
+      },
+    },
+    // Add events to debug authentication issues
     events: {
-      signIn: ({ account }) => {
+      signIn: ({ account, user }) => {
+        console.log('[auth][events] Sign in event:', {
+          user: user ? { id: user.id, email: user.email } : null,
+          provider: account?.provider,
+          origin: origin
+        });
+
         if (account && origin) {
           account.clientOrigin = origin;
         }
+      },
+      session: ({ session, token }) => {
+        console.log('[auth][events] Session event:', {
+          user: session?.user ? { email: session.user.email } : null,
+          token: token ? { sub: token.sub } : null
+        });
       },
     },
   });
@@ -100,87 +180,18 @@ const createDynamicHandler = async (req: Request | NextRequest) => {
 };
 
 
-  // Ensure we have a valid NEXTAUTH_URL
-  // const nextAuthUrl = process.env.NEXTAUTH_URL ||
-  //                    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:4000');
-
-  // console.log(`[auth] Using NEXTAUTH_URL: ${nextAuthUrl}`);
-
-  // Create the Auth.js handler with dynamic config
-  // return NextAuth({
-  //   ...dynamicAuthConfig,
-  //   session: { strategy: "jwt" },
-  //   secret: process.env.AUTH_SECRET,
-  //   debug: process.env.NODE_ENV === 'development',
-  //   cookies: {
-  //     sessionToken: {
-  //       name: `next-auth.session-token`,
-  //       options: {
-  //         httpOnly: true,
-  //         sameSite: 'none',
-  //         path: '/',
-  //         secure: true,
-  //         domain: process.env.COOKIE_DOMAIN,
-  //       }
-  //     },
-  //     callbackUrl: {
-  //       name: `next-auth.callback-url`,
-  //       options: {
-  //         httpOnly: true,
-  //         sameSite: 'none',
-  //         path: '/',
-  //         secure: true,
-  //         domain: process.env.COOKIE_DOMAIN,
-  //       }
-  //     },
-  //     csrfToken: {
-  //       name: `next-auth.csrf-token`,
-  //       options: {
-  //         httpOnly: true,
-  //         sameSite: 'none',
-  //         path: '/',
-  //         secure: true,
-  //         domain: process.env.COOKIE_DOMAIN,
-  //       }
-  //     }
-  //   },
-  //   // Store the client origin in the account during sign in
-  //   events: {
-  //     signIn: ({ account }) => {
-  //       if (account && origin) {
-  //         account.clientOrigin = origin;
-  //       }
-  //     }
-  //   }
-  // });
 
 
 // Create the route handlers for API routes
 export async function GET(req: NextRequest) {
   const handler = await createDynamicHandler(req);
   return handler.handlers.GET(req);
-
-  // const origin = req.headers.get("origin") ||
-  //               req.headers.get("x-client-origin") ||
-  //               req.headers.get("referer");
-
-  // console.log("[auth] Request from origin:", origin);
-
-  // const handler = createDynamicHandler(origin);
-  // return handler.handlers.GET(req);
+  
 }
 
 export async function POST(req: NextRequest) {
   const handler = await createDynamicHandler(req);
-  return handler.handlers.POST(req);
-  // const origin = req.headers.get("origin") ||
-  //               req.headers.get("x-client-origin") ||
-  //               req.headers.get("referer");
-
-  // console.log("[auth] Request from origin:", origin);
-
-  // const handler = createDynamicHandler(origin);
-  // return handler.handlers.POST(req);
+  return handler.handlers.POST(req);  
 }
 
 // Create an auth function for use in server components
@@ -195,6 +206,97 @@ export async function auth() {
     session: { strategy: "jwt" },
     secret: process.env.AUTH_SECRET,
     debug: process.env.NODE_ENV === "development",
+    cookies: {
+      sessionToken: {
+        name: `next-auth.session-token`,
+        options: {
+          httpOnly: true,
+          sameSite: "none", // Use none to allow cross-site cookies
+          path: "/",
+          secure: true, // Always use secure for cross-site cookies
+        },
+      },
+      callbackUrl: {
+        name: `next-auth.callback-url`,
+        options: {
+          httpOnly: true,
+          sameSite: "none", // Use none to allow cross-site cookies
+          path: "/",
+          secure: true, // Always use secure for cross-site cookies
+        },
+      },
+      csrfToken: {
+        name: `next-auth.csrf-token`,
+        options: {
+          httpOnly: true,
+          sameSite: "none", // Use none to allow cross-site cookies
+          path: "/",
+          secure: true, // Always use secure for cross-site cookies
+        },
+      },
+    },
+    // Add callbacks to debug and fix authentication issues
+    callbacks: {
+      async signIn({ user, account, profile }) {
+        console.log('[auth][callbacks] Sign in callback:', {
+          user: user ? { id: user.id, email: user.email } : null,
+          provider: account?.provider,
+          profile: profile ? { email: profile.email } : null
+        });
+
+        return true;
+      },
+      async jwt({ token, user, account }) {
+        console.log('[auth][callbacks] JWT callback:', {
+          tokenSub: token?.sub,
+          user: user ? { id: user.id } : null,
+          provider: account?.provider
+        });
+
+        // Initial sign in
+        if (account && user) {
+          token.userId = user.id;
+          token.provider = account.provider;
+          token.clientOrigin = account.clientOrigin as string | undefined;
+        }
+
+        return token;
+      },
+      async session({ session, token }) {
+        console.log('[auth][callbacks] Session callback:', {
+          user: session?.user ? { email: session.user.email } : null,
+          tokenSub: token?.sub
+        });
+
+        if (token && session.user) {
+          session.user.id = token.userId as string;
+          session.user.provider = token.provider as string;
+          session.user.clientOrigin = token.clientOrigin as string | undefined;
+        }
+
+        return session;
+      },
+    },
+    // Add events to debug authentication issues
+    events: {
+      signIn: ({ account, user }) => {
+        console.log('[auth][events] Sign in event:', {
+          user: user ? { id: user.id, email: user.email } : null,
+          provider: account?.provider,
+          origin: origin
+        });
+
+        if (account && origin) {
+          account.clientOrigin = origin;
+        }
+      },
+      session: ({ session, token }) => {
+        console.log('[auth][events] Session event:', {
+          user: session?.user ? { email: session.user.email } : null,
+          token: token ? { sub: token.sub } : null
+        });
+      },
+    },
   });
 
   // In Auth.js v5, we use the auth() function directly from the handler
@@ -224,31 +326,70 @@ const handler = NextAuth({
       name: `next-auth.session-token`,
       options: {
         httpOnly: true,
-        sameSite: "none",
+        sameSite: "none", // Use none to allow cross-site cookies
         path: "/",
-        secure: true,
-        domain: process.env.COOKIE_DOMAIN,
+        secure: true, // Always use secure for cross-site cookies
       },
     },
     callbackUrl: {
       name: `next-auth.callback-url`,
       options: {
         httpOnly: true,
-        sameSite: "none",
+        sameSite: "none", // Use none to allow cross-site cookies
         path: "/",
-        secure: true,
-        domain: process.env.COOKIE_DOMAIN,
+        secure: true, // Always use secure for cross-site cookies
       },
     },
     csrfToken: {
       name: `next-auth.csrf-token`,
       options: {
         httpOnly: true,
-        sameSite: "none",
+        sameSite: "none", // Use none to allow cross-site cookies
         path: "/",
-        secure: true,
-        domain: process.env.COOKIE_DOMAIN,
+        secure: true, // Always use secure for cross-site cookies
       },
+    },
+  },
+  // Add callbacks to debug and fix authentication issues
+  callbacks: {
+    async signIn({ user, account, profile }) {
+      console.log('[auth][callbacks] Sign in callback (client):', {
+        user: user ? { id: user.id, email: user.email } : null,
+        provider: account?.provider,
+        profile: profile ? { email: profile.email } : null
+      });
+
+      return true;
+    },
+    async jwt({ token, user, account }) {
+      console.log('[auth][callbacks] JWT callback (client):', {
+        tokenSub: token?.sub,
+        user: user ? { id: user.id } : null,
+        provider: account?.provider
+      });
+
+      // Initial sign in
+      if (account && user) {
+        token.userId = user.id;
+        token.provider = account.provider;
+        token.clientOrigin = account.clientOrigin as string | undefined;
+      }
+
+      return token;
+    },
+    async session({ session, token }) {
+      console.log('[auth][callbacks] Session callback (client):', {
+        user: session?.user ? { email: session.user.email } : null,
+        tokenSub: token?.sub
+      });
+
+      if (token && session.user) {
+        session.user.id = token.userId as string;
+        session.user.provider = token.provider as string;
+        session.user.clientOrigin = token.clientOrigin as string | undefined;
+      }
+
+      return session;
     },
   },
 });

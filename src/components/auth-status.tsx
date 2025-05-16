@@ -1,53 +1,20 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { getSession } from '@/lib/auth-client';
+import { useSession } from '@/lib/auth-client';
 import Link from 'next/link';
 import SignOutButton from './sign-out-button';
 
 export default function AuthStatus() {
-  // Define a proper type for the session
-  interface UserSession {
-    user?: {
-      id?: string;
-      name?: string | null;
-      email?: string | null;
-      image?: string | null;
-      provider?: string;
-    } | null;
-  }
+  // Use the useSession hook from next-auth/react
+  const { data: session, status } = useSession();
 
-  const [session, setSession] = useState<UserSession | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function loadSession() {
-      try {
-        setLoading(true);
-        const sessionData = await getSession();
-        setSession(sessionData);
-        setError(null);
-      } catch (err) {
-        console.error('Error loading session:', err);
-        setError(err instanceof Error ? err.message : 'Unknown error');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadSession();
-  }, []);
-
-  if (loading) {
+  // Show loading state
+  if (status === 'loading') {
     return <div>Loading authentication status...</div>;
   }
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
-  if (!session || !session.user) {
+  // Show not signed in state
+  if (status === 'unauthenticated' || !session) {
     return (
       <div>
         <p>Not signed in</p>

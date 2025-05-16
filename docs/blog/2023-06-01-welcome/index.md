@@ -9,6 +9,8 @@ tags: [auth, oauth, nextjs]
 
 Welcome to the Auth.js Multi-Client system documentation! This blog will contain updates and announcements about the project.
 
+<!-- truncate -->
+
 ## Features
 
 - Support for multiple OAuth providers (Google, GitHub, Facebook, LinkedIn, Auth0)
