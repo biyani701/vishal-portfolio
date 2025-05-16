@@ -1,21 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-
-// Define a type for Auth.js redirect errors
-interface AuthRedirectError extends Error {
-  digest: string;
-}
-
-// Check if an error is an Auth.js redirect error
-function isAuthRedirectError(error: unknown): error is AuthRedirectError {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'digest' in error &&
-    typeof (error as { digest: string }).digest === 'string' &&
-    (error as { digest: string }).digest.startsWith('NEXT_REDIRECT')
-  );
-}
+// Removed unused imports and functions
 
 // Custom callback handler for Auth.js v5
 export async function GET(
@@ -99,11 +83,11 @@ export async function GET(
     // Handle any errors that might occur
     console.error('[auth][callback] Unexpected error:', error);
 
-    // Get the client origin from the error context if available
-    const errorClientOrigin = clientOrigin || 'http://localhost:3000';
+    // Use a default client origin since we might not have access to the original one in this context
+    const defaultClientOrigin = 'http://localhost:3000';
 
     // Redirect to the error page
-    return NextResponse.redirect(`${errorClientOrigin}/auth-error?error=UnexpectedError&message=${encodeURIComponent(
+    return NextResponse.redirect(`${defaultClientOrigin}/auth-error?error=UnexpectedError&message=${encodeURIComponent(
       error instanceof Error ? error.message : 'Unknown error'
     )}`);
   }
