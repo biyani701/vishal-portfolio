@@ -84,6 +84,7 @@ export async function middleware(request: NextRequest) {
 // Configure the middleware to run on all routes except static files
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    // Run on all routes except static files and Auth.js routes
+    '/((?!_next/static|_next/image|favicon.ico|api/auth/callback).*)',
   ],
 };

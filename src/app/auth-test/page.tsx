@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AuthStatus from '@/components/auth-status';
-import { useSession } from 'next-auth/react';
 import { SignInButton, SignOutButton, AuthStatus as NewAuthStatus } from '@/components/AuthButtons';
 
 export default function AuthTestPage() {

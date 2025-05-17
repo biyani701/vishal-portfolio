@@ -22,9 +22,9 @@ After creating your application, you need to configure it:
 
 1. In your Auth0 application settings, scroll down to "Application URIs"
 2. Set the following URLs:
-   - **Allowed Callback URLs**: `https://my-oauth-proxy.vercel.app/api/auth/callback/auth0,http://localhost:4000/api/auth/callback/auth0`
-   - **Allowed Logout URLs**: `https://my-oauth-proxy.vercel.app,http://localhost:4000`
-   - **Allowed Web Origins**: `https://my-oauth-proxy.vercel.app,http://localhost:4000`
+   - **Allowed Callback URLs**: `https://my-oauth-proxy.vercel.app/api/auth/callback/auth0,http://localhost:4002/api/auth/callback/auth0`
+   - **Allowed Logout URLs**: `https://my-oauth-proxy.vercel.app,http://localhost:4002`
+   - **Allowed Web Origins**: `https://my-oauth-proxy.vercel.app,http://localhost:4002`
 3. Scroll down and click "Save Changes"
 
 ## Getting Your Auth0 Credentials
@@ -100,7 +100,7 @@ If you see an error about the callback URL not being allowed:
 To test your Auth0 integration:
 
 1. Start your development server: `npm run dev`
-2. Navigate to `http://localhost:4000/auth-test`
+2. Navigate to `http://localhost:4002/auth-test`
 3. Click "Sign in with Auth0"
 4. You should be redirected to the Auth0 login page
 5. After logging in, you should be redirected back to your application

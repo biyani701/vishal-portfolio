@@ -4,7 +4,9 @@
 
 window.runtimeConfig = {
   // Default values (will be overridden by runtime-config.json if available)
-  AUTH_SERVER_URL: 'http://localhost:4000'
+  AUTH_SERVER_URL: window.location.hostname === 'localhost'
+    ? `http://localhost:${window.location.hostname === 'localhost' ? '4000' : window.location.port}`
+    : window.location.origin
 };
 
 // Function to load runtime configuration

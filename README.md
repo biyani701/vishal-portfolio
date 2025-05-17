@@ -11,7 +11,8 @@ A customized OAuth provider built with Next.js and Auth.js v5 that supports Goog
 - Auth0 authentication
 - Multi-client support (different OAuth credentials per client)
 - Cross-origin authentication support
-- JWT-based session management
+- Database session management with Neon PostgreSQL
+- JWT-based session management (fallback)
 - Protected routes
 - User profile access
 - Comprehensive CORS handling
@@ -70,8 +71,11 @@ AUTH0_CLIENT_SECRET=your_auth0_client_secret
 AUTH0_ISSUER=your_auth0_issuer_url
 
 # URLs
-NEXTAUTH_URL=http://localhost:4000
+NEXTAUTH_URL=http://localhost:4002
 CLIENT_URL=http://localhost:3000
+
+# Database configuration (Neon PostgreSQL)
+DATABASE_URL="postgresql://username:password@your-neon-db-host/database?sslmode=require"
 ```
 
 ### Setting up Google OAuth
@@ -81,8 +85,8 @@ CLIENT_URL=http://localhost:3000
 3. Navigate to "APIs & Services" > "Credentials"
 4. Click "Create Credentials" > "OAuth client ID"
 5. Select "Web application" as the application type
-6. Add "http://localhost:4000" to the Authorized JavaScript origins
-7. Add "http://localhost:4000/api/auth/callback/google" to the Authorized redirect URIs
+6. Add "http://localhost:4002" to the Authorized JavaScript origins
+7. Add "http://localhost:4002/api/auth/callback/google" to the Authorized redirect URIs
 8. Click "Create" and note your Client ID and Client Secret
 
 ### Setting up GitHub OAuth
@@ -91,10 +95,23 @@ CLIENT_URL=http://localhost:3000
 2. Click "New OAuth App"
 3. Fill in the application details:
    - Application name: Your app name
-   - Homepage URL: http://localhost:4000
-   - Authorization callback URL: http://localhost:4000/api/auth/callback/github
+   - Homepage URL: http://localhost:4002
+   - Authorization callback URL: http://localhost:4002/api/auth/callback/github
 4. Click "Register application"
 5. Note your Client ID and generate a Client Secret
+
+### Setting up Neon PostgreSQL Database
+
+1. Create an account on [Neon](https://neon.tech/)
+2. Create a new project
+3. Create a new database
+4. Get the connection string from the dashboard
+5. Add the connection string to your `.env.local` file as `DATABASE_URL`
+6. Initialize the database schema by running:
+
+```bash
+npx prisma db push
+```
 
 ## Running Locally
 
@@ -104,7 +121,7 @@ Start the development server:
 npm run dev
 ```
 
-Open [http://localhost:4000](http://localhost:4000) with your browser to see the application.
+Open [http://localhost:4002](http://localhost:4002) with your browser to see the application.
 
 ## Deployment on Vercel
 
@@ -181,14 +198,16 @@ async function checkSession() {
 - `src/auth.config.ts` - Auth provider configuration
 - `src/middleware.ts` - CORS and authentication middleware
 - `src/lib/auth-client.ts` - Client-side authentication utilities
+- `src/lib/prisma.ts` - Prisma client initialization
 - `src/components/` - Reusable components
 - `src/app/` - Next.js app router pages
+- `prisma/schema.prisma` - Database schema definition
 
 ## Local Development with Multiple Clients
 
 When developing locally, the server uses a proxy to handle requests from clients on different origins:
 
-1. OAuth server runs on `http://localhost:4000`
+1. OAuth server runs on `http://localhost:4002`
 2. Client app runs on `http://localhost:3000`
 
 The proxy middleware handles CORS and cookie issues during development.

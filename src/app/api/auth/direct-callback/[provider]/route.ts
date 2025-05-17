@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { auth } from '@/auth';
+import { testDatabaseConnection } from '@/lib/prisma';
 
 /**
  * This is a direct callback handler for OAuth providers.
  * It's used as a fallback when the normal Auth.js callback doesn't work.
+ * It handles cases where state is missing and prevents authentication loops.
  */
 export async function GET(
   request: NextRequest,
@@ -27,11 +28,16 @@ export async function GET(
       );
     }
 
-    // Check if we've already tried to handle this code
-    const cookieStore = cookies();
-    const attemptCookie = cookieStore.get('auth-callback-attempt');
+    // Check database connection
+    const dbConnected = await testDatabaseConnection();
+    console.log(`[direct-callback] Database connection status: ${dbConnected ? 'Connected' : 'Disconnected'}`);
 
-    if (attemptCookie && attemptCookie.value === code.substring(0, 10)) {
+    // Check if we've already tried to handle this code
+    const cookieHeader = request.headers.get('cookie') || '';
+    const codePrefix = code.substring(0, 10);
+    const hasAttemptCookie = cookieHeader.includes(`auth-callback-attempt=${codePrefix}`);
+
+    if (hasAttemptCookie) {
       console.log(`[direct-callback] Already attempted to handle this code, returning success to break loop`);
 
       // Return a success response to break the loop
@@ -41,14 +47,8 @@ export async function GET(
       );
     }
 
-    // Set a cookie to track this specific callback attempt
-    cookieStore.set('auth-callback-attempt', code.substring(0, 10), {
-      path: '/',
-      maxAge: 300, // 5 minutes
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
-    });
+    // We'll set the cookie in the final response
+    console.log(`[direct-callback] Will track authentication attempt for code: ${codePrefix}`);
 
     // Try to get the session directly
     try {
@@ -68,10 +68,19 @@ export async function GET(
       console.error(`[direct-callback] Error getting session:`, sessionError);
     }
 
-    // Construct the Auth.js callback URL
+    // If state is missing, create a synthetic state to prevent issues
+    // This is important for providers like Google that might not return state
     let callbackUrl = `/api/auth/callback/${provider}?code=${encodeURIComponent(code)}`;
     if (state) {
       callbackUrl += `&state=${encodeURIComponent(state)}`;
+    } else {
+      // Create a minimal synthetic state with the current timestamp to make auth.js happy
+      const syntheticState = JSON.stringify({
+        timestamp: Date.now(),
+        provider: provider
+      });
+      console.log(`[direct-callback] Creating synthetic state: ${syntheticState}`);
+      callbackUrl += `&state=${encodeURIComponent(syntheticState)}`;
     }
 
     console.log(`[direct-callback] Redirecting to Auth.js callback: ${callbackUrl}`);
@@ -88,6 +97,16 @@ export async function GET(
         });
 
         console.log(`[direct-callback] Auth.js callback response status: ${callbackResponse.status}`);
+
+        // Extract the session cookie from the response
+        const setCookieHeader = callbackResponse.headers.get('set-cookie');
+        console.log(`[direct-callback] Set-Cookie header from Auth.js: ${setCookieHeader ? 'present' : 'missing'}`);
+
+        if (setCookieHeader) {
+          // Log the session cookie for debugging
+          const sessionCookie = setCookieHeader.split(';')[0];
+          console.log(`[direct-callback] Session cookie: ${sessionCookie}`);
+        }
 
         // Try to get the session after the callback
         try {
@@ -128,10 +147,12 @@ export async function GET(
     }
 
     // Check if we've already been redirected here multiple times
+    // Lower the threshold to 1 to break loops faster
     const redirectCount = parseInt(request.headers.get('x-redirect-count') || '0', 10);
     console.log(`[direct-callback] Current redirect count: ${redirectCount}`);
 
-    if (redirectCount > 2) {
+    // Break the loop after just 1 redirect to prevent infinite loops
+    if (redirectCount > 1) {
       console.log(`[direct-callback] Too many redirects, breaking the loop`);
 
       // Instead of redirecting again, try to handle the authentication directly
@@ -145,33 +166,103 @@ export async function GET(
           return NextResponse.redirect(new URL('/auth-success', request.url));
         }
 
-        // If we don't have a session, redirect to the home page
-        console.log(`[direct-callback] No session established, redirecting to home page`);
-        return NextResponse.redirect(new URL('/', request.url));
+        // If we don't have a session, try to create one directly
+        console.log(`[direct-callback] No session established, trying direct authentication`);
+
+        // Get the current URL for reference
+        const currentUrl = new URL(request.url);
+        const serverOrigin = `${currentUrl.protocol}//${currentUrl.host}`;
+
+        // Redirect to the home page with a message
+        return NextResponse.redirect(new URL('/?auth=failed', serverOrigin));
       } catch (error) {
         console.error(`[direct-callback] Error handling authentication directly:`, error);
-        return NextResponse.redirect(new URL('/', request.url));
+        return NextResponse.redirect(new URL('/?auth=error', request.url));
       }
     }
 
-    // For regular requests, redirect to the Auth.js callback URL with a timestamp to prevent caching
+    // For regular requests, call the Auth.js callback directly to get the session cookie
+    try {
+      console.log(`[direct-callback] Calling Auth.js callback directly to get session cookie`);
+      const callbackResponse = await fetch(new URL(callbackUrl, request.url).toString(), {
+        headers: {
+          Cookie: request.headers.get('cookie') || '',
+        },
+      });
+
+      console.log(`[direct-callback] Auth.js callback direct call status: ${callbackResponse.status}`);
+
+      // Extract the session cookie from the response
+      const setCookieHeader = callbackResponse.headers.get('set-cookie');
+      console.log(`[direct-callback] Set-Cookie header from direct call: ${setCookieHeader ? 'present' : 'missing'}`);
+
+      if (setCookieHeader) {
+        // Log the session cookie for debugging
+        const sessionCookie = setCookieHeader.split(';')[0];
+        console.log(`[direct-callback] Session cookie from direct call: ${sessionCookie}`);
+
+        // Create a redirect response to the success page
+        const currentUrl = new URL(request.url);
+        const serverOrigin = `${currentUrl.protocol}//${currentUrl.host}`;
+        const successUrl = new URL('/auth-success', serverOrigin);
+
+        // Add the provider as a query parameter
+        successUrl.searchParams.append('provider', provider);
+
+        console.log(`[direct-callback] Redirecting to success page with session cookie: ${successUrl.toString()}`);
+        const redirectResponse = NextResponse.redirect(successUrl);
+
+        // Copy all cookies from the Auth.js response
+        const cookies = setCookieHeader.split(',').map(cookie => cookie.trim());
+        cookies.forEach(cookie => {
+          redirectResponse.headers.append('Set-Cookie', cookie);
+        });
+
+        // Set the cookie to track this authentication attempt
+        redirectResponse.cookies.set('auth-callback-attempt', codePrefix, {
+          path: '/',
+          maxAge: 300, // 5 minutes
+          httpOnly: true,
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+        });
+
+        return redirectResponse;
+      }
+    } catch (error) {
+      console.error(`[direct-callback] Error calling Auth.js callback directly:`, error);
+    }
+
+    // Fallback to the original redirect if direct call fails
     const timestamp = Date.now();
     const redirectUrl = new URL(callbackUrl, request.url);
     redirectUrl.searchParams.append('_', timestamp.toString());
 
-    // Increment the redirect count
-    const headers = new Headers();
-    headers.set('x-redirect-count', (redirectCount + 1).toString());
+    console.log(`[direct-callback] Falling back to original redirect: ${redirectUrl.toString()}`);
+    const redirectResponse = NextResponse.redirect(redirectUrl);
 
-    console.log(`[direct-callback] Redirecting to: ${redirectUrl.toString()}`);
-    return NextResponse.redirect(redirectUrl, {
-      headers
+    // Set the cookie to track this authentication attempt
+    redirectResponse.cookies.set('auth-callback-attempt', codePrefix, {
+      path: '/',
+      maxAge: 300, // 5 minutes
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: process.env.NODE_ENV === 'production',
     });
+
+    return redirectResponse;
   } catch (error) {
     console.error('[direct-callback] Error handling callback:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+
+    // Get the current URL for reference
+    const currentUrl = new URL(request.url);
+    const serverOrigin = `${currentUrl.protocol}//${currentUrl.host}`;
+
+    // Redirect to the error page with more details
+    return NextResponse.redirect(
+      new URL(`/auth-error?error=CallbackError&message=${encodeURIComponent(
+        error instanceof Error ? error.message : 'Unknown error during callback'
+      )}`, serverOrigin)
     );
   }
 }

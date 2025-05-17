@@ -51,7 +51,7 @@ The identification logic is implemented in the `identifyClient` function:
 ```typescript
 export const identifyClient = (origin?: string): ClientId => {
   if (!origin) return ClientId.DEFAULT;
-  
+
   // Map origins to client IDs
   if (origin.includes('client1.com') || origin.includes('localhost:3001')) {
     return ClientId.CLIENT1;
@@ -60,7 +60,7 @@ export const identifyClient = (origin?: string): ClientId => {
   } else if (origin.includes('vishal.biyani.xyz') || origin.includes('github.io')) {
     return ClientId.PORTFOLIO;
   }
-  
+
   // Default fallback
   return ClientId.DEFAULT;
 };
@@ -95,7 +95,7 @@ export enum ClientId {
 // Step 2: Add to the identification logic
 export const identifyClient = (origin?: string): ClientId => {
   if (!origin) return ClientId.DEFAULT;
-  
+
   if (origin.includes('client1.com') || origin.includes('localhost:3001')) {
     return ClientId.CLIENT1;
   } else if (origin.includes('client2.com') || origin.includes('localhost:3002')) {
@@ -105,7 +105,7 @@ export const identifyClient = (origin?: string): ClientId => {
   } else if (origin.includes('mobile-app.com') || origin.includes('localhost:3003')) {
     return ClientId.MOBILE_APP;  // New condition
   }
-  
+
   return ClientId.DEFAULT;
 };
 ```
@@ -116,13 +116,13 @@ You can test client identification by sending requests with different origin hea
 
 ```bash
 # Test with Client 1 origin
-curl -H "Origin: http://localhost:3001" http://localhost:4000/api/auth/session
+curl -H "Origin: http://localhost:3001" http://localhost:4002/api/auth/session
 
 # Test with Client 2 origin
-curl -H "Origin: http://localhost:3002" http://localhost:4000/api/auth/session
+curl -H "Origin: http://localhost:3002" http://localhost:4002/api/auth/session
 
 # Test with Portfolio origin
-curl -H "Origin: https://vishal.biyani.xyz" http://localhost:4000/api/auth/session
+curl -H "Origin: https://vishal.biyani.xyz" http://localhost:4002/api/auth/session
 ```
 
 The server logs will show which client was identified for each request.

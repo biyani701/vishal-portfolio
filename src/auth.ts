@@ -3,6 +3,8 @@ import type { NextRequest } from "next/server";
 import { authConfig } from "./auth.config";
 import { createAuthConfig } from "./auth.config";
 import { headers } from "next/headers";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import { prisma, testDatabaseConnection } from "./lib/prisma";
 
 export type { Session } from "next-auth";
 
@@ -32,6 +34,20 @@ declare module "next-auth" {
   interface Account {
     clientOrigin?: string; // Add this to track which client the user came from
     [key: string]: unknown; // Add index signature to allow additional properties
+  }
+
+  // Extend User type to include custom fields
+  interface User {
+    provider?: string;
+    clientOrigin?: string;
+    clientId?: string;
+  }
+
+  // Extend AdapterUser type to include custom fields
+  interface AdapterUser {
+    provider?: string;
+    clientOrigin?: string;
+    clientId?: string;
   }
 }
 
@@ -74,41 +90,62 @@ const createDynamicHandler = async (req: Request | NextRequest) => {
 
   console.log("[auth] Request from origin:", origin);
 
+  // Test database connection
+  const dbConnected = await testDatabaseConnection();
+  console.log("[auth] Database connection status:", dbConnected ? "Connected" : "Disconnected");
+
   // Create dynamic config based on origin
   const dynamicAuthConfig = createAuthConfig(origin || undefined);
 
   // Create the Auth.js handler with dynamic config
   const handler = NextAuth({
     ...dynamicAuthConfig,
-    session: { strategy: "jwt" },
-    secret: process.env.AUTH_SECRET,
-    debug: process.env.NODE_ENV === "development",
+    // Always use database adapter regardless of connection status
+    // This ensures that user records are created during authentication
+    adapter: PrismaAdapter(prisma),
+    session: {
+      strategy: "jwt", // Always use JWT for reliability
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+    },
+    // JWT options for Auth.js v5
+    // In v5, the secret is set at the top level, not in the jwt object
+    // The maxAge is still valid
+    jwt: {
+      // Increase the max age to ensure the token doesn't expire too quickly
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+    },
+    // Make sure we have a secret for cookie encryption
+    secret: process.env.AUTH_SECRET || "FALLBACK_SECRET_FOR_DEVELOPMENT_ONLY",
+    debug: true, // Always enable debug mode to help troubleshoot
     cookies: {
       sessionToken: {
         name: `next-auth.session-token`,
         options: {
           httpOnly: true,
-          sameSite: "none", // Use none to allow cross-site cookies
+          sameSite: "lax", // Always use lax to ensure cookies work in development
           path: "/",
-          secure: true, // Always use secure for cross-site cookies
+          secure: process.env.NODE_ENV === "production",
+          domain: process.env.COOKIE_DOMAIN || undefined,
         },
       },
       callbackUrl: {
         name: `next-auth.callback-url`,
         options: {
           httpOnly: true,
-          sameSite: "none", // Use none to allow cross-site cookies
+          sameSite: "lax", // Always use lax to ensure cookies work in development
           path: "/",
-          secure: true, // Always use secure for cross-site cookies
+          secure: process.env.NODE_ENV === "production",
+          domain: process.env.COOKIE_DOMAIN || undefined,
         },
       },
       csrfToken: {
         name: `next-auth.csrf-token`,
         options: {
           httpOnly: true,
-          sameSite: "none", // Use none to allow cross-site cookies
+          sameSite: "lax", // Always use lax to ensure cookies work in development
           path: "/",
-          secure: true, // Always use secure for cross-site cookies
+          secure: process.env.NODE_ENV === "production",
+          domain: process.env.COOKIE_DOMAIN || undefined,
         },
       },
     },
@@ -186,12 +223,12 @@ const createDynamicHandler = async (req: Request | NextRequest) => {
 export async function GET(req: NextRequest) {
   const handler = await createDynamicHandler(req);
   return handler.handlers.GET(req);
-  
+
 }
 
 export async function POST(req: NextRequest) {
   const handler = await createDynamicHandler(req);
-  return handler.handlers.POST(req);  
+  return handler.handlers.POST(req);
 }
 
 // Create an auth function for use in server components
@@ -199,39 +236,57 @@ export async function auth() {
   // For server components, we need to use the headers() API
   const origin = await getOriginFromRequest();
 
+  // Test database connection
+  const dbConnected = await testDatabaseConnection();
+  console.log("[auth] Database connection status:", dbConnected ? "Connected" : "Disconnected");
+
   // Create the Auth.js handler with dynamic config
   // Don't use createDynamicHandler here, create a new NextAuth instance directly
   const handler = NextAuth({
     ...createAuthConfig(origin || undefined),
-    session: { strategy: "jwt" },
-    secret: process.env.AUTH_SECRET,
-    debug: process.env.NODE_ENV === "development",
+    // Always use database adapter regardless of connection status
+    adapter: PrismaAdapter(prisma),
+    session: {
+      strategy: "jwt", // Always use JWT for reliability
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+    },
+    // JWT options for Auth.js v5
+    jwt: {
+      // Increase the max age to ensure the token doesn't expire too quickly
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+    },
+    // Make sure we have a secret for cookie encryption
+    secret: process.env.AUTH_SECRET || "FALLBACK_SECRET_FOR_DEVELOPMENT_ONLY",
+    debug: true, // Always enable debug mode to help troubleshoot
     cookies: {
       sessionToken: {
         name: `next-auth.session-token`,
         options: {
           httpOnly: true,
-          sameSite: "none", // Use none to allow cross-site cookies
+          sameSite: "lax", // Always use lax to ensure cookies work in development
           path: "/",
-          secure: true, // Always use secure for cross-site cookies
+          secure: process.env.NODE_ENV === "production",
+          domain: process.env.COOKIE_DOMAIN || undefined,
         },
       },
       callbackUrl: {
         name: `next-auth.callback-url`,
         options: {
           httpOnly: true,
-          sameSite: "none", // Use none to allow cross-site cookies
+          sameSite: "lax", // Always use lax to ensure cookies work in development
           path: "/",
-          secure: true, // Always use secure for cross-site cookies
+          secure: process.env.NODE_ENV === "production",
+          domain: process.env.COOKIE_DOMAIN || undefined,
         },
       },
       csrfToken: {
         name: `next-auth.csrf-token`,
         options: {
           httpOnly: true,
-          sameSite: "none", // Use none to allow cross-site cookies
+          sameSite: "lax", // Always use lax to ensure cookies work in development
           path: "/",
-          secure: true, // Always use secure for cross-site cookies
+          secure: process.env.NODE_ENV === "production",
+          domain: process.env.COOKIE_DOMAIN || undefined,
         },
       },
     },
@@ -316,37 +371,53 @@ export async function auth() {
 // }
 
 // Create a default handler for client-side usage
+// Note: We don't check database connection here since this is only used for client-side functions
+// The actual server-side handlers will check the database connection
 const handler = NextAuth({
   ...authConfig,
-  session: { strategy: "jwt" },
-  secret: process.env.AUTH_SECRET,
-  debug: process.env.NODE_ENV === "development",
+  // Always use database adapter to ensure user records are created
+  adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: "jwt", // Always use JWT for reliability
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  // JWT options for Auth.js v5
+  jwt: {
+    // Increase the max age to ensure the token doesn't expire too quickly
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  // Make sure we have a secret for cookie encryption
+  secret: process.env.AUTH_SECRET || "FALLBACK_SECRET_FOR_DEVELOPMENT_ONLY",
+  debug: true, // Always enable debug mode to help troubleshoot
   cookies: {
     sessionToken: {
       name: `next-auth.session-token`,
       options: {
         httpOnly: true,
-        sameSite: "none", // Use none to allow cross-site cookies
+        sameSite: "lax", // Always use lax to ensure cookies work in development
         path: "/",
-        secure: true, // Always use secure for cross-site cookies
+        secure: process.env.NODE_ENV === "production",
+        domain: process.env.COOKIE_DOMAIN || undefined,
       },
     },
     callbackUrl: {
       name: `next-auth.callback-url`,
       options: {
         httpOnly: true,
-        sameSite: "none", // Use none to allow cross-site cookies
+        sameSite: "lax", // Always use lax to ensure cookies work in development
         path: "/",
-        secure: true, // Always use secure for cross-site cookies
+        secure: process.env.NODE_ENV === "production",
+        domain: process.env.COOKIE_DOMAIN || undefined,
       },
     },
     csrfToken: {
       name: `next-auth.csrf-token`,
       options: {
         httpOnly: true,
-        sameSite: "none", // Use none to allow cross-site cookies
+        sameSite: "lax", // Always use lax to ensure cookies work in development
         path: "/",
-        secure: true, // Always use secure for cross-site cookies
+        secure: process.env.NODE_ENV === "production",
+        domain: process.env.COOKIE_DOMAIN || undefined,
       },
     },
   },
@@ -359,6 +430,12 @@ const handler = NextAuth({
         profile: profile ? { email: profile.email } : null
       });
 
+      // Simple check to ensure we have a user and account
+      if (!user || !account) {
+        console.error('[auth][callbacks] Missing user or account in signIn callback');
+        return false;
+      }
+
       return true;
     },
     async jwt({ token, user, account }) {
@@ -368,11 +445,9 @@ const handler = NextAuth({
         provider: account?.provider
       });
 
-      // Initial sign in
-      if (account && user) {
-        token.userId = user.id;
+      // Add provider to token on first sign in
+      if (account) {
         token.provider = account.provider;
-        token.clientOrigin = account.clientOrigin as string | undefined;
       }
 
       return token;
@@ -383,10 +458,11 @@ const handler = NextAuth({
         tokenSub: token?.sub
       });
 
-      if (token && session.user) {
-        session.user.id = token.userId as string;
-        session.user.provider = token.provider as string;
-        session.user.clientOrigin = token.clientOrigin as string | undefined;
+      if (session.user && token) {
+        session.user.id = token.sub as string;
+        if (token.provider) {
+          session.user.provider = token.provider as string;
+        }
       }
 
       return session;

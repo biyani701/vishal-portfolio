@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { signIn, auth } from '@/auth';
-import { withCors } from '@/app/api/cors';
 
 // Define a type for Auth.js redirect errors
 interface AuthRedirectError extends Error {
@@ -175,8 +174,7 @@ export async function POST(
 
 // Add an OPTIONS handler for CORS preflight requests
 export async function OPTIONS(
-  request: NextRequest,
-  { params }: { params: Promise<{ provider: string }> }
+  request: NextRequest
 ) {
   const origin = request.headers.get('origin') || '';
 

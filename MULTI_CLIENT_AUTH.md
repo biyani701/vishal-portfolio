@@ -27,7 +27,7 @@ export enum ClientId {
 
 export const identifyClient = (origin?: string): ClientId => {
   if (!origin) return ClientId.DEFAULT;
-  
+
   if (origin.includes('client1.com') || origin.includes('localhost:3001')) {
     return ClientId.CLIENT1;
   } else if (origin.includes('client2.com') || origin.includes('localhost:3002')) {
@@ -35,7 +35,7 @@ export const identifyClient = (origin?: string): ClientId => {
   } else if (origin.includes('vishal.biyani.xyz') || origin.includes('github.io')) {
     return ClientId.PORTFOLIO;
   }
-  
+
   return ClientId.DEFAULT;
 };
 ```
@@ -47,10 +47,10 @@ Based on the identified client, the appropriate OAuth credentials are selected:
 ```typescript
 export const getProviderCredentials = (origin?: string) => {
   const clientId = identifyClient(origin);
-  
+
   let githubClientId: string;
   let githubClientSecret: string;
-  
+
   switch (clientId) {
     case ClientId.CLIENT1:
       githubClientId = process.env.GITHUB_CLIENT_ID_CLIENT1!;
@@ -58,7 +58,7 @@ export const getProviderCredentials = (origin?: string) => {
       break;
     // ... other cases
   }
-  
+
   return {
     githubClientId,
     githubClientSecret,
@@ -73,12 +73,12 @@ For each request, a dynamic Auth.js configuration is created based on the client
 
 ```typescript
 const createDynamicHandler = async (req: Request | NextRequest) => {
-  const origin = req.headers.get("origin") || 
-                req.headers.get("x-client-origin") || 
+  const origin = req.headers.get("origin") ||
+                req.headers.get("x-client-origin") ||
                 req.headers.get("referer");
-                
+
   const dynamicAuthConfig = createAuthConfig(origin || undefined);
-  
+
   const handler = NextAuth({
     ...dynamicAuthConfig,
     // ... other configuration
@@ -90,7 +90,7 @@ const createDynamicHandler = async (req: Request | NextRequest) => {
       }
     }
   });
-  
+
   return handler;
 };
 ```
@@ -102,10 +102,10 @@ The client information is stored in the JWT token and session:
 ```typescript
 jwt({ token, user, account, profile }) {
   if (account && user) {
-    const clientId = account.clientOrigin 
+    const clientId = account.clientOrigin
       ? identifyClient(account.clientOrigin as string)
       : ClientId.DEFAULT;
-      
+
     return {
       ...token,
       userId: user.id,
@@ -120,7 +120,7 @@ session({ session, token }) {
   if (token && session.user) {
     session.user.id = token.userId as string;
     session.user.provider = token.provider as string;
-    
+
     // Add client information to the session
     session.user.clientOrigin = token.clientOrigin as string | undefined;
     session.user.clientId = token.clientId as string | undefined;
@@ -171,7 +171,7 @@ For each client, you need to create a separate GitHub OAuth App:
 
 To test different clients locally:
 
-1. Run your Auth.js server on port 4000
+1. Run your Auth.js server on port 4002
 2. Run client 1 on port 3001
 3. Run client 2 on port 3002
 4. The server will detect the origin and use the appropriate credentials

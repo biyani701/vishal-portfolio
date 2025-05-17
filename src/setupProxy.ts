@@ -6,7 +6,8 @@ import { Express, Request, Response, NextFunction } from 'express';
 // It's not used in production builds
 module.exports = function(app: Express): void {
   // Get the Auth.js server URL from environment variable or use a default for development
-  const AUTH_SERVER_URL = process.env.REACT_APP_AUTH_SERVER_URL || 'http://localhost:4000';
+  const port = process.env.PORT || '4000';
+  const AUTH_SERVER_URL = process.env.REACT_APP_AUTH_SERVER_URL || `http://localhost:${port}`;
 
   console.log(`[Proxy] Using Auth server URL: ${AUTH_SERVER_URL}`);
 

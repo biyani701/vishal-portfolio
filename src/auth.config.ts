@@ -224,6 +224,14 @@ export const createAuthConfig = (origin?: string): NextAuthConfig => {
       Google({
         clientId: googleClientId,
         clientSecret: googleClientSecret,
+        // Add explicit redirect URI for Google
+        authorization: {
+          params: {
+            redirect_uri: process.env.NEXTAUTH_URL
+              ? `${process.env.NEXTAUTH_URL}/api/auth/callback/google`
+              : `https://my-oauth-proxy.vercel.app/api/auth/callback/google`
+          }
+        }
       }),
       GitHub({
         clientId: githubClientId,

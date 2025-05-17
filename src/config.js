@@ -1,7 +1,20 @@
 // Auth.js server URL - use runtime config, environment variable, or default to localhost during development
-const AUTH_SERVER_URL = (window.runtimeConfig && window.runtimeConfig.AUTH_SERVER_URL) || 
-                        process.env.REACT_APP_AUTH_SERVER_URL || 
-                        'http://localhost:4000';
+const getDefaultAuthServerUrl = () => {
+  // In browser environment
+  if (typeof window !== 'undefined') {
+    return window.location.hostname === 'localhost'
+      ? `http://localhost:${process.env.PORT || '4000'}`
+      : window.location.origin;
+  }
+  // In Node.js environment
+  return `http://localhost:${process.env.PORT || '4000'}`;
+};
+
+console.log('[Config] getDefaultAuthServerUrl:', getDefaultAuthServerUrl());
+console.log('[Config] process.env.REACT_APP_AUTH_SERVER_URL:', process.env.REACT_APP_AUTH_SERVER_URL);
+const AUTH_SERVER_URL = (window.runtimeConfig && window.runtimeConfig.AUTH_SERVER_URL) ||
+                        process.env.REACT_APP_AUTH_SERVER_URL ||
+                        getDefaultAuthServerUrl();
 
 console.log('[Config] Using Auth server URL:', AUTH_SERVER_URL);
 

@@ -3,6 +3,7 @@
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export function SignInButton({ provider = "google", redirectTo = "/auth-success" }: { provider?: string, redirectTo?: string }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -85,10 +86,12 @@ export function UserProfile() {
     <div className="flex flex-col items-center gap-4">
       <div className="flex items-center gap-4">
         {session.user?.image && (
-          <img
+          <Image
             src={session.user.image}
             alt={session.user.name || "User"}
             className="w-10 h-10 rounded-full"
+            width={40}
+            height={40}
           />
         )}
         <div>

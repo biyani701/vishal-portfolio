@@ -41,7 +41,7 @@ async function testAuth(fetch) {
     }
 
     // Test session endpoint
-    const sessionUrl = 'http://localhost:4000/api/auth/session';
+    const sessionUrl = 'http://localhost:4002/api/auth/session';
     console.log(`\nTesting session endpoint: ${sessionUrl}`);
 
     const sessionResponse = await fetch(sessionUrl, {
