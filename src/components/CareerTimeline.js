@@ -803,7 +803,7 @@ export default function CareerTimeline() {
                 // Start second card
                 // gridRow: {
                 //   md: index === 1 ? "2/4" : "auto",
-                // },                
+                // },
                 "--inlineP": "1.5rem",
                 marginInline: "var(--inlineP)",
                 gridRow: "span 2",
@@ -1353,19 +1353,20 @@ export default function CareerTimeline() {
             }}
           >
             <ToggleButton value="default" aria-label="default timeline">
-              <ToggleButton value="zigzag" aria-label="zigzag timeline">
+              <Tooltip title="Default Timeline">
+                <ViewDayIcon fontSize="small" />
+              </Tooltip>
+            </ToggleButton>
+
+            <ToggleButton value="zigzag" aria-label="zigzag timeline">
               <Tooltip title="Zigzag Timeline">
                 <ViewWeekIcon fontSize="small" />
               </Tooltip>
             </ToggleButton>
-              
+
             <ToggleButton value="alternating" aria-label="alternating timeline">
               <Tooltip title="Alternating Timeline">
                 <ViewTimelineIcon fontSize="small" />
-              </Tooltip>
-            </ToggleButton>            
-            <Tooltip title="Default Timeline">
-                <ViewDayIcon fontSize="small" />
               </Tooltip>
             </ToggleButton>
           </ToggleButtonGroup>

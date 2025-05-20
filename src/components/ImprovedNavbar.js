@@ -1374,10 +1374,10 @@ const NavigationBar = ({
         <List>
           {/* Navigation Items */}
           <ListItem
-            button
             component={RouterLink}
             to="/"
             onClick={handleDrawerToggle}
+            button={true}
           >
             <ListItemIcon>
               <HomeIcon />
@@ -1385,10 +1385,10 @@ const NavigationBar = ({
             <ListItemText primary="Home" />
           </ListItem>
           <ListItem
-            button
             component={RouterLink}
             to="/about"
             onClick={handleDrawerToggle}
+            button={true}
           >
             <ListItemIcon>
               <WorkIcon />
@@ -1400,7 +1400,7 @@ const NavigationBar = ({
           {resumeItems.map(({ id, label }) => (
             <ListItem
               key={id}
-              button
+              button={true}
               onClick={() => {
                 handleDrawerToggle();
                 handleResumeItemClick(id);
@@ -1412,7 +1412,7 @@ const NavigationBar = ({
           ))}
 
           <ListItem
-            button
+            button={true}
             component={RouterLink}
             to="/works"
             onClick={handleDrawerToggle}
@@ -1423,7 +1423,7 @@ const NavigationBar = ({
             <ListItemText primary="Portfolio" />
           </ListItem>
           <ListItem
-            button
+            button={true}
             component={RouterLink}
             to="/blogs"
             onClick={handleDrawerToggle}
@@ -1445,7 +1445,7 @@ const NavigationBar = ({
             />
           </ListItem>
           <ListItem
-            button
+            button={true}
             component={RouterLink}
             to="/knowledge/glossary"
             onClick={handleDrawerToggle}
@@ -1458,7 +1458,7 @@ const NavigationBar = ({
           {domainKnowledgeData.categories.map((category) => (
             <ListItem
               key={category.id}
-              button
+              button={true}
               component={RouterLink}
               to={`/knowledge/domain/${category.id}`}
               onClick={handleDrawerToggle}
@@ -1472,7 +1472,7 @@ const NavigationBar = ({
           ))}
 
           <ListItem
-            button
+            button={true}
             component={RouterLink}
             to="/contact"
             onClick={handleDrawerToggle}
@@ -1487,7 +1487,7 @@ const NavigationBar = ({
 
           {/* Theme Controls */}
           <ListItem
-            button
+            button={true}
             onClick={() => {
               handleDrawerToggle();
               handleThemeToggle();
@@ -1500,7 +1500,7 @@ const NavigationBar = ({
           </ListItem>
 
           <ListItem
-            button
+            button={true}
             onClick={handlePaletteMenuOpen}
             sx={{
               borderLeft:

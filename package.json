@@ -38,7 +38,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "PORT=3775 react-scripts start",
+    "start:windows": "set PORT=3775 && react-scripts start",
     "build": "react-scripts build",
     "build:prod": "node build-prod.js",
     "test": "react-scripts test",
@@ -63,7 +64,7 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:4000",
+  "proxy": "http://localhost:3000",
   "devDependencies": {
     "dotenv": "^16.5.0"
   }
