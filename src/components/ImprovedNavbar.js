@@ -1179,29 +1179,7 @@ const NavigationBar = ({
               <Box sx={{ mr: 1, display: { xs: "none", md: "block" } }}>
                 {isAuthenticated || authJsAuthenticated ? (
                   <ToolpadAccountComponent variant="preview" />
-                ) : (
-
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      size="small"
-                      onClick={() => AuthJsClient.signIn("github")}
-                      sx={{
-                        textTransform: "none",
-                        fontWeight: "bold",
-                        borderRadius: 1,
-                        boxShadow: 2,
-                        "&:hover": {
-                          boxShadow: 4,
-                          transform: "translateY(-2px)",
-                        },
-                        transition: "all 0.2s ease-in-out",
-                      }}
-                    >
-                      Sign In
-                    </Button>
-
-                )}
+                ) : null}
               </Box>
 
               {/* Settings Icon */}
@@ -1269,50 +1247,28 @@ const NavigationBar = ({
                   </Typography>
                   {isAuthenticated || authJsAuthenticated ? (
                     <ToolpadAccountComponent variant="default" />
-                  ) : (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      fullWidth
-                      onClick={() => {
-                        handleSettingsClose();
-                        AuthJsClient.signIn("github");
-                      }}
-                      sx={{
-                        py: 1,
-                        fontWeight: "bold",
-                        textTransform: "none",
-                        borderRadius: 1,
-                        boxShadow: 2,
-                        "&:hover": {
-                          boxShadow: 4,
-                          transform: "translateY(-2px)",
-                        },
-                        transition: "all 0.2s ease-in-out",
-                      }}
-                    >
-                      Sign In
-                    </Button>
-                  )}
+                  ) : null}
                 </Box>
                 {/* Mui Sign in */}
-                <AppProvider theme={theme}>
-                  <SignInPage
-                    providers={[
-                      { id: "github", name: "GitHub" },
-                      { id: "google", name: "Google" },
-                      { id: "facebook", name: "Facebook" },
-                      { id: "auth0", name: "Auth0" },
-                    ]}
-                    signIn={async (provider) => {
-                      // Call the signIn function from AuthJsClient
-                      if (provider && provider.id) {
-                        console.log(`[Navbar] Signing in with ${provider.id}`);
-                        AuthJsClient.signIn(provider.id);
-                      }
-                    }}
-                  />
-                </AppProvider>
+                {!(isAuthenticated || authJsAuthenticated) && (
+                  <AppProvider theme={theme}>
+                    <SignInPage
+                      providers={[
+                        { id: "github", name: "GitHub" },
+                        { id: "google", name: "Google" },
+                        { id: "facebook", name: "Facebook" },
+                        { id: "auth0", name: "Auth0" },
+                      ]}
+                      signIn={async (provider) => {
+                        // Call the signIn function from AuthJsClient
+                        if (provider && provider.id) {
+                          console.log(`[Navbar] Signing in with ${provider.id}`);
+                          AuthJsClient.signIn(provider.id);
+                        }
+                      }}
+                    />
+                  </AppProvider>
+                )}
 
                 {/* Theme Toggle */}
                 <MenuItem onClick={() => toggleDarkMode(!isDarkMode)}>
@@ -1379,16 +1335,6 @@ const NavigationBar = ({
                         <PersonIcon fontSize="small" />
                       </ListItemIcon>
                       <ListItemText primary="Profile" />
-                    </MenuItem>
-                    <MenuItem
-                      component={RouterLink}
-                      to="/dashboard"
-                      onClick={handleSettingsClose}
-                    >
-                      <ListItemIcon>
-                        <DashboardIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText primary="Dashboard" />
                     </MenuItem>
                     <MenuItem
                       onClick={() => {
@@ -1641,29 +1587,24 @@ const NavigationBar = ({
               {isAuthenticated || authJsAuthenticated ? (
                 <ToolpadAccountComponent />
               ) : (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  onClick={() => {
-                    handleDrawerToggle();
-                    AuthJsClient.signIn("github");
-                  }}
-                  sx={{
-                    py: 1.5,
-                    fontWeight: "bold",
-                    textTransform: "none",
-                    borderRadius: 1,
-                    boxShadow: 2,
-                    "&:hover": {
-                      boxShadow: 4,
-                      transform: "translateY(-2px)",
-                    },
-                    transition: "all 0.2s ease-in-out",
-                  }}
-                >
-                  Sign In
-                </Button>
+                <AppProvider theme={theme}>
+                  <SignInPage
+                    providers={[
+                      { id: "github", name: "GitHub" },
+                      { id: "google", name: "Google" },
+                      { id: "facebook", name: "Facebook" },
+                      { id: "auth0", name: "Auth0" },
+                    ]}
+                    signIn={async (provider) => {
+                      // Call the signIn function from AuthJsClient
+                      if (provider && provider.id) {
+                        console.log(`[Navbar] Signing in with ${provider.id}`);
+                        handleDrawerToggle(); // Close the drawer
+                        AuthJsClient.signIn(provider.id);
+                      }
+                    }}
+                  />
+                </AppProvider>
               )}
             </Box>
           </ListItem>

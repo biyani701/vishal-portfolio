@@ -44,32 +44,55 @@ export const signIn = (provider, callbackUrl) => {
 };
 
 /**
- * Redirects to the Auth.js sign-out page
+ * Signs out the user using Auth.js V5
  * @param {string} [callbackUrl] - Optional callback URL after sign-out
  */
-export const signOut = (callbackUrl) => {
+export const signOut = async (callbackUrl) => {
   // Get the auth server URL from runtime config or config
   const authServerUrl = (window.runtimeConfig && window.runtimeConfig.AUTH_SERVER_URL) ||
                        config.auth.serverUrl;
 
   // For Auth.js V5, we need to use the correct callback URL format
-  const redirectUrl = encodeURIComponent(callbackUrl || window.location.origin);
-
-  // Construct the sign-out URL according to Auth.js V5 format
-  const signOutUrl = `${authServerUrl}/api/auth/signout?callbackUrl=${redirectUrl}`;
+  const redirectUrl = callbackUrl || window.location.origin;
 
   console.log('[Auth.js Client] Signing out');
   console.log('[Auth.js Client] Auth server URL:', authServerUrl);
   console.log('[Auth.js Client] Redirect URL:', redirectUrl);
-  console.log('[Auth.js Client] Sign-out URL:', signOutUrl);
 
   // Clear any auth-related data from sessionStorage
   sessionStorage.removeItem('auth_redirect');
   sessionStorage.removeItem('auth_timestamp');
   sessionStorage.removeItem('auth_just_completed');
+  sessionStorage.removeItem('auth_session_valid');
 
-  // Directly redirect to the auth server URL
-  window.location.href = signOutUrl;
+  try {
+    // Auth.js V5 requires a POST request to the signout endpoint
+    const response = await fetch(`${authServerUrl}/api/auth/signout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ callbackUrl: redirectUrl }),
+      credentials: 'include',
+    });
+
+    if (response.ok) {
+      console.log('[Auth.js Client] Sign out successful');
+
+      // Redirect to the home page
+      window.location.href = redirectUrl;
+    } else {
+      console.error('[Auth.js Client] Sign out failed:', response.status, response.statusText);
+
+      // Fallback: try to redirect to the home page anyway
+      window.location.href = redirectUrl;
+    }
+  } catch (error) {
+    console.error('[Auth.js Client] Error signing out:', error);
+
+    // Fallback: try to redirect to the home page anyway
+    window.location.href = redirectUrl;
+  }
 };
 
 /**

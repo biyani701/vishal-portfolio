@@ -6,16 +6,36 @@ import { useAuthContext } from '../../../context/AuthProvider';
 import { Logout } from '@mui/icons-material';
 import config from '../../../config';
 import PropTypes from "prop-types";
+import AuthJsClient from '../AuthJsClient';
 /**
  * ToolpadAccountComponent
  * Uses the @toolpad/core Account component to provide a sign-in/sign-out experience
  * that connects to the my-auth-backend server
  */
 const ToolpadAccountComponent = ({ variant = 'default' }) => {
-  const { user, isAuthenticated, signOut } = useAuthContext();
+  const { user, isAuthenticated } = useAuthContext();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [authJsAuthenticated, setAuthJsAuthenticated] = useState(false);
   const navigate = useNavigate();
+
+  // Check if we have a valid session from Auth.js
+  useEffect(() => {
+    const checkAuthJsAuthentication = async () => {
+      const isAuthJsAuthenticated = await AuthJsClient.isAuthenticated();
+      setAuthJsAuthenticated(isAuthJsAuthenticated);
+    };
+
+    checkAuthJsAuthentication();
+
+    // Set up an interval to periodically check authentication status
+    const intervalId = setInterval(async () => {
+      const isAuthJsAuthenticated = await AuthJsClient.isAuthenticated();
+      setAuthJsAuthenticated(isAuthJsAuthenticated);
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   // Define the branding
   const branding = {
@@ -54,14 +74,13 @@ const ToolpadAccountComponent = ({ variant = 'default' }) => {
       setLoading(true);
       setError(null);
 
-      console.log('[Auth] Signing out');
+      console.log('[Auth] Signing out with AuthJsClient');
 
-      // Call the signOut function from the auth context
-      const result = await signOut();
+      // Call the signOut function from AuthJsClient with the current URL as the callback
+      await AuthJsClient.signOut(window.location.origin);
 
-      // Navigate directly to the home page after signout
-      // This avoids the redirect loop through the logout page
-      navigate('/');
+      // The signOut function will handle the redirect
+      // No need to navigate manually
 
       return { success: true };
     } catch (error) {
@@ -74,12 +93,32 @@ const ToolpadAccountComponent = ({ variant = 'default' }) => {
   };
 
   // Prepare user data for the Account component
-  const userData = isAuthenticated && user ? {
+  const userData = (isAuthenticated || authJsAuthenticated) && user ? {
     id: user.id || user.sub,
     name: user.name || user.login || 'User',
     email: user.email || '',
     avatarUrl: user.image || user.avatar_url || '',
   } : null;
+
+  // If we have a valid Auth.js session but no user data, try to get it from sessionStorage
+  useEffect(() => {
+    if (authJsAuthenticated && !userData) {
+      // Check if we have a valid session flag
+      const hasValidSession = sessionStorage.getItem('auth_session_valid') === 'true';
+
+      if (hasValidSession) {
+        // Try to get the session data from AuthJsClient
+        const getSessionData = async () => {
+          const session = await AuthJsClient.getSession();
+          if (session && session.user) {
+            console.log('[ToolpadAccountComponent] Got session data from AuthJsClient:', session);
+          }
+        };
+
+        getSessionData();
+      }
+    }
+  }, [authJsAuthenticated, userData]);
 
   return (
     <AppProvider branding={branding}>

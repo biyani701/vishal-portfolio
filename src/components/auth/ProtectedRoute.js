@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthContext } from '../../context/AuthProvider';
 import { Box, CircularProgress, Typography } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
+import AuthJsClient from './AuthJsClient';
 
 /**
  * ProtectedRoute component that redirects to the sign-in page if the user is not authenticated
@@ -14,7 +15,18 @@ import { faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
  */
 const ProtectedRoute = ({ children, requireAuth = true }) => {
   const { isAuthenticated, loading } = useAuthContext();
+  const [authJsAuthenticated, setAuthJsAuthenticated] = useState(false);
   const location = useLocation();
+
+  // Check if we have a valid session from Auth.js
+  useEffect(() => {
+    const checkAuthJsAuthentication = async () => {
+      const isAuthJsAuthenticated = await AuthJsClient.isAuthenticated();
+      setAuthJsAuthenticated(isAuthJsAuthenticated);
+    };
+
+    checkAuthJsAuthentication();
+  }, []);
 
   // Show loading state while checking authentication
   if (loading) {
@@ -36,7 +48,7 @@ const ProtectedRoute = ({ children, requireAuth = true }) => {
   }
 
   // If authentication is required and user is not authenticated, redirect to sign-in
-  if (requireAuth && !isAuthenticated) {
+  if (requireAuth && !(isAuthenticated || authJsAuthenticated)) {
     // Pass the current location to the sign-in page so we can redirect back after login
     return <Navigate to="/signin" state={{ from: location }} replace />;
   }
@@ -52,7 +64,7 @@ const ProtectedRoute = ({ children, requireAuth = true }) => {
             bottom: 10,
             right: 10,
             zIndex: 1000,
-            backgroundColor: isAuthenticated ? 'success.light' : 'warning.light',
+            backgroundColor: (isAuthenticated || authJsAuthenticated) ? 'success.light' : 'warning.light',
             borderRadius: '50%',
             width: 28,
             height: 28,
@@ -64,7 +76,7 @@ const ProtectedRoute = ({ children, requireAuth = true }) => {
           }}
         >
           <FontAwesomeIcon
-            icon={isAuthenticated ? faLockOpen : faLock}
+            icon={(isAuthenticated || authJsAuthenticated) ? faLockOpen : faLock}
             size="sm"
             style={{ color: '#fff' }}
           />
@@ -78,10 +90,11 @@ const ProtectedRoute = ({ children, requireAuth = true }) => {
   const childrenWithAuthStatus = React.Children.map(children, child => {
     // Only add props to valid elements
     if (React.isValidElement(child)) {
+      const isAuth = isAuthenticated || authJsAuthenticated;
       return React.cloneElement(child, {
         authStatus: {
-          isAuthenticated,
-          icon: isAuthenticated ? faLockOpen : faLock,
+          isAuthenticated: isAuth,
+          icon: isAuth ? faLockOpen : faLock,
         },
       });
     }
