@@ -39,7 +39,7 @@
   },
   "scripts": {
     "start": "PORT=3775 react-scripts start",
-    "start:windows": "set PORT=3775 && react-scripts start",
+    "win": "set PORT=3775 && react-scripts start",
     "build": "react-scripts build",
     "build:prod": "node build-prod.js",
     "test": "react-scripts test",

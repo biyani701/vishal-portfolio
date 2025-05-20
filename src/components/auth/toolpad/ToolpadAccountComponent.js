@@ -57,7 +57,11 @@ const ToolpadAccountComponent = ({ variant = 'default' }) => {
       console.log('[Auth] Signing out');
 
       // Call the signOut function from the auth context
-      await signOut();
+      const result = await signOut();
+
+      // Navigate directly to the home page after signout
+      // This avoids the redirect loop through the logout page
+      navigate('/');
 
       return { success: true };
     } catch (error) {

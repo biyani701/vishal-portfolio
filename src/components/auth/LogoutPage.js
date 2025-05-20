@@ -3,11 +3,11 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Typography, Button, CircularProgress, Paper, Container } from '@mui/material';
 import { useAuthContext } from '../../context/AuthProvider';
-import { useAuth as useLegacyAuth } from '../../context/AuthContext';
 
 /**
  * Dedicated logout page component
  * Handles the logout process and redirects the user
+ * Simplified to use only Auth.js v5
  */
 const LogoutPage = () => {
   const navigate = useNavigate();
@@ -15,9 +15,8 @@ const LogoutPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Get auth functions from both auth systems
+  // Get auth functions from Auth.js v5
   const { signOut } = useAuthContext();
-  const legacyAuth = useLegacyAuth();
 
   // Get the callback URL from the query parameters, defaulting to the home page
   const searchParams = new URLSearchParams(location.search);
@@ -38,7 +37,16 @@ const LogoutPage = () => {
         console.log('[LogoutPage] Starting logout process');
         setLogoutPerformed(true); // Mark logout as performed to prevent loops
 
-        // Try Auth.js signOut
+        // Step 1: Clear client-side storage
+        try {
+          console.log('[LogoutPage] Clearing storage');
+          sessionStorage.clear();
+          localStorage.clear();
+        } catch (error) {
+          console.error('[LogoutPage] Error clearing storage:', error);
+        }
+
+        // Step 2: Call Auth.js signOut - this is the primary logout method
         if (signOut) {
           try {
             console.log('[LogoutPage] Calling Auth.js signOut');
@@ -48,81 +56,38 @@ const LogoutPage = () => {
           }
         }
 
-        // Try legacy logout
-        if (legacyAuth && legacyAuth.logout) {
-          try {
-            console.log('[LogoutPage] Calling legacy logout');
-            legacyAuth.logout();
-          } catch (error) {
-            console.error('[LogoutPage] Error calling legacy logout:', error);
-          }
-        }
-
-        // Since this is a GitHub Pages site with no server-side code,
-        // we'll focus on client-side cleanup
-
-        // Clear all storage
+        // Step 3: Clear Auth.js specific cookies
         try {
-          console.log('[LogoutPage] Clearing storage');
-          sessionStorage.clear();
-          localStorage.clear();
-        } catch (error) {
-          console.error('[LogoutPage] Error clearing storage:', error);
-        }
-
-        // Clear all cookies
-        try {
-          console.log('[LogoutPage] Clearing cookies');
-          document.cookie.split(";").forEach(function(c) {
-            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
-          });
+          console.log('[LogoutPage] Clearing Auth.js cookies');
 
           // Clear Auth.js specific cookies with different paths
+          const cookiesToClear = [
+            'next-auth.session-token',
+            'next-auth.callback-url',
+            'next-auth.csrf-token'
+          ];
+
           const cookiePaths = ['/', '/api', '/api/auth', '/auth'];
-          cookiePaths.forEach(path => {
-            document.cookie = `next-auth.session-token=;expires=${new Date().toUTCString()};path=${path}`;
-            document.cookie = `next-auth.callback-url=;expires=${new Date().toUTCString()};path=${path}`;
-            document.cookie = `next-auth.csrf-token=;expires=${new Date().toUTCString()};path=${path}`;
-            
-            // Only set secure cookies on HTTPS
-            if (window.location.protocol === 'https:') {
-              document.cookie = `__Secure-next-auth.session-token=;expires=${new Date().toUTCString()};path=${path};secure`;
-              // __Host- prefix requires path=/ and no domain attribute
-              if (path === '/') {
-                document.cookie = `__Host-next-auth.csrf-token=;expires=${new Date().toUTCString()};path=/;secure`;
-              }
-            } else {
-              // For development/HTTP: use standard cookies instead
-              console.log('[LogoutPage] Skipping secure cookie prefixes in non-HTTPS environment');
-            }
+
+          cookiesToClear.forEach(cookieName => {
+            cookiePaths.forEach(path => {
+              document.cookie = `${cookieName}=;expires=${new Date().toUTCString()};path=${path}`;
+            });
           });
         } catch (error) {
           console.error('[LogoutPage] Error clearing cookies:', error);
         }
 
-        // Redirect after a short delay
+        // Step 4: Navigate to the callback URL
         console.log('[LogoutPage] Logout successful, redirecting to:', callbackUrl);
 
-        // Force a direct page reload and redirect to root URL to completely reset the app state
-        // This will break the infinite loop by completely reloading the application
-        if (window.location.pathname.includes('/logout')) {
-          console.log('[LogoutPage] Forcing navigation to root with hard refresh');
-          window.location.replace('/'); // Use replace instead of href to prevent adding to history
+        // Use React Router for navigation if possible
+        if (callbackUrl === '/' || callbackUrl.startsWith('/')) {
+          navigate(callbackUrl);
         } else {
-          // If we're not on the logout page, use React Router
-          navigate('/');
+          // For external URLs, use window.location
+          window.location.href = callbackUrl;
         }
-
-        // setTimeout(() => {
-        //   // Use absolute URL to avoid issues with relative paths
-        //   const baseUrl = window.location.origin; // e.g., "http://localhost:3000" or your GitHub Pages URL
-        //   const absoluteUrl = callbackUrl.startsWith('http')
-        //     ? callbackUrl
-        //     : `${baseUrl}${callbackUrl.startsWith('/') ? callbackUrl : `/${callbackUrl}`}`;
-
-        //   console.log('[LogoutPage] Redirecting to absolute URL:', absoluteUrl);
-        //   window.location.href = absoluteUrl;
-        // }, 1000);
       } catch (err) {
         console.error('[LogoutPage] Error during logout:', err);
         setError(err instanceof Error ? err.message : 'Unknown error');
@@ -131,7 +96,7 @@ const LogoutPage = () => {
     }
 
     performLogout();
-  }, [callbackUrl, signOut, legacyAuth, logoutPerformed]);
+  }, [callbackUrl, signOut, navigate, logoutPerformed]);
 
   if (error) {
     return (
@@ -177,7 +142,7 @@ const LogoutPage = () => {
 
         <CircularProgress sx={{ my: 4 }} />
 
-        <Typography paragraph>
+        <Typography variant="body1" sx={{ mb: 2 }}>
           Please wait while we log you out.
         </Typography>
 

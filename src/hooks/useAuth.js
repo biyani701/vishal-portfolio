@@ -51,11 +51,16 @@ export function useAuth() {
             const sessionData = responseText ? JSON.parse(responseText) : null;
             console.log('[Auth Debug] Parsed session data:', sessionData);
 
-            if (sessionData) {
+            if (sessionData && sessionData.user) {
+              // Set a flag to indicate that we have a valid session
+              sessionStorage.setItem('auth_session_valid', 'true');
+
+              // Update the session state
               setSession(sessionData);
               return sessionData;
             } else {
-              console.warn('[Auth Debug] Empty session data');
+              console.warn('[Auth Debug] Empty session data or no user');
+              sessionStorage.removeItem('auth_session_valid');
               setSession(null);
               return null;
             }
@@ -63,11 +68,13 @@ export function useAuth() {
             console.error('[Auth Debug] Error parsing session response:', parseError);
             console.error('[Auth Debug] Raw response:', responseText);
             setError(`Error parsing session response: ${parseError.message}`);
+            sessionStorage.removeItem('auth_session_valid');
             setSession(null);
             return null;
           }
         } else {
           // If response is not OK, clear the session
+          sessionStorage.removeItem('auth_session_valid');
           setSession(null);
 
           // Check if the response contains an error message
@@ -110,12 +117,14 @@ export function useAuth() {
       } catch (fetchError) {
         console.error('[Auth Debug] Error fetching session:', fetchError);
         setError(`Error fetching session: ${fetchError.message}`);
+        sessionStorage.removeItem('auth_session_valid');
         setSession(null);
         return null;
       }
     } catch (error) {
       console.error('[Auth Debug] Error checking session:', error);
       setError(`Error checking session: ${error.message}`);
+      sessionStorage.removeItem('auth_session_valid');
       setSession(null);
       return null;
     } finally {
@@ -123,7 +132,7 @@ export function useAuth() {
     }
   }, []);
 
-  // Function to sign in with a provider
+  // Function to sign in with a provider - updated for Auth.js V5
   const signIn = useCallback((provider) => {
     // Store the current URL to redirect back after authentication
     const currentPath = window.location.pathname;
@@ -133,27 +142,21 @@ export function useAuth() {
     const authServerUrl = (window.runtimeConfig && window.runtimeConfig.AUTH_SERVER_URL) ||
                          config.auth.serverUrl;
 
-    // Get the client URL from config or use the current origin
-    const clientUrl = config.auth.callbackUrl || window.location.origin;
-
-    // Use auth-callback as the callback URL - this is crucial for Auth.js to redirect back correctly
+    // For Auth.js V5, we need to use the correct callback URL format
+    // This should be a URL that Auth.js can redirect back to after authentication
+    // It should be a URL that's registered with the OAuth provider
     const callbackUrl = encodeURIComponent(`${window.location.origin}/auth-callback`);
 
-    // Get the client ID from runtime config, environment variables, or default to 'portfolio'
-    const clientId = (window.runtimeConfig && window.runtimeConfig.CLIENT_ID) ||
-                    process.env.REACT_APP_CLIENT_ID ||
-                    'portfolio';
-
-    // Include the origin as a query parameter
+    // Include the origin as a query parameter for CORS handling
     const origin = encodeURIComponent(window.location.origin);
 
-    // Construct the sign-in URL with the callback URL, client ID, and origin
-    const signInUrl = `${authServerUrl}/api/auth/signin/${provider}?callbackUrl=${callbackUrl}&clientId=${clientId}&origin=${origin}`;
+    // Construct the sign-in URL according to Auth.js V5 format
+    // The format is /api/auth/signin/[provider]?callbackUrl=[url]
+    const signInUrl = `${authServerUrl}/api/auth/signin/${provider}?callbackUrl=${callbackUrl}&origin=${origin}`;
 
     console.log('[Auth Debug] Signing in with provider:', provider);
     console.log('[Auth Debug] Current path:', currentPath);
     console.log('[Auth Debug] Auth server URL:', authServerUrl);
-    console.log('[Auth Debug] Client URL:', clientUrl);
     console.log('[Auth Debug] Callback URL:', callbackUrl);
     console.log('[Auth Debug] Sign-in URL:', signInUrl);
 
@@ -161,7 +164,7 @@ export function useAuth() {
     window.location.href = signInUrl;
   }, []);
 
-  // Function to sign out
+  // Function to sign out - simplified for Auth.js v5 with CORS error handling
   const signOut = useCallback(async () => {
     try {
       setLoading(true);
@@ -171,39 +174,113 @@ export function useAuth() {
       const authServerUrl = (window.runtimeConfig && window.runtimeConfig.AUTH_SERVER_URL) ||
                            config.auth.serverUrl;
 
-      // Get the client URL from config or use the current origin
-      const clientUrl = config.auth.callbackUrl || window.location.origin;
-
-      // Use the direct auth server URL for signout
-      const callbackUrl = encodeURIComponent(clientUrl);
-      const signoutUrl = `${authServerUrl}/api/auth/signout?callbackUrl=${callbackUrl}`;
-
       console.log('[Auth Debug] Auth server URL:', authServerUrl);
-      console.log('[Auth Debug] Client URL:', clientUrl);
-      console.log('[Auth Debug] Callback URL:', callbackUrl);
-      console.log('[Auth Debug] Using signout URL:', signoutUrl);
 
-      // Clear session storage (for legacy auth)
-      sessionStorage.removeItem('github_token');
-      sessionStorage.removeItem('github_user');
-      sessionStorage.removeItem('google_token');
-      sessionStorage.removeItem('google_user');
+      // Step 1: Clear all client-side storage
+      sessionStorage.clear();
+      localStorage.removeItem('auth_redirect');
 
-      // Clear the auth redirect if it exists
-      sessionStorage.removeItem('auth_redirect');
-
-      // Clear the local session state
+      // Step 2: Clear the local session state
       setSession(null);
 
-      // Redirect to the signout URL
-      window.location.href = signoutUrl;
+      // Step 3: Try to make a direct POST request to the Auth.js signout endpoint
+      let serverSignOutSuccessful = false;
+
+      try {
+        console.log('[Auth Debug] Making direct POST request to signout endpoint');
+
+        // First, try with a preflight OPTIONS request to check CORS
+        try {
+          const preflightResponse = await fetch(`${authServerUrl}/api/auth/signout`, {
+            method: 'OPTIONS',
+            headers: {
+              'Origin': window.location.origin,
+              'Access-Control-Request-Method': 'POST',
+              'Access-Control-Request-Headers': 'Content-Type',
+            },
+          });
+
+          if (preflightResponse.ok) {
+            console.log('[Auth Debug] CORS preflight successful');
+          } else {
+            console.warn('[Auth Debug] CORS preflight failed, but continuing with signout attempt');
+          }
+        } catch (preflightError) {
+          console.warn('[Auth Debug] CORS preflight error:', preflightError);
+        }
+
+        // Now make the actual signout request
+        const response = await fetch(`${authServerUrl}/api/auth/signout`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'Origin': window.location.origin,
+          },
+          body: JSON.stringify({ callbackUrl: '/' }),
+        });
+
+        if (response.ok) {
+          console.log('[Auth Debug] Signout request successful');
+          serverSignOutSuccessful = true;
+        } else {
+          console.error('[Auth Debug] Signout request failed:', response.status);
+        }
+      } catch (fetchError) {
+        console.error('[Auth Debug] Error making signout request:', fetchError);
+
+        // If we get a CORS error, try a fallback approach
+        if (fetchError.message.includes('NetworkError') || fetchError.message.includes('CORS')) {
+          console.log('[Auth Debug] CORS error detected, trying fallback approach');
+
+          try {
+            // Try to clear Auth.js cookies manually
+            const cookiesToClear = [
+              'next-auth.session-token',
+              'next-auth.callback-url',
+              'next-auth.csrf-token'
+            ];
+
+            const cookiePaths = ['/', '/api', '/api/auth', '/auth'];
+
+            cookiesToClear.forEach(cookieName => {
+              cookiePaths.forEach(path => {
+                document.cookie = `${cookieName}=;expires=${new Date().toUTCString()};path=${path}`;
+              });
+            });
+
+            console.log('[Auth Debug] Manually cleared Auth.js cookies');
+          } catch (cookieError) {
+            console.error('[Auth Debug] Error clearing cookies:', cookieError);
+          }
+        }
+      }
+
+      // If server-side signout failed, try to redirect to the signout page
+      if (!serverSignOutSuccessful) {
+        console.log('[Auth Debug] Server-side signout failed, trying redirect approach');
+
+        // Create an invisible iframe to load the signout page
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = `${authServerUrl}/api/auth/signout?callbackUrl=/`;
+
+        // Remove the iframe after it loads
+        iframe.onload = () => {
+          console.log('[Auth Debug] Signout iframe loaded');
+          document.body.removeChild(iframe);
+        };
+
+        // Add the iframe to the page
+        document.body.appendChild(iframe);
+      }
+
+      return { success: true };
     } catch (error) {
       console.error('[Auth Debug] Error signing out:', error);
       setError(`Error signing out: ${error.message}`);
-
-      // Even if there's an error, clear the local session and reload
       setSession(null);
-      window.location.reload();
+      return { success: false, error };
     } finally {
       setLoading(false);
     }
@@ -213,7 +290,21 @@ export function useAuth() {
   useEffect(() => {
     const checkAndUpdateSession = async () => {
       console.log('[Auth Debug] Checking session on mount or URL change');
-      await checkSession();
+
+      // Check if we already have a valid session flag
+      const hasValidSessionFlag = sessionStorage.getItem('auth_session_valid') === 'true';
+
+      if (hasValidSessionFlag) {
+        console.log('[Auth Debug] Found valid session flag, skipping session check');
+        // Still update the session state if we have a valid session flag
+        if (!session || !session.user) {
+          // Try to get the session from the server
+          await checkSession();
+        }
+      } else {
+        // No valid session flag, check the session
+        await checkSession();
+      }
 
       // Check if we need to redirect after authentication
       const redirectPath = sessionStorage.getItem('auth_redirect');
@@ -252,7 +343,7 @@ export function useAuth() {
       window.removeEventListener('hashchange', handleHashChange);
       clearInterval(intervalId);
     };
-  }, [checkSession]);
+  }, [checkSession, session]);
 
   // Function to manually set the user data
   const setUser = useCallback((userData) => {
@@ -275,12 +366,15 @@ export function useAuth() {
     }
   }, [session]);
 
+  // Check if we have a valid session flag in sessionStorage
+  const hasValidSessionFlag = sessionStorage.getItem('auth_session_valid') === 'true';
+
   return {
     session,
     user: session?.user || null,
     loading,
     error,
-    isAuthenticated: !!session?.user,
+    isAuthenticated: !!session?.user || hasValidSessionFlag,
     signIn,
     signOut,
     checkSession,

@@ -25,6 +25,9 @@ import {
   Tooltip,
   Icon,
 } from "@mui/material";
+import { AppProvider } from "@toolpad/core/AppProvider";
+import { SignInPage } from "@toolpad/core/SignInPage";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBriefcase,
@@ -67,6 +70,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import config from "../config";
 import domainKnowledgeData from "../data/domainKnowledgeData";
 import ToolpadAccountComponent from "./auth/toolpad/ToolpadAccountComponent";
+import AuthJsClient from "./auth/AuthJsClient";
 
 const itemVariants = {
   hidden: { opacity: 0, scale: 0.95, y: -5 },
@@ -88,10 +92,10 @@ const searchIndex = new Document({
   document: {
     id: "id",
     index: ["section", "content"],
-    store: ["section", "content"]
+    store: ["section", "content"],
   },
   tokenize: "forward",
-  resolution: 9
+  resolution: 9,
 });
 
 // Add skills data to search index
@@ -141,7 +145,7 @@ const initializeSearchIndex = () => {
     searchIndex.add({
       id: item.id || `resume_${index}`,
       section: item.section,
-      content: item.content
+      content: item.content,
     });
   });
 
@@ -151,7 +155,7 @@ const initializeSearchIndex = () => {
       searchIndex.add({
         id: `domain_category_${catIndex}`,
         section: "Domain Knowledge",
-        content: `${category.title}: ${category.description}`
+        content: `${category.title}: ${category.description}`,
       });
 
       // Add topics within each category
@@ -160,7 +164,7 @@ const initializeSearchIndex = () => {
           searchIndex.add({
             id: `domain_topic_${catIndex}_${topicIndex}`,
             section: category.title,
-            content: `${topic.title}: ${topic.description}`
+            content: `${topic.title}: ${topic.description}`,
           });
         });
       }
@@ -380,26 +384,28 @@ const NavigationBar = ({
       // Search in both section and content fields
       const results = searchIndex.search(query, {
         enrich: true,
-        limit: 10
+        limit: 10,
       });
 
       // Process and flatten results
       const flatResults = [];
-      results.forEach(resultSet => {
+      results.forEach((resultSet) => {
         if (resultSet.result) {
-          resultSet.result.forEach(item => {
+          resultSet.result.forEach((item) => {
             flatResults.push({
               section: item.doc.section,
-              content: item.doc.content
+              content: item.doc.content,
             });
           });
         }
       });
 
       // Remove duplicates
-      const uniqueResults = [...new Map(flatResults.map(item =>
-        [`${item.section}-${item.content}`, item]
-      )).values()];
+      const uniqueResults = [
+        ...new Map(
+          flatResults.map((item) => [`${item.section}-${item.content}`, item])
+        ).values(),
+      ];
 
       setSearchResults(uniqueResults);
     } catch (error) {
@@ -411,37 +417,56 @@ const NavigationBar = ({
   const matches = searchResults;
 
   // Get auth functions from both auth systems
-  const { user, isAuthenticated, signOut, checkSession } = useAuthContext();
+  const { user, isAuthenticated, checkSession } = useAuthContext();
   const legacyAuth = useLegacyAuth();
+
+  // State to track Auth.js authentication status
+  const [authJsAuthenticated, setAuthJsAuthenticated] = useState(false);
 
   // Force a session check when the navbar mounts
   React.useEffect(() => {
     const checkAuthStatus = async () => {
-      console.log('[Navbar] Checking authentication status');
+      console.log("[Navbar] Checking authentication status");
       try {
+        // Check session with the context
         const session = await checkSession();
-        console.log('[Navbar] Authentication status:', { isAuthenticated, session });
+
+        // Also check with AuthJsClient
+        const isAuthJsAuthenticated = await AuthJsClient.isAuthenticated();
+        setAuthJsAuthenticated(isAuthJsAuthenticated);
+
+        console.log("[Navbar] Authentication status:", {
+          isAuthenticated,
+          authJsAuthenticated: isAuthJsAuthenticated,
+          session,
+        });
       } catch (error) {
-        console.error('[Navbar] Error checking authentication status:', error);
+        console.error("[Navbar] Error checking authentication status:", error);
       }
     };
 
     checkAuthStatus();
+
+    // Set up an interval to periodically check authentication status
+    const intervalId = setInterval(async () => {
+      const isAuthJsAuthenticated = await AuthJsClient.isAuthenticated();
+      setAuthJsAuthenticated(isAuthJsAuthenticated);
+    }, 10000); // Check every 10 seconds
+
+    return () => clearInterval(intervalId);
   }, [checkSession]);
 
-  // Create a simplified logout function that redirects to the logout page
-  const combinedLogout = () => {
-    console.log("[Auth Debug] Redirecting to logout page");
+  // Create a simplified logout function that uses Auth.js signOut
+  const combinedLogout = async () => {
+    console.log("[Auth Debug] Signing out with Auth.js");
 
-    // Get the current URL to redirect back after logout
-    const currentPath = window.location.pathname;
-    const callbackUrl = currentPath === "/logout" ? "/" : currentPath;
-
-    // Get the base URL (e.g., http://localhost:3000 or your GitHub Pages URL)
-    const baseUrl = window.location.origin;
-
-    // Redirect to the logout page with absolute URL
-    window.location.href = `${baseUrl}/logout?callbackUrl=${encodeURIComponent(callbackUrl)}`;
+    try {
+      // Call the signOut function from AuthJsClient
+      AuthJsClient.signOut();
+      console.log("[Auth Debug] Sign out successful");
+    } catch (error) {
+      console.error("[Auth Debug] Error signing out:", error);
+    }
   };
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -505,25 +530,25 @@ const NavigationBar = ({
     if (!searchAnchorEl || matches.length === 0) return;
 
     switch (event.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         event.preventDefault();
-        setSelectedResultIndex(prevIndex =>
+        setSelectedResultIndex((prevIndex) =>
           prevIndex < matches.length - 1 ? prevIndex + 1 : prevIndex
         );
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         event.preventDefault();
-        setSelectedResultIndex(prevIndex =>
+        setSelectedResultIndex((prevIndex) =>
           prevIndex > 0 ? prevIndex - 1 : 0
         );
         break;
-      case 'Enter':
+      case "Enter":
         event.preventDefault();
         if (selectedResultIndex >= 0 && selectedResultIndex < matches.length) {
           handleSearchResultClick(matches[selectedResultIndex].section);
         }
         break;
-      case 'Escape':
+      case "Escape":
         event.preventDefault();
         handleSearchClose();
         break;
@@ -631,7 +656,7 @@ const NavigationBar = ({
       case "contact":
         return <FontAwesomeIcon icon={faEnvelope} />;
       case "summary":
-        <FontAwesomeIcon icon={faFileLines} />;
+        return <FontAwesomeIcon icon={faFileLines} />;
       default:
         return null;
     }
@@ -901,12 +926,12 @@ const NavigationBar = ({
                     bgcolor: theme.palette.background.paper,
                     boxShadow: theme.shadows[4],
                     p: 1,
-                    maxHeight: '80vh',
-                    overflowY: 'auto'
+                    maxHeight: "80vh",
+                    overflowY: "auto",
                   },
                 }}
                 MenuListProps={{
-                  onClick: () => setKnowledgeAnchorEl(null) // Close menu when any item is clicked
+                  onClick: () => setKnowledgeAnchorEl(null), // Close menu when any item is clicked
                 }}
               >
                 <MenuItem
@@ -919,7 +944,9 @@ const NavigationBar = ({
                     gap: 1,
                   }}
                 >
-                  <ListItemIcon sx={{ color: theme.palette.text.secondary, minWidth: 32 }}>
+                  <ListItemIcon
+                    sx={{ color: theme.palette.text.secondary, minWidth: 32 }}
+                  >
                     <MenuBookIcon />
                   </ListItemIcon>
                   <ListItemText primary="Overview" />
@@ -934,7 +961,9 @@ const NavigationBar = ({
                     gap: 1,
                   }}
                 >
-                  <ListItemIcon sx={{ color: theme.palette.text.secondary, minWidth: 32 }}>
+                  <ListItemIcon
+                    sx={{ color: theme.palette.text.secondary, minWidth: 32 }}
+                  >
                     <LibraryBooksIcon />
                   </ListItemIcon>
                   <ListItemText primary="Glossary" />
@@ -953,7 +982,7 @@ const NavigationBar = ({
                 >
                   Domain Knowledge
                 </Typography>
-                <Box sx={{ maxHeight: '300px', overflowY: 'auto' }}>
+                <Box sx={{ maxHeight: "300px", overflowY: "auto" }}>
                   {domainKnowledgeData.categories.map((category) => (
                     <MenuItem
                       key={category.id}
@@ -966,7 +995,12 @@ const NavigationBar = ({
                         gap: 1,
                       }}
                     >
-                      <ListItemIcon sx={{ color: theme.palette.text.secondary, minWidth: 32 }}>
+                      <ListItemIcon
+                        sx={{
+                          color: theme.palette.text.secondary,
+                          minWidth: 32,
+                        }}
+                      >
                         <Icon>{category.icon}</Icon>
                       </ListItemIcon>
                       <ListItemText primary={category.name} />
@@ -1000,11 +1034,11 @@ const NavigationBar = ({
                     minWidth: 180,
                     bgcolor: theme.palette.background.paper,
                     boxShadow: theme.shadows[4],
-                    p: 1
+                    p: 1,
                   },
                 }}
                 MenuListProps={{
-                  onClick: handleBlogMenuClose // Close menu when any item is clicked
+                  onClick: handleBlogMenuClose, // Close menu when any item is clicked
                 }}
               >
                 <MenuItem
@@ -1013,54 +1047,71 @@ const NavigationBar = ({
                   onClick={handleBlogMenuClose}
                   sx={{ py: 1.2, px: 2, gap: 1 }}
                 >
-
-                  <ListItemIcon sx={{ color: theme.palette.text.secondary, minWidth: 32 }}>
+                  <ListItemIcon
+                    sx={{ color: theme.palette.text.secondary, minWidth: 32 }}
+                  >
                     <VisibilityIcon fontSize="small" />
                   </ListItemIcon>
                   <ListItemText primary="View All" />
-
-
                 </MenuItem>
 
-                {isAuthenticated && (
-                  <>
-                    <MenuItem
-                      component={RouterLink}
-                      to="/blog/new"
-                      onClick={handleBlogMenuClose}
-                      sx={{ py: 1.2, px: 2, gap: 1 }}
-                    >
-                      <ListItemIcon sx={{ color: theme.palette.text.secondary, minWidth: 32 }}>
-                        <AddIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText primary="Create New" />
-                    </MenuItem>
+                {(isAuthenticated || authJsAuthenticated)
+                  ? [
+                      <MenuItem
+                        key="create-new"
+                        component={RouterLink}
+                        to="/blog/new"
+                        onClick={handleBlogMenuClose}
+                        sx={{ py: 1.2, px: 2, gap: 1 }}
+                      >
+                        <ListItemIcon
+                          sx={{
+                            color: theme.palette.text.secondary,
+                            minWidth: 32,
+                          }}
+                        >
+                          <AddIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText primary="Create New" />
+                      </MenuItem>,
 
-                    <MenuItem
-                      component={RouterLink}
-                      to="/blogs"
-                      onClick={handleBlogMenuClose}
-                      sx={{ py: 1.2, px: 2, gap: 1 }}
-                    >
-                      <ListItemIcon sx={{ color: theme.palette.text.secondary, minWidth: 32 }}>
-                        <EditIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText primary="Edit" />
-                    </MenuItem>
+                      <MenuItem
+                        key="edit"
+                        component={RouterLink}
+                        to="/blogs"
+                        onClick={handleBlogMenuClose}
+                        sx={{ py: 1.2, px: 2, gap: 1 }}
+                      >
+                        <ListItemIcon
+                          sx={{
+                            color: theme.palette.text.secondary,
+                            minWidth: 32,
+                          }}
+                        >
+                          <EditIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText primary="Edit" />
+                      </MenuItem>,
 
-                    <MenuItem
-                      component={RouterLink}
-                      to="/blogs"
-                      onClick={handleBlogMenuClose}
-                      sx={{ py: 1.2, px: 2, gap: 1 }}
-                    >
-                      <ListItemIcon sx={{ color: theme.palette.text.secondary, minWidth: 32 }}>
-                        <DeleteIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText primary="Delete" />
-                    </MenuItem>
-                  </>
-                )}
+                      <MenuItem
+                        key="delete"
+                        component={RouterLink}
+                        to="/blogs"
+                        onClick={handleBlogMenuClose}
+                        sx={{ py: 1.2, px: 2, gap: 1 }}
+                      >
+                        <ListItemIcon
+                          sx={{
+                            color: theme.palette.text.secondary,
+                            minWidth: 32,
+                          }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText primary="Delete" />
+                      </MenuItem>,
+                    ]
+                  : null}
               </Menu>
               <Button
                 onClick={() => navigate("/contact")}
@@ -1093,14 +1144,16 @@ const NavigationBar = ({
                           onClick={() => handleSearchResultClick(item.section)}
                           selected={index === selectedResultIndex}
                           sx={{
-                            backgroundColor: index === selectedResultIndex
-                              ? theme.palette.action.selected
-                              : 'transparent',
-                            '&:hover': {
-                              backgroundColor: index === selectedResultIndex
+                            backgroundColor:
+                              index === selectedResultIndex
                                 ? theme.palette.action.selected
-                                : theme.palette.action.hover,
-                            }
+                                : "transparent",
+                            "&:hover": {
+                              backgroundColor:
+                                index === selectedResultIndex
+                                  ? theme.palette.action.selected
+                                  : theme.palette.action.hover,
+                            },
                           }}
                         >
                           <SearchResultSection>
@@ -1123,29 +1176,31 @@ const NavigationBar = ({
               </Search>
 
               {/* Account Button */}
-              <Box sx={{ mr: 1, display: { xs: 'none', md: 'block' } }}>
-                {isAuthenticated ? (
+              <Box sx={{ mr: 1, display: { xs: "none", md: "block" } }}>
+                {isAuthenticated || authJsAuthenticated ? (
                   <ToolpadAccountComponent variant="preview" />
                 ) : (
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="small"
-                    onClick={() => navigate('/signin')}
-                    sx={{
-                      textTransform: 'none',
-                      fontWeight: 'bold',
-                      borderRadius: 1,
-                      boxShadow: 2,
-                      '&:hover': {
-                        boxShadow: 4,
-                        transform: 'translateY(-2px)'
-                      },
-                      transition: 'all 0.2s ease-in-out'
-                    }}
-                  >
-                    Sign In
-                  </Button>
+
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      onClick={() => AuthJsClient.signIn("github")}
+                      sx={{
+                        textTransform: "none",
+                        fontWeight: "bold",
+                        borderRadius: 1,
+                        boxShadow: 2,
+                        "&:hover": {
+                          boxShadow: 4,
+                          transform: "translateY(-2px)",
+                        },
+                        transition: "all 0.2s ease-in-out",
+                      }}
+                    >
+                      Sign In
+                    </Button>
+
                 )}
               </Box>
 
@@ -1203,13 +1258,16 @@ const NavigationBar = ({
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    width: "100%"
+                    width: "100%",
                   }}
                 >
-                  <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: "bold" }}>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{ mb: 1, fontWeight: "bold" }}
+                  >
                     Account
                   </Typography>
-                  {isAuthenticated ? (
+                  {isAuthenticated || authJsAuthenticated ? (
                     <ToolpadAccountComponent variant="default" />
                   ) : (
                     <Button
@@ -1218,25 +1276,43 @@ const NavigationBar = ({
                       fullWidth
                       onClick={() => {
                         handleSettingsClose();
-                        navigate('/signin');
+                        AuthJsClient.signIn("github");
                       }}
                       sx={{
                         py: 1,
-                        fontWeight: 'bold',
-                        textTransform: 'none',
+                        fontWeight: "bold",
+                        textTransform: "none",
                         borderRadius: 1,
                         boxShadow: 2,
-                        '&:hover': {
+                        "&:hover": {
                           boxShadow: 4,
-                          transform: 'translateY(-2px)'
+                          transform: "translateY(-2px)",
                         },
-                        transition: 'all 0.2s ease-in-out'
+                        transition: "all 0.2s ease-in-out",
                       }}
                     >
                       Sign In
                     </Button>
                   )}
                 </Box>
+                {/* Mui Sign in */}
+                <AppProvider theme={theme}>
+                  <SignInPage
+                    providers={[
+                      { id: "github", name: "GitHub" },
+                      { id: "google", name: "Google" },
+                      { id: "facebook", name: "Facebook" },
+                      { id: "auth0", name: "Auth0" },
+                    ]}
+                    signIn={async (provider) => {
+                      // Call the signIn function from AuthJsClient
+                      if (provider && provider.id) {
+                        console.log(`[Navbar] Signing in with ${provider.id}`);
+                        AuthJsClient.signIn(provider.id);
+                      }
+                    }}
+                  />
+                </AppProvider>
 
                 {/* Theme Toggle */}
                 <MenuItem onClick={() => toggleDarkMode(!isDarkMode)}>
@@ -1292,7 +1368,7 @@ const NavigationBar = ({
                 </Box>
 
                 {/* User Actions */}
-                {isAuthenticated && (
+                {(isAuthenticated || authJsAuthenticated) && (
                   <Box sx={{ borderTop: "1px solid", borderColor: "divider" }}>
                     <MenuItem
                       component={RouterLink}
@@ -1438,7 +1514,11 @@ const NavigationBar = ({
           <ListItem>
             <ListItemText
               primary={
-                <Typography variant="subtitle2" color="text.secondary" sx={{ fontWeight: 600 }}>
+                <Typography
+                  variant="subtitle2"
+                  color="text.secondary"
+                  sx={{ fontWeight: 600 }}
+                >
                   Knowledge Base
                 </Typography>
               }
@@ -1546,15 +1626,19 @@ const NavigationBar = ({
           <ListItem>
             <ListItemText
               primary={
-                <Typography variant="subtitle2" color="text.secondary" sx={{ fontWeight: 600, mb: 1 }}>
+                <Typography
+                  variant="subtitle2"
+                  color="text.secondary"
+                  sx={{ fontWeight: 600, mb: 1 }}
+                >
                   Account
                 </Typography>
               }
             />
           </ListItem>
-          <ListItem sx={{ py: 2, display: 'flex', justifyContent: 'center' }}>
-            <Box sx={{ width: '100%', maxWidth: 200 }}>
-              {isAuthenticated ? (
+          <ListItem sx={{ py: 2, display: "flex", justifyContent: "center" }}>
+            <Box sx={{ width: "100%", maxWidth: 200 }}>
+              {isAuthenticated || authJsAuthenticated ? (
                 <ToolpadAccountComponent />
               ) : (
                 <Button
@@ -1563,19 +1647,19 @@ const NavigationBar = ({
                   fullWidth
                   onClick={() => {
                     handleDrawerToggle();
-                    navigate('/signin');
+                    AuthJsClient.signIn("github");
                   }}
                   sx={{
                     py: 1.5,
-                    fontWeight: 'bold',
-                    textTransform: 'none',
+                    fontWeight: "bold",
+                    textTransform: "none",
                     borderRadius: 1,
                     boxShadow: 2,
-                    '&:hover': {
+                    "&:hover": {
                       boxShadow: 4,
-                      transform: 'translateY(-2px)'
+                      transform: "translateY(-2px)",
                     },
-                    transition: 'all 0.2s ease-in-out'
+                    transition: "all 0.2s ease-in-out",
                   }}
                 >
                   Sign In

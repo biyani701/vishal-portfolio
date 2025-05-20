@@ -10,6 +10,7 @@ import {
   Button
 } from '@mui/material';
 import { useAuthContext } from '../../context/AuthProvider';
+import AuthJsClient from './AuthJsClient';
 
 /**
  * Generic Auth Callback component
@@ -45,8 +46,8 @@ const AuthCallback = () => {
         console.log('[Auth] Waiting for session to be established...');
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // Check the session to update the auth context
-        const session = await checkSession();
+        // Check the session to update the auth context using AuthJsClient
+        const session = await AuthJsClient.getSession();
 
         console.log('[Auth] Session check result:', session);
 
@@ -55,7 +56,7 @@ const AuthCallback = () => {
 
           // Try one more time after a delay
           await new Promise(resolve => setTimeout(resolve, 2000));
-          const retrySession = await checkSession();
+          const retrySession = await AuthJsClient.getSession();
 
           if (!retrySession || !retrySession.user) {
             setError('No session found. Please try signing in again.');
@@ -78,6 +79,12 @@ const AuthCallback = () => {
 
             console.log('[Auth] Setting user data in context from retry session:', userData);
             setUser(userData);
+
+            // Set a flag to indicate that we have a valid session
+            sessionStorage.setItem('auth_session_valid', 'true');
+
+            // Also update the session in the auth context
+            await checkSession();
           }
         } else if (session.user && setUser) {
           // Ensure we have all the user data properly formatted
@@ -91,39 +98,27 @@ const AuthCallback = () => {
 
           console.log('[Auth] Setting user data in context:', userData);
           setUser(userData);
+
+          // Set a flag to indicate that we have a valid session
+          sessionStorage.setItem('auth_session_valid', 'true');
+
+          // Also update the session in the auth context
+          await checkSession();
         }
 
-        // Get the redirect path from localStorage
-        const redirectPath = localStorage.getItem('auth_redirect_path') || '/';
-        const redirectUrl = localStorage.getItem('auth_redirect_url') || '/';
-        const authTimestamp = localStorage.getItem('auth_timestamp');
-        const authEnvironment = localStorage.getItem('auth_environment') || 'localhost';
+        // Get the redirect path from sessionStorage (set by AuthJsClient)
+        const redirectPath = sessionStorage.getItem('auth_redirect') || '/';
 
-        // Determine the current environment
-        const isGitHubPages = window.location.hostname.includes('github.io');
-        const isVercel = window.location.hostname.includes('vercel.app');
-        const currentEnvironment = isGitHubPages ? 'github-pages' :
-                                 isVercel ? 'vercel' : 'localhost';
-
-        console.log('[Auth] Redirect path from localStorage:', redirectPath);
-        console.log('[Auth] Redirect URL from localStorage:', redirectUrl);
-        console.log('[Auth] Auth timestamp:', authTimestamp);
-        console.log('[Auth] Auth environment:', authEnvironment);
-        console.log('[Auth] Current environment:', currentEnvironment);
+        console.log('[Auth] Redirect path from sessionStorage:', redirectPath);
 
         // Check if the stored redirect info is still valid (less than 10 minutes old)
+        const authTimestamp = sessionStorage.getItem('auth_timestamp');
         const isValidTimestamp = authTimestamp &&
                                (Date.now() - parseInt(authTimestamp, 10)) < 10 * 60 * 1000;
 
         if (!isValidTimestamp) {
           console.warn('[Auth] Stored redirect info is too old or missing, using default');
         }
-
-        // Clear the stored auth data
-        localStorage.removeItem('auth_redirect_path');
-        localStorage.removeItem('auth_redirect_url');
-        localStorage.removeItem('auth_timestamp');
-        localStorage.removeItem('auth_environment');
 
         // Update status and redirect
         setStatus(`Authentication successful! Redirecting...`);
@@ -135,15 +130,21 @@ const AuthCallback = () => {
 
         // Redirect after a short delay
         setTimeout(() => {
-          // Always redirect to the home page
-          // For GitHub Pages, we need to handle the redirect differently
-          // The 404.html approach will handle the routing
-          const targetUrl = '/';
+          // Use the stored redirect path or default to home page
+          const targetUrl = redirectPath || '/';
 
-          console.log('[Auth] Redirecting to home page');
+          console.log('[Auth] Redirecting to:', targetUrl);
 
-          // Use the full URL with origin to ensure proper redirection
-          window.location.href = `${window.location.origin}${targetUrl}`;
+          // Use the navigate function for internal routes
+          if (targetUrl.startsWith('/')) {
+            navigate(targetUrl);
+          } else {
+            // For external URLs, use window.location
+            window.location.href = targetUrl;
+          }
+
+          // Clear the redirect path
+          sessionStorage.removeItem('auth_redirect');
         }, 1500);
       } catch (err) {
         console.error('[Auth] Error during authentication:', err);
