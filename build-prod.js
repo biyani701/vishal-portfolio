@@ -3,17 +3,34 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-// Load environment variables from .env.local for local development
-// In GitHub Actions, these will come from GitHub repository variables
-if (process.env.NODE_ENV !== 'production' && !process.env.GITHUB_ACTIONS) {
-  console.log('Loading environment variables from .env.local for local development');
+// Determine environment: DEV, STAGING, or PROD
+const ENVIRONMENT = process.env.ENVIRONMENT || 'DEV';
+console.log(`Building for environment: ${ENVIRONMENT}`);
+
+// Load environment variables based on environment
+if (ENVIRONMENT === 'DEV') {
+  console.log('Loading environment variables from .env.local for development');
   require('dotenv').config({ path: '.env.local' });
+} else if (ENVIRONMENT === 'STAGING' || ENVIRONMENT === 'PROD') {
+  console.log(`Using environment variables from GitHub repository variables for ${ENVIRONMENT}`);
+  // These should be set in the GitHub repository
 } else {
-  console.log('Using environment variables from GitHub repository variables');
+  console.error(`Invalid ENVIRONMENT value: ${ENVIRONMENT}. Must be DEV, STAGING, or PROD.`);
+  process.exit(1);
 }
 
-// Get the Auth server URL from environment or use default
-const AUTH_SERVER_URL = process.env.REACT_APP_AUTH_SERVER_URL || 'https://my-next-auth-app-ten.vercel.app';
+// Validate required environment variables
+const requiredVars = ['REACT_APP_AUTH_SERVER_URL'];
+const missingVars = requiredVars.filter(varName => !process.env[varName]);
+
+if (missingVars.length > 0) {
+  console.error(`Error: Missing required environment variables: ${missingVars.join(', ')}`);
+  console.error(`Make sure these are defined in .env.local (for DEV) or GitHub repository variables (for STAGING/PROD)`);
+  process.exit(1);
+}
+
+// Get the Auth server URL from environment (no default fallback)
+const AUTH_SERVER_URL = process.env.REACT_APP_AUTH_SERVER_URL;
 
 console.log(`Building with Auth server URL: ${AUTH_SERVER_URL}`);
 
@@ -34,12 +51,15 @@ try {
 
 // Create runtime config files in the build directory with all environment variables
 const runtimeConfig = {
-  // Auth server configuration
+  // Environment indicator
+  ENVIRONMENT,
+
+  // Auth server configuration - required
   AUTH_SERVER_URL,
-  CLIENT_ID: 'portfolio',
+  CLIENT_ID: process.env.REACT_APP_CLIENT_ID || 'portfolio',
 
   // Client URL (your React app on GitHub Pages)
-  CLIENT_URL: process.env.REACT_APP_CLIENT_URL || window.location.origin,
+  CLIENT_URL: process.env.REACT_APP_CLIENT_URL,
 
   // OAuth Client IDs
   GITHUB_CLIENT_ID: process.env.REACT_APP_GITHUB_CLIENT_ID,
@@ -48,7 +68,11 @@ const runtimeConfig = {
   // Legacy URLs (for backward compatibility)
   REDIRECT_URI: process.env.REACT_APP_REDIRECT_URI,
   TOKEN_PROXY_URL: process.env.REACT_APP_TOKEN_PROXY_URL,
-  AUTH_URL: process.env.REACT_APP_AUTH_URL
+  AUTH_URL: process.env.REACT_APP_AUTH_URL,
+
+  // Build timestamp for debugging
+  BUILD_TIMESTAMP: new Date().toISOString(),
+  BUILD_VERSION: process.env.npm_package_version || '0.0.0'
 };
 
 // Create JSON file for dynamic loading

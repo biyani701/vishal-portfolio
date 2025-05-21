@@ -1,4 +1,7 @@
 {
-  "AUTH_SERVER_URL": "https://my-next-auth-app-ten.vercel.app",
-  "CLIENT_ID": "portfolio"
+  "ENVIRONMENT": "DEV",
+  "AUTH_SERVER_URL": "http://localhost:3000",
+  "CLIENT_ID": "portfolio",
+  "BUILD_TIMESTAMP": "2023-05-22T00:00:00.000Z",
+  "BUILD_VERSION": "0.1.0"
 }

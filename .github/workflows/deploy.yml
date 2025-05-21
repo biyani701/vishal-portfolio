@@ -20,10 +20,16 @@ jobs:
         run: npm ci
 
       - name: Build the portfolio project
-        run: npm run build:prod
+        run: node build-prod.js
         env:
+          # Set environment to PROD for GitHub Actions builds
+          ENVIRONMENT: PROD
+          # Required configuration - will cause build to fail if missing
           REACT_APP_AUTH_SERVER_URL: https://my-next-auth-app-ten.vercel.app
+          # Optional configuration - from GitHub repository variables
+          REACT_APP_CLIENT_URL: https://vishal.biyani.xyz
           REACT_APP_GITHUB_CLIENT_ID: ${{ vars.REACT_APP_GITHUB_CLIENT_ID }}
+          REACT_APP_GOOGLE_CLIENT_ID: ${{ vars.REACT_APP_GOOGLE_CLIENT_ID }}
           REACT_APP_REDIRECT_URI: ${{ vars.REACT_APP_REDIRECT_URI }}
           REACT_APP_TOKEN_PROXY_URL: ${{ vars.REACT_APP_TOKEN_PROXY_URL }}
 
