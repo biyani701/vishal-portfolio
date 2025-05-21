@@ -20,8 +20,9 @@ jobs:
         run: npm ci
 
       - name: Build the portfolio project
-        run: npm run build
+        run: npm run build:prod
         env:
+          REACT_APP_AUTH_SERVER_URL: https://my-next-auth-app-ten.vercel.app
           REACT_APP_GITHUB_CLIENT_ID: ${{ vars.REACT_APP_GITHUB_CLIENT_ID }}
           REACT_APP_REDIRECT_URI: ${{ vars.REACT_APP_REDIRECT_URI }}
           REACT_APP_TOKEN_PROXY_URL: ${{ vars.REACT_APP_TOKEN_PROXY_URL }}
@@ -115,15 +116,15 @@ jobs:
           touch ./build/.nojekyll
 
           echo "Docusaurus build completed."
-          
+
       # Copy Docusaurus build to the main build directory
       - name: Copy Docusaurus build to main build directory
         run: |
           echo "Copying Docusaurus build to main build/docs directory..."
-          
+
           # Copy all files from docs-site/build to build/docs
           cp -r ./docs-site/build/* ./build/docs/
-          
+
           # Add diagnostics script
           cat > ./build/docs/diagnostics.js <<"EOF"
           // Diagnostic script to help troubleshoot Docusaurus issues
@@ -146,7 +147,7 @@ jobs:
 
           const mainContent = document.querySelector('main.container');
           console.log(`Main content: ${mainContent ? '✅ Found' : '❌ Not found'}`);
-          
+
           console.log('📊 Diagnostics complete');
           EOF
 

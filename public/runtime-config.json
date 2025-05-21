@@ -1,4 +1,4 @@
 {
-  "AUTH_SERVER_URL": "http://localhost:3000",
+  "AUTH_SERVER_URL": "https://my-next-auth-app-ten.vercel.app",
   "CLIENT_ID": "portfolio"
 }

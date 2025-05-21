@@ -6,7 +6,7 @@ window.runtimeConfig = {
   // Default values (will be overridden by runtime-config.json if available)
   AUTH_SERVER_URL: window.location.hostname === 'localhost'
     ? 'http://localhost:3000'
-    : 'https://my-oauth-proxy.vercel.app',
+    : 'https://my-next-auth-app-ten.vercel.app',
 
   // Client ID for the portfolio application
   CLIENT_ID: 'portfolio'
