@@ -11,7 +11,7 @@ import config from '../../config';
  * @param {string} provider - The authentication provider (e.g., 'github', 'google')
  * @param {string} [callbackUrl] - Optional callback URL after authentication
  */
-export const signIn = (provider, callbackUrl) => {
+export const signIn = async (provider, callbackUrl) => {
   // Store the current URL to redirect back after authentication
   const currentPath = window.location.pathname;
   sessionStorage.setItem('auth_redirect', callbackUrl || currentPath);
@@ -25,22 +25,48 @@ export const signIn = (provider, callbackUrl) => {
 
   // For Auth.js V5, we need to use the correct callback URL format
   // This should be a URL that Auth.js can redirect back to after authentication
-  const redirectUrl = encodeURIComponent(callbackUrl || `${window.location.origin}/auth-callback`);
-
-  // Include the origin as a query parameter for CORS handling
-  const origin = encodeURIComponent(window.location.origin);
-
-  // Construct the sign-in URL according to Auth.js V5 format
-  // The format is /api/auth/signin/[provider]?callbackUrl=[url]
-  const signInUrl = `${authServerUrl}/api/auth/signin/${provider}?callbackUrl=${redirectUrl}&origin=${origin}`;
+  const redirectUrl = callbackUrl || `${window.location.origin}/auth-callback`;
 
   console.log('[Auth.js Client] Signing in with provider:', provider);
   console.log('[Auth.js Client] Auth server URL:', authServerUrl);
   console.log('[Auth.js Client] Redirect URL:', redirectUrl);
-  console.log('[Auth.js Client] Sign-in URL:', signInUrl);
 
-  // Directly redirect to the auth server URL
-  window.location.href = signInUrl;
+  try {
+    // Auth.js V5 requires a POST request to the signin endpoint
+    const response = await fetch(`${authServerUrl}/api/auth/signin/${provider}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        callbackUrl: redirectUrl,
+        redirect: true,
+        json: false
+      }),
+      credentials: 'include',
+    });
+
+    if (response.ok) {
+      // Get the URL from the response
+      const data = await response.json();
+      if (data.url) {
+        console.log('[Auth.js Client] Redirecting to:', data.url);
+        window.location.href = data.url;
+      } else {
+        console.error('[Auth.js Client] No URL in response');
+        // Fallback to the old method
+        window.location.href = `${authServerUrl}/api/auth/signin/${provider}?callbackUrl=${encodeURIComponent(redirectUrl)}`;
+      }
+    } else {
+      console.error('[Auth.js Client] Sign in request failed:', response.status, response.statusText);
+      // Fallback to the old method
+      window.location.href = `${authServerUrl}/api/auth/signin/${provider}?callbackUrl=${encodeURIComponent(redirectUrl)}`;
+    }
+  } catch (error) {
+    console.error('[Auth.js Client] Error signing in:', error);
+    // Fallback to the old method
+    window.location.href = `${authServerUrl}/api/auth/signin/${provider}?callbackUrl=${encodeURIComponent(redirectUrl)}`;
+  }
 };
 
 /**

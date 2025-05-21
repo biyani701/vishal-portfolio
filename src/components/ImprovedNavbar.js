@@ -1255,15 +1255,17 @@ const NavigationBar = ({
                     <SignInPage
                       providers={[
                         { id: "github", name: "GitHub" },
-                        { id: "google", name: "Google" },
-                        { id: "facebook", name: "Facebook" },
                         { id: "auth0", name: "Auth0" },
                       ]}
                       signIn={async (provider) => {
                         // Call the signIn function from AuthJsClient
                         if (provider && provider.id) {
                           console.log(`[Navbar] Signing in with ${provider.id}`);
-                          AuthJsClient.signIn(provider.id);
+                          try {
+                            await AuthJsClient.signIn(provider.id);
+                          } catch (error) {
+                            console.error(`[Navbar] Error signing in with ${provider.id}:`, error);
+                          }
                         }
                       }}
                     />
@@ -1591,8 +1593,6 @@ const NavigationBar = ({
                   <SignInPage
                     providers={[
                       { id: "github", name: "GitHub" },
-                      { id: "google", name: "Google" },
-                      { id: "facebook", name: "Facebook" },
                       { id: "auth0", name: "Auth0" },
                     ]}
                     signIn={async (provider) => {
@@ -1600,7 +1600,11 @@ const NavigationBar = ({
                       if (provider && provider.id) {
                         console.log(`[Navbar] Signing in with ${provider.id}`);
                         handleDrawerToggle(); // Close the drawer
-                        AuthJsClient.signIn(provider.id);
+                        try {
+                          await AuthJsClient.signIn(provider.id);
+                        } catch (error) {
+                          console.error(`[Navbar] Error signing in with ${provider.id}:`, error);
+                        }
                       }
                     }}
                   />
