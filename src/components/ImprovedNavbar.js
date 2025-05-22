@@ -1255,6 +1255,9 @@ const NavigationBar = ({
                     <SignInPage
                       providers={[
                         { id: "github", name: "GitHub" },
+                        { id: "google", name: "Google" },
+                        { id: "facebook", name: "Facebook" },
+                        { id: "linkedin", name: "LinkedIn" },
                         { id: "auth0", name: "Auth0" },
                       ]}
                       signIn={async (provider) => {
@@ -1593,6 +1596,9 @@ const NavigationBar = ({
                   <SignInPage
                     providers={[
                       { id: "github", name: "GitHub" },
+                      { id: "google", name: "Google" },
+                      { id: "facebook", name: "Facebook" },
+                      { id: "linkedin", name: "LinkedIn" },
                       { id: "auth0", name: "Auth0" },
                     ]}
                     signIn={async (provider) => {
