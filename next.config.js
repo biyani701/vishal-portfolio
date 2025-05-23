@@ -1,6 +1,6 @@
 /** @type {import("next").NextConfig} */
 module.exports = {
-  output: "standalone",
+  // Remove the output: "standalone" to ensure API routes work
   async headers() {
     return [
       {
@@ -10,8 +10,8 @@ module.exports = {
           {
             key: 'Access-Control-Allow-Origin',
             // Allow both localhost and your GitHub Pages domain
-            value: process.env.NODE_ENV === 'production' 
-              ? 'https://vishal.biyani.xyz' 
+            value: process.env.NODE_ENV === 'production'
+              ? 'https://vishal.biyani.xyz'
               : 'http://localhost:3775',
           },
           {

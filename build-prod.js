@@ -58,6 +58,9 @@ const runtimeConfig = {
   AUTH_SERVER_URL,
   CLIENT_ID: process.env.REACT_APP_CLIENT_ID || 'portfolio',
 
+  // Analytics API URL for click tracking
+  ANALYTICS_API_URL: process.env.REACT_APP_ANALYTICS_API_URL || 'https://click-tracker-five.vercel.app/api',
+
   // Client URL (your React app on GitHub Pages)
   CLIENT_URL: process.env.REACT_APP_CLIENT_URL,
 

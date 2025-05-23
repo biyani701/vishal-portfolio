@@ -37,6 +37,7 @@ import {
   faFileLines,
   faRoad,
 } from "@fortawesome/free-solid-svg-icons";
+import { trackClick } from "../utils/analytics";
 
 import { motion } from "framer-motion";
 
@@ -420,8 +421,30 @@ const NavigationBar = ({
   const { user, isAuthenticated, checkSession } = useAuthContext();
   const legacyAuth = useLegacyAuth();
 
-  // State to track Auth.js authentication status
+  // State to track Auth.js authentication status and user role
   const [authJsAuthenticated, setAuthJsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+
+  // Function to track menu clicks
+  const trackMenuClick = (menuId, menuType) => {
+    // Get the current user ID if authenticated
+    let userId = null;
+    if (isAuthenticated || authJsAuthenticated) {
+      // Try to get user ID from session
+      const session = sessionStorage.getItem('auth_session');
+      if (session) {
+        try {
+          const parsedSession = JSON.parse(session);
+          userId = parsedSession?.user?.id || parsedSession?.user?.email || null;
+        } catch (error) {
+          console.error("[Navbar] Error parsing session:", error);
+        }
+      }
+    }
+
+    // Track the click
+    trackClick(menuId, menuType, window.location.pathname, userId);
+  };
 
   // Force a session check when the navbar mounts
   React.useEffect(() => {
@@ -435,10 +458,24 @@ const NavigationBar = ({
         const isAuthJsAuthenticated = await AuthJsClient.isAuthenticated();
         setAuthJsAuthenticated(isAuthJsAuthenticated);
 
+        // Get user role if authenticated
+        if (isAuthJsAuthenticated && session?.user) {
+          try {
+            // Get user role from Auth.js session
+            const role = session?.user?.role || 'user';
+            setUserRole(role);
+            console.log("[Navbar] User role:", role);
+          } catch (error) {
+            console.error("[Navbar] Error getting user role:", error);
+            setUserRole('user'); // Default to user role
+          }
+        }
+
         console.log("[Navbar] Authentication status:", {
           isAuthenticated,
           authJsAuthenticated: isAuthJsAuthenticated,
           session,
+          userRole,
         });
       } catch (error) {
         console.error("[Navbar] Error checking authentication status:", error);
@@ -483,6 +520,10 @@ const NavigationBar = ({
 
   const handleResumeItemClick = (sectionId) => {
     handleResumeMenuClose(); // Close the dropdown
+
+    // Track the menu click
+    trackMenuClick(sectionId, 'resume-menu');
+
     if (location.pathname === "/") {
       // Already on home, just scroll
       const el = document.getElementById(sectionId);
@@ -740,6 +781,7 @@ const NavigationBar = ({
                 component={RouterLink}
                 to="/"
                 onClick={() => {
+                  trackMenuClick('home', 'main-menu');
                   if (location.pathname === "/") {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }
@@ -748,14 +790,21 @@ const NavigationBar = ({
                 Home
               </Button>
 
-              <Button component={RouterLink} to="/about">
+              <Button
+                component={RouterLink}
+                to="/about"
+                onClick={() => trackMenuClick('about', 'main-menu')}
+              >
                 About Me
               </Button>
 
               {/* Resume Menu */}
               <Button
                 id="resume-button"
-                onClick={handleResumeMenuOpen}
+                onClick={(e) => {
+                  handleResumeMenuOpen(e);
+                  trackMenuClick('resume-menu', 'main-menu');
+                }}
                 endIcon={<KeyboardArrowDownIcon />}
                 aria-controls="resume-menu"
                 aria-haspopup="true"
@@ -896,14 +945,21 @@ const NavigationBar = ({
               </Menu>
               {/* End New Section */}
 
-              <Button component={RouterLink} to="/works">
+              <Button
+                component={RouterLink}
+                to="/works"
+                onClick={() => trackMenuClick('portfolio', 'main-menu')}
+              >
                 Portfolio
               </Button>
 
               {/* Knowledge Base Menu */}
               <Button
                 id="knowledge-button"
-                onClick={(e) => setKnowledgeAnchorEl(e.currentTarget)}
+                onClick={(e) => {
+                  setKnowledgeAnchorEl(e.currentTarget);
+                  trackMenuClick('knowledge-base', 'main-menu');
+                }}
                 endIcon={<KeyboardArrowDownIcon />}
                 aria-controls="knowledge-menu"
                 aria-haspopup="true"
@@ -1012,7 +1068,10 @@ const NavigationBar = ({
               {/* Blog Menu */}
               <Button
                 id="blog-button"
-                onClick={handleBlogMenuOpen}
+                onClick={(e) => {
+                  handleBlogMenuOpen(e);
+                  trackMenuClick('blog-menu', 'main-menu');
+                }}
                 endIcon={<KeyboardArrowDownIcon />}
                 aria-controls="blog-menu"
                 aria-haspopup="true"
@@ -1044,7 +1103,10 @@ const NavigationBar = ({
                 <MenuItem
                   component={RouterLink}
                   to="/blogs"
-                  onClick={handleBlogMenuClose}
+                  onClick={() => {
+                    handleBlogMenuClose();
+                    trackMenuClick('view-all-blogs', 'blog-menu');
+                  }}
                   sx={{ py: 1.2, px: 2, gap: 1 }}
                 >
                   <ListItemIcon
@@ -1055,66 +1117,83 @@ const NavigationBar = ({
                   <ListItemText primary="View All" />
                 </MenuItem>
 
-                {(isAuthenticated || authJsAuthenticated)
-                  ? [
-                      <MenuItem
-                        key="create-new"
-                        component={RouterLink}
-                        to="/blog/new"
-                        onClick={handleBlogMenuClose}
-                        sx={{ py: 1.2, px: 2, gap: 1 }}
-                      >
-                        <ListItemIcon
-                          sx={{
-                            color: theme.palette.text.secondary,
-                            minWidth: 32,
-                          }}
-                        >
-                          <AddIcon fontSize="small" />
-                        </ListItemIcon>
-                        <ListItemText primary="Create New" />
-                      </MenuItem>,
+                {/* Admin menu items */}
+                {(isAuthenticated || authJsAuthenticated) && userRole === 'admin' && (
+                  <MenuItem
+                    key="create-new"
+                    component={RouterLink}
+                    to="/blog/new"
+                    onClick={() => {
+                      handleBlogMenuClose();
+                      trackMenuClick('create-new-blog', 'blog-menu');
+                    }}
+                    sx={{ py: 1.2, px: 2, gap: 1 }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        color: theme.palette.text.secondary,
+                        minWidth: 32,
+                      }}
+                    >
+                      <AddIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText primary="Create New" />
+                  </MenuItem>
+                )}
 
-                      <MenuItem
-                        key="edit"
-                        component={RouterLink}
-                        to="/blogs"
-                        onClick={handleBlogMenuClose}
-                        sx={{ py: 1.2, px: 2, gap: 1 }}
-                      >
-                        <ListItemIcon
-                          sx={{
-                            color: theme.palette.text.secondary,
-                            minWidth: 32,
-                          }}
-                        >
-                          <EditIcon fontSize="small" />
-                        </ListItemIcon>
-                        <ListItemText primary="Edit" />
-                      </MenuItem>,
+                {/* Edit - For admin or moderator roles */}
+                {(isAuthenticated || authJsAuthenticated) && (userRole === 'admin' || userRole === 'moderator') && (
+                  <MenuItem
+                    key="edit"
+                    component={RouterLink}
+                    to="/blogs"
+                    onClick={() => {
+                      handleBlogMenuClose();
+                      trackMenuClick('edit-blog', 'blog-menu');
+                    }}
+                    sx={{ py: 1.2, px: 2, gap: 1 }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        color: theme.palette.text.secondary,
+                        minWidth: 32,
+                      }}
+                    >
+                      <EditIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText primary="Edit" />
+                  </MenuItem>
+                )}
 
-                      <MenuItem
-                        key="delete"
-                        component={RouterLink}
-                        to="/blogs"
-                        onClick={handleBlogMenuClose}
-                        sx={{ py: 1.2, px: 2, gap: 1 }}
-                      >
-                        <ListItemIcon
-                          sx={{
-                            color: theme.palette.text.secondary,
-                            minWidth: 32,
-                          }}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </ListItemIcon>
-                        <ListItemText primary="Delete" />
-                      </MenuItem>,
-                    ]
-                  : null}
+                {/* Delete - Only for admin role */}
+                {(isAuthenticated || authJsAuthenticated) && userRole === 'admin' && (
+                  <MenuItem
+                    key="delete"
+                    component={RouterLink}
+                    to="/blogs"
+                    onClick={() => {
+                      handleBlogMenuClose();
+                      trackMenuClick('delete-blog', 'blog-menu');
+                    }}
+                    sx={{ py: 1.2, px: 2, gap: 1 }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        color: theme.palette.text.secondary,
+                        minWidth: 32,
+                      }}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText primary="Delete" />
+                  </MenuItem>
+                )}
               </Menu>
               <Button
-                onClick={() => navigate("/contact")}
+                onClick={() => {
+                  navigate("/contact");
+                  trackMenuClick('contact', 'main-menu');
+                }}
                 startIcon={<ContactMailIcon />}
               >
                 Contact
@@ -1130,9 +1209,12 @@ const NavigationBar = ({
                   value={query}
                   onChange={handleSearchChange}
                   onKeyDown={handleSearchKeyDown}
-                  onFocus={(e) =>
-                    e.target.value && setSearchAnchorEl(e.currentTarget)
-                  }
+                  onFocus={(e) => {
+                    if (e.target.value) {
+                      setSearchAnchorEl(e.currentTarget);
+                      trackMenuClick('search', 'main-menu');
+                    }
+                  }}
                 />
                 {Boolean(searchAnchorEl) && (
                   <SearchResultsDropdown>
@@ -1184,7 +1266,10 @@ const NavigationBar = ({
 
               {/* Settings Icon */}
               <IconButton
-                onClick={handleSettingsClick}
+                onClick={(e) => {
+                  handleSettingsClick(e);
+                  trackMenuClick('settings', 'main-menu');
+                }}
                 onMouseEnter={handleSettingsMouseEnter}
                 color="inherit"
                 aria-label="settings"
@@ -1251,28 +1336,32 @@ const NavigationBar = ({
                 </Box>
                 {/* Mui Sign in */}
                 {!(isAuthenticated || authJsAuthenticated) && (
-                  <AppProvider theme={theme}>
-                    <SignInPage
-                      providers={[
-                        { id: "github", name: "GitHub" },
-                        { id: "google", name: "Google" },
-                        { id: "facebook", name: "Facebook" },
-                        { id: "linkedin", name: "LinkedIn" },
-                        { id: "auth0", name: "Auth0" },
-                      ]}
-                      signIn={async (provider) => {
-                        // Call the signIn function from AuthJsClient
-                        if (provider && provider.id) {
-                          console.log(`[Navbar] Signing in with ${provider.id}`);
-                          try {
-                            await AuthJsClient.signIn(provider.id);
-                          } catch (error) {
-                            console.error(`[Navbar] Error signing in with ${provider.id}:`, error);
-                          }
-                        }
-                      }}
-                    />
-                  </AppProvider>
+                  <MenuItem>
+                    <Box sx={{ width: '100%' }}>
+                      <AppProvider theme={theme}>
+                        <SignInPage
+                          providers={[
+                            { id: "github", name: "GitHub" },
+                            { id: "google", name: "Google" },
+                            { id: "facebook", name: "Facebook" },
+                            { id: "linkedin", name: "LinkedIn" },
+                            { id: "auth0", name: "Auth0" },
+                          ]}
+                          signIn={async (provider) => {
+                            // Call the signIn function from AuthJsClient
+                            if (provider && provider.id) {
+                              console.log(`[Navbar] Signing in with ${provider.id}`);
+                              try {
+                                await AuthJsClient.signIn(provider.id);
+                              } catch (error) {
+                                console.error(`[Navbar] Error signing in with ${provider.id}:`, error);
+                              }
+                            }
+                          }}
+                        />
+                      </AppProvider>
+                    </Box>
+                  </MenuItem>
                 )}
 
                 {/* Theme Toggle */}

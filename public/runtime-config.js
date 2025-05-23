@@ -10,6 +10,9 @@ window.runtimeConfig = {
   // No default values - these will be set by runtime-config.json
   AUTH_SERVER_URL: null,
 
+  // Analytics API URL - will be set by runtime-config.json
+  ANALYTICS_API_URL: null,
+
   // Client ID for the portfolio application
   CLIENT_ID: 'portfolio'
 };
