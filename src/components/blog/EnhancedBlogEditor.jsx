@@ -624,17 +624,19 @@ const labelColor = theme.palette.text.secondary;
       value={title}
       onChange={(e) => setTitle(e.target.value)}
       required
-      InputLabelProps={{
-        sx: { color: labelColor }
-      }}
-      InputProps={{
-        sx: {
-          color: inputColor,
-          backgroundColor: theme.palette.background.paper
+      slotProps={{
+        input: {
+          sx: {
+            color: inputColor,
+            backgroundColor: theme.palette.background.paper
+          }
+        },
+        label: {
+          sx: { color: labelColor }
+        },
+        helperText: {
+          sx: { color: labelColor }
         }
-      }}
-      FormHelperTextProps={{
-        sx: { color: labelColor }
       }}
       helperText="Make it short and catchy"
     />
@@ -674,17 +676,19 @@ const labelColor = theme.palette.text.secondary;
       value={tags}
       onChange={(e) => setTags(e.target.value)}
       placeholder="e.g., react, dev, fintech"
-      InputLabelProps={{
-        sx: { color: labelColor }
-      }}
-      InputProps={{
-        sx: {
-          color: inputColor,
-          backgroundColor: theme.palette.background.paper
+      slotProps={{
+        input: {
+          sx: {
+            color: inputColor,
+            backgroundColor: theme.palette.background.paper
+          }
+        },
+        label: {
+          sx: { color: labelColor }
+        },
+        helperText: {
+          sx: { color: labelColor }
         }
-      }}
-      FormHelperTextProps={{
-        sx: { color: labelColor }
       }}
       helperText="Comma separated tags"
     />
@@ -739,7 +743,8 @@ const labelColor = theme.palette.text.secondary;
                     <Select
                       value=""
                       displayEmpty
-                      variant="standard"
+                      variant="outlined"
+                      size="small"
                       sx={{
                         minWidth: 100,
                         '& .MuiSelect-select': {

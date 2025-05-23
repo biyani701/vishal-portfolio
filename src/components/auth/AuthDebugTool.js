@@ -295,8 +295,10 @@ const AuthDebugTool = () => {
                   fullWidth
                   label="Generated URL"
                   value={generateSignInUrl(provider)}
-                  InputProps={{
-                    readOnly: true,
+                  slotProps={{
+                    input: {
+                      readOnly: true,
+                    }
                   }}
                 />
 

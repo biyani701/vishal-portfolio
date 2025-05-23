@@ -53,6 +53,7 @@ import AuthProvider from "./context/AuthProvider";
 import { useAuthContext } from "./context/AuthProvider";
 import AuthSessionCheck from "./components/AuthSessionCheck";
 import ClickTest from "./components/ClickTest";
+import ConfigTest from "./components/ConfigTest";
 
 // Toolpad SignIn Page
 import ToolpadSignInPageWrapper from "./pages/toolpad-signin";
@@ -450,6 +451,7 @@ function App(props) {
             <Route path="/credits" element={<CreditsPage />} />
             {/* <Route path="/blog/edit/:blogId" element={<BlogEditor />} /> */}
             <Route path="/click-test" element={<ClickTest />} />
+            <Route path="/config-test" element={<ConfigTest />} />
 
             <Route path="*" element={<div>404 Not Found</div>} />
           </Routes>

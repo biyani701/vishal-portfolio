@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Box, Typography, Container } from '@mui/material';
 
 const TallyContactForm = () => {
@@ -26,16 +26,16 @@ const TallyContactForm = () => {
   return (
     <Box id="contact" sx={{ py: 8, backgroundColor: 'background.paper' }}>
       <Container maxWidth="md">
-        <Typography 
-          variant="h3" 
-          component="h2" 
-          align="center" 
+        <Typography
+          variant="h3"
+          component="h2"
+          align="center"
           gutterBottom
           sx={{ mb: 4 }}
         >
           Contact Me
         </Typography>
-        <Box 
+        <Box
           ref={formRef}
           sx={{
             width: '100%',
@@ -43,15 +43,15 @@ const TallyContactForm = () => {
             mb: 4
           }}
         >
-          <iframe 
-            data-tally-src="https://tally.so/embed/mB6PPe?hideTitle=1&transparentBackground=1&dynamicHeight=1" 
-            width="100%" 
-            height="276" 
-            frameBorder="0" 
-            marginHeight="0" 
-            marginWidth="0" 
+          <iframe
+            data-tally-src="https://tally.so/embed/mB6PPe?hideTitle=1&transparentBackground=1&dynamicHeight=1"
+            width="100%"
+            height="276"
+            style={{
+              border: 'none',
+              margin: 0
+            }}
             title="Contact Me"
-            style={{ border: 'none' }}
           />
         </Box>
       </Container>

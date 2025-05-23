@@ -6,11 +6,13 @@
 const getAnalyticsApiUrl = () => {
   // In production, this should be the deployed Vercel API URL
   // In development, it can be a local URL
-  const apiUrl = (window.runtimeConfig && window.runtimeConfig.ANALYTICS_API_URL) ||
-         process.env.REACT_APP_ANALYTICS_API_URL ||
-         'https://click-tracker-five.vercel.app/api';
+
+  // Force the API URL to be http://localhost:7000/api for local development
+  // This is a temporary fix until we figure out why the runtime config isn't being loaded correctly
+  const apiUrl = 'http://localhost:7000/api';
 
   console.log('[Analytics] Using API URL:', apiUrl);
+  console.log('[Analytics] Runtime config value:', window.runtimeConfig?.ANALYTICS_API_URL);
   return apiUrl;
 };
 
@@ -50,6 +52,7 @@ export const trackClick = async (elementId, elementType, pageUrl, userId = null)
 
     const apiUrl = `${getAnalyticsApiUrl()}/track`;
     console.log(`[Analytics] Tracking click: ${elementId} (${elementType}) on ${pageUrl}`);
+    console.log(`[Analytics] Sending request to: ${apiUrl}`);
 
     // Don't block the UI with tracking
     const trackingPromise = fetch(apiUrl, {
@@ -69,38 +72,61 @@ export const trackClick = async (elementId, elementType, pageUrl, userId = null)
       return { ok: false, status: 0, statusText: error.message || 'Network Error' };
     });
 
-    // Handle the response in the background
+    // Handle the response in the background without consuming the response body
+    // This allows the caller to also read the response if needed
     trackingPromise
       .then(response => {
         if (!response.ok) {
           console.error('[Analytics] Tracking failed:', response.status, response.statusText);
-          // Only try to parse response text if it's a real response object
-          if (response.text) {
-            return response.text().then(text => {
-              console.error('[Analytics] Error response:', text);
-            }).catch(() => {
-              // Ignore errors when trying to read the response text
-            });
-          }
-        } else if (response.json) {
-          return response.json().then(data => {
-            console.log('[Analytics] Tracking successful:', data);
-          }).catch(() => {
-            // Ignore errors when trying to parse JSON
-            console.log('[Analytics] Tracking completed (no JSON response)');
-          });
+          // Don't try to read the response body here, just log the status
+        } else {
+          console.log('[Analytics] Tracking successful (status):', response.status);
         }
       })
       .catch(error => {
         console.error('[Analytics] Tracking error:', error);
       });
 
-    // Return the promise for cases where we want to wait for it
-    return trackingPromise;
+    // Return a promise that resolves to a more useful result
+    return trackingPromise.then(async response => {
+      if (!response.ok) {
+        return {
+          success: false,
+          status: response.status,
+          statusText: response.statusText,
+          error: `Failed with status: ${response.status} ${response.statusText}`
+        };
+      }
+
+      try {
+        // Try to parse the response as JSON
+        const data = await response.clone().json();
+        return {
+          success: true,
+          ...data
+        };
+      } catch (jsonError) {
+        // If we can't parse as JSON, return a simple success object
+        return {
+          success: true,
+          message: 'Click tracked successfully'
+        };
+      }
+    }).catch(error => {
+      return {
+        success: false,
+        error: error.message || 'Network error',
+        reason: 'network_error'
+      };
+    });
   } catch (error) {
     console.error('[Analytics] Error tracking click:', error);
     // Don't throw the error to prevent affecting the user experience
-    return Promise.resolve({ success: false, reason: 'exception' });
+    return Promise.resolve({
+      success: false,
+      reason: 'exception',
+      error: error.message || 'Unknown error'
+    });
   }
 };
 
