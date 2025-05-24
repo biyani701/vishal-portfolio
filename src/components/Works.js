@@ -286,6 +286,7 @@ const Works = () => {
     // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
+      console.log("query=", query);
       result = result.filter(
         (project) =>
           project.title.toLowerCase().includes(query) ||
@@ -427,7 +428,7 @@ const Works = () => {
 
   const renderSidebarContent = () => (
     <Box sx={{ width: 250, p: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2}}>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>Categories</Typography>
         <IconButton onClick={toggleSidebarPin} size="small">
           {sidebarPinned ? <PushPinIcon /> : <PushPinOutlinedIcon />}
@@ -436,7 +437,10 @@ const Works = () => {
       
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <DescriptionIcon color="primary" />
           <Typography>Project Types</Typography>
+          </Box>
         </AccordionSummary>
         <AccordionDetails>
           <List dense>
@@ -449,6 +453,11 @@ const Works = () => {
                   setFilteredProjects(projects);
                 }}
               >
+                <ListItemIcon>
+                  {category === "Personal Projects" ? <CodeIcon color="primary" /> :
+                   category === "Open Source" ? <GitHubIcon color="primary" /> :
+                   <BuildIcon color="primary" />}
+                </ListItemIcon>
                 <ListItemText primary={category} />
               </ListItem>
             ))}
@@ -458,14 +467,24 @@ const Works = () => {
 
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Typography>Technologies</Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <BuildIcon color="primary" />
+            <Typography>Technologies</Typography>
+          </Box>
         </AccordionSummary>
         <AccordionDetails>
           <List dense>
             {Object.entries(techCategories).map(([category, techs]) => (
               <Accordion key={category}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    {category === "Frontend" ? <CodeIcon color="primary" /> :
+                     category === "Backend" ? <StorageIcon color="primary" /> :
+                     category === "Database" ? <DataObjectIcon color="primary" /> :
+                     category === "DevOps" ? <CloudIcon color="primary" /> :
+                     <SecurityIcon color="primary" />}
                   <Typography>{category}</Typography>
+                </Box>
                 </AccordionSummary>
                 <AccordionDetails>
                   <List dense>
@@ -484,6 +503,16 @@ const Works = () => {
                           );
                         }}
                       >
+                        <ListItemIcon>
+                          {tech.includes("React") ? <CodeIcon color="primary" /> :
+                           tech.includes("Python") ? <TerminalIcon color="primary" /> :
+                           tech.includes("FastAPI") ? <ApiIcon color="primary" /> :
+                           tech.includes("GraphQL") ? <DataObjectIcon color="primary" /> :
+                           tech.includes("PostgreSQL") ? <StorageIcon color="primary" /> :
+                           tech.includes("Docker") ? <CloudIcon color="primary" /> :
+                           tech.includes("Security") ? <SecurityIcon color="primary" /> :
+                           <BuildIcon color="primary" />}
+                        </ListItemIcon>
                         <ListItemText primary={tech} />
                       </ListItem>
                     ))}
@@ -505,7 +534,7 @@ const Works = () => {
         py: { xs: 5, md: 8 },
         backgroundColor:
           theme.palette.mode === "dark" ? "background.default" : "#f8f9fa",
-        position: "relative",
+        position: "relative",        
       }}
     >
       <Box sx={{ display: "flex" }}>
@@ -534,12 +563,12 @@ const Works = () => {
           onMouseLeave={handleSidebarMouseLeave}
           sx={{
             display: { xs: "none", md: "block" },
-            width: sidebarOpen ? 280 : 60,
+            width: sidebarOpen ? 280 : 30,
             flexShrink: 0,
             transition: "width 0.3s ease",
             position: "relative",
-            borderRight: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
-            backgroundColor: alpha(theme.palette.background.paper, 0.7),
+            borderRight: `3px solid ${alpha(theme.palette.divider, 0.1)}`,            
+            backgroundColor: alpha(theme.palette.background.paper, 0.9),            
             backdropFilter: "blur(8px)",
             height: "100%",
             zIndex: 1,
@@ -582,7 +611,7 @@ const Works = () => {
               xs: "100%",
               md: sidebarOpen ? "calc(100% - 280px)" : "calc(100% - 60px)",
             },
-            transition: "width 0.3s ease",
+            transition: "width 0.3s ease",            
           }}
         >
           <Container maxWidth="lg">
@@ -727,13 +756,14 @@ const Works = () => {
                     lg={3}
                     xl={3}
                     key={project.id}
-                    data-aos="fade-up"
-                    data-aos-delay={150 + index * 50}
+                    // data-aos="fade-up"
+                    // data-aos-delay={150 + index * 50}
+                    sx={{ flexBasis: "550px"}}                    
                   >
                     <Card
                       elevation={2}
                       sx={{
-                        height: 360, // Reduced from 450px
+                        height: 360, // Reduced from 450px                        
                         display: "flex",
                         flexDirection: "column",
                         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -932,7 +962,7 @@ const Works = () => {
                           color="primary"
                           size="medium"
                           endIcon={<ArrowForwardIcon sx={{ fontSize: "1rem" }} />}
-                          sx={{
+                          sx={{                            
                             borderRadius: 2,
                             textTransform: "none",
                             fontWeight: 600,

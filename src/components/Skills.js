@@ -202,7 +202,7 @@ const calculateExperience = (startDate, endDate = null) => {
   if (diffYears < 1) {
     // If less than a year, return in months
     const diffMonths = Math.floor(diffYears * 12);
-    return { value: diffMonths, unit: "months", display: `${diffMonths}+ months` };
+    return { value: diffMonths, unit: "months", display: `${diffMonths}+ mo.` };
   } else {
     // Round down to whole years
     const years = Math.floor(diffYears);
@@ -802,27 +802,6 @@ const Skills = () => {
 
         {/* Category Filters */}
         {viewMode === "periodic" && (
-          // <Box
-          //   sx={{
-          //     mb: 3,
-          //     display: "flex",
-          //     flexWrap: "wrap",
-          //     gap: 1,
-          //     justifyContent: "center",
-          //   }}
-          // >
-          //   {categories.map((category) => (
-          //     <Chip
-          //       key={category}
-          //       label={category}
-          //       onClick={() => handleCategoryChange(category)}
-          //       color={category === selectedCategory ? "primary" : "default"}
-          //       variant={category === selectedCategory ? "filled" : "outlined"}
-          //       icon={category !== "All" ? categoryIcons[category] : undefined}
-          //       sx={{ m: 0.5 }}
-          //     />
-          //   ))}
-          // </Box>
           <Box
             sx={{
               mb: 3,
@@ -875,13 +854,21 @@ const Skills = () => {
         {viewMode === "list" && (
           <Grid container spacing={3}>
             {Object.entries(processedSkills).map(([category, skills]) => (
-              <Grid item xs={12} sm={6} md={4} key={category}>
+              <Grid
+                item xs={12} sm={6} md={4} key={category}
+                sx={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
                 <Paper
                   elevation={3}
                   sx={{
                     p: 3,
                     height: "100%",
                     width: "100%",
+                    minWidth: 350,
                     display: "flex",
                     flexDirection: "column",
                     backgroundColor:
@@ -1022,38 +1009,6 @@ const Skills = () => {
                         </Box>
                       </Box>
 
-                      {/* Experience Progress Bar */}
-                      <Box sx={{ mb: 1 }}>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.25 }}>
-                          <Typography variant="caption" color="text.secondary">
-                            Experience
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {skill.experience.unit === "years"
-                              ? `${Math.floor(skill.experience.value)} years`
-                              : `${skill.experience.value} months`}
-                          </Typography>
-                        </Box>
-                        <LinearProgress
-                          variant="determinate"
-                          value={Math.min((skill.experience.value / 15) * 100, 100)}
-                          color={
-                            skill.usage === "current" ? "primary" : "secondary"
-                          }
-                          sx={{
-                            height: 6,
-                            borderRadius: theme.shape.borderRadius,
-                            backgroundColor:
-                              theme.palette.mode === "dark"
-                                ? theme.palette.grey[700]
-                                : theme.palette.grey[200],
-                            "& .MuiLinearProgress-bar": {
-                              borderRadius: theme.shape.borderRadius,
-                            },
-                          }}
-                        />
-                      </Box>
-
                       {/* Rating Progress Bar */}
                       <Box>
                         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.25 }}>
@@ -1093,9 +1048,9 @@ const Skills = () => {
         {viewMode === "periodic" && (
           <Box sx={{ mt: 2 }}>
             {Object.keys(periodicTableData).length === 0 ||
-            Object.values(periodicTableData).every((row) =>
-              row.every((cell) => cell === null)
-            ) ? (
+              Object.values(periodicTableData).every((row) =>
+                row.every((cell) => cell === null)
+              ) ? (
               <Typography variant="body1" align="center" sx={{ py: 4 }}>
                 No skills found matching your criteria.
               </Typography>
@@ -1206,7 +1161,7 @@ const Skills = () => {
                                 <Card
                                   elevation={2}
                                   sx={{
-                                    height: "100%",                                    
+                                    height: "100%",
                                     display: "flex",
                                     flexDirection: "column",
                                     position: "relative",
@@ -1336,7 +1291,7 @@ const Skills = () => {
                                         color={getProjectUseColor(skill.projectUse)}
                                         sx={{
                                           height: 16,
-                                          minWidth: "40%",
+                                          minWidth: "40%",                                          
                                           "& .MuiChip-label": {
                                             px: 0.5,
                                             fontSize: "0.6rem",
@@ -1344,7 +1299,8 @@ const Skills = () => {
                                           },
                                         }}
                                       />
-                                    </Box>
+                                      </Box>
+                                    
 
                                     {/* Rating Progress Bar */}
                                     <Box sx={{ width: "100%", mt: "auto" }}>
