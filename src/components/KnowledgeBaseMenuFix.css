@@ -1,0 +1,96 @@
+/* CSS fix for Knowledge Base menu */
+.force-hide-menu {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  z-index: -1 !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+/* Add a higher z-index to the AppBar to ensure it's above any menus */
+.MuiAppBar-root {
+  z-index: 1300 !important;
+}
+
+/* Ensure menu items have proper pointer cursor */
+.MuiMenuItem-root {
+  cursor: pointer !important;
+}
+
+/* Force menu to close when navigating */
+body.navigating .MuiMenu-root,
+body.navigating .MuiPopover-root,
+body.navigating .MuiBackdrop-root,
+body.navigating .MuiPaper-root[role="menu"],
+body.navigating .MuiPaper-root[role="presentation"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  z-index: -1 !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
+/* Fix for Knowledge Base menu */
+#knowledge-menu {
+  z-index: 1200 !important;
+}
+
+/* Fix for menu items */
+#knowledge-menu .MuiMenuItem-root {
+  position: relative !important;
+  z-index: 1201 !important;
+}
+
+/* Fix for menu backdrop */
+.MuiBackdrop-root {
+  z-index: 1199 !important;
+}
+
+/* Fix for menu paper */
+.MuiMenu-paper,
+.MuiPaper-root[role="menu"],
+.MuiPaper-root[role="presentation"] {
+  position: absolute !important;
+  z-index: 1200 !important;
+}
+
+/* Ensure proper stacking context */
+.MuiPopover-root {
+  z-index: 1200 !important;
+}
+
+/* Fix for domain knowledge items */
+.MuiMenuItem-root:has(span:contains("Credit Cards & Payments")),
+.MuiMenuItem-root:has(span:contains("Banking & Finance")),
+.MuiMenuItem-root:has(span:contains("Insurance")) {
+  position: relative !important;
+  z-index: 1202 !important;
+}
+
+/* Fix for menu items with specific text content */
+.MuiMenuItem-root:contains("Credit Cards & Payments"),
+.MuiMenuItem-root:contains("Banking & Finance"),
+.MuiMenuItem-root:contains("Insurance") {
+  position: relative !important;
+  z-index: 1202 !important;
+}

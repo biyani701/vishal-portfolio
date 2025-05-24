@@ -30,6 +30,9 @@ import {
   Paper,
   Avatar,
   SwipeableDrawer,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
 import GitHubIcon from "@mui/icons-material/GitHub";
 import CodeIcon from "@mui/icons-material/Code";
@@ -55,6 +58,7 @@ import TerminalIcon from "@mui/icons-material/Terminal";
 import DescriptionIcon from "@mui/icons-material/Description";
 import SearchIcon from "@mui/icons-material/Search";
 import LaunchIcon from "@mui/icons-material/Launch";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { trackClick } from "../utils/analytics";
 
 const Works = () => {
@@ -243,6 +247,22 @@ const Works = () => {
     },
   ];
 
+  // Categorize projects
+  const categories = {
+    "Personal Projects": projects.filter(p => p.type === "Personal Project"),
+    "Open Source": projects.filter(p => p.type === "Open Source Project"),
+    "Professional Projects": projects.filter(p => p.type === "Project"),
+  };
+
+  // Technology categories
+  const techCategories = {
+    "Frontend": ["React", "Material UI", "JavaScript", "Dash"],
+    "Backend": ["Python", "FastAPI", "Flask", "GraphQL"],
+    "Database": ["PostgreSQL", "Redis", "SQLAlchemy"],
+    "DevOps": ["Docker", "GitHub Pages", "Bitbucket Pipelines"],
+    "Security": ["Auth.js", "KeePass", "Microsoft identity"],
+  };
+
   const handleOpenDialog = (project) => {
     setSelectedProject(project);
     setOpenDialog(true);
@@ -405,98 +425,75 @@ const Works = () => {
     );
   };
 
-  // Sidebar content
-  const sidebarContent = (
-    <Box
-      sx={{
-        width: sidebarOpen ? { xs: 250, sm: 280 } : 0,
-        p: sidebarOpen ? 2 : 0,
-        display: "flex",
-        flexDirection: "column",
-        height: "100%",
-        transition: "all 0.3s ease",
-        overflow: "hidden",
-        position: "relative",
-      }}
-    >
-      {sidebarOpen && (
-        <>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              mb: 2,
-            }}
-          >
-            <Typography
-              variant="h6"
-              sx={{
-                fontWeight: 600,
-                display: "flex",
-                alignItems: "center",
-                gap: 1,
-                color: theme.palette.mode === "dark" ? "white" : "text.primary",
-              }}
-            >
-              <LabelIcon fontSize="small" color="primary" />
-              Technologies
-            </Typography>
-
-            <IconButton
-              onClick={toggleSidebarPin}
-              size="small"
-              color={sidebarPinned ? "primary" : "default"}
-              sx={{
-                opacity: sidebarHovered || sidebarPinned ? 1 : 0.5,
-                "&:hover": { opacity: 1 },
-              }}
-            >
-              {sidebarPinned ? (
-                <PushPinIcon fontSize="small" />
-              ) : (
-                <PushPinOutlinedIcon fontSize="small" />
-              )}
-            </IconButton>
-          </Box>
-
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              flexWrap: "wrap",
-              gap: 1,
-              overflowY: "auto",
-              flex: 1,
-            }}
-          >
-            {allTechnologies.map((tech) => (
-              <Chip
-                key={tech}
-                label={tech}
-                clickable
-                color={selectedTech === tech ? "primary" : "default"}
-                variant={selectedTech === tech ? "filled" : "outlined"}
-                onClick={() => handleTechSelect(tech)}
-                sx={{
-                  borderRadius: 1,
-                  fontWeight: 500,
-                  transition: "all 0.2s ease",
-                  mb: 0.5,
-                  backgroundColor:
-                    selectedTech === tech
-                      ? undefined
-                      : alpha(theme.palette.background.paper, 0.9),
-                  color:
-                    selectedTech === tech
-                      ? undefined
-                      : theme.palette.text.primary,
+  const renderSidebarContent = () => (
+    <Box sx={{ width: 250, p: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>Categories</Typography>
+        <IconButton onClick={toggleSidebarPin} size="small">
+          {sidebarPinned ? <PushPinIcon /> : <PushPinOutlinedIcon />}
+        </IconButton>
+      </Box>
+      
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography>Project Types</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <List dense>
+            {Object.entries(categories).map(([category, projects]) => (
+              <ListItem 
+                button 
+                key={category}
+                onClick={() => {
+                  setActiveTab(category.toLowerCase().replace(/\s+/g, '-'));
+                  setFilteredProjects(projects);
                 }}
-              />
+              >
+                <ListItemText primary={category} />
+              </ListItem>
             ))}
-          </Box>
-        </>
-      )}
+          </List>
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography>Technologies</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <List dense>
+            {Object.entries(techCategories).map(([category, techs]) => (
+              <Accordion key={category}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography>{category}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  <List dense>
+                    {techs.map((tech) => (
+                      <ListItem 
+                        button 
+                        key={tech}
+                        onClick={() => {
+                          setSelectedTech(tech);
+                          setFilteredProjects(
+                            projects.filter(p => 
+                              p.technologies.some(t => 
+                                t.toLowerCase().includes(tech.toLowerCase())
+                              )
+                            )
+                          );
+                        }}
+                      >
+                        <ListItemText primary={tech} />
+                      </ListItem>
+                    ))}
+                  </List>
+                </AccordionDetails>
+              </Accordion>
+            ))}
+          </List>
+        </AccordionDetails>
+      </Accordion>
     </Box>
   );
 
@@ -528,7 +525,7 @@ const Works = () => {
             },
           }}
         >
-          {sidebarContent}
+          {renderSidebarContent()}
         </SwipeableDrawer>
 
         {/* Desktop Drawer */}
@@ -575,7 +572,7 @@ const Works = () => {
             </Box>
           )}
 
-          {sidebarContent}
+          {renderSidebarContent()}
         </Box>
 
         <Box
@@ -719,660 +716,659 @@ const Works = () => {
             </Box>
 
             {/* Projects Grid */}
-<Grid container spacing={2.5} sx={{ mt: 1 }}>
-  {(filteredProjects.length > 0 ? filteredProjects : projects).map(
-    (project, index) => (
-      <Grid
-        item
-        xs={12}
-        sm={6}
-        md={4}
-        lg={3}
-        xl={3}
-        key={project.id}
-        data-aos="fade-up"
-        data-aos-delay={150 + index * 50}
-      >
-        <Card
-          elevation={2}
-          sx={{
-            height: 360, // Reduced from 450px
-            display: "flex",
-            flexDirection: "column",
-            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            borderRadius: 3,
-            overflow: "hidden",
-            border: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
-            backgroundColor: theme.palette.background.paper,
-            position: "relative",
-            cursor: "pointer",
-            "&:hover": {
-              transform: "translateY(-4px) scale(1.02)",
-              boxShadow:
-                theme.palette.mode === "dark"
-                  ? `0 20px 40px ${alpha(theme.palette.primary.main, 0.3)}`
-                  : `0 20px 40px ${alpha(theme.palette.primary.main, 0.2)}`,
-              "& .project-icon": {
-                transform: "scale(1.1)",
-              },
-              "& .project-overlay": {
-                opacity: 1,
-              },
-            },
-          }}
-          onClick={() => handleOpenDialog(project)}
-        >
-          {/* Project Type Badge */}
-          <Chip
-            label={project.type}
-            size="small"
-            color="primary"
-            sx={{
-              position: "absolute",
-              top: 16,
-              right: 16,
-              zIndex: 3,
-              fontWeight: 600,
-              fontSize: "0.75rem",
-              borderRadius: 2,
-              backdropFilter: "blur(10px)",
-              backgroundColor: alpha(theme.palette.primary.main, 0.9),
-            }}
-          />
+            <Grid container spacing={2.5} sx={{ mt: 1 }}>
+              {(filteredProjects.length > 0 ? filteredProjects : projects).map(
+                (project, index) => (
+                  <Grid
+                    item
+                    xs={12}
+                    sm={6}
+                    md={4}
+                    lg={3}
+                    xl={3}
+                    key={project.id}
+                    data-aos="fade-up"
+                    data-aos-delay={150 + index * 50}
+                  >
+                    <Card
+                      elevation={2}
+                      sx={{
+                        height: 360, // Reduced from 450px
+                        display: "flex",
+                        flexDirection: "column",
+                        transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                        borderRadius: 3,
+                        overflow: "hidden",
+                        border: `1px solid ${alpha(theme.palette.divider, 0.08)}`,
+                        backgroundColor: theme.palette.background.paper,
+                        position: "relative",
+                        cursor: "pointer",
+                        "&:hover": {
+                          transform: "translateY(-4px) scale(1.02)",
+                          boxShadow:
+                            theme.palette.mode === "dark"
+                              ? `0 20px 40px ${alpha(theme.palette.primary.main, 0.3)}`
+                              : `0 20px 40px ${alpha(theme.palette.primary.main, 0.2)}`,
+                          "& .project-icon": {
+                            transform: "scale(1.1)",
+                          },
+                          "& .project-overlay": {
+                            opacity: 1,
+                          },
+                        },
+                      }}
+                      onClick={() => handleOpenDialog(project)}
+                    >
+                      {/* Project Type Badge */}
+                      <Chip
+                        label={project.type}
+                        size="small"
+                        color="primary"
+                        sx={{
+                          position: "absolute",
+                          top: 16,
+                          right: 16,
+                          zIndex: 3,
+                          fontWeight: 600,
+                          fontSize: "0.75rem",
+                          borderRadius: 2,
+                          backdropFilter: "blur(10px)",
+                          backgroundColor: alpha(theme.palette.primary.main, 0.9),
+                        }}
+                      />
 
-          {/* Compact Project Icon Section */}
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              pt: 3,
-              pb: 1.5,
-              position: "relative",
-              zIndex: 1,
-              height: 80, // Reduced from 120px
-              background: `linear-gradient(135deg, ${alpha(
-                theme.palette.primary.main,
-                0.05
-              )} 0%, ${alpha(theme.palette.primary.light, 0.02)} 100%)`,
-            }}
-          >
-            <Box
-              className="project-icon"
-              sx={{
-                transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              }}
-            >
-              {getProjectIcon(project)}
-            </Box>
-          </Box>
-
-          <CardContent
-            sx={{
-              flexGrow: 1,
-              textAlign: "center",
-              px: 2.5,
-              pb: 2.5,
-              pt: 1,
-              position: "relative",
-              zIndex: 1,
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "space-between",
-              height: 250, // Adjusted for new total height
-            }}
-          >
-            {/* Title */}
-            <Typography
-              variant="h6"
-              component="h2"
-              sx={{
-                fontWeight: 700,
-                fontSize: "1.1rem",
-                mb: 1,
-                color:
-                  theme.palette.mode === "dark"
-                    ? "#fff"
-                    : theme.palette.primary.dark || "#000",
-                textShadow:
-                  theme.palette.primary.main === "#2E6F40"
-                    ? "0px 1px 1px rgba(255,255,255,0.5)"
-                    : "none",
-                lineHeight: 1.3,
-                // Ensure title doesn't exceed 2 lines
-                height: "2.6em",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                display: "-webkit-box",
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical",
-              }}
-            >
-              {project.title}
-            </Typography>
-
-            {/* Description */}
-            <Typography
-              variant="body2"
-              sx={{
-                mb: 2,
-                height: "3.6em", // Reduced from 4.5em
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                display: "-webkit-box",
-                WebkitLineClamp: 3,
-                WebkitBoxOrient: "vertical",
-                color:
-                  theme.palette.primary.main === "#2E6F40"
-                    ? "#000"
-                    : theme.palette.text.secondary,
-                fontWeight:
-                  theme.palette.primary.main === "#2E6F40" ? 500 : 400,
-                fontSize: "0.875rem",
-                lineHeight: 1.4,
-              }}
-            >
-              {project.shortDescription}
-            </Typography>
-
-            {/* Technology Tags - More Compact */}
-            <Box
-              sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                justifyContent: "center",
-                gap: 0.5,
-                mb: 2,
-                minHeight: "32px", // Ensure consistent spacing
-              }}
-            >
-              {project.technologies.slice(0, 2).map((tech, i) => (
-                <Chip
-                  key={i}
-                  label={tech}
-                  size="small"
-                  variant="outlined"
-                  sx={{
-                    borderRadius: 2,
-                    fontSize: "0.65rem",
-                    height: "22px",
-                    backgroundColor:
-                      theme.palette.primary.main === "#2E6F40"
-                        ? alpha("#fff", 0.9)
-                        : alpha(theme.palette.primary.main, 0.08),
-                    color:
-                      theme.palette.primary.main === "#2E6F40"
-                        ? "#000"
-                        : theme.palette.primary.main,
-                    fontWeight: 500,
-                    border:
-                      theme.palette.primary.main === "#2E6F40"
-                        ? "1px solid #000"
-                        : `1px solid ${alpha(theme.palette.primary.main, 0.3)}`,
-                  }}
-                />
-              ))}
-              {project.technologies.length > 2 && (
-                <Chip
-                  label={`+${project.technologies.length - 2}`}
-                  size="small"
-                  variant="filled"
-                  color="primary"
-                  sx={{
-                    borderRadius: 2,
-                    fontSize: "0.65rem",
-                    height: "22px",
-                    fontWeight: 600,
-                    minWidth: "32px",
-                  }}
-                />
-              )}
-            </Box>
-
-            {/* View Details Button - More Prominent */}
-            <Button
-              variant="contained"
-              color="primary"
-              size="medium"
-              endIcon={<ArrowForwardIcon sx={{ fontSize: "1rem" }} />}
-              sx={{
-                borderRadius: 2,
-                textTransform: "none",
-                fontWeight: 600,
-                boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
-                backgroundColor:
-                  theme.palette.primary.main === "#2E6F40"
-                    ? "#253D2C"
-                    : theme.palette.primary.main,
-                color: "#fff",
-                py: 1,
-                "&:hover": {
-                  backgroundColor:
-                    theme.palette.primary.main === "#2E6F40"
-                      ? "#1A2A1F"
-                      : theme.palette.primary.dark,
-                  boxShadow: `0 6px 20px ${alpha(theme.palette.primary.main, 0.4)}`,
-                  transform: "translateY(-1px)",
-                },
-              }}
-            >
-              View Details
-            </Button>
-          </CardContent>
-
-          {/* Enhanced Overlay on hover */}
-          <Box
-            className="project-overlay"
-            sx={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: `linear-gradient(135deg, ${alpha(
-                theme.palette.primary.main,
-                0.1
-              )} 0%, ${alpha(theme.palette.primary.light, 0.05)} 100%)`,
-              backdropFilter: "blur(1px)",
-              opacity: 0,
-              transition: "opacity 0.3s ease",
-              zIndex: 0,
-            }}
-          />
-        </Card>
-      </Grid>
-    )
-  )}
-</Grid>
-
-
-{/* Project Details Dialog */}
-<Dialog
-  open={openDialog}
-  onClose={handleCloseDialog}
-  maxWidth="xl"
-  fullWidth
-  fullScreen={isMobile}
-  slots={{ transition: Fade }}
-  slotProps={{
-    transition: { timeout: 400 },
-    paper: {
-      sx: {
-        borderRadius: isMobile ? 0 : 3,
-        backgroundColor: theme.palette.background.paper,
-        overflow: "hidden",
-        maxHeight: "92vh",
-        // Modern glass effect
-        backdropFilter: "blur(20px)",
-        boxShadow: theme.palette.mode === "dark"
-          ? "0 32px 64px rgba(0,0,0,0.5)"
-          : "0 32px 64px rgba(0,0,0,0.15)",
-      },
-    },
-    backdrop: {
-      sx: {
-        backdropFilter: "blur(8px)",
-        backgroundColor: alpha(theme.palette.background.default, 0.7),
-      },
-    },
-  }}
->
-  {selectedProject && (
-    <>
-      {/* Compact Header */}
-      <Box
-        sx={{
-          background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-          color: "white",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        {/* Background Pattern */}
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundImage: `radial-gradient(circle at 20% 80%, ${alpha("#fff", 0.1)} 0%, transparent 50%),
-                             radial-gradient(circle at 80% 20%, ${alpha("#fff", 0.1)} 0%, transparent 50%)`,
-          }}
-        />
-
-        <DialogTitle sx={{ position: "relative", zIndex: 1, p: 3 }}>
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-              <Avatar
-                sx={{
-                  bgcolor: "rgba(255,255,255,0.2)",
-                  color: "white",
-                  width: 48,
-                  height: 48,
-                  backdropFilter: "blur(10px)",
-                  border: "2px solid rgba(255,255,255,0.3)",
-                }}
-              >
-                {getProjectIcon(selectedProject)}
-              </Avatar>
-              <Box>
-                <Typography variant="h4" component="h1" sx={{ fontWeight: 800, mb: 0.5 }}>
-                  {selectedProject.title}
-                </Typography>
-                <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                  <Chip
-                    label={selectedProject.type}
-                    size="small"
-                    sx={{
-                      bgcolor: "rgba(255,255,255,0.2)",
-                      color: "white",
-                      fontWeight: 600,
-                      backdropFilter: "blur(10px)",
-                    }}
-                  />
-                  <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                    {selectedProject.year}
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-
-            <IconButton
-              onClick={handleCloseDialog}
-              sx={{
-                color: "white",
-                bgcolor: "rgba(255,255,255,0.1)",
-                backdropFilter: "blur(10px)",
-                "&:hover": {
-                  bgcolor: "rgba(255,255,255,0.2)",
-                  transform: "scale(1.1)",
-                },
-                transition: "all 0.2s ease",
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          </Box>
-        </DialogTitle>
-      </Box>
-
-      <DialogContent sx={{ p: 0 }}>
-        {/* Main Content - Single Column Layout */}
-        <Box sx={{ p: 4 }}>
-          {/* Project Image - Full Width */}
-          <Box sx={{ position: "relative", mb: 4 }}>
-            <CardMedia
-              component="img"
-              image={selectedProject.image}
-              alt={selectedProject.title}
-              sx={{
-                borderRadius: 3,
-                boxShadow: `0 20px 40px ${alpha(theme.palette.primary.main, 0.2)}`,
-                height: { xs: 280, sm: 400 },
-                width: "100%",
-                objectFit: "cover",
-                transition: "transform 0.3s ease",
-                "&:hover": {
-                  transform: "scale(1.01)",
-                },
-              }}
-            />
-
-            {/* Quick Action Buttons */}
-            <Box
-              sx={{
-                position: "absolute",
-                top: 20,
-                right: 20,
-                display: "flex",
-                gap: 1,
-              }}
-            >
-              {selectedProject.links.demo && (
-                <Button
-                  variant="contained"
-                  startIcon={<LaunchIcon />}
-                  href={selectedProject.links.demo}
-                  target="_blank"
-                  onClick={() => trackProjectLinkClick(selectedProject.id, 'demo', selectedProject.links.demo)}
-                  sx={{
-                    bgcolor: "rgba(0,0,0,0.7)",
-                    color: "white",
-                    backdropFilter: "blur(10px)",
-                    fontWeight: 600,
-                    textTransform: "none",
-                    "&:hover": {
-                      bgcolor: "rgba(0,0,0,0.9)",
-                      transform: "translateY(-2px)",
-                    },
-                  }}
-                >
-                  Live Demo
-                </Button>
-              )}
-              {selectedProject.links.github && (
-                <Button
-                  variant="contained"
-                  startIcon={<GitHubIcon />}
-                  href={selectedProject.links.github}
-                  target="_blank"
-                  onClick={() => trackProjectLinkClick(selectedProject.id, 'github', selectedProject.links.github)}
-                  sx={{
-                    bgcolor: "rgba(0,0,0,0.7)",
-                    color: "white",
-                    backdropFilter: "blur(10px)",
-                    fontWeight: 600,
-                    textTransform: "none",
-                    "&:hover": {
-                      bgcolor: "rgba(0,0,0,0.9)",
-                      transform: "translateY(-2px)",
-                    },
-                  }}
-                >
-                  View Code
-                </Button>
-              )}
-            </Box>
-          </Box>
-
-          {/* Content Grid - Better Proportions */}
-          <Grid container spacing={4}>
-            {/* Left Column - Main Content */}
-            <Grid item xs={12} md={8}>
-              {/* Description */}
-              <Box sx={{ mb: 4 }}>
-                <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: theme.palette.primary.main }}>
-                  About This Project
-                </Typography>
-                <Typography variant="body1" sx={{ lineHeight: 1.8, fontSize: "1.1rem" }}>
-                  {selectedProject.fullDescription}
-                </Typography>
-              </Box>
-
-              {/* Features */}
-              <Box sx={{ mb: 4 }}>
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, color: theme.palette.primary.main }}>
-                  Key Features
-                </Typography>
-                <Grid container spacing={2}>
-                  {selectedProject.features.map((feature, index) => (
-                    <Grid item xs={12} sm={6} key={index}>
+                      {/* Compact Project Icon Section */}
                       <Box
                         sx={{
                           display: "flex",
-                          alignItems: "flex-start",
-                          gap: 1.5,
-                          p: 2.5,
-                          borderRadius: 2,
-                          bgcolor: alpha(theme.palette.primary.main, 0.05),
-                          border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                          transition: "all 0.2s ease",
-                          "&:hover": {
-                            bgcolor: alpha(theme.palette.primary.main, 0.08),
-                            transform: "translateY(-2px)",
-                            boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.15)}`,
-                          },
+                          alignItems: "center",
+                          justifyContent: "center",
+                          pt: 3,
+                          pb: 1.5,
+                          position: "relative",
+                          zIndex: 1,
+                          height: 80, // Reduced from 120px
+                          background: `linear-gradient(135deg, ${alpha(
+                            theme.palette.primary.main,
+                            0.05
+                          )} 0%, ${alpha(theme.palette.primary.light, 0.02)} 100%)`,
                         }}
                       >
                         <Box
+                          className="project-icon"
                           sx={{
-                            color: theme.palette.primary.main,
-                            mt: 0.25,
-                            display: "flex",
-                            alignItems: "center",
+                            transition: "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
                           }}
                         >
-                          {getFeatureIcon(feature)}
+                          {getProjectIcon(project)}
                         </Box>
-                        <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: 1.6 }}>
-                          {feature}
-                        </Typography>
                       </Box>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Box>
 
-              {/* Additional Links */}
-              <Box>
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: theme.palette.primary.main }}>
-                  Additional Resources
-                </Typography>
-                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-                  {selectedProject.links.docs && (
-                    <Button
-                      variant="outlined"
-                      startIcon={<BookIcon />}
-                      href={selectedProject.links.docs}
-                      target="_blank"
-                      onClick={() => trackProjectLinkClick(selectedProject.id, 'docs', selectedProject.links.docs)}
-                      sx={{
-                        fontWeight: 600,
-                        borderRadius: 2,
-                        px: 3,
-                        py: 1.5,
-                        textTransform: "none",
-                        borderWidth: 2,
-                        "&:hover": {
-                          borderWidth: 2,
-                          transform: "translateY(-2px)",
-                          boxShadow: `0 8px 25px ${alpha(theme.palette.primary.main, 0.2)}`,
-                        },
-                        transition: "all 0.2s ease",
-                      }}
-                    >
-                      Documentation
-                    </Button>
-                  )}
+                      <CardContent
+                        sx={{
+                          flexGrow: 1,
+                          textAlign: "center",
+                          px: 2.5,
+                          pb: 2.5,
+                          pt: 1,
+                          position: "relative",
+                          zIndex: 1,
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
+                          height: 250, // Adjusted for new total height
+                        }}
+                      >
+                        {/* Title */}
+                        <Typography
+                          variant="h6"
+                          component="h2"
+                          sx={{
+                            fontWeight: 700,
+                            fontSize: "1.1rem",
+                            mb: 1,
+                            color:
+                              theme.palette.mode === "dark"
+                                ? "#fff"
+                                : theme.palette.primary.dark || "#000",
+                            textShadow:
+                              theme.palette.primary.main === "#2E6F40"
+                                ? "0px 1px 1px rgba(255,255,255,0.5)"
+                                : "none",
+                            lineHeight: 1.3,
+                            // Ensure title doesn't exceed 2 lines
+                            height: "2.6em",
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                          }}
+                        >
+                          {project.title}
+                        </Typography>
 
-                  {selectedProject.links.pypi && (
-                    <Button
-                      variant="outlined"
-                      startIcon={<LanguageIcon />}
-                      href={selectedProject.links.pypi}
-                      target="_blank"
-                      onClick={() => trackProjectLinkClick(selectedProject.id, 'pypi', selectedProject.links.pypi)}
-                      sx={{
-                        fontWeight: 600,
-                        borderRadius: 2,
-                        px: 3,
-                        py: 1.5,
-                        textTransform: "none",
-                        borderWidth: 2,
-                        "&:hover": {
-                          borderWidth: 2,
-                          transform: "translateY(-2px)",
-                          boxShadow: `0 8px 25px ${alpha(theme.palette.primary.main, 0.2)}`,
-                        },
-                        transition: "all 0.2s ease",
-                      }}
-                    >
-                      PyPI Package
-                    </Button>
-                  )}
-                </Box>
-              </Box>
+                        {/* Description */}
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            mb: 2,
+                            height: "3.6em", // Reduced from 4.5em
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            display: "-webkit-box",
+                            WebkitLineClamp: 3,
+                            WebkitBoxOrient: "vertical",
+                            color:
+                              theme.palette.primary.main === "#2E6F40"
+                                ? "#000"
+                                : theme.palette.text.secondary,
+                            fontWeight:
+                              theme.palette.primary.main === "#2E6F40" ? 500 : 400,
+                            fontSize: "0.875rem",
+                            lineHeight: 1.4,
+                          }}
+                        >
+                          {project.shortDescription}
+                        </Typography>
+
+                        {/* Technology Tags - More Compact */}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            justifyContent: "center",
+                            gap: 0.5,
+                            mb: 2,
+                            minHeight: "32px", // Ensure consistent spacing
+                          }}
+                        >
+                          {project.technologies.slice(0, 2).map((tech, i) => (
+                            <Chip
+                              key={i}
+                              label={tech}
+                              size="small"
+                              variant="outlined"
+                              sx={{
+                                borderRadius: 2,
+                                fontSize: "0.65rem",
+                                height: "22px",
+                                backgroundColor:
+                                  theme.palette.primary.main === "#2E6F40"
+                                    ? alpha("#fff", 0.9)
+                                    : alpha(theme.palette.primary.main, 0.08),
+                                color:
+                                  theme.palette.primary.main === "#2E6F40"
+                                    ? "#000"
+                                    : theme.palette.primary.main,
+                                fontWeight: 500,
+                                border:
+                                  theme.palette.primary.main === "#2E6F40"
+                                    ? "1px solid #000"
+                                    : `1px solid ${alpha(theme.palette.primary.main, 0.3)}`,
+                              }}
+                            />
+                          ))}
+                          {project.technologies.length > 2 && (
+                            <Chip
+                              label={`+${project.technologies.length - 2}`}
+                              size="small"
+                              variant="filled"
+                              color="primary"
+                              sx={{
+                                borderRadius: 2,
+                                fontSize: "0.65rem",
+                                height: "22px",
+                                fontWeight: 600,
+                                minWidth: "32px",
+                              }}
+                            />
+                          )}
+                        </Box>
+
+                        {/* View Details Button - More Prominent */}
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          size="medium"
+                          endIcon={<ArrowForwardIcon sx={{ fontSize: "1rem" }} />}
+                          sx={{
+                            borderRadius: 2,
+                            textTransform: "none",
+                            fontWeight: 600,
+                            boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
+                            backgroundColor:
+                              theme.palette.primary.main === "#2E6F40"
+                                ? "#253D2C"
+                                : theme.palette.primary.main,
+                            color: "#fff",
+                            py: 1,
+                            "&:hover": {
+                              backgroundColor:
+                                theme.palette.primary.main === "#2E6F40"
+                                  ? "#1A2A1F"
+                                  : theme.palette.primary.dark,
+                              boxShadow: `0 6px 20px ${alpha(theme.palette.primary.main, 0.4)}`,
+                              transform: "translateY(-1px)",
+                            },
+                          }}
+                        >
+                          View Details
+                        </Button>
+                      </CardContent>
+
+                      {/* Enhanced Overlay on hover */}
+                      <Box
+                        className="project-overlay"
+                        sx={{
+                          position: "absolute",
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          background: `linear-gradient(135deg, ${alpha(
+                            theme.palette.primary.main,
+                            0.1
+                          )} 0%, ${alpha(theme.palette.primary.light, 0.05)} 100%)`,
+                          backdropFilter: "blur(1px)",
+                          opacity: 0,
+                          transition: "opacity 0.3s ease",
+                          zIndex: 0,
+                        }}
+                      />
+                    </Card>
+                  </Grid>
+                )
+              )}
             </Grid>
 
-            {/* Right Sidebar - Technologies & Stats */}
-            <Grid item xs={12} md={4}>
-              {/* Quick Stats */}
-              <Paper
-                elevation={0}
-                sx={{
-                  p: 3,
-                  borderRadius: 3,
-                  background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.08)} 0%, ${alpha(theme.palette.primary.light, 0.04)} 100%)`,
-                  border: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
-                  mb: 3,
-                }}
-              >
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: theme.palette.primary.main }}>
-                  Quick Overview
-                </Typography>
-
-                <Grid container spacing={2}>
-                  <Grid item xs={6}>
-                    <Box sx={{ textAlign: "center", p: 1 }}>
-                      <Typography variant="h3" sx={{ fontWeight: 800, color: theme.palette.primary.main }}>
-                        {selectedProject.technologies.length}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Technologies
-                      </Typography>
-                    </Box>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Box sx={{ textAlign: "center", p: 1 }}>
-                      <Typography variant="h3" sx={{ fontWeight: 800, color: theme.palette.primary.main }}>
-                        {selectedProject.features.length}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Features
-                      </Typography>
-                    </Box>
-                  </Grid>
-                </Grid>
-              </Paper>
-
-              {/* Technologies */}
-              <Box>
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: theme.palette.primary.main }}>
-                  Tech Stack
-                </Typography>
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                  {selectedProject.technologies.map((tech, index) => (
-                    <Chip
-                      key={index}
-                      label={tech}
-                      variant="filled"
+            {/* Project Details Dialog */}
+            <Dialog
+              open={openDialog}
+              onClose={handleCloseDialog}
+              maxWidth="xl"
+              fullWidth
+              fullScreen={isMobile}
+              slots={{ transition: Fade }}
+              slotProps={{
+                transition: { timeout: 400 },
+                paper: {
+                  sx: {
+                    borderRadius: isMobile ? 0 : 3,
+                    backgroundColor: theme.palette.background.paper,
+                    overflow: "hidden",
+                    maxHeight: "92vh",
+                    // Modern glass effect
+                    backdropFilter: "blur(20px)",
+                    boxShadow: theme.palette.mode === "dark"
+                      ? "0 32px 64px rgba(0,0,0,0.5)"
+                      : "0 32px 64px rgba(0,0,0,0.15)",
+                  },
+                },
+                backdrop: {
+                  sx: {
+                    backdropFilter: "blur(8px)",
+                    backgroundColor: alpha(theme.palette.background.default, 0.7),
+                  },
+                },
+              }}
+            >
+              {selectedProject && (
+                <>
+                  {/* Compact Header */}
+                  <Box
+                    sx={{
+                      background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                      color: "white",
+                      position: "relative",
+                      overflow: "hidden",
+                    }}
+                  >
+                    {/* Background Pattern */}
+                    <Box
                       sx={{
-                        bgcolor: alpha(theme.palette.primary.main, 0.1),
-                        color: theme.palette.primary.main,
-                        fontWeight: 600,
-                        borderRadius: 2,
-                        fontSize: "0.9rem",
-                        py: 1.5,
-                        justifyContent: "flex-start",
-                        transition: "all 0.2s ease",
-                        "&:hover": {
-                          bgcolor: alpha(theme.palette.primary.main, 0.2),
-                          transform: "translateX(4px)",
-                          boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
-                        },
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundImage: `radial-gradient(circle at 20% 80%, ${alpha("#fff", 0.1)} 0%, transparent 50%),
+                                         radial-gradient(circle at 80% 20%, ${alpha("#fff", 0.1)} 0%, transparent 50%)`,
                       }}
                     />
-                  ))}
-                </Box>
-              </Box>
-            </Grid>
-          </Grid>
-        </Box>
-      </DialogContent>
-    </>
-  )}
-</Dialog>
+
+                    <DialogTitle sx={{ position: "relative", zIndex: 1, p: 3 }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                          <Avatar
+                            sx={{
+                              bgcolor: "rgba(255,255,255,0.2)",
+                              color: "white",
+                              width: 48,
+                              height: 48,
+                              backdropFilter: "blur(10px)",
+                              border: "2px solid rgba(255,255,255,0.3)",
+                            }}
+                          >
+                            {getProjectIcon(selectedProject)}
+                          </Avatar>
+                          <Box>
+                            <Typography variant="h4" component="h1" sx={{ fontWeight: 800, mb: 0.5 }}>
+                              {selectedProject.title}
+                            </Typography>
+                            <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                              <Chip
+                                label={selectedProject.type}
+                                size="small"
+                                sx={{
+                                  bgcolor: "rgba(255,255,255,0.2)",
+                                  color: "white",
+                                  fontWeight: 600,
+                                  backdropFilter: "blur(10px)",
+                                }}
+                              />
+                              <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                                {selectedProject.year}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Box>
+
+                        <IconButton
+                          onClick={handleCloseDialog}
+                          sx={{
+                            color: "white",
+                            bgcolor: "rgba(255,255,255,0.1)",
+                            backdropFilter: "blur(10px)",
+                            "&:hover": {
+                              bgcolor: "rgba(255,255,255,0.2)",
+                              transform: "scale(1.1)",
+                            },
+                            transition: "all 0.2s ease",
+                          }}
+                        >
+                          <CloseIcon />
+                        </IconButton>
+                      </Box>
+                    </DialogTitle>
+                  </Box>
+
+                  <DialogContent sx={{ p: 0 }}>
+                    {/* Main Content - Single Column Layout */}
+                    <Box sx={{ p: 4 }}>
+                      {/* Project Image - Full Width */}
+                      <Box sx={{ position: "relative", mb: 4 }}>
+                        <CardMedia
+                          component="img"
+                          image={selectedProject.image}
+                          alt={selectedProject.title}
+                          sx={{
+                            borderRadius: 3,
+                            boxShadow: `0 20px 40px ${alpha(theme.palette.primary.main, 0.2)}`,
+                            height: { xs: 280, sm: 400 },
+                            width: "100%",
+                            objectFit: "cover",
+                            transition: "transform 0.3s ease",
+                            "&:hover": {
+                              transform: "scale(1.01)",
+                            },
+                          }}
+                        />
+
+                        {/* Quick Action Buttons */}
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            top: 20,
+                            right: 20,
+                            display: "flex",
+                            gap: 1,
+                          }}
+                        >
+                          {selectedProject.links.demo && (
+                            <Button
+                              variant="contained"
+                              startIcon={<LaunchIcon />}
+                              href={selectedProject.links.demo}
+                              target="_blank"
+                              onClick={() => trackProjectLinkClick(selectedProject.id, 'demo', selectedProject.links.demo)}
+                              sx={{
+                                bgcolor: "rgba(0,0,0,0.7)",
+                                color: "white",
+                                backdropFilter: "blur(10px)",
+                                fontWeight: 600,
+                                textTransform: "none",
+                                "&:hover": {
+                                  bgcolor: "rgba(0,0,0,0.9)",
+                                  transform: "translateY(-2px)",
+                                },
+                              }}
+                            >
+                              Live Demo
+                            </Button>
+                          )}
+                          {selectedProject.links.github && (
+                            <Button
+                              variant="contained"
+                              startIcon={<GitHubIcon />}
+                              href={selectedProject.links.github}
+                              target="_blank"
+                              onClick={() => trackProjectLinkClick(selectedProject.id, 'github', selectedProject.links.github)}
+                              sx={{
+                                bgcolor: "rgba(0,0,0,0.7)",
+                                color: "white",
+                                backdropFilter: "blur(10px)",
+                                fontWeight: 600,
+                                textTransform: "none",
+                                "&:hover": {
+                                  bgcolor: "rgba(0,0,0,0.9)",
+                                  transform: "translateY(-2px)",
+                                },
+                              }}
+                            >
+                              View Code
+                            </Button>
+                          )}
+                        </Box>
+                      </Box>
+
+                      {/* Content Grid - Better Proportions */}
+                      <Grid container spacing={4}>
+                        {/* Left Column - Main Content */}
+                        <Grid item xs={12} md={8}>
+                          {/* Description */}
+                          <Box sx={{ mb: 4 }}>
+                            <Typography variant="h5" sx={{ fontWeight: 700, mb: 2, color: theme.palette.primary.main }}>
+                              About This Project
+                            </Typography>
+                            <Typography variant="body1" sx={{ lineHeight: 1.8, fontSize: "1.1rem" }}>
+                              {selectedProject.fullDescription}
+                            </Typography>
+                          </Box>
+
+                          {/* Features */}
+                          <Box sx={{ mb: 4 }}>
+                            <Typography variant="h6" sx={{ fontWeight: 700, mb: 3, color: theme.palette.primary.main }}>
+                              Key Features
+                            </Typography>
+                            <Grid container spacing={2}>
+                              {selectedProject.features.map((feature, index) => (
+                                <Grid item xs={12} sm={6} key={index}>
+                                  <Box
+                                    sx={{
+                                      display: "flex",
+                                      alignItems: "flex-start",
+                                      gap: 1.5,
+                                      p: 2.5,
+                                      borderRadius: 2,
+                                      bgcolor: alpha(theme.palette.primary.main, 0.05),
+                                      border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                                      transition: "all 0.2s ease",
+                                      "&:hover": {
+                                        bgcolor: alpha(theme.palette.primary.main, 0.08),
+                                        transform: "translateY(-2px)",
+                                        boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.15)}`,
+                                      },
+                                    }}
+                                  >
+                                    <Box
+                                      sx={{
+                                        color: theme.palette.primary.main,
+                                        mt: 0.25,
+                                        display: "flex",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      {getFeatureIcon(feature)}
+                                    </Box>
+                                    <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: 1.6 }}>
+                                      {feature}
+                                    </Typography>
+                                  </Box>
+                                </Grid>
+                              ))}
+                            </Grid>
+                          </Box>
+
+                          {/* Additional Links */}
+                          <Box>
+                            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: theme.palette.primary.main }}>
+                              Additional Resources
+                            </Typography>
+                            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                              {selectedProject.links.docs && (
+                                <Button
+                                  variant="outlined"
+                                  startIcon={<BookIcon />}
+                                  href={selectedProject.links.docs}
+                                  target="_blank"
+                                  onClick={() => trackProjectLinkClick(selectedProject.id, 'docs', selectedProject.links.docs)}
+                                  sx={{
+                                    fontWeight: 600,
+                                    borderRadius: 2,
+                                    px: 3,
+                                    py: 1.5,
+                                    textTransform: "none",
+                                    borderWidth: 2,
+                                    "&:hover": {
+                                      borderWidth: 2,
+                                      transform: "translateY(-2px)",
+                                      boxShadow: `0 8px 25px ${alpha(theme.palette.primary.main, 0.2)}`,
+                                    },
+                                    transition: "all 0.2s ease",
+                                  }}
+                                >
+                                  Documentation
+                                </Button>
+                              )}
+
+                              {selectedProject.links.pypi && (
+                                <Button
+                                  variant="outlined"
+                                  startIcon={<LanguageIcon />}
+                                  href={selectedProject.links.pypi}
+                                  target="_blank"
+                                  onClick={() => trackProjectLinkClick(selectedProject.id, 'pypi', selectedProject.links.pypi)}
+                                  sx={{
+                                    fontWeight: 600,
+                                    borderRadius: 2,
+                                    px: 3,
+                                    py: 1.5,
+                                    textTransform: "none",
+                                    borderWidth: 2,
+                                    "&:hover": {
+                                      borderWidth: 2,
+                                      transform: "translateY(-2px)",
+                                      boxShadow: `0 8px 25px ${alpha(theme.palette.primary.main, 0.2)}`,
+                                    },
+                                    transition: "all 0.2s ease",
+                                  }}
+                                >
+                                  PyPI Package
+                                </Button>
+                              )}
+                            </Box>
+                          </Box>
+                        </Grid>
+
+                        {/* Right Sidebar - Technologies & Stats */}
+                        <Grid item xs={12} md={4}>
+                          {/* Quick Stats */}
+                          <Paper
+                            elevation={0}
+                            sx={{
+                              p: 3,
+                              borderRadius: 3,
+                              background: `linear-gradient(135deg, ${alpha(theme.palette.primary.main, 0.08)} 0%, ${alpha(theme.palette.primary.light, 0.04)} 100%)`,
+                              border: `1px solid ${alpha(theme.palette.primary.main, 0.12)}`,
+                              mb: 3,
+                            }}
+                          >
+                            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: theme.palette.primary.main }}>
+                              Quick Overview
+                            </Typography>
+
+                            <Grid container spacing={2}>
+                              <Grid item xs={6}>
+                                <Box sx={{ textAlign: "center", p: 1 }}>
+                                  <Typography variant="h3" sx={{ fontWeight: 800, color: theme.palette.primary.main }}>
+                                    {selectedProject.technologies.length}
+                                  </Typography>
+                                  <Typography variant="body2" color="text.secondary">
+                                    Technologies
+                                  </Typography>
+                                </Box>
+                              </Grid>
+                              <Grid item xs={6}>
+                                <Box sx={{ textAlign: "center", p: 1 }}>
+                                  <Typography variant="h3" sx={{ fontWeight: 800, color: theme.palette.primary.main }}>
+                                    {selectedProject.features.length}
+                                  </Typography>
+                                  <Typography variant="body2" color="text.secondary">
+                                    Features
+                                  </Typography>
+                                </Box>
+                              </Grid>
+                            </Grid>
+                          </Paper>
+
+                          {/* Technologies */}
+                          <Box>
+                            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: theme.palette.primary.main }}>
+                              Tech Stack
+                            </Typography>
+                            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                              {selectedProject.technologies.map((tech, index) => (
+                                <Chip
+                                  key={index}
+                                  label={tech}
+                                  variant="filled"
+                                  sx={{
+                                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                    color: theme.palette.primary.main,
+                                    fontWeight: 600,
+                                    borderRadius: 2,
+                                    fontSize: "0.9rem",
+                                    py: 1.5,
+                                    justifyContent: "flex-start",
+                                    transition: "all 0.2s ease",
+                                    "&:hover": {
+                                      bgcolor: alpha(theme.palette.primary.main, 0.2),
+                                      transform: "translateX(4px)",
+                                      boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
+                                    },
+                                  }}
+                                />
+                              ))}
+                            </Box>
+                          </Box>
+                        </Grid>
+                      </Grid>
+                    </Box>
+                  </DialogContent>
+                </>
+              )}
+            </Dialog>
 
             {/* No Projects Found Message */}
             {filteredProjects.length === 0 && searchQuery && (

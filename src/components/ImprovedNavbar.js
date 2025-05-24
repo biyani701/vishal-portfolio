@@ -73,6 +73,10 @@ import domainKnowledgeData from "../data/domainKnowledgeData";
 import ToolpadAccountComponent from "./auth/toolpad/ToolpadAccountComponent";
 import AuthJsClient from "./auth/AuthJsClient";
 
+// Import custom CSS and JS fix for menu issues
+import "./KnowledgeBaseMenuFix.css";
+import { initKnowledgeBaseMenuFix } from "./KnowledgeBaseMenuFix";
+
 const itemVariants = {
   hidden: { opacity: 0, scale: 0.95, y: -5 },
   visible: (i) => ({
@@ -310,6 +314,26 @@ const ColorPaletteMenu = styled(Menu)(({ theme }) => ({
   },
 }));
 
+// Custom styled menu for Knowledge Base to fix positioning issues
+const KnowledgeBaseMenu = styled(Menu)(({ theme }) => ({
+  "& .MuiPaper-root": {
+    backgroundColor: theme.palette.background.paper,
+    borderRadius: theme.shape.borderRadius,
+    boxShadow: theme.shadows[4],
+    minWidth: 220,
+    padding: theme.spacing(1),
+    maxHeight: "80vh",
+    overflowY: "auto",
+    marginTop: theme.spacing(1),
+    zIndex: 1200,
+  },
+  "& .MuiBackdrop-root": {
+    // Make sure backdrop is clickable to close the menu
+    backgroundColor: "transparent",
+    zIndex: 1199,
+  },
+}));
+
 const ColorPaletteButton = styled(Button)(({ theme }) => ({
   color: theme.palette.common.white,
   "&:hover": {
@@ -446,6 +470,87 @@ const NavigationBar = ({
     trackClick(menuId, menuType, window.location.pathname, userId);
   };
 
+  // Function to force close all menus and navigate
+  const forceCloseMenuAndNavigate = (url, trackingId, menuType) => {
+    // First close the menu by setting state
+    setKnowledgeAnchorEl(null);
+
+    // Add a class to body to indicate we're navigating (for CSS)
+    document.body.classList.add('navigating');
+
+    // Force close any open menus by adding a class to them
+    const menus = document.querySelectorAll('.MuiMenu-root, .MuiPopover-root');
+    menus.forEach(menu => {
+      menu.classList.add('force-hide-menu');
+
+      // Also try to set display:none directly on the element
+      menu.style.display = 'none';
+      menu.style.visibility = 'hidden';
+      menu.style.opacity = '0';
+      menu.style.pointerEvents = 'none';
+    });
+
+    // Force remove any backdrop elements
+    const backdrops = document.querySelectorAll('.MuiBackdrop-root');
+    backdrops.forEach(backdrop => {
+      backdrop.classList.add('force-hide-menu');
+
+      // Also try to set display:none directly on the element
+      backdrop.style.display = 'none';
+      backdrop.style.visibility = 'hidden';
+      backdrop.style.opacity = '0';
+      backdrop.style.pointerEvents = 'none';
+    });
+
+    // Try to remove any menu papers
+    const papers = document.querySelectorAll('.MuiPaper-root');
+    papers.forEach(paper => {
+      if (paper.closest('.MuiMenu-root, .MuiPopover-root')) {
+        paper.classList.add('force-hide-menu');
+        paper.style.display = 'none';
+        paper.style.visibility = 'hidden';
+        paper.style.opacity = '0';
+        paper.style.pointerEvents = 'none';
+      }
+    });
+
+    // Navigate immediately to prevent any race conditions
+    navigate(url);
+    trackMenuClick(trackingId, menuType);
+
+    // Remove the navigating class after navigation
+    setTimeout(() => {
+      document.body.classList.remove('navigating');
+
+      // Remove the force-hide class after navigation is complete
+      menus.forEach(menu => {
+        menu.classList.remove('force-hide-menu');
+        menu.style.removeProperty('display');
+        menu.style.removeProperty('visibility');
+        menu.style.removeProperty('opacity');
+        menu.style.removeProperty('pointer-events');
+      });
+
+      backdrops.forEach(backdrop => {
+        backdrop.classList.remove('force-hide-menu');
+        backdrop.style.removeProperty('display');
+        backdrop.style.removeProperty('visibility');
+        backdrop.style.removeProperty('opacity');
+        backdrop.style.removeProperty('pointer-events');
+      });
+
+      papers.forEach(paper => {
+        if (paper.closest('.MuiMenu-root, .MuiPopover-root')) {
+          paper.classList.remove('force-hide-menu');
+          paper.style.removeProperty('display');
+          paper.style.removeProperty('visibility');
+          paper.style.removeProperty('opacity');
+          paper.style.removeProperty('pointer-events');
+        }
+      });
+    }, 300);
+  };
+
   // Force a session check when the navbar mounts
   React.useEffect(() => {
     const checkAuthStatus = async () => {
@@ -492,6 +597,16 @@ const NavigationBar = ({
 
     return () => clearInterval(intervalId);
   }, [checkSession]);
+
+  // Initialize the Knowledge Base menu fix
+  React.useEffect(() => {
+    console.log("[Navbar] Initializing Knowledge Base menu fix");
+    // Initialize the fix and get the cleanup function
+    const cleanup = initKnowledgeBaseMenuFix();
+
+    // Return the cleanup function to be called when the component unmounts
+    return cleanup;
+  }, []);
 
   // Create a simplified logout function that uses Auth.js signOut
   const combinedLogout = async () => {
@@ -957,8 +1072,22 @@ const NavigationBar = ({
               <Button
                 id="knowledge-button"
                 onClick={(e) => {
-                  setKnowledgeAnchorEl(e.currentTarget);
-                  trackMenuClick('knowledge-base', 'main-menu');
+                  // Remove any existing force-hide-menu classes
+                  document.querySelectorAll('.force-hide-menu').forEach(el => {
+                    el.classList.remove('force-hide-menu');
+                  });
+
+                  // Remove navigating class from body
+                  document.body.classList.remove('navigating');
+
+                  // If menu is already open, close it
+                  if (knowledgeAnchorEl) {
+                    setKnowledgeAnchorEl(null);
+                  } else {
+                    // Otherwise open it
+                    setKnowledgeAnchorEl(e.currentTarget);
+                    trackMenuClick('knowledge-base', 'main-menu');
+                  }
                 }}
                 endIcon={<KeyboardArrowDownIcon />}
                 aria-controls="knowledge-menu"
@@ -967,37 +1096,34 @@ const NavigationBar = ({
               >
                 Knowledge Base
               </Button>
-              <Menu
-                id="knowledge-menu"
-                anchorEl={knowledgeAnchorEl}
-                open={Boolean(knowledgeAnchorEl)}
-                onClose={() => setKnowledgeAnchorEl(null)}
-                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                transformOrigin={{ vertical: "top", horizontal: "left" }}
-                PaperProps={{
-                  elevation: 4,
-                  sx: {
-                    borderRadius: 2,
-                    minWidth: 220,
-                    bgcolor: theme.palette.background.paper,
-                    boxShadow: theme.shadows[4],
-                    p: 1,
-                    maxHeight: "80vh",
-                    overflowY: "auto",
-                  },
-                }}
-                MenuListProps={{
-                  onClick: () => setKnowledgeAnchorEl(null), // Close menu when any item is clicked
-                }}
+              {Boolean(knowledgeAnchorEl) && (
+                <KnowledgeBaseMenu
+                  id="knowledge-menu"
+                  anchorEl={knowledgeAnchorEl}
+                  open={Boolean(knowledgeAnchorEl)}
+                  onClose={() => setKnowledgeAnchorEl(null)}
+                  anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                  transformOrigin={{ vertical: "top", horizontal: "left" }}
+                  disableScrollLock={true}
+                  keepMounted={false} // Don't keep the menu in the DOM when closed
+                  onClick={() => setKnowledgeAnchorEl(null)} // Close menu when any item is clicked
               >
                 <MenuItem
-                  component={RouterLink}
-                  to="/knowledge"
-                  onClick={() => setKnowledgeAnchorEl(null)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Use our force close function
+                    forceCloseMenuAndNavigate(
+                      '/knowledge',
+                      'knowledge-overview',
+                      'knowledge-menu'
+                    );
+                  }}
                   sx={{
                     py: 1.2,
                     px: 2,
                     gap: 1,
+                    cursor: 'pointer',
                   }}
                 >
                   <ListItemIcon
@@ -1008,13 +1134,21 @@ const NavigationBar = ({
                   <ListItemText primary="Overview" />
                 </MenuItem>
                 <MenuItem
-                  component={RouterLink}
-                  to="/knowledge/glossary"
-                  onClick={() => setKnowledgeAnchorEl(null)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    // Use our force close function
+                    forceCloseMenuAndNavigate(
+                      '/knowledge/glossary',
+                      'knowledge-glossary',
+                      'knowledge-menu'
+                    );
+                  }}
                   sx={{
                     py: 1.2,
                     px: 2,
                     gap: 1,
+                    cursor: 'pointer',
                   }}
                 >
                   <ListItemIcon
@@ -1042,13 +1176,21 @@ const NavigationBar = ({
                   {domainKnowledgeData.categories.map((category) => (
                     <MenuItem
                       key={category.id}
-                      component={RouterLink}
-                      to={`/knowledge/domain/${category.id}`}
-                      onClick={() => setKnowledgeAnchorEl(null)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        // Use our force close function
+                        forceCloseMenuAndNavigate(
+                          `/knowledge/domain/${category.id}`,
+                          `domain-${category.id}`,
+                          'knowledge-menu'
+                        );
+                      }}
                       sx={{
                         py: 1.2,
                         px: 2,
                         gap: 1,
+                        cursor: 'pointer',
                       }}
                     >
                       <ListItemIcon
@@ -1063,7 +1205,8 @@ const NavigationBar = ({
                     </MenuItem>
                   ))}
                 </Box>
-              </Menu>
+              </KnowledgeBaseMenu>
+              )}
 
               {/* Blog Menu */}
               <Button
@@ -1566,9 +1709,36 @@ const NavigationBar = ({
           </ListItem>
           <ListItem
             button={true}
-            component={RouterLink}
-            to="/knowledge/glossary"
-            onClick={handleDrawerToggle}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleDrawerToggle(); // Close the drawer first
+              // Use our force close function
+              forceCloseMenuAndNavigate(
+                '/knowledge',
+                'knowledge-overview',
+                'mobile-menu'
+              );
+            }}
+          >
+            <ListItemIcon>
+              <MenuBookIcon />
+            </ListItemIcon>
+            <ListItemText primary="Overview" />
+          </ListItem>
+          <ListItem
+            button={true}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleDrawerToggle(); // Close the drawer first
+              // Use our force close function
+              forceCloseMenuAndNavigate(
+                '/knowledge/glossary',
+                'knowledge-glossary',
+                'mobile-menu'
+              );
+            }}
           >
             <ListItemIcon>
               <LibraryBooksIcon />
@@ -1579,9 +1749,17 @@ const NavigationBar = ({
             <ListItem
               key={category.id}
               button={true}
-              component={RouterLink}
-              to={`/knowledge/domain/${category.id}`}
-              onClick={handleDrawerToggle}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleDrawerToggle(); // Close the drawer first
+                // Use our force close function
+                forceCloseMenuAndNavigate(
+                  `/knowledge/domain/${category.id}`,
+                  `domain-${category.id}`,
+                  'mobile-menu'
+                );
+              }}
               sx={{ pl: 4 }}
             >
               <ListItemIcon>
