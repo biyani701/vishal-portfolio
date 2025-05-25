@@ -454,11 +454,19 @@ const TypewriterTextMUI = ({
           sm: `${longestText.length * 0.75}em`, // Desktop: character-based width
         },
         maxWidth: {
-          xs: "85vw", // Mobile: prevent overflow
+          // xs: "85vw", 
+          xs: "100vw",
           sm: "none", // Desktop: no max width
         },
         textAlign: "left",
         position: "relative",
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        px: { xs: 1, sm: 0 }, // Small horizontal padding on mobile
+        fontSize: {
+          xs: 'clamp(1.2rem, 4vw, 1.8rem)', // Responsive font that scales with viewport
+          sm: 'inherit',
+        },
       }}
     >
       <span>{displayText}</span>
