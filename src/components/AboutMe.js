@@ -286,14 +286,15 @@ const AboutMe = () => {
         </Paper>
       </Fade>
 
-      <Grid container spacing={4}>
+      <Grid container spacing={4} sx={{ display: "flex", width: "100%"}}>
         {/* Skills Section */}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={6} sx={{ flex: "1 1 25%" }}     
+        >
           <Grow in={animate} timeout={1200}>
             <Card
               elevation={mode === 'dark' ? 3 : 1}
               sx={{
-                height: '100%',
+                height: '100%',                
                 background: mode === 'dark' 
                   ? 'linear-gradient(135deg, rgba(30,30,30,0.95) 0%, rgba(50,50,50,0.95) 100%)'
                   : 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(252,254,255,0.95) 100%)',
@@ -326,7 +327,7 @@ const AboutMe = () => {
                   }}
                 >
                   <CodeIcon sx={{ fontSize: 35, color: 'primary.main' }} />
-                  Skills & Expertise
+                  Key Skills
                 </Typography>
                 
                 {skills.map((skill, index) => (
@@ -338,7 +339,8 @@ const AboutMe = () => {
         </Grid>
 
         {/* Projects Section */}
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={6} sx={{ flex: "1 1 25%" }}       
+        >
           <Grow in={animate} timeout={1400}>
             <Card
               elevation={mode === 'dark' ? 3 : 1}

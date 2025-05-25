@@ -45,18 +45,18 @@ const Glossary = () => {
   }, [selectedFilter]);
 
   // Log glossary data for debugging
-  useEffect(() => {
-    console.log('Glossary Data:', glossaryData);
-    console.log('Filtered Items:', filteredItems);
-  }, [filteredItems]);
+  // useEffect(() => {
+  //   console.log('Glossary Data:', glossaryData);
+  //   console.log('Filtered Items:', filteredItems);
+  // }, [filteredItems]);
 
   // Group items by first letter for better organization
   const groupedItems = useMemo(() => {
     const groups = {};
 
     // Ensure we have data to work with
-    console.log('filteredItems: ', filteredItems);
-    console.log('filteredItems length', filteredItems.length);
+    // console.log('filteredItems: ', filteredItems);
+    // console.log('filteredItems length', filteredItems.length);
     if (!filteredItems || filteredItems.length === 0) {
       console.warn('No filtered items available for grouping');
       return {};

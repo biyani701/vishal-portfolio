@@ -17,8 +17,9 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import Fab from "@mui/material/Fab";
 
 import NavigationBar from "./components/ImprovedNavbar";
-import Hero from "./components/Hero";
-import ProfileSummary from "./components/ProfileSummary";
+import Hero from "./components/HeroNew";
+import HeroRef from "./components/Hero";
+import ProfileSummary from "./components/ProfileSummaryNew";
 // import EnhancedSkillsWithTabs from './components/EnhancedSkillsWithTabs';
 import Skills from "./components/Skills";
 import ExperienceTimeline from "./components/Experience";
@@ -415,7 +416,7 @@ function App(props) {
             {/* Knowledge Base Routes */}
             <Route path="/knowledge" element={<KnowledgeBase />} />
             <Route path="/knowledge/glossary" element={<Glossary />} />
-            <Route path="/knowledge/domain/:categoryId" element={<DomainKnowledge />} />
+            <Route path="/knowledge/domain/:categoryId" element={<DomainKnowledge />} />            
 
             {/* Blog Routes */}
             <Route path="/blogs" element={<BlogList />} />
@@ -452,6 +453,7 @@ function App(props) {
             {/* <Route path="/blog/edit/:blogId" element={<BlogEditor />} /> */}
             <Route path="/click-test" element={<ClickTest />} />
             <Route path="/config-test" element={<ConfigTest />} />
+            <Route path="/heroref" element={<HeroRef />} />
 
             <Route path="*" element={<div>404 Not Found</div>} />
           </Routes>

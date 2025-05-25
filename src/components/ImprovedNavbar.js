@@ -907,6 +907,14 @@ const NavigationBar = ({
 
               <Button
                 component={RouterLink}
+                to="/heroref"
+                onClick={() => trackMenuClick('about', 'main-menu')}
+              >
+                Hero
+              </Button>
+
+              <Button
+                component={RouterLink}
                 to="/about"
                 onClick={() => trackMenuClick('about', 'main-menu')}
               >

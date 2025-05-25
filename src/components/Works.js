@@ -264,12 +264,15 @@ const Works = () => {
   };
 
   const handleOpenDialog = (project) => {
+    console.log("Opening dialog for project:", project);
     setSelectedProject(project);
     setOpenDialog(true);
   };
 
   const handleCloseDialog = () => {
+    console.log("Closing dialog");
     setOpenDialog(false);
+    setSelectedProject(null);
   };
 
   // Filter projects based on search query and active tab
@@ -285,8 +288,7 @@ const Works = () => {
 
     // Filter by search query
     if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      console.log("query=", query);
+      const query = searchQuery.toLowerCase();      
       result = result.filter(
         (project) =>
           project.title.toLowerCase().includes(query) ||
@@ -329,6 +331,14 @@ const Works = () => {
   // Handle tab change
   const handleTabChange = (_, newValue) => {
     setActiveTab(newValue);
+    if (newValue === "all") {
+      setFilteredProjects(projects);
+    } else {
+      const filtered = projects.filter(project => 
+        project.type.toLowerCase().replace(/\s+/g, "-") === newValue
+      );
+      setFilteredProjects(filtered);
+    }
   };
 
   // Handle technology selection
@@ -534,10 +544,11 @@ const Works = () => {
         py: { xs: 5, md: 8 },
         backgroundColor:
           theme.palette.mode === "dark" ? "background.default" : "#f8f9fa",
-        position: "relative",        
+        position: "relative",
+        minHeight: "100vh",
       }}
     >
-      <Box sx={{ display: "flex" }}>
+      <Box sx={{ display: "flex", minHeight: "100vh" }}>
         {/* Mobile Drawer */}
         <SwipeableDrawer
           anchor="left"
@@ -551,6 +562,7 @@ const Works = () => {
               backgroundColor: theme.palette.background.paper,
               borderRight: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
               width: 280,
+              height: "100%",
             },
           }}
         >
@@ -567,10 +579,10 @@ const Works = () => {
             flexShrink: 0,
             transition: "width 0.3s ease",
             position: "relative",
-            borderRight: `3px solid ${alpha(theme.palette.divider, 0.1)}`,            
-            backgroundColor: alpha(theme.palette.background.paper, 0.9),            
+            borderRight: `3px solid ${alpha(theme.palette.divider, 0.1)}`,
+            backgroundColor: alpha(theme.palette.background.paper, 0.9),
             backdropFilter: "blur(8px)",
-            height: "100%",
+            height: "100vh",
             zIndex: 1,
             overflow: "hidden",
           }}
@@ -763,7 +775,7 @@ const Works = () => {
                     <Card
                       elevation={2}
                       sx={{
-                        height: 360, // Reduced from 450px                        
+                        height: 360,
                         display: "flex",
                         flexDirection: "column",
                         transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -787,7 +799,10 @@ const Works = () => {
                           },
                         },
                       }}
-                      onClick={() => handleOpenDialog(project)}
+                      onClick={() => {
+                        console.log("Card clicked for project:", project);
+                        handleOpenDialog(project);
+                      }}
                     >
                       {/* Project Type Badge */}
                       <Chip
@@ -991,7 +1006,7 @@ const Works = () => {
                       <Box
                         className="project-overlay"
                         sx={{
-                          position: "absolute",
+                          position: "relative",
                           top: 0,
                           left: 0,
                           right: 0,

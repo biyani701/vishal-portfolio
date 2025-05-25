@@ -3,38 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Button, Container, IconButton, useTheme } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { styled, alpha } from '@mui/material/styles';
-// import WorkIcon from '@mui/icons-material/Work'; 
 
-
-// function useAnimateOnScroll() {
-//   const ref = useRef();
-//   const [shouldAnimate, setShouldAnimate] = useState(false);
-
-//   useEffect(() => {
-//     let hasScrolled = false;
-//     const handleScroll = () => { hasScrolled = true; };
-//     window.addEventListener('scroll', handleScroll, { once: true });
-
-//     const node = ref.current; // <--- Copy ref.current to a local variable
-
-//     const observer = new window.IntersectionObserver(
-//       ([entry]) => {
-//         if (entry.isIntersecting && hasScrolled) {
-//           setShouldAnimate(true);
-//         }
-//       },
-//       { threshold: 0.2 }
-//     );
-//     if (node) observer.observe(node);
-
-//     return () => {
-//       window.removeEventListener('scroll', handleScroll);
-//       if (node) observer.unobserve(node); // <--- Use the local variable here
-//     };
-//   }, []);
-
-//   return [ref, shouldAnimate];
-// }
 
 // Styled components
 const HeroContainer = styled(Box)(({ theme }) => ({
@@ -179,7 +148,7 @@ const ContactButton = styled(Button)(({ theme }) => ({
 // }));
 
 
-const Hero = () => {
+const HeroRef = () => {
   // const [ref, shouldAnimate] = useAnimateOnScroll();
   const navigate = useNavigate();
   const theme = useTheme();
@@ -207,78 +176,12 @@ const Hero = () => {
 
   return (
     <HeroContainer>
-      {/* Corner catchlines */}
-      {/* <CatchlineItem 
-        data-aos="fade-down-right" 
-        data-aos-delay="200"
-        sx={{ 
-          top: 40, 
-          left: 40, 
-          [theme => theme.breakpoints.down('sm')]: {
-            top: 20,
-            left: 20,
-            maxWidth: '160px',
-          }
-        }}
-      >
-        <WorkIcon sx={{ fontSize: 32, color: '#42a5f5' }} />
-        <CatchlineText>{catchlines[0]}</CatchlineText>
-      </CatchlineItem>
-      
-      <CatchlineItem 
-        data-aos="fade-down-left" 
-        data-aos-delay="300"
-        sx={{ 
-          top: 40, 
-          right: 40,
-          [theme => theme.breakpoints.down('sm')]: {
-            top: 20,
-            right: 20,
-            maxWidth: '160px',
-          }
-        }}
-      >
-        <CatchlineText>{catchlines[1]}</CatchlineText>
-      </CatchlineItem>
-      
-      <CatchlineItem 
-        // data-aos="fade-up-right" 
-        // data-aos-delay="400"
-        sx={{ 
-          bottom: 150, 
-          left: 40,
-          [theme => theme.breakpoints.down('sm')]: {
-            bottom: 20,
-            left: 20,
-            maxWidth: '160px',
-          }
-        }}
-      >
-        <CatchlineText>{catchlines[2]}</CatchlineText>
-      </CatchlineItem>
-      
-      <CatchlineItem 
-      ref={ref}
-      data-aos={shouldAnimate ? "fade-down-right" : undefined}
-        // data-aos="fade-up-left" 
-        // data-aos-delay="200"
-        sx={{ 
-          bottom: 150, 
-          right: 40,
-          [theme => theme.breakpoints.down('sm')]: {
-            bottom: 20,
-            right: 20,
-            maxWidth: '160px',            
-          }
-        }}
-      >
-        <CatchlineText>{catchlines[3]}</CatchlineText>
-      </CatchlineItem> */}
 
       <Container maxWidth="md">
         <Box sx={{ position: 'relative', zIndex: 1 }}>
           <Name variant="h1" data-aos="fade-down" data-aos-duration="1000">
-            Vishal Biyani
+            Hi<br></br>
+            I&apos;m Vishal Biyani
           </Name>
           <Title variant="h2" data-aos="fade-up" data-aos-duration="1000" data-aos-delay="200">
             Technical Program Manager & Full Stack Developer
@@ -295,27 +198,28 @@ const Hero = () => {
               Contact Me
             </ContactButton>
             <ContactButton
-  variant="outlined"
-  onClick={() => scrollToSection('summary')}
-  sx={{
-    // In dark mode, use filled style; in light mode, use outlined style
-    backgroundColor: theme.palette.mode === 'dark' ? theme.palette.text.primary : 'transparent',
-    borderColor: theme.palette.mode === 'dark' ? theme.palette.text.primary : theme.palette.primary.main,
-    // Invert text colors based on mode
-    color: theme.palette.mode === 'dark' ? theme.palette.background.default : theme.palette.primary.main,
-    '&:hover': {
-      backgroundColor: theme.palette.mode === 'dark' 
-        ? alpha(theme.palette.text.primary, 0.8)  // Slightly transparent version of text.primary
-        : alpha(theme.palette.primary.main, 0.1), // Slightly visible primary color
-      borderColor: theme.palette.mode === 'dark' ? theme.palette.text.primary : theme.palette.primary.main,
-    },
-  }}
->
-  Learn More
-</ContactButton>
+              variant="outlined"
+              onClick={() => scrollToSection('summary')}
+              sx={{
+                // In dark mode, use filled style; in light mode, use outlined style
+                backgroundColor: theme.palette.mode === 'dark' ? theme.palette.text.primary : 'transparent',
+                borderColor: theme.palette.mode === 'dark' ? theme.palette.text.primary : theme.palette.primary.main,
+                // Invert text colors based on mode
+                color: theme.palette.mode === 'dark' ? theme.palette.background.default : theme.palette.primary.main,
+                '&:hover': {
+                  backgroundColor: theme.palette.mode === 'dark'
+                    ? alpha(theme.palette.text.primary, 0.8)  // Slightly transparent version of text.primary
+                    : alpha(theme.palette.primary.main, 0.1), // Slightly visible primary color
+                  borderColor: theme.palette.mode === 'dark' ? theme.palette.text.primary : theme.palette.primary.main,
+                },
+              }}
+            >
+              Learn More
+            </ContactButton>
           </Box>
         </Box>
       </Container>
+
       <ScrollDownButton
         onClick={() => scrollToSection('summary')}
         aria-label="scroll down"
@@ -326,4 +230,4 @@ const Hero = () => {
   );
 };
 
-export default Hero;
+export default HeroRef;
