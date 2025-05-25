@@ -128,42 +128,6 @@ const SearchResultContent = styled(Typography)(({ theme }) => ({
   overflow: 'hidden',
 }));
 
-// Modified StyledAppBar to respect theme colors from theme.js
-// const StyledAppBar = styled(AppBar)(({ theme }) => {
-//   // Light mode: use light theme colors
-//   if (theme.palette.mode === 'light') {
-//     return {
-//       backgroundColor: theme.palette.primary.main, 
-//       color: theme.palette.text.primary,
-//       boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-//       backdropFilter: 'blur(8px)',
-//       borderBottom: `1px solid ${theme.palette.divider}`,
-//       transition: 'all 0.3s ease',
-//       '& .MuiIconButton-root': {
-//         color: theme.palette.text.primary,
-//       },
-//       '& .MuiButton-root': {
-//         color: theme.palette.text.primary,
-//       }
-//     };
-//   }
-//   // Dark mode: use dark theme colors
-//   return {
-//     backgroundColor: theme.palette.primary.main, 
-//     color: theme.palette.text.primary,
-//     boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
-//     backdropFilter: 'blur(8px)',
-//     borderBottom: `1px solid ${theme.palette.divider}`,
-//     transition: 'all 0.3s ease',
-//     '& .MuiIconButton-root': {
-//       color: theme.palette.text.primary,
-//     },
-//     '& .MuiButton-root': {
-//       color: theme.palette.text.primary,
-//     }
-//   };
-// });
-
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: theme.palette.background.default,
   color: theme.palette.text.primary,
