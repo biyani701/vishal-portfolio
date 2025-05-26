@@ -271,9 +271,31 @@ export const getTheme = (mode, paletteIndex = 0) => {
       },
     },
     customLayout: {
-      headerHeight: 64,
-      footerHeight: 56,
+      headerHeight: {
+        xs: 56,    // Mobile
+        sm: 60,    // Small tablets
+        md: 64,    // Desktop
+        lg: 64,    // Large desktop
+      },
+      footerHeight: {
+        xs: 120,   // Mobile (2 rows: copyright + social/links)
+        sm: 80,    // Small tablets (2 rows but more compact)
+        md: 56,    // Desktop (single row)
+        lg: 56,    // Large desktop
+      },
+      // Alternative: Fixed heights for simpler calculations
+      fixedHeaderHeight: 64,
+      fixedFooterHeight: 56,
       mobileHeaderHeight: 56,
+      mobileFooterHeight: 120,
+
+      // Content area calculations helper
+      getContentHeight: (isDesktop = true) => {
+        const headerHeight = isDesktop ? 64 : 56;
+        const footerHeight = isDesktop ? 56 : 120;
+        return `calc(100vh - ${headerHeight}px - ${footerHeight}px)`;
+      },
+      
     },
     zIndex: {
       appBar: 1100,
@@ -289,7 +311,7 @@ export const getTheme = (mode, paletteIndex = 0) => {
       info: { main: '#2196f3' },
       warning: { main: '#ff9800' },
       error: { main: '#f44336' },
-      // default: { main: '#f44336' },
+      
       default: { main: selectedPalette.primary },
       alpha: semanticColors.alpha,
       beta: semanticColors.beta,
@@ -406,8 +428,12 @@ export const getTheme = (mode, paletteIndex = 0) => {
             boxShadow: theme.palette.mode === 'dark' ? '0 4px 20px rgba(0,0,0,0.5)' : '0 2px 10px rgba(0,0,0,0.1)',
             backdropFilter: 'blur(8px)',
             background: theme.palette.background.header,
-            color: theme.palette.common.white,
+            color: theme.palette.common.white,            
             transition: 'all 0.3s ease',
+            height: theme.customLayout.fixedHeaderHeight,
+            [theme.breakpoints.down('sm')]: {
+              height: theme.customLayout.mobileHeaderHeight,
+            },
           }),
         },
       },

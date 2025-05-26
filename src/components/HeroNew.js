@@ -2,32 +2,43 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
 import {
+  Badge,
   Box,
+  Card,
   Typography,
   Button,
+  Paper,
   Container,
   IconButton,
-  useTheme,
   Avatar,
   Chip,
   Stack,
   Grid,
   keyframes,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import CodeIcon from "@mui/icons-material/Code";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import { styled, alpha } from "@mui/material/styles";
+import { useLayoutDimensions } from "../hooks/useLayoutDimensions";
 
 // Styled components
-const HeroContainer = styled(Box)(({ theme }) => ({
+const HeroContainer = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "topPadding",
+})(({ theme, topPadding }) => ({
   minHeight: "100vh",
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
   alignItems: "center",
   position: "relative",
+  paddingTop: topPadding, // use the dynamic top padding here
+  paddingLeft: theme.spacing(2),
+  paddingRight: theme.spacing(2),
   background:
     theme.palette.mode === "dark"
       ? "linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 25%, #2d1b69 50%, #1a1a1a 75%, #0f0f0f 100%)"
@@ -77,21 +88,27 @@ const ProfileSection = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+  justifyContent: "center",
   gap: theme.spacing(3),
+  minHeight: "50vh", // Optional: gives some minimum height to work with
   [theme.breakpoints.up("md")]: {
     flexDirection: "row",
     gap: theme.spacing(6),
     textAlign: "left",
+    justifyContent: "flex-start", // Reset for desktop
   },
 }));
 
-const AnimatedAvatar = styled(Avatar)(({ theme }) => ({
-  width: 200,
-  height: 200,
+const AnimatedAvatar = styled(Avatar, {
+  shouldForwardProp: (prop) => prop !== "topOffset",
+})(({ theme, topOffset }) => ({
+  width: 70,
+  height: 70,
   border: `4px solid ${theme.palette.primary.main}`,
   boxShadow: `0 20px 60px rgba(0,0,0,0.3), 0 0 0 10px ${alpha(theme.palette.primary.main, 0.2)}`,
   transition: "all 0.3s ease",
   position: "relative",
+
   "&::before": {
     content: '""',
     position: "absolute",
@@ -116,9 +133,18 @@ const AnimatedAvatar = styled(Avatar)(({ theme }) => ({
       transform: "rotate(360deg)",
     },
   },
+  [theme.breakpoints.down(380)]: {
+    marginTop: theme.spacing(6), // ~48px
+  },
+  [theme.breakpoints.up("sm")]: {
+    width: 180, // Tablet
+    height: 180,
+    // marginTop: theme.spacing(4),
+  },
   [theme.breakpoints.up("md")]: {
     width: 250,
     height: 250,
+    // marginTop: theme.spacing(6),
   },
 }));
 
@@ -136,7 +162,7 @@ const IntroSection = styled(Box)(({ theme }) => ({
 const Name = styled(Typography)(({ theme }) => ({
   fontWeight: 800,
   letterSpacing: "1px",
-  fontSize: "2.5rem",
+  fontSize: "2rem",
   background:
     theme.palette.mode === "dark"
       ? "linear-gradient(45deg, #60a5fa 30%, #a78bfa 90%)"
@@ -145,8 +171,17 @@ const Name = styled(Typography)(({ theme }) => ({
   WebkitTextFillColor: "transparent",
   textShadow:
     theme.palette.mode === "dark" ? "0 0 30px rgba(96, 165, 250, 0.5)" : "none",
+  // Mobile specific
+  [theme.breakpoints.down("md")]: {
+    fontSize: "clamp(1.5rem, 5.5vw, 2.5rem)", // Responsive sizing
+    width: "100%",
+    display: "block",
+  },
+
   [theme.breakpoints.up("md")]: {
     fontSize: "3.5rem",
+    display: "inline-block",
+    width: "auto",
   },
 }));
 
@@ -160,13 +195,22 @@ const Title = styled(Typography)(({ theme }) => ({
   },
 }));
 
-const Description = styled(Typography)(({ theme }) => ({
-  fontSize: "1rem",
-  color: theme.palette.text.secondary,
+const Description = styled(Typography, {
+  shouldForwardProp: (prop) => prop !== "center" && prop !== "highlight",
+})(({ theme, center, highlight }) => ({
+  color: highlight ? theme.palette.primary.main : theme.palette.text.secondary,
+  textAlign: center ? "center" : "justify",
   lineHeight: 1.6,
   marginBottom: theme.spacing(2),
   [theme.breakpoints.up("md")]: {
     fontSize: "1.1rem",
+  },
+  [theme.breakpoints.down("md")]: {
+    fontSize: "clamp(0.75rem, 2.5vw, 0.875rem)",
+    lineHeight: 1.4,
+    marginBottom: theme.spacing(1),
+    width: "100%",
+    display: "block",
   },
 }));
 
@@ -190,28 +234,54 @@ const ActionButton = styled(Button)(({ theme }) => ({
   textTransform: "none",
   boxShadow: theme.shadows[6],
   transition: "all 0.3s ease",
+  whiteSpace: "nowrap",
   "&:hover": {
     transform: "translateY(-3px)",
     boxShadow: theme.shadows[12],
   },
+  // Mobile optimizations
+  [theme.breakpoints.down("md")]: {
+    padding: "10px 20px",
+    fontSize: "0.875rem",
+    borderRadius: "25px", // Slightly less rounded on mobile
+    minWidth: "120px", // Minimum width to prevent too narrow buttons
+    maxWidth: "90vw", // Prevent overflow on very small screens
+  },
+
+  // Very small screens
+  [theme.breakpoints.down("sm")]: {
+    padding: "8px 16px",
+    fontSize: "0.8rem",
+    minWidth: "100px",
+  },
 }));
 
 const StatCard = styled(Box)(({ theme }) => ({
+  // padding: theme.spacing(2, 3),
+  padding: theme.spacing(3, 2),
+  textAlign: "center",
   backgroundColor: alpha(theme.palette.background.paper, 0.8),
   backdropFilter: "blur(10px)",
   borderRadius: theme.spacing(2),
-  padding: theme.spacing(2, 3),
   border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
+  justifyContent: "center",
   gap: theme.spacing(1),
-  minWidth: 120,
+  minHeight: "120px",
+  minWidth: 125,
+  width: "100%",
   transition: "all 0.3s ease",
   "&:hover": {
     transform: "translateY(-5px)",
     boxShadow: theme.shadows[8],
     backgroundColor: alpha(theme.palette.primary.main, 0.05),
+  },
+  // Mobile adjustments
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(2, 1.5),
+    minHeight: "100px", // Slightly smaller on mobile
   },
 }));
 
@@ -375,7 +445,7 @@ const StyledTypewriterText = ({
   ]);
 
   const longestText = texts.reduce((a, b) => (a.length > b.length ? a : b));
-  
+
   return (
     <TypewriterContainer longestTextLength={longestText.length}>
       <span>{displayText}</span>
@@ -454,18 +524,18 @@ const TypewriterTextMUI = ({
           sm: `${longestText.length * 0.75}em`, // Desktop: character-based width
         },
         maxWidth: {
-          // xs: "85vw", 
+          // xs: "85vw",
           xs: "100vw",
           sm: "none", // Desktop: no max width
         },
         textAlign: "left",
         position: "relative",
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
+        whiteSpace: "nowrap",
+        overflow: "hidden",
         px: { xs: 1, sm: 0 }, // Small horizontal padding on mobile
         fontSize: {
-          xs: 'clamp(1.2rem, 4vw, 1.8rem)', // Responsive font that scales with viewport
-          sm: 'inherit',
+          xs: "clamp(1rem, 4vw, 1.8rem)", // Responsive font that scales with viewport
+          sm: "inherit",
         },
       }}
     >
@@ -490,9 +560,35 @@ TypewriterTextMUI.propTypes = {
   pauseTime: PropTypes.number,
 };
 // End Addition
+
+const bounce = keyframes`
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+`;
+
 const Hero = () => {
   const navigate = useNavigate();
   const theme = useTheme();
+  // const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const {
+    spacing,
+    safeAreaInsets,
+    isIPhoneXOrSimilar,
+    safeOffsets,
+    headerHeight,
+    breakpoints: { isMobile },
+    isTallScreen,
+    isIPhoneSE,
+    isSmallScreen
+  } = useLayoutDimensions();
+
+  // Dynamically compute marginTop
+  const avatarTopMargin = `calc(${headerHeight}px + ${safeOffsets.top}px + 16px)`; // 16px is extra breathing room
+  const topPadding = `calc(${headerHeight}px + ${safeOffsets.top}px + 16px)`;
 
   const scrollToSection = (sectionId) => {
     const section = document.getElementById(sectionId);
@@ -508,7 +604,14 @@ const Hero = () => {
     }
   };
 
-  const skills = ["Python", "React.js", "AWS", "Agile", "SQL", "Plotly"];
+  const skills = [
+    "Python",
+    "Plotly Dash",
+    "SQL",
+    "Agile",
+    "Jira",
+    "Confluence",
+  ];
   const typewriterTexts = [
     "Technical Program Manager",
     "Full Stack Developer",
@@ -517,22 +620,63 @@ const Hero = () => {
   ];
 
   return (
-    <HeroContainer>
+    <HeroContainer
+      sx={{
+        // paddingTop: `calc(${spacing.md} + ${safeAreaInsets.top}px)`,
+        // paddingBottom: `calc(${spacing.md} + ${safeAreaInsets.bottom}px)`,
+        pt: topPadding,
+      }}
+    >
       {/* Floating background icons */}
-      <FloatingIcon sx={{ top: "15%", left: "10%", animationDelay: "0s" }}>
-        <ManageAccountsIcon sx={{ fontSize: 40 }} />
+      <FloatingIcon
+        sx={{
+          top: safeOffsets.top,
+          left: safeOffsets.left,
+          animationDelay: "2s",
+        }}
+      >
+        <ManageAccountsIcon sx={{ fontSize: { xs: 28, sm: 36, md: 40 } }} />
       </FloatingIcon>
-      <FloatingIcon sx={{ top: "25%", right: "15%", animationDelay: "2s" }}>
-        <CodeIcon sx={{ fontSize: 35 }} />
+
+      <FloatingIcon
+        sx={{
+          top: safeOffsets.top,
+          right: safeOffsets.right,
+          animationDelay: "2s",
+        }}
+      >
+        <CodeIcon sx={{ fontSize: { xs: 28, sm: 36, md: 40 } }} />
       </FloatingIcon>
-      <FloatingIcon sx={{ bottom: "25%", left: "8%", animationDelay: "4s" }}>
-        <TrendingUpIcon sx={{ fontSize: 38 }} />
+
+      <FloatingIcon
+        sx={{
+          bottom: safeOffsets.bottom,
+          left: safeOffsets.left,
+          animationDelay: "4s",
+        }}
+      >
+        <TipsAndUpdatesIcon sx={{ fontSize: { xs: 28, sm: 36, md: 40 } }} />
+      </FloatingIcon>
+
+      <FloatingIcon
+        sx={{
+          bottom: safeOffsets.bottom,
+          right: safeOffsets.right,
+          animationDelay: "4s",
+        }}
+      >
+        <TrendingUpIcon sx={{ fontSize: { xs: 28, sm: 36, md: 40 } }} />
       </FloatingIcon>
 
       <ContentContainer maxWidth="lg">
         <ProfileSection>
-          <AnimatedAvatar src="/images/DSC_0694.jpg" alt="Vishal Biyani" />
-
+          <AnimatedAvatar
+            sx={{
+              mt: isIPhoneSE ? `${headerHeight + 16}px` : isTallScreen ? 2 : 4,
+            }}
+            src="/images/DSC_0694.jpg"
+            alt="Vishal Biyani"
+          />
           <IntroSection>
             <Box>
               <Typography variant="h6" sx={{ color: "text.secondary", mb: 1 }}>
@@ -542,29 +686,36 @@ const Hero = () => {
               {/* <Title variant="h2">
                 <TypewriterText texts={typewriterTexts} />
               </Title> */}
-              
-<Typography variant="h2">
-  <TypewriterTextMUI texts={typewriterTexts} />
-</Typography>
+
+              <Typography variant="h2">
+                <TypewriterTextMUI texts={typewriterTexts} />
+              </Typography>
               <Description>
-                25+ years of experience driving complex software initiatives,
-                leading distributed teams, and delivering transformative
-                business outcomes across payments, banking, and enterprise
-                solutions.
+                {isSmallScreen
+                  ? "Seasoned software executive with 25+ years in fintech, banking, and enterprise delivery."
+                  : "25+ years of experience driving complex software initiatives, leading distributed teams, and delivering transformative business outcomes across payments, banking, and enterprise solutions."}
               </Description>
             </Box>
+                {!isMobile && 
+                <Box
+              spacing={{ xs: 0.5, sm: 2 }}
+              sx={{
+                display: "grid",
 
-            <Stack
-              direction="row"
-              spacing={1}
-              flexWrap="wrap"
-              justifyContent="center"
-              sx={{ mb: 2 }}
+                gap: 1,
+                mb: 2,
+                gridTemplateColumns: {
+                  xs: "repeat(4, 1fr)", // 3 columns on mobile
+                  md: "repeat(8, 1fr)", // 6 columns on medium and up
+                },
+                justifyItems: "center", // Center chips in cells
+              }}
             >
               {skills.map((skill) => (
                 <SkillChip key={skill} label={skill} size="small" />
               ))}
-            </Stack>
+            </Box>}
+            
 
             <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
               <ActionButton
@@ -595,46 +746,154 @@ const Hero = () => {
         </ProfileSection>
 
         {/* Stats Section */}
-        <Grid container spacing={2} justifyContent="center" sx={{ mt: 2 }}>
-          <Grid item>
-            <StatCard>
-              <Typography variant="h4" fontWeight="bold" color="primary">
-                25+
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Years Experience
-              </Typography>
-            </StatCard>
-          </Grid>
-          <Grid item>
-            <StatCard>
-              <Typography variant="h4" fontWeight="bold" color="primary">
-                150+
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Team Members Coached
-              </Typography>
-            </StatCard>
-          </Grid>
-          <Grid item>
-            <StatCard>
-              <Typography variant="h4" fontWeight="bold" color="primary">
-                50+
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                Applications Managed
-              </Typography>
-            </StatCard>
-          </Grid>
+        {!isSmallScreen && (
+          <Grid
+          container
+          spacing={{ xs: 1, sm: 2 }}
+          justifyContent="center"
+          sx={{
+            mt: 2,
+            maxWidth: { xs: "100%", sm: "600px" },
+            mx: "auto",
+          }}
+        >
+          {[
+            { number: "25+", text: "Years Experience" },
+            { number: "150+", text: "Team Members Coached" },
+            { number: "50+", text: "Applications Managed" },
+          ].map((stat, index) => (            
+            <React.Fragment key={index}>              
+              {isMobile ? (
+                <Paper
+                  key={index}
+                  elevation={0}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 0.5,
+                    px: 1,
+                    py: 0.5,
+                    borderRadius: 1.5,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    backgroundColor: "background.paper",
+                    minWidth: "fit-content",
+                    maxWidth: { xs: "32%", sm: "auto" },
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    fontWeight="bold"
+                    color="primary.main"
+                    sx={{
+                      fontSize: "0.75rem",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {stat.number}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{
+                      fontSize: "0.65rem",
+                      lineHeight: 1.1,
+                      textAlign: "center",
+                    }}
+                  >
+                    {stat.text}
+                  </Typography>
+                </Paper>
+              ) : (
+                <Grid item xs={6} sm={6} md={4} lg={3}>
+                  <StatCard>
+                    <Typography
+                      variant="h4"
+                      fontWeight="bold"
+                      color="primary"
+                      sx={{
+                        fontSize: {
+                          xs: "clamp(0.9rem, 2.5vw, 1.25rem)",
+  sm: "1.25rem",
+  md: "1.5rem",
+                        },
+                      }}
+                    >
+                      {stat.number}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{
+                        fontSize: {
+                          xs: "clamp(0.65rem, 2.5vw, 0.75rem)",
+                          sm: "0.75rem",                          
+                        },
+                        lineHeight: 1.0,
+                        mt: 0.2,
+                        textAlign: "center",
+                      }}
+                    >
+                      {stat.text}
+                    </Typography>
+                  </StatCard>
+                </Grid>
+              )}
+            </React.Fragment>
+          ))}
         </Grid>
+        )}
+        
       </ContentContainer>
 
-      <ScrollDownButton
-        onClick={() => scrollToSection("summary")}
-        aria-label="scroll down"
+      <Box
+        variant="h4"
+        fontWeight="bold"
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+
+          mb: {
+            xs: 6, // Smaller margin on mobile
+            sm: 8,
+            md: 10, // Larger margin on desktop
+          },
+        }}
       >
-        <KeyboardArrowDownIcon sx={{ fontSize: 28 }} />
-      </ScrollDownButton>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{
+            mt: {
+              xs: theme.spacing(3),
+              sm: theme.spacing(20),
+              md: theme.spacing(8),
+            },
+            fontSize: {
+              xs: "0.75rem",
+              sm: "0.875rem",
+            },
+            animation: `${bounce} 2s ease-in-out infinite`,
+          }}
+        >
+          SCROLL DOWN
+        </Typography>
+
+        <ScrollDownButton
+          onClick={() => scrollToSection("summary")}
+          aria-label="scroll down"
+          sx={{
+            mb: {
+              xs: theme.spacing(1),
+              sm: theme.spacing(6),
+              md: theme.spacing(5),
+            },
+          }}
+        >
+          <KeyboardArrowDownIcon sx={{ fontSize: 28 }} />
+        </ScrollDownButton>
+      </Box>
     </HeroContainer>
   );
 };

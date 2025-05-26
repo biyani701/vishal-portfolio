@@ -34,6 +34,8 @@
     "react-router-dom": "^7.5.3",
     "react-scripts": "5.0.1",
     "react-scroll": "^1.9.3",
+    "react-virtualized-auto-sizer": "^1.0.26",
+    "react-window": "^1.8.11",
     "slate": "^0.114.0",
     "slate-history": "^0.113.1",
     "slate-react": "^0.114.2",

@@ -15,6 +15,8 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
+  ListItemButton,
+  ListSubheader,
   Box,
   Menu,
   Grow,
@@ -27,6 +29,9 @@ import {
 } from "@mui/material";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { SignInPage } from "@toolpad/core/SignInPage";
+import ArticleIcon from "@mui/icons-material/Article";
+import PaletteIcon from "@mui/icons-material/Palette";
+import CloseIcon from "@mui/icons-material/Close";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -76,6 +81,7 @@ import AuthJsClient from "./auth/AuthJsClient";
 // Import custom CSS and JS fix for menu issues
 import "./KnowledgeBaseMenuFix.css";
 import { initKnowledgeBaseMenuFix } from "./KnowledgeBaseMenuFix";
+import EnhancedMobileDrawer from "./EnhancedMobileDrawer";
 
 const itemVariants = {
   hidden: { opacity: 0, scale: 0.95, y: -5 },
@@ -271,6 +277,9 @@ const SearchResultContent = styled(Typography)(({ theme }) => ({
 
 // Use the theme directly for AppBar styling - no hardcoded colors
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
+  width: "100%",
+  left: 0,
+  right: 0,
   backgroundColor: theme.palette.background.footer,
   color: theme.palette.common.white,
   boxShadow:
@@ -455,11 +464,12 @@ const NavigationBar = ({
     let userId = null;
     if (isAuthenticated || authJsAuthenticated) {
       // Try to get user ID from session
-      const session = sessionStorage.getItem('auth_session');
+      const session = sessionStorage.getItem("auth_session");
       if (session) {
         try {
           const parsedSession = JSON.parse(session);
-          userId = parsedSession?.user?.id || parsedSession?.user?.email || null;
+          userId =
+            parsedSession?.user?.id || parsedSession?.user?.email || null;
         } catch (error) {
           console.error("[Navbar] Error parsing session:", error);
         }
@@ -476,41 +486,41 @@ const NavigationBar = ({
     setKnowledgeAnchorEl(null);
 
     // Add a class to body to indicate we're navigating (for CSS)
-    document.body.classList.add('navigating');
+    document.body.classList.add("navigating");
 
     // Force close any open menus by adding a class to them
-    const menus = document.querySelectorAll('.MuiMenu-root, .MuiPopover-root');
-    menus.forEach(menu => {
-      menu.classList.add('force-hide-menu');
+    const menus = document.querySelectorAll(".MuiMenu-root, .MuiPopover-root");
+    menus.forEach((menu) => {
+      menu.classList.add("force-hide-menu");
 
       // Also try to set display:none directly on the element
-      menu.style.display = 'none';
-      menu.style.visibility = 'hidden';
-      menu.style.opacity = '0';
-      menu.style.pointerEvents = 'none';
+      menu.style.display = "none";
+      menu.style.visibility = "hidden";
+      menu.style.opacity = "0";
+      menu.style.pointerEvents = "none";
     });
 
     // Force remove any backdrop elements
-    const backdrops = document.querySelectorAll('.MuiBackdrop-root');
-    backdrops.forEach(backdrop => {
-      backdrop.classList.add('force-hide-menu');
+    const backdrops = document.querySelectorAll(".MuiBackdrop-root");
+    backdrops.forEach((backdrop) => {
+      backdrop.classList.add("force-hide-menu");
 
       // Also try to set display:none directly on the element
-      backdrop.style.display = 'none';
-      backdrop.style.visibility = 'hidden';
-      backdrop.style.opacity = '0';
-      backdrop.style.pointerEvents = 'none';
+      backdrop.style.display = "none";
+      backdrop.style.visibility = "hidden";
+      backdrop.style.opacity = "0";
+      backdrop.style.pointerEvents = "none";
     });
 
     // Try to remove any menu papers
-    const papers = document.querySelectorAll('.MuiPaper-root');
-    papers.forEach(paper => {
-      if (paper.closest('.MuiMenu-root, .MuiPopover-root')) {
-        paper.classList.add('force-hide-menu');
-        paper.style.display = 'none';
-        paper.style.visibility = 'hidden';
-        paper.style.opacity = '0';
-        paper.style.pointerEvents = 'none';
+    const papers = document.querySelectorAll(".MuiPaper-root");
+    papers.forEach((paper) => {
+      if (paper.closest(".MuiMenu-root, .MuiPopover-root")) {
+        paper.classList.add("force-hide-menu");
+        paper.style.display = "none";
+        paper.style.visibility = "hidden";
+        paper.style.opacity = "0";
+        paper.style.pointerEvents = "none";
       }
     });
 
@@ -520,32 +530,32 @@ const NavigationBar = ({
 
     // Remove the navigating class after navigation
     setTimeout(() => {
-      document.body.classList.remove('navigating');
+      document.body.classList.remove("navigating");
 
       // Remove the force-hide class after navigation is complete
-      menus.forEach(menu => {
-        menu.classList.remove('force-hide-menu');
-        menu.style.removeProperty('display');
-        menu.style.removeProperty('visibility');
-        menu.style.removeProperty('opacity');
-        menu.style.removeProperty('pointer-events');
+      menus.forEach((menu) => {
+        menu.classList.remove("force-hide-menu");
+        menu.style.removeProperty("display");
+        menu.style.removeProperty("visibility");
+        menu.style.removeProperty("opacity");
+        menu.style.removeProperty("pointer-events");
       });
 
-      backdrops.forEach(backdrop => {
-        backdrop.classList.remove('force-hide-menu');
-        backdrop.style.removeProperty('display');
-        backdrop.style.removeProperty('visibility');
-        backdrop.style.removeProperty('opacity');
-        backdrop.style.removeProperty('pointer-events');
+      backdrops.forEach((backdrop) => {
+        backdrop.classList.remove("force-hide-menu");
+        backdrop.style.removeProperty("display");
+        backdrop.style.removeProperty("visibility");
+        backdrop.style.removeProperty("opacity");
+        backdrop.style.removeProperty("pointer-events");
       });
 
-      papers.forEach(paper => {
-        if (paper.closest('.MuiMenu-root, .MuiPopover-root')) {
-          paper.classList.remove('force-hide-menu');
-          paper.style.removeProperty('display');
-          paper.style.removeProperty('visibility');
-          paper.style.removeProperty('opacity');
-          paper.style.removeProperty('pointer-events');
+      papers.forEach((paper) => {
+        if (paper.closest(".MuiMenu-root, .MuiPopover-root")) {
+          paper.classList.remove("force-hide-menu");
+          paper.style.removeProperty("display");
+          paper.style.removeProperty("visibility");
+          paper.style.removeProperty("opacity");
+          paper.style.removeProperty("pointer-events");
         }
       });
     }, 300);
@@ -567,12 +577,12 @@ const NavigationBar = ({
         if (isAuthJsAuthenticated && session?.user) {
           try {
             // Get user role from Auth.js session
-            const role = session?.user?.role || 'user';
+            const role = session?.user?.role || "user";
             setUserRole(role);
             console.log("[Navbar] User role:", role);
           } catch (error) {
             console.error("[Navbar] Error getting user role:", error);
-            setUserRole('user'); // Default to user role
+            setUserRole("user"); // Default to user role
           }
         }
 
@@ -637,7 +647,7 @@ const NavigationBar = ({
     handleResumeMenuClose(); // Close the dropdown
 
     // Track the menu click
-    trackMenuClick(sectionId, 'resume-menu');
+    trackMenuClick(sectionId, "resume-menu");
 
     if (location.pathname === "/") {
       // Already on home, just scroll
@@ -806,11 +816,10 @@ const NavigationBar = ({
         return <FontAwesomeIcon icon={faGraduationCap} />;
       case "certifications":
         return <SchoolIcon />;
-      case "recognition":
-        // return <EmojiEventsIcon />;
+      case "recognition":        
         return <FontAwesomeIcon icon={faAward} />;
-      case "contact":
-        return <FontAwesomeIcon icon={faEnvelope} />;
+      // case "contact":
+      //   return <FontAwesomeIcon icon={faEnvelope} />;
       case "summary":
         return <FontAwesomeIcon icon={faFileLines} />;
       default:
@@ -819,36 +828,64 @@ const NavigationBar = ({
   };
 
   // Memoized nav items to prevent unnecessary re-renders
-  const navItems = useMemo(
-    () => [
-      { id: "home", label: "Home" },
-      { id: "summary", label: "Summary" },
-      { id: "timeline", label: "Career Timeline" },
-      { id: "skills", label: "Skills" },
-      { id: "experience", label: "Experience" },
-      { id: "certifications", label: "Certifications" },
-      { id: "education", label: "Education" },
-      { id: "recognition", label: "Awards" },
-      { id: "contact", label: "Contact" },
-    ],
-    []
-  );
-
-  const resumeItems = useMemo(
-    () =>
-      navItems.filter((item) =>
-        [
-          "summary",
-          "timeline",
-          "skills",
-          "experience",
-          "certifications",
-          "education",
-          "recognition",
-        ].includes(item.id)
-      ),
-    [navItems]
-  );
+  const navigationItems = useMemo(() => [
+    {
+      id: 'home',
+      label: 'Home',
+      path: '/',
+      icon: <HomeIcon />,
+      keywords: ['home', 'main', 'landing']
+    },
+    {
+      id: 'about',
+      label: 'About',
+      path: '/about',
+      icon: <PersonIcon />,
+      keywords: ['about', 'profile', 'bio']
+    },
+    {
+      id: 'experience',
+      label: 'Experience',
+      path: '/experience',
+      icon: <WorkIcon />,
+      keywords: ['experience', 'work', 'employment']
+    },
+    {
+      id: 'education',
+      label: 'Education',
+      path: '/education',
+      icon: <SchoolIcon />,
+      keywords: ['education', 'school', 'university']
+    },
+    {
+      id: 'skills',
+      label: 'Skills',
+      path: '/skills',
+      icon: <MenuBookIcon />,
+      keywords: ['skills', 'expertise', 'capabilities']
+    },
+    {
+      id: 'projects',
+      label: 'Projects',
+      path: '/projects',
+      icon: <LibraryBooksIcon />,
+      keywords: ['projects', 'portfolio', 'work']
+    },
+    {
+      id: 'achievements',
+      label: 'Achievements',
+      path: '/achievements',
+      icon: <EmojiEventsIcon />,
+      keywords: ['achievements', 'awards', 'recognition']
+    },
+    // {
+    //   id: 'contact-me',
+    //   label: 'Contact',
+    //   path: '/contact',
+    //   icon: <ContactMailIcon />,
+    //   keywords: ['contact', 'email', 'reach']
+    // }
+  ], []);
 
   // New Addition
   const groupedResumeItems = [
@@ -872,19 +909,38 @@ const NavigationBar = ({
       label: "Other",
       items: [
         { id: "recognition", label: "Awards" },
-        { id: "contact", label: "Contact" },
+        // { id: "contact", label: "Contact" },
       ],
     },
   ];
 
+  const resumeItems = useMemo(() => {
+  const grouped = groupedResumeItems.flatMap(group => group.items);
+
+  return grouped.map(item => {
+    const navItem = navigationItems.find(n => n.id === item.id);
+    return {
+      ...item,
+      icon: navItem?.icon,
+      path: navItem?.path || `/resume/${item.id}`,
+    };
+  });
+}, [groupedResumeItems, navigationItems]);
+
   // New Addition
   // Determine when to show desktop navigation vs mobile navigation
   const showDesktopNav = !isMobile || (isLandscape && !isMobile) || isTablet;
+  const shouldShowMobileMenu = isMobile || (isLandscape && !showDesktopNav);
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", width: "100%" }}>
       <StyledAppBar position="fixed">
-        <Toolbar sx={{ minHeight: (theme) => theme.mixins.toolbar.minHeight }}>
+        <Toolbar
+          sx={{
+            minHeight: (theme) => theme.mixins.toolbar.minHeight,
+            width: "100%",
+          }}
+        >
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Portfolio
           </Typography>
@@ -896,7 +952,7 @@ const NavigationBar = ({
                 component={RouterLink}
                 to="/"
                 onClick={() => {
-                  trackMenuClick('home', 'main-menu');
+                  trackMenuClick("home", "main-menu");
                   if (location.pathname === "/") {
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }
@@ -908,7 +964,7 @@ const NavigationBar = ({
               <Button
                 component={RouterLink}
                 to="/heroref"
-                onClick={() => trackMenuClick('about', 'main-menu')}
+                onClick={() => trackMenuClick("about", "main-menu")}
               >
                 Hero
               </Button>
@@ -916,7 +972,7 @@ const NavigationBar = ({
               <Button
                 component={RouterLink}
                 to="/about"
-                onClick={() => trackMenuClick('about', 'main-menu')}
+                onClick={() => trackMenuClick("about", "main-menu")}
               >
                 About Me
               </Button>
@@ -926,7 +982,7 @@ const NavigationBar = ({
                 id="resume-button"
                 onClick={(e) => {
                   handleResumeMenuOpen(e);
-                  trackMenuClick('resume-menu', 'main-menu');
+                  trackMenuClick("resume-menu", "main-menu");
                 }}
                 endIcon={<KeyboardArrowDownIcon />}
                 aria-controls="resume-menu"
@@ -934,57 +990,7 @@ const NavigationBar = ({
                 aria-expanded={Boolean(resumeAnchorEl) ? "true" : undefined}
               >
                 Resume
-              </Button>
-              {/* <Menu
-                id="resume-menu"
-                anchorEl={resumeAnchorEl}
-                open={Boolean(resumeAnchorEl)}
-                onClose={handleResumeMenuClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                transformOrigin={{ vertical: "top", horizontal: "right" }}
-                MenuListProps={{ "aria-labelledby": "resume-button" }}
-                PaperProps={{
-                  elevation: 4,
-                  sx: {
-                    borderRadius: 2,
-                    minWidth: 220,
-                    bgcolor: theme.palette.background.paper,
-                    boxShadow: theme.shadows[4],
-                  },
-                }}
-              >
-                {resumeItems.map(({ id, label }) => (
-                  <MenuItem
-                    key={id}
-                    onClick={() => handleResumeItemClick(id)}
-                    sx={{
-                      py: 1.2,
-                      px: 2,
-                      gap: 1,
-                      "&:hover": {
-                        bgcolor: theme.palette.action.hover,
-                      },
-                      "&:focus": {
-                        bgcolor: theme.palette.action.selected,
-                      },
-                    }}
-                  >
-                    <ListItemIcon
-                      sx={{ color: theme.palette.text.secondary, minWidth: 32 }}
-                    >
-                      {getIconForNavItem(id)}
-                    </ListItemIcon>
-                    <ListItemText
-                      primaryTypographyProps={{
-                        variant: "body1",
-                        sx: { color: theme.palette.text.primary },
-                      }}
-                    >
-                      {label}
-                    </ListItemText>
-                  </MenuItem>
-                ))}
-              </Menu> */}
+              </Button>              
               {/* New section */}
               <Menu
                 id="resume-menu"
@@ -1071,7 +1077,7 @@ const NavigationBar = ({
               <Button
                 component={RouterLink}
                 to="/works"
-                onClick={() => trackMenuClick('portfolio', 'main-menu')}
+                onClick={() => trackMenuClick("portfolio", "main-menu")}
               >
                 Portfolio
               </Button>
@@ -1081,12 +1087,14 @@ const NavigationBar = ({
                 id="knowledge-button"
                 onClick={(e) => {
                   // Remove any existing force-hide-menu classes
-                  document.querySelectorAll('.force-hide-menu').forEach(el => {
-                    el.classList.remove('force-hide-menu');
-                  });
+                  document
+                    .querySelectorAll(".force-hide-menu")
+                    .forEach((el) => {
+                      el.classList.remove("force-hide-menu");
+                    });
 
                   // Remove navigating class from body
-                  document.body.classList.remove('navigating');
+                  document.body.classList.remove("navigating");
 
                   // If menu is already open, close it
                   if (knowledgeAnchorEl) {
@@ -1094,7 +1102,7 @@ const NavigationBar = ({
                   } else {
                     // Otherwise open it
                     setKnowledgeAnchorEl(e.currentTarget);
-                    trackMenuClick('knowledge-base', 'main-menu');
+                    trackMenuClick("knowledge-base", "main-menu");
                   }
                 }}
                 endIcon={<KeyboardArrowDownIcon />}
@@ -1115,105 +1123,105 @@ const NavigationBar = ({
                   disableScrollLock={true}
                   keepMounted={false} // Don't keep the menu in the DOM when closed
                   onClick={() => setKnowledgeAnchorEl(null)} // Close menu when any item is clicked
-              >
-                <MenuItem
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Use our force close function
-                    forceCloseMenuAndNavigate(
-                      '/knowledge',
-                      'knowledge-overview',
-                      'knowledge-menu'
-                    );
-                  }}
-                  sx={{
-                    py: 1.2,
-                    px: 2,
-                    gap: 1,
-                    cursor: 'pointer',
-                  }}
                 >
-                  <ListItemIcon
-                    sx={{ color: theme.palette.text.secondary, minWidth: 32 }}
+                  <MenuItem
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      // Use our force close function
+                      forceCloseMenuAndNavigate(
+                        "/knowledge",
+                        "knowledge-overview",
+                        "knowledge-menu"
+                      );
+                    }}
+                    sx={{
+                      py: 1.2,
+                      px: 2,
+                      gap: 1,
+                      cursor: "pointer",
+                    }}
                   >
-                    <MenuBookIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Overview" />
-                </MenuItem>
-                <MenuItem
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    // Use our force close function
-                    forceCloseMenuAndNavigate(
-                      '/knowledge/glossary',
-                      'knowledge-glossary',
-                      'knowledge-menu'
-                    );
-                  }}
-                  sx={{
-                    py: 1.2,
-                    px: 2,
-                    gap: 1,
-                    cursor: 'pointer',
-                  }}
-                >
-                  <ListItemIcon
-                    sx={{ color: theme.palette.text.secondary, minWidth: 32 }}
-                  >
-                    <LibraryBooksIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Glossary" />
-                </MenuItem>
-                <Divider sx={{ my: 1 }} />
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    px: 2,
-                    py: 0.5,
-                    fontWeight: 600,
-                    color: theme.palette.text.secondary,
-                    textTransform: "uppercase",
-                    fontSize: "0.75rem",
-                  }}
-                >
-                  Domain Knowledge
-                </Typography>
-                <Box sx={{ maxHeight: "300px", overflowY: "auto" }}>
-                  {domainKnowledgeData.categories.map((category) => (
-                    <MenuItem
-                      key={category.id}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        // Use our force close function
-                        forceCloseMenuAndNavigate(
-                          `/knowledge/domain/${category.id}`,
-                          `domain-${category.id}`,
-                          'knowledge-menu'
-                        );
-                      }}
-                      sx={{
-                        py: 1.2,
-                        px: 2,
-                        gap: 1,
-                        cursor: 'pointer',
-                      }}
+                    <ListItemIcon
+                      sx={{ color: theme.palette.text.secondary, minWidth: 32 }}
                     >
-                      <ListItemIcon
+                      <MenuBookIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Overview" />
+                  </MenuItem>
+                  <MenuItem
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      // Use our force close function
+                      forceCloseMenuAndNavigate(
+                        "/knowledge/glossary",
+                        "knowledge-glossary",
+                        "knowledge-menu"
+                      );
+                    }}
+                    sx={{
+                      py: 1.2,
+                      px: 2,
+                      gap: 1,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{ color: theme.palette.text.secondary, minWidth: 32 }}
+                    >
+                      <LibraryBooksIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Glossary" />
+                  </MenuItem>
+                  <Divider sx={{ my: 1 }} />
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      px: 2,
+                      py: 0.5,
+                      fontWeight: 600,
+                      color: theme.palette.text.secondary,
+                      textTransform: "uppercase",
+                      fontSize: "0.75rem",
+                    }}
+                  >
+                    Domain Knowledge
+                  </Typography>
+                  <Box sx={{ maxHeight: "300px", overflowY: "auto" }}>
+                    {domainKnowledgeData.categories.map((category) => (
+                      <MenuItem
+                        key={category.id}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          // Use our force close function
+                          forceCloseMenuAndNavigate(
+                            `/knowledge/domain/${category.id}`,
+                            `domain-${category.id}`,
+                            "knowledge-menu"
+                          );
+                        }}
                         sx={{
-                          color: theme.palette.text.secondary,
-                          minWidth: 32,
+                          py: 1.2,
+                          px: 2,
+                          gap: 1,
+                          cursor: "pointer",
                         }}
                       >
-                        <Icon>{category.icon}</Icon>
-                      </ListItemIcon>
-                      <ListItemText primary={category.name} />
-                    </MenuItem>
-                  ))}
-                </Box>
-              </KnowledgeBaseMenu>
+                        <ListItemIcon
+                          sx={{
+                            color: theme.palette.text.secondary,
+                            minWidth: 32,
+                          }}
+                        >
+                          <Icon>{category.icon}</Icon>
+                        </ListItemIcon>
+                        <ListItemText primary={category.name} />
+                      </MenuItem>
+                    ))}
+                  </Box>
+                </KnowledgeBaseMenu>
               )}
 
               {/* Blog Menu */}
@@ -1221,7 +1229,7 @@ const NavigationBar = ({
                 id="blog-button"
                 onClick={(e) => {
                   handleBlogMenuOpen(e);
-                  trackMenuClick('blog-menu', 'main-menu');
+                  trackMenuClick("blog-menu", "main-menu");
                 }}
                 endIcon={<KeyboardArrowDownIcon />}
                 aria-controls="blog-menu"
@@ -1256,7 +1264,7 @@ const NavigationBar = ({
                   to="/blogs"
                   onClick={() => {
                     handleBlogMenuClose();
-                    trackMenuClick('view-all-blogs', 'blog-menu');
+                    trackMenuClick("view-all-blogs", "blog-menu");
                   }}
                   sx={{ py: 1.2, px: 2, gap: 1 }}
                 >
@@ -1269,85 +1277,88 @@ const NavigationBar = ({
                 </MenuItem>
 
                 {/* Admin menu items */}
-                {(isAuthenticated || authJsAuthenticated) && userRole === 'admin' && (
-                  <MenuItem
-                    key="create-new"
-                    component={RouterLink}
-                    to="/blog/new"
-                    onClick={() => {
-                      handleBlogMenuClose();
-                      trackMenuClick('create-new-blog', 'blog-menu');
-                    }}
-                    sx={{ py: 1.2, px: 2, gap: 1 }}
-                  >
-                    <ListItemIcon
-                      sx={{
-                        color: theme.palette.text.secondary,
-                        minWidth: 32,
+                {(isAuthenticated || authJsAuthenticated) &&
+                  userRole === "admin" && (
+                    <MenuItem
+                      key="create-new"
+                      component={RouterLink}
+                      to="/blog/new"
+                      onClick={() => {
+                        handleBlogMenuClose();
+                        trackMenuClick("create-new-blog", "blog-menu");
                       }}
+                      sx={{ py: 1.2, px: 2, gap: 1 }}
                     >
-                      <AddIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText primary="Create New" />
-                  </MenuItem>
-                )}
+                      <ListItemIcon
+                        sx={{
+                          color: theme.palette.text.secondary,
+                          minWidth: 32,
+                        }}
+                      >
+                        <AddIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText primary="Create New" />
+                    </MenuItem>
+                  )}
 
                 {/* Edit - For admin or moderator roles */}
-                {(isAuthenticated || authJsAuthenticated) && (userRole === 'admin' || userRole === 'moderator') && (
-                  <MenuItem
-                    key="edit"
-                    component={RouterLink}
-                    to="/blogs"
-                    onClick={() => {
-                      handleBlogMenuClose();
-                      trackMenuClick('edit-blog', 'blog-menu');
-                    }}
-                    sx={{ py: 1.2, px: 2, gap: 1 }}
-                  >
-                    <ListItemIcon
-                      sx={{
-                        color: theme.palette.text.secondary,
-                        minWidth: 32,
+                {(isAuthenticated || authJsAuthenticated) &&
+                  (userRole === "admin" || userRole === "moderator") && (
+                    <MenuItem
+                      key="edit"
+                      component={RouterLink}
+                      to="/blogs"
+                      onClick={() => {
+                        handleBlogMenuClose();
+                        trackMenuClick("edit-blog", "blog-menu");
                       }}
+                      sx={{ py: 1.2, px: 2, gap: 1 }}
                     >
-                      <EditIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText primary="Edit" />
-                  </MenuItem>
-                )}
+                      <ListItemIcon
+                        sx={{
+                          color: theme.palette.text.secondary,
+                          minWidth: 32,
+                        }}
+                      >
+                        <EditIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText primary="Edit" />
+                    </MenuItem>
+                  )}
 
                 {/* Delete - Only for admin role */}
-                {(isAuthenticated || authJsAuthenticated) && userRole === 'admin' && (
-                  <MenuItem
-                    key="delete"
-                    component={RouterLink}
-                    to="/blogs"
-                    onClick={() => {
-                      handleBlogMenuClose();
-                      trackMenuClick('delete-blog', 'blog-menu');
-                    }}
-                    sx={{ py: 1.2, px: 2, gap: 1 }}
-                  >
-                    <ListItemIcon
-                      sx={{
-                        color: theme.palette.text.secondary,
-                        minWidth: 32,
+                {(isAuthenticated || authJsAuthenticated) &&
+                  userRole === "admin" && (
+                    <MenuItem
+                      key="delete"
+                      component={RouterLink}
+                      to="/blogs"
+                      onClick={() => {
+                        handleBlogMenuClose();
+                        trackMenuClick("delete-blog", "blog-menu");
                       }}
+                      sx={{ py: 1.2, px: 2, gap: 1 }}
                     >
-                      <DeleteIcon fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText primary="Delete" />
-                  </MenuItem>
-                )}
+                      <ListItemIcon
+                        sx={{
+                          color: theme.palette.text.secondary,
+                          minWidth: 32,
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </ListItemIcon>
+                      <ListItemText primary="Delete" />
+                    </MenuItem>
+                  )}
               </Menu>
               <Button
                 onClick={() => {
                   navigate("/contact");
-                  trackMenuClick('contact', 'main-menu');
+                  trackMenuClick("contact", "main-menu");
                 }}
                 startIcon={<ContactMailIcon />}
               >
-                Contact
+                Contact Me
               </Button>
 
               <Search>
@@ -1363,7 +1374,7 @@ const NavigationBar = ({
                   onFocus={(e) => {
                     if (e.target.value) {
                       setSearchAnchorEl(e.currentTarget);
-                      trackMenuClick('search', 'main-menu');
+                      trackMenuClick("search", "main-menu");
                     }
                   }}
                 />
@@ -1419,7 +1430,7 @@ const NavigationBar = ({
               <IconButton
                 onClick={(e) => {
                   handleSettingsClick(e);
-                  trackMenuClick('settings', 'main-menu');
+                  trackMenuClick("settings", "main-menu");
                 }}
                 onMouseEnter={handleSettingsMouseEnter}
                 color="inherit"
@@ -1488,7 +1499,7 @@ const NavigationBar = ({
                 {/* Mui Sign in */}
                 {!(isAuthenticated || authJsAuthenticated) && (
                   <MenuItem>
-                    <Box sx={{ width: '100%' }}>
+                    <Box sx={{ width: "100%" }}>
                       <AppProvider theme={theme}>
                         <SignInPage
                           providers={[
@@ -1501,11 +1512,16 @@ const NavigationBar = ({
                           signIn={async (provider) => {
                             // Call the signIn function from AuthJsClient
                             if (provider && provider.id) {
-                              console.log(`[Navbar] Signing in with ${provider.id}`);
+                              console.log(
+                                `[Navbar] Signing in with ${provider.id}`
+                              );
                               try {
                                 await AuthJsClient.signIn(provider.id);
                               } catch (error) {
-                                console.error(`[Navbar] Error signing in with ${provider.id}:`, error);
+                                console.error(
+                                  `[Navbar] Error signing in with ${provider.id}:`,
+                                  error
+                                );
                               }
                             }
                           }}
@@ -1599,18 +1615,19 @@ const NavigationBar = ({
           )}
 
           {/* Only show the right hamburger on mobile and handle tablet in landscape */}
-          {(isMobile || (isLandscape && !showDesktopNav)) && (
+          {shouldShowMobileMenu && (
             <IconButton
               aria-label={
                 mobileOpen ? "Close navigation menu" : "Open navigation menu"
               }
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-navigation"
               edge="end"
               onClick={handleDrawerToggle}
               sx={{
                 ml: "auto",
-                position: { xs: "absolute", sm: "relative" },
-                right: { xs: 8, sm: "auto" },
-                zIndex: 1100,
+                mr: { xs: 2, sm: 1 },
+                zIndex: 10,                
               }}
             >
               <MenuIcon />
@@ -1620,281 +1637,17 @@ const NavigationBar = ({
       </StyledAppBar>
 
       {/* Mobile Drawer */}
-      <Drawer
-        variant="temporary"
-        anchor="right"
-        open={mobileOpen}
-        onClose={handleDrawerToggle}
-        ModalProps={{
-          keepMounted: true,
-        }}
-        sx={{
-          "& .MuiDrawer-paper": { boxSizing: "border-box", width: 240 },
-        }}
-      >
-        <DrawerHeader>
-          <IconButton onClick={handleDrawerToggle}>
-            <MenuIcon />
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          {/* Navigation Items */}
-          <ListItem
-            component={RouterLink}
-            to="/"
-            onClick={handleDrawerToggle}
-            button={true}
-          >
-            <ListItemIcon>
-              <HomeIcon />
-            </ListItemIcon>
-            <ListItemText primary="Home" />
-          </ListItem>
-          <ListItem
-            component={RouterLink}
-            to="/about"
-            onClick={handleDrawerToggle}
-            button={true}
-          >
-            <ListItemIcon>
-              <WorkIcon />
-            </ListItemIcon>
-            <ListItemText primary="About Me" />
-          </ListItem>
-
-          {/* Resume Items */}
-          {resumeItems.map(({ id, label }) => (
-            <ListItem
-              key={id}
-              button={true}
-              onClick={() => {
-                handleDrawerToggle();
-                handleResumeItemClick(id);
-              }}
-            >
-              <ListItemIcon>{getIconForNavItem(id)}</ListItemIcon>
-              <ListItemText primary={label} />
-            </ListItem>
-          ))}
-
-          <ListItem
-            button={true}
-            component={RouterLink}
-            to="/works"
-            onClick={handleDrawerToggle}
-          >
-            <ListItemIcon>
-              <WorkIcon />
-            </ListItemIcon>
-            <ListItemText primary="Portfolio" />
-          </ListItem>
-          <ListItem
-            button={true}
-            component={RouterLink}
-            to="/blogs"
-            onClick={handleDrawerToggle}
-          >
-            <ListItemIcon>
-              <WorkIcon />
-            </ListItemIcon>
-            <ListItemText primary="Blog" />
-          </ListItem>
-
-          {/* Knowledge Base Section */}
-          <ListItem>
-            <ListItemText
-              primary={
-                <Typography
-                  variant="subtitle2"
-                  color="text.secondary"
-                  sx={{ fontWeight: 600 }}
-                >
-                  Knowledge Base
-                </Typography>
-              }
-            />
-          </ListItem>
-          <ListItem
-            button={true}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleDrawerToggle(); // Close the drawer first
-              // Use our force close function
-              forceCloseMenuAndNavigate(
-                '/knowledge',
-                'knowledge-overview',
-                'mobile-menu'
-              );
-            }}
-          >
-            <ListItemIcon>
-              <MenuBookIcon />
-            </ListItemIcon>
-            <ListItemText primary="Overview" />
-          </ListItem>
-          <ListItem
-            button={true}
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              handleDrawerToggle(); // Close the drawer first
-              // Use our force close function
-              forceCloseMenuAndNavigate(
-                '/knowledge/glossary',
-                'knowledge-glossary',
-                'mobile-menu'
-              );
-            }}
-          >
-            <ListItemIcon>
-              <LibraryBooksIcon />
-            </ListItemIcon>
-            <ListItemText primary="Glossary" />
-          </ListItem>
-          {domainKnowledgeData.categories.map((category) => (
-            <ListItem
-              key={category.id}
-              button={true}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleDrawerToggle(); // Close the drawer first
-                // Use our force close function
-                forceCloseMenuAndNavigate(
-                  `/knowledge/domain/${category.id}`,
-                  `domain-${category.id}`,
-                  'mobile-menu'
-                );
-              }}
-              sx={{ pl: 4 }}
-            >
-              <ListItemIcon>
-                <Icon>{category.icon}</Icon>
-              </ListItemIcon>
-              <ListItemText primary={category.name} />
-            </ListItem>
-          ))}
-
-          <ListItem
-            button={true}
-            component={RouterLink}
-            to="/contact"
-            onClick={handleDrawerToggle}
-          >
-            <ListItemIcon>
-              <ContactMailIcon />
-            </ListItemIcon>
-            <ListItemText primary="Contact" />
-          </ListItem>
-
-          <Divider />
-
-          {/* Theme Controls */}
-          <ListItem
-            button={true}
-            onClick={() => {
-              handleDrawerToggle();
-              handleThemeToggle();
-            }}
-          >
-            <ListItemIcon>
-              {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-            </ListItemIcon>
-            <ListItemText primary={isDarkMode ? "Light Mode" : "Dark Mode"} />
-          </ListItem>
-
-          <ListItem
-            button={true}
-            onClick={handlePaletteMenuOpen}
-            sx={{
-              borderLeft:
-                theme.palette.mode === "dark"
-                  ? `3px solid ${theme.palette.text.primary}`
-                  : "none",
-              paddingLeft: theme.palette.mode === "dark" ? 1.5 : 2,
-              "&:hover": {
-                backgroundColor:
-                  theme.palette.mode === "dark"
-                    ? "rgba(255, 255, 255, 0.08)"
-                    : "rgba(0, 0, 0, 0.04)",
-              },
-            }}
-          >
-            <ListItemText
-              primary={
-                <Typography
-                  variant="body1"
-                  sx={{ fontWeight: 500 }}
-                  color="text.primary"
-                >
-                  Color Theme
-                </Typography>
-              }
-              secondary={
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    opacity: theme.palette.mode === "dark" ? 0.9 : 0.7,
-                  }}
-                >
-                  {availablePalettes[currentPaletteIndex]?.name}
-                </Typography>
-              }
-            />
-          </ListItem>
-
-          <Divider />
-
-          {/* Login/User Profile */}
-          <ListItem>
-            <ListItemText
-              primary={
-                <Typography
-                  variant="subtitle2"
-                  color="text.secondary"
-                  sx={{ fontWeight: 600, mb: 1 }}
-                >
-                  Account
-                </Typography>
-              }
-            />
-          </ListItem>
-          <ListItem sx={{ py: 2, display: "flex", justifyContent: "center" }}>
-            <Box sx={{ width: "100%", maxWidth: 200 }}>
-              {isAuthenticated || authJsAuthenticated ? (
-                <ToolpadAccountComponent />
-              ) : (
-                <AppProvider theme={theme}>
-                  <SignInPage
-                    providers={[
-                      { id: "github", name: "GitHub" },
-                      { id: "google", name: "Google" },
-                      { id: "facebook", name: "Facebook" },
-                      { id: "linkedin", name: "LinkedIn" },
-                      { id: "auth0", name: "Auth0" },
-                    ]}
-                    signIn={async (provider) => {
-                      // Call the signIn function from AuthJsClient
-                      if (provider && provider.id) {
-                        console.log(`[Navbar] Signing in with ${provider.id}`);
-                        handleDrawerToggle(); // Close the drawer
-                        try {
-                          await AuthJsClient.signIn(provider.id);
-                        } catch (error) {
-                          console.error(`[Navbar] Error signing in with ${provider.id}:`, error);
-                        }
-                      }
-                    }}
-                  />
-                </AppProvider>
-              )}
-            </Box>
-          </ListItem>
-        </List>
-      </Drawer>
+      <EnhancedMobileDrawer
+        mobileOpen={mobileOpen}
+        handleDrawerToggle={handleDrawerToggle}
+        resumeItems={resumeItems}
+        domainKnowledgeData={domainKnowledgeData}
+        // Add other required props
+        isDarkMode={isDarkMode}
+        handleThemeToggle={handleThemeToggle}
+        isAuthenticated={isAuthenticated}
+        authJsAuthenticated={authJsAuthenticated}
+      />
     </Box>
   );
 };

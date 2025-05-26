@@ -28,7 +28,7 @@ import Education from "./components/Education";
 import Recognition from "./components/Recognition";
 import CareerTimeline from "./components/CareerTimeline";
 import Contact from "./components/Contact";
-import Footer from "./components/Footer";
+import Footer from "./components/FooterNew";
 import AboutMe from "./components/AboutMe";
 import Works from "./components/Works";
 import Blogs from "./components/Blogs";

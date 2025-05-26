@@ -135,8 +135,8 @@ window.klaroConfig = {
     be passed as the second parameter.
     */
     callback: function(consent, service) {
-        console.log(
-            'User consent for service ' + service.name + ': consent=' + consent
-        );
+        // console.log(
+        //     'User consent for service ' + service.name + ': consent=' + consent
+        // );
     },
   };
