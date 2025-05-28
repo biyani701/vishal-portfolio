@@ -4,6 +4,8 @@
   "private": true,
   "homepage": "https://vishal.biyani.xyz",
   "dependencies": {
+    "@copilotkit/react-core": "^1.8.13",
+    "@copilotkit/react-ui": "^1.8.13",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
@@ -43,7 +45,7 @@
   },
   "scripts": {
     "start": "PORT=3775 react-scripts start",
-    "win": "set PORT=3775 && react-scripts start",
+    "win": "set PORT=3775 && craco start",
     "build": "react-scripts build",
     "build:dev": "powershell -File ./build-dev.ps1",
     "build:prod": "powershell -File ./build-prod.ps1",
@@ -72,6 +74,8 @@
   },
   "proxy": "http://localhost:3000",
   "devDependencies": {
+    "@craco/craco": "^7.1.0",
+    "@mdx-js/loader": "^3.1.0",
     "dotenv": "^16.5.0"
   }
 }

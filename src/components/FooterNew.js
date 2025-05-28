@@ -4,6 +4,7 @@ import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import SvgIcon from '@mui/material/SvgIcon';
 import PrivacyPreferencesButton from './PrivacyPreferencesButton';
+import CopilotChatBubble from "../components/CopilotChatBubble";
 import { alpha } from '@mui/material/styles';
 
 const Footer = () => {
@@ -74,6 +75,7 @@ const Footer = () => {
           order: { xs: 3, sm: 2 },
         }}>
           <PrivacyPreferencesButton />
+          <CopilotChatBubble />
           <Link
             href="https://vishal.biyani.xyz/docs/policies"
             target="_blank"
