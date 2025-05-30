@@ -3,7 +3,7 @@ import { Typography, Box, useTheme, useMediaQuery, IconButton, Container, Link }
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import SvgIcon from '@mui/material/SvgIcon';
-import PrivacyPreferencesButton from './PrivacyPreferencesButton';
+import PrivacyPreferencesButton from '../components/PrivacyPreferencesButton';
 import { alpha } from '@mui/material/styles';
 
 const Footer = () => {

@@ -74,8 +74,9 @@ const Footer = () => {
           gap: { xs: 2, sm: 3 },
           order: { xs: 3, sm: 2 },
         }}>
-          <PrivacyPreferencesButton />
           <CopilotChatBubble />
+          <PrivacyPreferencesButton />
+          
           <Link
             href="https://vishal.biyani.xyz/docs/policies"
             target="_blank"

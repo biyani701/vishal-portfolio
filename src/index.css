@@ -15,7 +15,7 @@ code {
 }
 
 /* CopilotKit Popup Overrides - Simplified */
-.copilot-popup-container .copilotkit-popup {
+/* .copilot-popup-container .copilotkit-popup {
   width: 100% !important;
   height: 100% !important;
   position: static !important;
@@ -31,4 +31,4 @@ code {
   height: 100% !important;
   display: flex !important;
   flex-direction: column !important;
-}
+} */

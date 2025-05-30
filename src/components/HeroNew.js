@@ -581,10 +581,11 @@ const Hero = () => {
     "Confluence",
   ];
   const typewriterTexts = [
-    "Technical Program Manager",
+    "Technical Program Manager",    
+    "Delivery Director",
+    "Agile/AI Advocate",
+    "Data Viz Entusiast",
     "Full Stack Developer",
-    "Agile Coach",
-    "Data Visualization Expert",
   ];
 
   return (
@@ -628,7 +629,7 @@ const Hero = () => {
         }}
       >
         <TrendingUpIcon sx={{ fontSize: { xs: 28, sm: 36, md: 40 } }} />
-      </FloatingIcon>
+      </FloatingIcon>      
 
       <ContentContainer maxWidth="lg">
         <ProfileSection>
@@ -814,8 +815,9 @@ const Hero = () => {
           aria-label="scroll down"
         >
           <KeyboardArrowDownIcon sx={{ fontSize: 32 }} />
-        </ScrollDownButton>
+        </ScrollDownButton>        
       </Box>
+      
     </HeroContainer>
   );
 };

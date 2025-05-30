@@ -3,14 +3,6 @@
 
 const glossaryData = [
   {
-    "id": "70418467",
-    "acronym": "Glossary",
-    "fullForm": "ATC",
-    "details": "Acronym for ATC. Air traffic control is a service provided by ground-basedair traffic controllers. The primary purpose of ATC is to prevent collisions, organise and expedite the flow of traffic in the air, and provide information and other support for pilots.",
-    "category": "General",
-    "icon": "info"
-  },
-  {
     "id": "70418545",
     "acronym": "ADC",
     "fullForm": "Authorization Decision Control",

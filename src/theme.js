@@ -253,8 +253,7 @@ export const getTheme = (mode, paletteIndex = 0) => {
         sm: 600,
         md: 900,
         lg: 1200,
-        xl: 1536,
-        // Custom breakpoints for specific devices
+        xl: 1536,        
         mobile: 480,  // Most mobile phones
         smallMobile: 320, // Small mobile phones
         largeMobile: 540, // Large mobile phones

@@ -18,7 +18,7 @@ import Fab from "@mui/material/Fab";
 
 import NavigationBar from "./components/ImprovedNavbar";
 import Hero from "./components/HeroNew";
-import HeroRef from "./components/Hero";
+// import HeroRef from "./components/Hero";
 import ProfileSummary from "./components/ProfileSummaryNew";
 // import EnhancedSkillsWithTabs from './components/EnhancedSkillsWithTabs';
 import Skills from "./components/Skills";
@@ -69,9 +69,12 @@ import BlogList from "./components/blog/BlogList";
 import BlogPost from "./components/blog/BlogPost";
 import EnhancedBlogEditor from "./components/blog/EnhancedBlogEditor";
 
+import { palettes } from "./theme";
+
 // Import just the minimal non-themeable styles
 import "./App.minimal.css";
-import { palettes } from "./theme";
+
+
 
 export const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuthContext();
@@ -453,7 +456,7 @@ function App(props) {
             {/* <Route path="/blog/edit/:blogId" element={<BlogEditor />} /> */}
             <Route path="/click-test" element={<ClickTest />} />
             <Route path="/config-test" element={<ConfigTest />} />
-            <Route path="/heroref" element={<HeroRef />} />
+            {/* <Route path="/heroref" element={<HeroRef />} /> */}
 
             <Route path="*" element={<div>404 Not Found</div>} />
           </Routes>
