@@ -82,6 +82,7 @@ import AuthJsClient from "./auth/AuthJsClient";
 import "./KnowledgeBaseMenuFix.css";
 import { initKnowledgeBaseMenuFix } from "./KnowledgeBaseMenuFix";
 import EnhancedMobileDrawer from "./EnhancedMobileDrawer";
+import ModernMobileMenu from "./ModernMobileMenu";
 
 const itemVariants = {
   hidden: { opacity: 0, scale: 0.95, y: -5 },
@@ -451,12 +452,22 @@ const NavigationBar = ({
   const matches = searchResults;
 
   // Get auth functions from both auth systems
-  const { user, isAuthenticated, checkSession } = useAuthContext();
+  const { user, isAuthenticated,checkSession } = useAuthContext();
   const legacyAuth = useLegacyAuth();
 
+  console.log('[Navbar] Auth context state:', { user, isAuthenticated });
+
+  // Force re-render when authentication state changes
+  const [authStateKey, setAuthStateKey] = useState(0);
   // State to track Auth.js authentication status and user role
   const [authJsAuthenticated, setAuthJsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState(null);
+
+  useEffect(() => {
+    setAuthStateKey(prev => prev + 1);
+  }, [isAuthenticated, authJsAuthenticated, user]);
+
+  
 
   // Function to track menu clicks
   const trackMenuClick = (menuId, menuType) => {
@@ -591,6 +602,8 @@ const NavigationBar = ({
           authJsAuthenticated: isAuthJsAuthenticated,
           session,
           userRole,
+          user,
+          shouldShowAccount: isAuthenticated || isAuthJsAuthenticated
         });
       } catch (error) {
         console.error("[Navbar] Error checking authentication status:", error);
@@ -816,7 +829,7 @@ const NavigationBar = ({
         return <FontAwesomeIcon icon={faGraduationCap} />;
       case "certifications":
         return <SchoolIcon />;
-      case "recognition":        
+      case "recognition":
         return <FontAwesomeIcon icon={faAward} />;
       // case "contact":
       //   return <FontAwesomeIcon icon={faEnvelope} />;
@@ -828,64 +841,67 @@ const NavigationBar = ({
   };
 
   // Memoized nav items to prevent unnecessary re-renders
-  const navigationItems = useMemo(() => [
-    {
-      id: 'home',
-      label: 'Home',
-      path: '/',
-      icon: <HomeIcon />,
-      keywords: ['home', 'main', 'landing']
-    },
-    {
-      id: 'about',
-      label: 'About',
-      path: '/about',
-      icon: <PersonIcon />,
-      keywords: ['about', 'profile', 'bio']
-    },
-    {
-      id: 'experience',
-      label: 'Experience',
-      path: '/experience',
-      icon: <WorkIcon />,
-      keywords: ['experience', 'work', 'employment']
-    },
-    {
-      id: 'education',
-      label: 'Education',
-      path: '/education',
-      icon: <SchoolIcon />,
-      keywords: ['education', 'school', 'university']
-    },
-    {
-      id: 'skills',
-      label: 'Skills',
-      path: '/skills',
-      icon: <MenuBookIcon />,
-      keywords: ['skills', 'expertise', 'capabilities']
-    },
-    {
-      id: 'projects',
-      label: 'Projects',
-      path: '/projects',
-      icon: <LibraryBooksIcon />,
-      keywords: ['projects', 'portfolio', 'work']
-    },
-    {
-      id: 'achievements',
-      label: 'Achievements',
-      path: '/achievements',
-      icon: <EmojiEventsIcon />,
-      keywords: ['achievements', 'awards', 'recognition']
-    },
-    // {
-    //   id: 'contact-me',
-    //   label: 'Contact',
-    //   path: '/contact',
-    //   icon: <ContactMailIcon />,
-    //   keywords: ['contact', 'email', 'reach']
-    // }
-  ], []);
+  const navigationItems = useMemo(
+    () => [
+      {
+        id: "home",
+        label: "Home",
+        path: "/",
+        icon: <HomeIcon />,
+        keywords: ["home", "main", "landing"],
+      },
+      {
+        id: "about",
+        label: "About",
+        path: "/about",
+        icon: <PersonIcon />,
+        keywords: ["about", "profile", "bio"],
+      },
+      {
+        id: "experience",
+        label: "Experience",
+        path: "/experience",
+        icon: <WorkIcon />,
+        keywords: ["experience", "work", "employment"],
+      },
+      {
+        id: "education",
+        label: "Education",
+        path: "/education",
+        icon: <SchoolIcon />,
+        keywords: ["education", "school", "university"],
+      },
+      {
+        id: "skills",
+        label: "Skills",
+        path: "/skills",
+        icon: <MenuBookIcon />,
+        keywords: ["skills", "expertise", "capabilities"],
+      },
+      {
+        id: "projects",
+        label: "Projects",
+        path: "/projects",
+        icon: <LibraryBooksIcon />,
+        keywords: ["projects", "portfolio", "work"],
+      },
+      {
+        id: "achievements",
+        label: "Achievements",
+        path: "/achievements",
+        icon: <EmojiEventsIcon />,
+        keywords: ["achievements", "awards", "recognition"],
+      },
+      // {
+      //   id: 'contact-me',
+      //   label: 'Contact',
+      //   path: '/contact',
+      //   icon: <ContactMailIcon />,
+      //   keywords: ['contact', 'email', 'reach']
+      // }
+    ],
+    []
+  );
 
   // New Addition
   const groupedResumeItems = [
@@ -915,17 +931,17 @@ const NavigationBar = ({
   ];
 
   const resumeItems = useMemo(() => {
-  const grouped = groupedResumeItems.flatMap(group => group.items);
+    const grouped = groupedResumeItems.flatMap((group) => group.items);
 
-  return grouped.map(item => {
-    const navItem = navigationItems.find(n => n.id === item.id);
-    return {
-      ...item,
-      icon: navItem?.icon,
-      path: navItem?.path || `/resume/${item.id}`,
-    };
-  });
-}, [groupedResumeItems, navigationItems]);
+    return grouped.map((item) => {
+      const navItem = navigationItems.find((n) => n.id === item.id);
+      return {
+        ...item,
+        icon: navItem?.icon,
+        path: navItem?.path || `/resume/${item.id}`,
+      };
+    });
+  }, [groupedResumeItems, navigationItems]);
 
   // New Addition
   // Determine when to show desktop navigation vs mobile navigation
@@ -990,7 +1006,7 @@ const NavigationBar = ({
                 aria-expanded={Boolean(resumeAnchorEl) ? "true" : undefined}
               >
                 Resume
-              </Button>              
+              </Button>
               {/* New section */}
               <Menu
                 id="resume-menu"
@@ -1421,9 +1437,36 @@ const NavigationBar = ({
 
               {/* Account Button */}
               <Box sx={{ mr: 1, display: { xs: "none", md: "block" } }}>
-                {isAuthenticated || authJsAuthenticated ? (
-                  <ToolpadAccountComponent variant="preview" />
-                ) : null}
+                {(() => {
+                  console.log('[Navbar] Rendering account button. Auth state:', {
+                    isAuthenticated,
+                    authJsAuthenticated,
+                    shouldShowAccount: isAuthenticated || authJsAuthenticated
+                  });
+
+                  // Force re-render when authentication state changes
+                  const shouldShowAccount = Boolean(isAuthenticated || authJsAuthenticated);
+
+                  return shouldShowAccount ? (
+                    <Box key={`account-${authStateKey}-${shouldShowAccount}`}>
+                      <ToolpadAccountComponent variant="preview" />
+                    </Box>
+                  ) : (
+                    <Tooltip title="Sign in to access your account">
+                      <IconButton
+                        onClick={(e) => {
+                          handleSettingsClick(e);
+                          trackMenuClick("sign-in", "main-menu");
+                        }}
+                        color="inherit"
+                        aria-label="sign in"
+                        size="small"
+                      >
+                        <PersonIcon />
+                      </IconButton>
+                    </Tooltip>
+                  );
+                })()}
               </Box>
 
               {/* Settings Icon */}
@@ -1492,9 +1535,13 @@ const NavigationBar = ({
                   >
                     Account
                   </Typography>
-                  {isAuthenticated || authJsAuthenticated ? (
+                  {(isAuthenticated || authJsAuthenticated) ? (
                     <ToolpadAccountComponent variant="default" />
-                  ) : null}
+                  ) : (
+                    <Typography variant="body2" color="text.secondary">
+                      Please sign in to access your account
+                    </Typography>
+                  )}
                 </Box>
                 {/* Mui Sign in */}
                 {!(isAuthenticated || authJsAuthenticated) && (
@@ -1627,26 +1674,31 @@ const NavigationBar = ({
               sx={{
                 ml: "auto",
                 mr: { xs: 2, sm: 1 },
-                zIndex: 10,                
+                zIndex: 10,
+                transition: "transform 0.3s ease-in-out",
+                transform: mobileOpen ? "rotate(90deg)" : "rotate(0deg)",
               }}
             >
-              <MenuIcon />
+              {mobileOpen ? <CloseIcon /> : <MenuIcon />}
             </IconButton>
           )}
         </Toolbar>
       </StyledAppBar>
 
-      {/* Mobile Drawer */}
-      <EnhancedMobileDrawer
-        mobileOpen={mobileOpen}
-        handleDrawerToggle={handleDrawerToggle}
-        resumeItems={resumeItems}
-        domainKnowledgeData={domainKnowledgeData}
-        // Add other required props
-        isDarkMode={isDarkMode}
-        handleThemeToggle={handleThemeToggle}
+      {/* Modern Mobile Menu */}
+      <ModernMobileMenu
+        open={mobileOpen}
+        onClose={handleDrawerToggle}
         isAuthenticated={isAuthenticated}
         authJsAuthenticated={authJsAuthenticated}
+        user={user}
+        isDarkMode={isDarkMode}
+        toggleDarkMode={toggleDarkMode}
+        availablePalettes={availablePalettes}
+        currentPaletteIndex={currentPaletteIndex}
+        changePalette={changePalette}
+        resumeItems={resumeItems}
+        domainKnowledgeData={domainKnowledgeData}
       />
     </Box>
   );

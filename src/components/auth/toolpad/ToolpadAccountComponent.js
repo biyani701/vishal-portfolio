@@ -19,20 +19,37 @@ const ToolpadAccountComponent = ({ variant = 'default' }) => {
   const [authJsAuthenticated, setAuthJsAuthenticated] = useState(false);
   const navigate = useNavigate();
 
+  // State to store Auth.js user data
+  const [authJsUser, setAuthJsUser] = useState(null);
+
   // Check if we have a valid session from Auth.js
   useEffect(() => {
     const checkAuthJsAuthentication = async () => {
-      const isAuthJsAuthenticated = await AuthJsClient.isAuthenticated();
-      setAuthJsAuthenticated(isAuthJsAuthenticated);
+      try {
+        const isAuthJsAuthenticated = await AuthJsClient.isAuthenticated();
+        setAuthJsAuthenticated(isAuthJsAuthenticated);
+
+        if (isAuthJsAuthenticated) {
+          // Get the session data to extract user info
+          const session = await AuthJsClient.getSession();
+          if (session && session.user) {
+            console.log('[ToolpadAccountComponent] Got Auth.js user data:', session.user);
+            setAuthJsUser(session.user);
+          }
+        } else {
+          setAuthJsUser(null);
+        }
+      } catch (error) {
+        console.error('[ToolpadAccountComponent] Error checking Auth.js authentication:', error);
+        setAuthJsAuthenticated(false);
+        setAuthJsUser(null);
+      }
     };
 
     checkAuthJsAuthentication();
 
     // Set up an interval to periodically check authentication status
-    const intervalId = setInterval(async () => {
-      const isAuthJsAuthenticated = await AuthJsClient.isAuthenticated();
-      setAuthJsAuthenticated(isAuthJsAuthenticated);
-    }, 5000); // Check every 5 seconds
+    const intervalId = setInterval(checkAuthJsAuthentication, 10000); // Check every 10 seconds
 
     return () => clearInterval(intervalId);
   }, []);
@@ -93,32 +110,34 @@ const ToolpadAccountComponent = ({ variant = 'default' }) => {
   };
 
   // Prepare user data for the Account component
-  const userData = (isAuthenticated || authJsAuthenticated) && user ? {
-    id: user.id || user.sub,
-    name: user.name || user.login || 'User',
-    email: user.email || '',
-    avatarUrl: user.image || user.avatar_url || '',
+  // Prioritize Auth.js user data if available, fallback to context user data
+  const currentUser = authJsUser || user;
+  const userData = (isAuthenticated || authJsAuthenticated) && currentUser ? {
+    id: currentUser.id || currentUser.sub,
+    name: currentUser.name || currentUser.login || 'User',
+    email: currentUser.email || '',
+    avatarUrl: currentUser.image || currentUser.avatar_url || '',
   } : null;
 
-  // If we have a valid Auth.js session but no user data, try to get it from sessionStorage
-  useEffect(() => {
-    if (authJsAuthenticated && !userData) {
-      // Check if we have a valid session flag
-      const hasValidSession = sessionStorage.getItem('auth_session_valid') === 'true';
+  // Debug logging
+  console.log('[ToolpadAccountComponent] Authentication state:', {
+    isAuthenticated,
+    authJsAuthenticated,
+    hasContextUser: !!user,
+    hasAuthJsUser: !!authJsUser,
+    userData
+  });
 
-      if (hasValidSession) {
-        // Try to get the session data from AuthJsClient
-        const getSessionData = async () => {
-          const session = await AuthJsClient.getSession();
-          if (session && session.user) {
-            console.log('[ToolpadAccountComponent] Got session data from AuthJsClient:', session);
-          }
-        };
 
-        getSessionData();
-      }
-    }
-  }, [authJsAuthenticated, userData]);
+
+  // Debug: Log what we're passing to the Account component
+  console.log('[ToolpadAccountComponent] Rendering with:', {
+    userData,
+    variant,
+    loading,
+    isAuthenticated,
+    authJsAuthenticated
+  });
 
   return (
     <AppProvider branding={branding}>
@@ -128,74 +147,6 @@ const ToolpadAccountComponent = ({ variant = 'default' }) => {
         signOut={handleSignOut}
         loading={loading}
         variant={variant}
-        slotProps={{
-          signInButton: {
-            color: 'primary',
-            variant: 'contained',
-            size: 'medium',
-            fullWidth: true,
-            sx: {
-              py: 1,
-              fontWeight: 'bold',
-              textTransform: 'none',
-              borderRadius: 1,
-              boxShadow: 2,
-              '&:hover': {
-                boxShadow: 4,
-                transform: 'translateY(-2px)'
-              },
-              transition: 'all 0.2s ease-in-out'
-            }
-          },
-          signOutButton: {
-            color: 'primary',
-            startIcon: <Logout />,
-            variant: 'outlined',
-            size: 'small',
-            sx: {
-              mt: 1,
-              textTransform: 'none'
-            }
-          },
-          preview: {
-            variant: 'expanded',
-            slotProps: {
-              avatarIconButton: {
-                sx: {
-                  width: 'fit-content',
-                  margin: 'auto',
-                },
-              },
-              avatar: {
-                variant: 'rounded',
-                sx: {
-                  width: 40,
-                  height: 40,
-                  border: '2px solid',
-                  borderColor: 'primary.main'
-                }
-              },
-              userInfo: {
-                sx: {
-                  textAlign: 'center'
-                }
-              },
-              signInButton: {
-                color: 'primary',
-                variant: 'contained',
-                size: 'small',
-                sx: {
-                  textTransform: 'none',
-                  borderRadius: 1,
-                  boxShadow: 1,
-                  '&:hover': {
-                    boxShadow: 2
-                  }
-                }
-              }
-            },
-          },
-        }}
       />
     </AppProvider>
   );

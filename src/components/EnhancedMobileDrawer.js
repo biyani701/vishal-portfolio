@@ -18,6 +18,7 @@ import {
   Typography,
   Chip,
   SwipeableDrawer,
+  Button,
 } from "@mui/material";
 import {
   Search as SearchIcon,
@@ -33,6 +34,11 @@ import WorkIcon from "@mui/icons-material/Work";
 import ArticleIcon from "@mui/icons-material/Article";
 import ContactMailIcon from "@mui/icons-material/ContactMail";
 import CloseIcon from "@mui/icons-material/Close";
+import StarIcon from "@mui/icons-material/Star";
+import BookIcon from "@mui/icons-material/Book";
+
+// Import ToolpadAccountComponent
+import ToolpadAccountComponent from "./auth/toolpad/ToolpadAccountComponent";
 
 
 // 1. Pull-to-Refresh Implementation
@@ -308,6 +314,10 @@ const getIconComponent = (iconType) => {
       return <ArticleIcon />;
     case "contact":
       return <ContactMailIcon />;
+    case "star":
+      return <StarIcon />;
+    case "book":
+      return <BookIcon />;
     default:
       return <ArticleIcon />;
   }
@@ -320,6 +330,8 @@ const EnhancedMobileDrawer = ({
   handleDrawerToggle,
   resumeItems,
   domainKnowledgeData,
+  isAuthenticated,
+  authJsAuthenticated,
   // ... other props
 }) => {
   const navigate = useNavigate();
@@ -332,8 +344,8 @@ const EnhancedMobileDrawer = ({
     setResumeAnchorEl(null);
   };
 
-  
-  
+
+
 const handleResumeItemClick = (sectionId) => {
     handleResumeMenuClose(); // Close the dropdown
 
@@ -393,6 +405,13 @@ const handleResumeItemClick = (sectionId) => {
         keywords: ["main", "index"],
       },
       {
+        id: "nav-heroref",
+        label: "Hero",
+        iconType: "star",
+        path: "/heroref",
+        keywords: ["hero", "main"],
+      },
+      {
         id: "nav-about",
         label: "About Me",
         iconType: "person",
@@ -420,6 +439,13 @@ const handleResumeItemClick = (sectionId) => {
         path: "/contact",
         keywords: ["email", "reach"],
       },
+      {
+        id: "nav-docs",
+        label: "Documentation",
+        iconType: "book",
+        path: "/docs",
+        keywords: ["docs", "documentation"],
+      },
       ...resumeItems.map((item) => ({
         ...item,
         id: `resume-${item.id}`,
@@ -433,8 +459,8 @@ const handleResumeItemClick = (sectionId) => {
   );
 
   const handleItemClick = (item) => {
-    if (!item.path) return;    
-    
+    if (!item.path) return;
+
     addRecentItem(item);
     handleDrawerToggle();
 
@@ -489,15 +515,54 @@ const handleResumeItemClick = (sectionId) => {
     >
       <PullToRefresh onRefresh={handleRefresh}>
         <Box sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-          {/* Header with Close Button */}
-          <Box sx={{ display: "flex", justifyContent: "flex-end", p: 1 }}>
+          {/* Header with Close Button and Title */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              p: 2,
+              borderBottom: 1,
+              borderColor: "divider",
+              bgcolor: "background.paper"
+            }}
+          >
+            <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+              Navigation
+            </Typography>
             <IconButton
               onClick={handleDrawerToggle}
               aria-label="Close navigation menu"
+              sx={{
+                transition: "transform 0.2s ease-in-out",
+                "&:hover": {
+                  transform: "rotate(90deg)"
+                }
+              }}
             >
               <CloseIcon />
             </IconButton>
           </Box>
+
+          {/* Authentication Section */}
+          {(isAuthenticated || authJsAuthenticated) ? (
+            <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
+                Account
+              </Typography>
+              <ToolpadAccountComponent variant="default" />
+            </Box>
+          ) : (
+            <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
+                Sign In
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                Access your account and personalized features
+              </Typography>
+              <ToolpadAccountComponent variant="default" />
+            </Box>
+          )}
 
           {/* Search Section */}
           <SearchableNavigation
@@ -551,7 +616,7 @@ const handleResumeItemClick = (sectionId) => {
               <Divider sx={{ my: 1 }} />
             </>
           )}
-         
+
 
           {/* Domain Knowledge Categories */}
           {domainKnowledgeData?.categories?.length > 0 && (
@@ -573,7 +638,7 @@ const handleResumeItemClick = (sectionId) => {
                       <ListItemIcon>
                         {getIconComponent('article')}
                       </ListItemIcon>
-                      <ListItemText 
+                      <ListItemText
                         primary={category.name}
                         // secondary={category.description}
                       />
@@ -592,7 +657,7 @@ const handleResumeItemClick = (sectionId) => {
                         <ListItemIcon>
                           {getIconComponent('article')}
                         </ListItemIcon>
-                        <ListItemText 
+                        <ListItemText
                           primary={topic.title}
                           // secondary={topic.content}
                         />
@@ -638,6 +703,8 @@ EnhancedMobileDrawer.propTypes = {
       })
     ).isRequired,
   }).isRequired,
+  isAuthenticated: PropTypes.bool,
+  authJsAuthenticated: PropTypes.bool,
 };
 
 export default EnhancedMobileDrawer;
