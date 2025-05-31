@@ -43,6 +43,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import CloudIcon from "@mui/icons-material/Cloud";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import LabelIcon from "@mui/icons-material/Label";
+import MenuIcon from "@mui/icons-material/Menu";
 import PushPinIcon from "@mui/icons-material/PushPin";
 import PushPinOutlinedIcon from "@mui/icons-material/PushPinOutlined";
 import StorageIcon from "@mui/icons-material/Storage";
@@ -437,8 +438,29 @@ const Works = () => {
   };
 
   const renderSidebarContent = () => (
-    <Box sx={{ width: 250, p: 2 }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2}}>
+    <Box
+      sx={{
+        width: 250,
+        p: 2,
+        height: "100vh",
+        overflowY: "auto", // Enable scrolling for sidebar content
+        overflowX: "hidden",
+        "&::-webkit-scrollbar": {
+          width: "6px",
+        },
+        "&::-webkit-scrollbar-track": {
+          backgroundColor: "transparent",
+        },
+        "&::-webkit-scrollbar-thumb": {
+          backgroundColor: alpha(theme.palette.primary.main, 0.3),
+          borderRadius: "3px",
+          "&:hover": {
+            backgroundColor: alpha(theme.palette.primary.main, 0.5),
+          },
+        },
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2, position: "sticky", top: 0, bgcolor: "background.paper", zIndex: 2, py: 1 }}>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>Categories</Typography>
         <IconButton onClick={toggleSidebarPin} size="small">
           {sidebarPinned ? <PushPinIcon /> : <PushPinOutlinedIcon />}
@@ -575,16 +597,18 @@ const Works = () => {
           onMouseLeave={handleSidebarMouseLeave}
           sx={{
             display: { xs: "none", md: "block" },
-            width: sidebarOpen ? 280 : 50,
+            width: (sidebarOpen || sidebarPinned) ? 280 : 50,
             flexShrink: 0,
             transition: "width 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-            position: "relative",
+            position: "sticky", // Changed from relative to sticky for scrolling
+            top: 0, // Stick to top when scrolling
             borderRight: `3px solid ${alpha(theme.palette.divider, 0.1)}`,
-            backgroundColor: alpha(theme.palette.background.paper, 0.9),
-            backdropFilter: "blur(8px)",
+            backgroundColor: alpha(theme.palette.background.paper, 0.95), // Increased opacity for better visibility
+            backdropFilter: "blur(12px)", // Increased blur for better effect
             height: "100vh",
-            zIndex: 1,
+            zIndex: 10, // Increased z-index to ensure visibility
             overflow: "hidden",
+            boxShadow: sidebarOpen ? `4px 0 12px ${alpha(theme.palette.primary.main, 0.1)}` : "none", // Add shadow when open
           }}
         >
           {/* Collapsed sidebar icon */}
@@ -622,7 +646,7 @@ const Works = () => {
                   opacity: 0.7,
                 }}
               >
-                <LabelIcon color="primary" sx={{ fontSize: 20 }} />
+                {/* <LabelIcon color="primary" sx={{ fontSize: 20 }} /> */}
                 <Typography
                   variant="caption"
                   sx={{
@@ -641,10 +665,12 @@ const Works = () => {
           {/* Sidebar content with smooth transition */}
           <Box
             sx={{
-              opacity: sidebarOpen ? 1 : 0,
-              transform: sidebarOpen ? "translateX(0)" : "translateX(-20px)",
+              opacity: (sidebarOpen || sidebarPinned) ? 1 : 0,
+              transform: (sidebarOpen || sidebarPinned) ? "translateX(0)" : "translateX(-20px)",
               transition: "opacity 0.3s ease, transform 0.3s ease",
-              pointerEvents: sidebarOpen ? "auto" : "none",
+              pointerEvents: (sidebarOpen || sidebarPinned) ? "auto" : "none",
+              position: "relative",
+              zIndex: 2,
             }}
           >
             {renderSidebarContent()}
@@ -656,11 +682,32 @@ const Works = () => {
             flexGrow: 1,
             width: {
               xs: "100%",
-              md: sidebarOpen ? "calc(100% - 280px)" : "calc(100% - 50px)",
+              md: (sidebarOpen || sidebarPinned) ? "calc(100% - 280px)" : "calc(100% - 50px)",
             },
             transition: "width 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+            position: "relative",
           }}
         >
+          {/* Mobile Menu Button */}
+          <IconButton
+            onClick={() => setSidebarOpen(true)}
+            sx={{
+              display: { xs: "block", md: "none" },
+              position: "fixed",
+              top: 80, // Below header
+              left: 16,
+              zIndex: 1000,
+              bgcolor: alpha(theme.palette.primary.main, 0.9),
+              color: "white",
+              "&:hover": {
+                bgcolor: theme.palette.primary.dark,
+              },
+              boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.3)}`,
+            }}
+          >
+            <MenuIcon />
+          </IconButton>
+
           <Container maxWidth="lg">
             <Typography
               variant="h3"
@@ -794,7 +841,7 @@ const Works = () => {
             {/* Projects Grid */}
             <Grid container spacing={2.5} sx={{ mt: 1 }}>
               {(filteredProjects.length > 0 ? filteredProjects : projects).map(
-                (project, index) => (
+                (project) => (
                   <Grid
                     item
                     xs={12}
@@ -1078,8 +1125,9 @@ const Works = () => {
                     backgroundColor: theme.palette.background.paper,
                     overflow: "hidden",
                     maxHeight: "92vh",
-                    // Modern glass effect
-                    backdropFilter: "blur(20px)",
+                    position: "relative",
+                    zIndex: 1301,
+                    // Remove backdrop filter that might cause visibility issues
                     boxShadow: theme.palette.mode === "dark"
                       ? "0 32px 64px rgba(0,0,0,0.5)"
                       : "0 32px 64px rgba(0,0,0,0.15)",
@@ -1088,7 +1136,8 @@ const Works = () => {
                 backdrop: {
                   sx: {
                     backdropFilter: "blur(8px)",
-                    backgroundColor: alpha(theme.palette.background.default, 0.7),
+                    backgroundColor: alpha(theme.palette.background.default, 0.8),
+                    opacity: 1, // Ensure backdrop is visible
                   },
                 },
               }}
@@ -1173,9 +1222,24 @@ const Works = () => {
                     </DialogTitle>
                   </Box>
 
-                  <DialogContent sx={{ p: 0 }}>
+                  <DialogContent
+                    sx={{
+                      p: 0,
+                      position: "relative",
+                      zIndex: 1,
+                      backgroundColor: theme.palette.background.paper,
+                      color: theme.palette.text.primary,
+                    }}
+                  >
                     {/* Main Content - Single Column Layout */}
-                    <Box sx={{ p: 4 }}>
+                    <Box
+                      sx={{
+                        p: 4,
+                        position: "relative",
+                        zIndex: 2,
+                        backgroundColor: theme.palette.background.paper,
+                      }}
+                    >
                       {/* Project Image - Full Width */}
                       <Box sx={{ position: "relative", mb: 4 }}>
                         <CardMedia

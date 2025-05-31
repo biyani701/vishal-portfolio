@@ -247,11 +247,13 @@ const Glossary = () => {
                       xs={12}
                       sm={6}
                       md={4}
-                      lg={4}
+                      // lg={3}
                       key={item.id}
                       sx={{
                         maxWidth: { xs: "100%", sm: "300px", md: "250px" },
                         mx: "auto",
+                        borderRadius: 2,
+                        border: `5px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
                       }}
                     >
                       <Box
@@ -293,11 +295,10 @@ const Glossary = () => {
                             transition: 'transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                             transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
                             cursor: 'pointer',
-                            perspective: '1000px',
                             '&:hover': {
                               transform: isFlipped
-                                ? 'rotateY(180deg) scale(1.02) translateZ(10px)'
-                                : 'rotateY(0deg) scale(1.02) translateZ(10px)',
+                                ? 'rotateY(180deg) scale(1.02)'
+                                : 'rotateY(0deg) scale(1.02)',
                             }
                           }}
                           onClick={() => handleCardFlip(item.id)}
@@ -328,6 +329,8 @@ const Glossary = () => {
                             height: "100%",
                             overflow: "hidden",
                             borderRadius: 1,
+                            minWidth: '200px',
+                            transformStyle: "preserve-3d",
                           }}
                         >
                           {/* Front */}
@@ -341,7 +344,9 @@ const Glossary = () => {
                               display: "flex",
                               flexDirection: "column",
                               p: { xs: 1.5, sm: 2 },
-                              backfaceVisibility: "hidden",
+                              opacity: isFlipped ? 0 : 1,
+                              // backfaceVisibility: "hidden",
+                              // WebkitBackfaceVisibility: "hidden", // For Safari
                               transform: "rotateY(0deg)",
                               bgcolor:
                                 theme.palette.mode === "dark"
@@ -368,7 +373,7 @@ const Glossary = () => {
                                   textAlign: "center",
                                 }}
                               >
-                                {item.acronym}
+                               {item.acronym}
                               </Typography>
                               <Divider sx={{ width: '60%', mb: 2, bgcolor: 'primary.main', height: 2 }} />
                               <Typography
@@ -415,7 +420,9 @@ const Glossary = () => {
                               flexDirection: "column",
                               transform: 'rotateY(180deg)',
                               p: { xs: 1.5, sm: 2 },
-                              backfaceVisibility: "hidden",
+                              opacity: isFlipped ? 1 : 0,
+                              // backfaceVisibility: "hidden",
+                              // WebkitBackfaceVisibility: "hidden", // For Safari
                               bgcolor:
                                 theme.palette.mode === "dark"
                                   ? "primary.dark"
