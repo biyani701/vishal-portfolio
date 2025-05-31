@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
-import ReactMarkdown from 'react-markdown';
-import rehypeSanitize from 'rehype-sanitize';
-import removeMarkdown from 'remove-markdown';
+import ReactMarkdown from "react-markdown";
+import rehypeSanitize from "rehype-sanitize";
+import removeMarkdown from "remove-markdown";
 import {
   Box,
   Container,
@@ -23,10 +23,240 @@ import {
   Divider,
   Stack,
 } from "@mui/material";
-import Icon from "@mui/material/Icon";
-import ReplayIcon from '@mui/icons-material/Replay';
+
+import ReplayIcon from "@mui/icons-material/Replay";
 import CloseIcon from "@mui/icons-material/Close";
 import glossaryData from "../../data/glossaryData";
+
+// Create an array of different title styles
+const getTitleStyles = (theme) => [
+  {
+    // Style 1: Modern Badge with Gradient
+    position: "relative",
+    top: 12,
+    right: -12,
+    background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.primary.dark})`,
+    color: "white",
+    px: 3,
+    py: 1,
+    borderRadius: "20px 4px 4px 20px",
+    zIndex: 10,
+    fontSize: "0.8rem",
+    fontWeight: 600,
+    letterSpacing: "0.5px",
+    textTransform: "uppercase",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.1)",
+    transform: "rotate(-2deg)",
+    transition: "all 0.3s ease",
+    "&:hover": {
+      transform: "rotate(0deg) scale(1.05)",
+      boxShadow: "0 6px 20px rgba(0,0,0,0.2)",
+    },
+    "&::before": {
+      content: '""',
+      position: "absolute",
+      left: -6,
+      top: "50%",
+      transform: "translateY(-50%)",
+      width: 12,
+      height: 12,
+      bgcolor: "white",
+      borderRadius: "50%",
+      boxShadow: "inset 0 2px 4px rgba(0,0,0,0.1)",
+    },
+  },
+  {
+    // Style 2: Geometric Modern Tag
+    position: "relative",
+    top: 16,
+    right: -16,
+    bgcolor: "primary.main",
+    color: "white",
+    px: 2.5,
+    py: 1,
+    clipPath: "polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%)",
+    zIndex: 10,
+    fontSize: "0.75rem",
+    fontWeight: 700,
+    letterSpacing: "1px",
+    textTransform: "uppercase",
+    boxShadow: "0 3px 8px rgba(0,0,0,0.2)",
+    transition: "all 0.2s ease",
+    "&:hover": {
+      transform: "translateX(-4px)",
+      boxShadow: "0 5px 15px rgba(0,0,0,0.3)",
+    },
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      right: -8,
+      top: 0,
+      width: 0,
+      height: 0,
+      borderTop: "18px solid transparent",
+      borderBottom: "18px solid transparent",
+      borderLeft: `8px solid ${theme.palette.primary.main}`,
+      filter: "drop-shadow(2px 2px 4px rgba(0,0,0,0.2))",
+    },
+  },
+  {
+    // Style 3: Playful Ribbon Style
+    position: "relative",
+    top: 8,
+    right: -8,
+    bgcolor: "primary.main",
+    color: "white",
+    px: 3,
+    py: 1.5,
+    borderRadius: "0 12px 12px 0",
+    zIndex: 10,
+    fontSize: "0.85rem",
+    fontWeight: 600,
+    boxShadow: "0 4px 10px rgba(0,0,0,0.2)",
+    transform: "skewX(-5deg)",
+    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    "&:hover": {
+      transform: "skewX(0deg) translateX(-2px)",
+      bgcolor: "primary.dark",
+    },
+    "&::before": {
+      content: '""',
+      position: "absolute",
+      left: -12,
+      top: 0,
+      width: 0,
+      height: 0,
+      borderTop: "24px solid transparent",
+      borderBottom: "24px solid transparent",
+      borderRight: `12px solid ${theme.palette.primary.main}`,
+    },
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      left: -8,
+      bottom: -4,
+      width: 0,
+      height: 0,
+      borderLeft: "8px solid transparent",
+      borderRight: "8px solid transparent",
+      borderTop: `4px solid ${theme.palette.primary.dark}`,
+    },
+  },
+  {
+    // Style 4: Neon-inspired Badge
+    position: "relative",
+    top: 14,
+    right: -10,
+    bgcolor: "primary.main",
+    color: "white",
+    px: 2.5,
+    py: 1,
+    borderRadius: "6px",
+    zIndex: 10,
+    fontSize: "0.8rem",
+    fontWeight: 700,
+    textTransform: "uppercase",
+    letterSpacing: "0.5px",
+    boxShadow: `
+        0 0 20px ${theme.palette.primary.main}40,
+        0 4px 8px rgba(0,0,0,0.2),
+        inset 0 1px 0 rgba(255,255,255,0.2)
+      `,
+    border: `1px solid ${theme.palette.primary.light}`,
+    transition: "all 0.3s ease",
+    animation: "pulse 2s infinite",
+    "&:hover": {
+      boxShadow: `
+          0 0 30px ${theme.palette.primary.main}60,
+          0 6px 12px rgba(0,0,0,0.3),
+          inset 0 1px 0 rgba(255,255,255,0.2)
+        `,
+    },
+    "@keyframes pulse": {
+      "0%, 100%": {
+        boxShadow: `
+            0 0 20px ${theme.palette.primary.main}40,
+            0 4px 8px rgba(0,0,0,0.2),
+            inset 0 1px 0 rgba(255,255,255,0.2)
+          `,
+      },
+      "50%": {
+        boxShadow: `
+            0 0 25px ${theme.palette.primary.main}60,
+            0 4px 8px rgba(0,0,0,0.2),
+            inset 0 1px 0 rgba(255,255,255,0.2)
+          `,
+      },
+    },
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      right: -6,
+      top: "50%",
+      transform: "translateY(-50%)",
+      width: 0,
+      height: 0,
+      borderTop: "12px solid transparent",
+      borderBottom: "12px solid transparent",
+      borderLeft: `6px solid ${theme.palette.primary.main}`,
+      filter: `drop-shadow(0 0 8px ${theme.palette.primary.main}40)`,
+    },
+  },
+  // Style 5: Simple
+  {
+    position: "relative",
+    top: 15,
+    right: -8,
+    bgcolor: "primary.main",
+    color: "white",
+    px: 2,
+    py: 0.5,
+    borderRadius: "4px 0 0 4px",
+    zIndex: 10,
+    fontSize: "0.75rem",
+    fontWeight: "bold",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+    "&::after": {
+      content: '""',
+      position: "relative",
+      right: -8,
+      top: 0,
+      width: 0,
+      height: 0,
+      borderTop: "14px solid transparent",
+      borderBottom: "14px solid transparent",
+      borderLeft: `8px solid ${theme.palette.primary.main}`,
+    },
+  },
+];
+// Session-persistent random style selector
+let sessionTitleStyleIndex = null;
+
+const getSessionTitleStyle = (theme) => {
+  // Only set the random index once per session
+  if (sessionTitleStyleIndex === null) {
+    sessionTitleStyleIndex = Math.floor(Math.random() * 4); // 0-3 for 4 styles
+  }
+
+  const styles = getTitleStyles(theme);
+  return styles[sessionTitleStyleIndex];
+};
+
+const getSessionTitleStyleWithStorage = (theme) => {
+  const STORAGE_KEY = "flipCardTitleStyle";
+
+  let styleIndex = sessionStorage.getItem(STORAGE_KEY);
+
+  if (styleIndex === null) {
+    styleIndex = Math.floor(Math.random() * 4);
+    sessionStorage.setItem(STORAGE_KEY, styleIndex.toString());
+  } else {
+    styleIndex = parseInt(styleIndex, 10);
+  }
+
+  const styles = getTitleStyles(theme);
+  return styles[styleIndex];
+};
 
 // Glossary component
 const Glossary = () => {
@@ -105,7 +335,7 @@ const Glossary = () => {
 
       // Otherwise, flip all cards back and flip the clicked one
       const newState = {};
-      Object.keys(prev).forEach(key => {
+      Object.keys(prev).forEach((key) => {
         newState[key] = false;
       });
       newState[id] = true;
@@ -131,9 +361,9 @@ const Glossary = () => {
 
   // Truncate text function
   const truncateText = (text, maxLength = TRUNCATION_LENGTH) => {
-    const plainText = removeMarkdown(text || '');
+    const plainText = removeMarkdown(text || "");
     if (plainText.length <= maxLength) return plainText;
-    return plainText.substring(0, maxLength) + '...';
+    return plainText.substring(0, maxLength) + "...";
   };
 
   // Count items for each filter
@@ -154,6 +384,8 @@ const Glossary = () => {
 
     return counts;
   }, [alphabetFilters]);
+
+  const globalTitleStyle = useMemo(() => getSessionTitleStyle(theme), [theme]);
 
   return (
     <Box
@@ -240,6 +472,20 @@ const Glossary = () => {
                   const isFlipped = flippedCards[item.id];
                   const truncatedDetails = truncateText(item.details);
                   const needsTruncation = item.details.length > 120;
+                  // const titleStyle = useMemo(
+                  //   () => getTitleStyles(theme, item.acronym),
+                  //   [theme, item.acronym]
+                  // );
+
+                  // const sessionTitleStyle = useMemo(
+                  //   () => getSessionTitleStyleWithStorage(theme),
+                  //   [theme]
+                  // );
+
+                  // const globalTitleStyle = useMemo(
+                  //   () => getSessionTitleStyle(theme),
+                  //   [theme]
+                  // );
 
                   return (
                     <Grid
@@ -252,268 +498,259 @@ const Glossary = () => {
                       sx={{
                         maxWidth: { xs: "100%", sm: "300px", md: "250px" },
                         mx: "auto",
-                        borderRadius: 2,
-                        border: `5px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+                        // borderRadius: 2,
+                        // border: `5px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
                       }}
                     >
+                      {/* <Box sx={globalTitleStyle}>{item.acronym}</Box> */}
+                      {/* New Addition */}
                       <Box
-                          sx={{
-                            position: 'relative',
-                            top: 15,
-                            right: -8,
-                            bgcolor: 'primary.main',
-                            color: 'white',
-                            px: 2,
-                            py: 0.5,
-                            borderRadius: '4px 0 0 4px',
-                            zIndex: 10,
-                            fontSize: '0.75rem',
-                            fontWeight: 'bold',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                            '&::after': {
-                              content: '""',
-                              position: 'relative',
-                              right: -8,
-                              top: 0,
-                              width: 0,
-                              height: 0,
-                              borderTop: '14px solid transparent',
-                              borderBottom: '14px solid transparent',
-                              borderLeft: `8px solid ${theme.palette.primary.main}`,
-                            }
-                          }}
-                        >
-                          {item.acronym}
-                        </Box>
-                        {/* New Addition */}
-                        <Box
-                          sx={{
-                            width: '100%',
-                            height: '100%',
-                            position: 'relative',
-                            transformStyle: 'preserve-3d',
-                            transition: 'transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-                            transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-                            cursor: 'pointer',
-                            '&:hover': {
-                              transform: isFlipped
-                                ? 'rotateY(180deg) scale(1.02)'
-                                : 'rotateY(0deg) scale(1.02)',
-                            }
-                          }}
-                          onClick={() => handleCardFlip(item.id)}
-                        >
-                        {/* End Addition */}
-                      <Card
-                        elevation={3}
                         sx={{
-                          height: { xs: 220, sm: 240 },
-                          maxWidth: "100%",
+                          width: "100%",
+                          height: "100%",
                           position: "relative",
+                          transformStyle: "preserve-3d",
                           transition:
-                            "transform 0.3s ease, box-shadow 0.3s ease",
-                          "&:hover": {
-                            transform: "translateY(-4px)",
-                            boxShadow: 6,
-                          },
+                            "transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+                          transform: isFlipped
+                            ? "rotateY(180deg)"
+                            : "rotateY(0deg)",
                           cursor: "pointer",
-                          borderRadius: 2,
-                          overflow: "hidden",
+                          "&:hover": {
+                            transform: isFlipped
+                              ? "rotateY(180deg) scale(1.02)"
+                              : "rotateY(0deg) scale(1.02)",
+                          },
                         }}
-                        // onClick={() => handleCardFlip(item.id)}
+                        onClick={() => handleCardFlip(item.id)}
                       >
-                        <Box
+                        {/* End Addition */}
+                        <Card
+                          elevation={3}
                           sx={{
+                            height: { xs: 220, sm: 240 },
+                            maxWidth: "100%",
                             position: "relative",
-                            width: "100%",
-                            height: "100%",
+                            transition:
+                              "transform 0.3s ease, box-shadow 0.3s ease",
+                            "&:hover": {
+                              transform: "translateY(-4px)",
+                              boxShadow: 6,
+                            },
+                            cursor: "pointer",
+                            borderRadius: 2,
                             overflow: "hidden",
-                            borderRadius: 1,
-                            minWidth: '200px',
-                            transformStyle: "preserve-3d",
                           }}
+                          // onClick={() => handleCardFlip(item.id)}
                         >
-                          {/* Front */}
-                          <CardContent
+                          <Box
                             sx={{
-                              position: "absolute",
-                              top: 0,
-                              left: 0,
+                              position: "relative",
                               width: "100%",
                               height: "100%",
-                              display: "flex",
-                              flexDirection: "column",
-                              p: { xs: 1.5, sm: 2 },
-                              opacity: isFlipped ? 0 : 1,
-                              // backfaceVisibility: "hidden",
-                              // WebkitBackfaceVisibility: "hidden", // For Safari
-                              transform: "rotateY(0deg)",
-                              bgcolor:
-                                theme.palette.mode === "dark"
-                                  ? "background.paper"
-                                  : "background.paper",
-                              borderLeft: `4px solid ${theme.palette.primary.main}`,
+                              overflow: "hidden",
+                              borderRadius: 1,
+                              minWidth: "200px",
+                              transformStyle: "preserve-3d",
                             }}
                           >
-                            <Box
+                            {/* Front */}
+                            <CardContent
                               sx={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                width: "100%",
+                                height: "100%",
                                 display: "flex",
                                 flexDirection: "column",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                flex: 1,
-                              }}
-                            >
-                              <Typography
-                                variant="h6"
-                                color="primary"
-                                gutterBottom
-                                sx={{
-                                  fontWeight: "bold",
-                                  textAlign: "center",
-                                }}
-                              >
-                               {item.acronym}
-                              </Typography>
-                              <Divider sx={{ width: '60%', mb: 2, bgcolor: 'primary.main', height: 2 }} />
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                align="center"
-                                sx={{
-                                  fontWeight: 500,
-                                  px: 1,
-                                }}
-                              >
-                                {item.fullForm}
-                              </Typography>
-                            </Box>
-                            <Box
-                              sx={{
-                                display: "flex",
-                                justifyContent: "center",
-                                mt: "auto",
-                                pt: 1,
-                                borderTop: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
-                              }}
-                            >
-                              <Typography
-                                variant="caption"
-                                color="text.secondary"
-                                sx={{ opacity: 0.7 }}
-                              >
-                                {/* (Click to see details) */}
-                                ↻ Click to flip for details
-                              </Typography>
-                            </Box>
-                          </CardContent>
-
-                          {/* Back side */}
-                          <CardContent
-                            sx={{
-                              position: "absolute",
-                              top: 0,
-                              left: 0,
-                              width: "100%",
-                              height: "100%",
-                              display: "flex",
-                              flexDirection: "column",
-                              transform: 'rotateY(180deg)',
-                              p: { xs: 1.5, sm: 2 },
-                              opacity: isFlipped ? 1 : 0,
-                              // backfaceVisibility: "hidden",
-                              // WebkitBackfaceVisibility: "hidden", // For Safari
-                              bgcolor:
-                                theme.palette.mode === "dark"
-                                  ? "primary.dark"
-                                  : "primary.light",
-                              color:
-                                theme.palette.mode === "dark"
-                                  ? "white"
-                                  : "text.primary",
-                              overflow: "hidden",
-                            }}
-                          >
-                            <Box sx={{ mb: 1 }}>
-                              <Typography
-                                variant="subtitle1"
-                                fontWeight="bold"
-                                color={
+                                p: { xs: 1.5, sm: 2 },
+                                opacity: isFlipped ? 0 : 1,
+                                // backfaceVisibility: "hidden",
+                                // WebkitBackfaceVisibility: "hidden", // For Safari
+                                transform: "rotateY(0deg)",
+                                bgcolor:
                                   theme.palette.mode === "dark"
-                                    ? "primary.light"
-                                    : "primary.dark"
-                                }
-                              >
-                                {item.acronym}: {item.fullForm}
-                              </Typography>
-                            </Box>
-                            <Divider sx={{ mb: 1.5 }} />
-                            <Box
-                              sx={{
-                                flex: 1,
-                                overflowY: "auto",
-                                overflowX: "hidden",
-                                pr: 1,
-                                mr: -1,
-                                "&::-webkit-scrollbar": {
-                                  width: "6px",
-                                },
-                                "&::-webkit-scrollbar-thumb": {
-                                  backgroundColor: "rgba(0,0,0,0.2)",
-                                  borderRadius: "10px",
-                                },
+                                    ? "background.paper"
+                                    : "background.paper",
+                                borderLeft: `4px solid ${theme.palette.primary.main}`,
                               }}
                             >
-                              <Typography
-                                variant="body2"
-                                align="left"
+                              <Box
                                 sx={{
-                                  lineHeight: 1.6,
-                                  fontSize: "0.875rem",
-                                  textAlign: "justify",
-                                  wordBreak: "break-word",
-                                  hyphens: "auto",
-                                  maxWidth: "100%",
-                                  overflowWrap: "break-word",
+                                  display: "flex",
+                                  flexDirection: "column",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  flex: 1,
                                 }}
-                                onClick={needsTruncation ? (e) => handleTextExpand(e, item) : undefined}
                               >
-                                {/* {item.details} */}
-                                {truncatedDetails}
-                                {needsTruncation && (
-                                    <Box component="span" sx={{
-                                      color: 'rgba(255,255,255,0.8)',
-                                      fontStyle: 'italic',
-                                      textDecoration: 'underline',
-                                      ml: 1
-                                    }}>
+                                <Typography
+                                  variant="h6"
+                                  color="primary"
+                                  gutterBottom
+                                  sx={{
+                                    fontWeight: "bold",
+                                    textAlign: "center",
+                                  }}
+                                >
+                                  {item.acronym}
+                                </Typography>
+                                <Divider
+                                  sx={{
+                                    width: "60%",
+                                    mb: 2,
+                                    bgcolor: "primary.main",
+                                    height: 2,
+                                  }}
+                                />
+                                <Typography
+                                  variant="body2"
+                                  color="text.secondary"
+                                  align="center"
+                                  sx={{
+                                    fontWeight: 500,
+                                    px: 1,
+                                  }}
+                                >
+                                  {item.fullForm}
+                                </Typography>
+                              </Box>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  mt: "auto",
+                                  pt: 1,
+                                  borderTop: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+                                }}
+                              >
+                                <Typography
+                                  variant="caption"
+                                  color="text.secondary"
+                                  sx={{ opacity: 0.7 }}
+                                >
+                                  {/* (Click to see details) */}↻ Click to flip
+                                  for details
+                                </Typography>
+                              </Box>
+                            </CardContent>
+
+                            {/* Back side */}
+                            <CardContent
+                              sx={{
+                                position: "absolute",
+                                top: 0,
+                                left: 0,
+                                width: "100%",
+                                height: "100%",
+                                display: "flex",
+                                flexDirection: "column",
+                                transform: "rotateY(180deg)",
+                                p: { xs: 1.5, sm: 2 },
+                                opacity: isFlipped ? 1 : 0,
+                                // backfaceVisibility: "hidden",
+                                // WebkitBackfaceVisibility: "hidden", // For Safari
+                                bgcolor:
+                                  theme.palette.mode === "dark"
+                                    ? "primary.dark"
+                                    : "primary.light",
+                                color:
+                                  theme.palette.mode === "dark"
+                                    ? "white"
+                                    : "text.primary",
+                                overflow: "hidden",
+                              }}
+                            >
+                              <Box sx={{ mb: 1 }}>
+                                <Typography
+                                  variant="subtitle1"
+                                  fontWeight="bold"
+                                  color={
+                                    theme.palette.mode === "dark"
+                                      ? "primary.light"
+                                      : "primary.dark"
+                                  }
+                                >
+                                  {item.acronym}: {item.fullForm}
+                                </Typography>
+                              </Box>
+                              <Divider sx={{ mb: 1.5 }} />
+                              <Box
+                                sx={{
+                                  flex: 1,
+                                  overflowY: "auto",
+                                  overflowX: "hidden",
+                                  pr: 1,
+                                  mr: -1,
+                                  "&::-webkit-scrollbar": {
+                                    width: "6px",
+                                  },
+                                  "&::-webkit-scrollbar-thumb": {
+                                    backgroundColor: "rgba(0,0,0,0.2)",
+                                    borderRadius: "10px",
+                                  },
+                                }}
+                              >
+                                <Typography
+                                  variant="body2"
+                                  align="left"
+                                  sx={{
+                                    lineHeight: 1.6,
+                                    fontSize: "0.875rem",
+                                    textAlign: "justify",
+                                    wordBreak: "break-word",
+                                    hyphens: "auto",
+                                    maxWidth: "100%",
+                                    overflowWrap: "break-word",
+                                  }}
+                                  onClick={
+                                    needsTruncation
+                                      ? (e) => handleTextExpand(e, item)
+                                      : undefined
+                                  }
+                                >
+                                  {/* {item.details} */}
+                                  {truncatedDetails}
+                                  {needsTruncation && (
+                                    <Box
+                                      component="span"
+                                      sx={{
+                                        color: "rgba(255,255,255,0.8)",
+                                        fontStyle: "italic",
+                                        textDecoration: "underline",
+                                        ml: 1,
+                                      }}
+                                    >
                                       Read more
                                     </Box>
                                   )}
-                              </Typography>
-                            </Box>
-                            <Box
-                              sx={{
-                                display: "flex",
-                                justifyContent: "center",
-                                mt: "auto",
-                                pt: 1,
-                                borderTop: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
-                              }}
-                            >
-                              <Typography
-                                variant="caption"
-                                sx={{ opacity: 0.7 }}
-                                display="flex" alignItems="center" gap={0.5}
+                                </Typography>
+                              </Box>
+                              <Box
+                                sx={{
+                                  display: "flex",
+                                  justifyContent: "center",
+                                  mt: "auto",
+                                  pt: 1,
+                                  borderTop: `1px solid ${theme.palette.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+                                }}
                               >
-                                <ReplayIcon fontSize="inherit" />
-                                Click to flip back
-                              </Typography>
-                            </Box>
-                          </CardContent>
-                        </Box>
-                      </Card>
-                      {/* New Addition */}
+                                <Typography
+                                  variant="caption"
+                                  sx={{ opacity: 0.7 }}
+                                  display="flex"
+                                  alignItems="center"
+                                  gap={0.5}
+                                >
+                                  <ReplayIcon fontSize="inherit" />
+                                  Click to flip back
+                                </Typography>
+                              </Box>
+                            </CardContent>
+                          </Box>
+                        </Card>
+                        {/* New Addition */}
                       </Box>
                       {/* End Addition */}
                     </Grid>
@@ -543,7 +780,7 @@ const Glossary = () => {
           </Typography>
         )}
       </Container>
-        {/* Full text dialog */}
+      {/* Full text dialog */}
       <Dialog
         open={dialogOpen}
         onClose={handleDialogClose}
@@ -552,39 +789,45 @@ const Glossary = () => {
         PaperProps={{
           sx: {
             borderRadius: 3,
-            maxHeight: '80vh'
-          }
+            maxHeight: "80vh",
+          },
         }}
       >
-        <DialogTitle sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          bgcolor: 'primary.main',
-          color: 'white'
-        }}>
+        <DialogTitle
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            bgcolor: "primary.main",
+            color: "white",
+          }}
+        >
           <Box>
-            <Typography variant="h6" component="span" sx={{ fontWeight: 'bold' }}>
+            <Typography
+              variant="h6"
+              component="span"
+              sx={{ fontWeight: "bold" }}
+            >
               {dialogContent.acronym}
             </Typography>
             <Typography variant="subtitle2" sx={{ opacity: 0.9, mt: 0.5 }}>
               {dialogContent.fullForm}
             </Typography>
           </Box>
-          <IconButton
-            onClick={handleDialogClose}
-            sx={{ color: 'white' }}
-          >
+          <IconButton onClick={handleDialogClose} sx={{ color: "white" }}>
             <CloseIcon />
           </IconButton>
         </DialogTitle>
         <DialogContent sx={{ mt: 2 }}>
-          <Typography variant="body1" sx={{
-            lineHeight: 1.7,
-            textAlign: 'justify'
-          }}>
+          <Typography
+            variant="body1"
+            sx={{
+              lineHeight: 1.7,
+              textAlign: "justify",
+            }}
+          >
             <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
-            {dialogContent.details}
+              {dialogContent.details}
             </ReactMarkdown>
           </Typography>
         </DialogContent>
@@ -598,7 +841,6 @@ const Glossary = () => {
           </Button>
         </DialogActions>
       </Dialog>
-
     </Box>
   );
 };
