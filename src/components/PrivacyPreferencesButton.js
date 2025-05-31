@@ -5,6 +5,7 @@ import { styled } from "@mui/material/styles";
 import SvgIcon from "@mui/material/SvgIcon";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
+import { Close as CloseIcon } from "@mui/icons-material";
 
 // Styled IconButton for cookie preferences
 const CookieIconButton = styled(IconButton)(({ theme }) => ({
@@ -37,9 +38,10 @@ const CookieIcon = (props) => (
 
 const PrivacyPreferencesButton = () => {
   const theme = useTheme();
-  const isSmallMobile = useMediaQuery('(max-width:400px)');
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('smallMobile'));
   const [klaroReady, setKlaroReady] = useState(false);
   const [pulsing, setPulsing] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     // Check if Klaro is available and has the show method
@@ -60,20 +62,35 @@ const PrivacyPreferencesButton = () => {
       setPulsing(true);
     }, 3000);
 
+    // Listen for Klaro modal events
+    const handleKlaroShow = () => setIsModalOpen(true);
+    const handleKlaroHide = () => setIsModalOpen(false);
+
+    window.addEventListener('klaro-show', handleKlaroShow);
+    window.addEventListener('klaro-hide', handleKlaroHide);
+
     // Clean up interval on unmount
     return () => {
       clearInterval(interval);
       clearTimeout(pulseTimer);
+      window.removeEventListener('klaro-show', handleKlaroShow);
+      window.removeEventListener('klaro-hide', handleKlaroHide);
     };
   }, []);
 
   const handleClick = () => {
     if (window.klaro && typeof window.klaro.show === "function") {
       try {
-        window.klaro.show();
+        if (isModalOpen) {
+          // If modal is open, close it
+          window.klaro.hide();
+        } else {
+          // If modal is closed, open it
+          window.klaro.show();
+        }
         setPulsing(false); // Stop pulsing once clicked
       } catch (error) {
-        console.error("Error showing Klaro modal:", error);
+        console.error("Error toggling Klaro modal:", error);
       }
     } else {
       console.warn("Klaro is not properly initialized");
@@ -86,20 +103,22 @@ const PrivacyPreferencesButton = () => {
   }
 
   return (
-    <Tooltip title="Cookie Settings" arrow>
+    <Tooltip title={isModalOpen ? "Close Cookie Settings" : "Cookie Settings"} arrow>
       <CookieIconButton
         onClick={handleClick}
-        aria-label="Cookie Settings"
-        className={pulsing ? "pulse" : ""}
+        aria-label={isModalOpen ? "Close Cookie Settings" : "Cookie Settings"}
+        className={pulsing && !isModalOpen ? "pulse" : ""}
         size="small"
         sx={{
           padding: isSmallMobile ? 0.3 : 0.5,
           minWidth: isSmallMobile ? 28 : 32,
           width: isSmallMobile ? 28 : 32,
           height: isSmallMobile ? 28 : 32,
+          transform: isModalOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+          transition: 'transform 0.3s ease',
         }}
       >
-        <CookieIcon fontSize="small" />
+        {isModalOpen ? <CloseIcon fontSize="small" /> : <CookieIcon fontSize="small" />}
       </CookieIconButton>
     </Tooltip>
   );

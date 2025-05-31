@@ -7,7 +7,6 @@ import {
   IconButton,
   Tooltip,
   useMediaQuery,
-  Fab,
   Paper,
   TextField,
   Typography,
@@ -19,7 +18,6 @@ import {
   ListItemAvatar,
   ListItemText,
   InputAdornment,
-  Zoom,
 } from "@mui/material";
 import {
   Chat as ChatIcon,
@@ -30,18 +28,18 @@ import {
   Stop as StopIcon,
 } from "@mui/icons-material";
 import { useTheme } from "@mui/material/styles";
+import { useResponsiveHeight } from '../hooks/useResponsiveHeight';
 
 function CustomChatInterface() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isSmallMobile = useMediaQuery(theme.breakpoints.down('smallMobile'));
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef(null);
 
-  // Get footer heights from theme
-  const footerHeight = isMobile
-    ? theme.customLayout?.mobileFooterHeight || theme.customLayout?.footerHeight?.xs || 120
-    : theme.customLayout?.fixedFooterHeight || theme.customLayout?.footerHeight?.md || 56;
+  // Use responsive footer height
+  const footerHeight = useResponsiveHeight('footer');
 
   const {
     visibleMessages,
@@ -75,45 +73,38 @@ function CustomChatInterface() {
 
   return (
     <>
-      {/* Chat Toggle Button - Fixed Position Above Footer and Scroll Button */}
-      <Box
-        sx={{
-          position: 'fixed',
-          bottom: footerHeight + 100, // Increased from 32 to 100 to avoid overlap with scroll button
-          right: isMobile ? 16 : 24,
-          zIndex: theme.zIndex.speedDial,
-        }}
-      >
-        <Zoom in={!isOpen}>
-          <Tooltip title="Chat with AI Assistant" placement="left">
-            <Fab
-              color="primary"
-              onClick={handleToggle}
-              sx={{
-                boxShadow: theme.shadows[6],
-                '&:hover': {
-                  boxShadow: theme.shadows[12],
-                  transform: 'scale(1.05)',
-                },
-                transition: 'all 0.2s ease-in-out',
-              }}
-            >
-              <ChatIcon />
-            </Fab>
-          </Tooltip>
-        </Zoom>
-      </Box>
+      {/* Small Chat Icon Button */}
+      <Tooltip title="Chat with AI Assistant" placement="left">
+        <IconButton
+          onClick={handleToggle}
+          size="small"
+          sx={{
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.primary.contrastText,
+            width: isSmallMobile ? 32 : 36,
+            height: isSmallMobile ? 32 : 36,
+            '&:hover': {
+              backgroundColor: theme.palette.primary.dark,
+              transform: 'scale(1.05)',
+            },
+            transition: 'all 0.2s ease-in-out',
+            boxShadow: theme.shadows[2],
+          }}
+        >
+          {isOpen ? <CloseIcon fontSize="small" /> : <ChatIcon fontSize="small" />}
+        </IconButton>
+      </Tooltip>
 
       {/* Chat Interface */}
       {isOpen && (
         <Box
           sx={{
             position: 'fixed',
-            bottom: footerHeight + 84, // Increased from 16 to 84 to match button position
+            bottom: footerHeight + 48,
             right: isMobile ? 16 : 24,
             zIndex: Math.max(theme.zIndex.footer + 100, theme.zIndex.modal),
             width: isMobile ? 'calc(100vw - 32px)' : 400,
-            height: isMobile ? `calc(100vh - ${footerHeight + 168}px)` : 500, // Adjusted height calculation
+            height: isMobile ? `calc(100vh - ${footerHeight + 96}px)` : 500,
             maxHeight: '80vh',
           }}
         >
