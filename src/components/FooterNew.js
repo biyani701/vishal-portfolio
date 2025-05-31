@@ -7,15 +7,31 @@ import PrivacyPreferencesButton from './PrivacyPreferencesButton';
 import CopilotChatBubble from "../components/CopilotChatBubble";
 import { alpha } from '@mui/material/styles';
 
+import { useResponsiveHeight } from '../hooks/useResponsiveHeight';
+
+
 const Footer = () => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const footerHeight = useResponsiveHeight('footer');
   const currentYear = new Date().getFullYear();
 
+  // Get responsive footer height based on breakpoint and orientation
+  const getFooterHeight = () => {
+    if (isLandscape) {
+      // Landscape mode - reduced heights
+      if (isSmallMobile) return theme.customLayout.footerHeight.smallMobileLandscape;
+      if (isMobile) return theme.customLayout.footerHeight.xsLandscape;
+      return theme.customLayout.footerHeight.smLandscape;
+    } else {
+      // Portrait mode - standard heights
+      if (isSmallMobile) return theme.customLayout.footerHeight.smallMobile;
+      if (isMobile) return theme.customLayout.footerHeight.xs;
+      return theme.customLayout.footerHeight.md;
+    }
+  };
+
   // Get responsive footer height from theme
-  const footerHeight = isMobile 
-    ? theme.customLayout.mobileFooterHeight 
-    : theme.customLayout.fixedFooterHeight;
+  
 
   return (
     <Box

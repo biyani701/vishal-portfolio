@@ -83,6 +83,7 @@ import "./KnowledgeBaseMenuFix.css";
 import { initKnowledgeBaseMenuFix } from "./KnowledgeBaseMenuFix";
 import EnhancedMobileDrawer from "./EnhancedMobileDrawer";
 import ModernMobileMenu from "./ModernMobileMenu";
+import { useResponsiveHeight } from "../hooks/useResponsiveHeight";
 
 const itemVariants = {
   hidden: { opacity: 0, scale: 0.95, y: -5 },
@@ -278,9 +279,13 @@ const SearchResultContent = styled(Typography)(({ theme }) => ({
 
 // Use the theme directly for AppBar styling - no hardcoded colors
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
-  width: "100%",
+  position: "fixed",
+  top: 0,
   left: 0,
   right: 0,
+  width: "100%",
+  maxWidth: "100vw",
+  boxSizing: "border-box",
   backgroundColor: theme.palette.background.footer,
   color: theme.palette.common.white,
   boxShadow:
@@ -396,6 +401,8 @@ const NavigationBar = ({
   const [searchResults, setSearchResults] = useState([]);
   // State for keyboard navigation in search results
   const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
+
+  const headerHeight = useResponsiveHeight("header");
 
   // Initialize search index and add data
   React.useEffect(() => {
@@ -946,22 +953,51 @@ const NavigationBar = ({
   const showDesktopNav = !isMobile || (isLandscape && !isMobile) || isTablet;
   const shouldShowMobileMenu = isMobile || (isLandscape && !showDesktopNav);
 
-  const headerHeight = isMobile
-    ? theme.customLayout.mobileHeaderHeight
-    : theme.customLayout.fixedHeaderHeight;
+  // const headerHeight = isMobile
+  //   ? theme.customLayout.mobileHeaderHeight
+  //   : theme.customLayout.fixedHeaderHeight;
+
+  const hostName = window.location.hostname;
+  const protocol = window.location.protocol;
+  const isLocalhost = hostName === "localhost" || hostName === "127.0.0.1";
 
   return (
     <Box sx={{ display: "flex", width: "100%" }}>
-      <StyledAppBar position="fixed">
+      <StyledAppBar>
         <Toolbar
           sx={{
             // minHeight: (theme) => theme.mixins.toolbar.minHeight,
             minHeight: headerHeight,
             width: "100%",
+            boxSizing: "border-box",
           }}
         >
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Portfolio
+          <Typography variant="h6" noWrap component="div" 
+          sx={{ flexGrow: 1 }}
+          >
+            <Box
+              component="img"
+              src="/images/my-logo.jpg" // or use require/import if inside src
+              alt="Logo"
+              sx={{                
+                maxHeight: '60px',
+                maxWidth: '60px',
+                borderRadius: 2,
+                boxShadow: 3,
+              }}
+            />
+            <Button
+              component={RouterLink}
+              to="/"
+              onClick={() => {
+                trackMenuClick("home", "main-menu");
+                if (location.pathname === "/") {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              }}
+            >
+              {hostName}
+            </Button>
           </Typography>
 
           {/* Desktop and Landscape Navigation */}
