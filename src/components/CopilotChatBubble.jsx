@@ -39,7 +39,7 @@ function CustomChatInterface() {
   const messagesEndRef = useRef(null);
 
   // Get footer heights from theme
-  const footerHeight = isMobile 
+  const footerHeight = isMobile
     ? theme.customLayout?.mobileFooterHeight || theme.customLayout?.footerHeight?.xs || 120
     : theme.customLayout?.fixedFooterHeight || theme.customLayout?.footerHeight?.md || 56;
 
@@ -75,11 +75,11 @@ function CustomChatInterface() {
 
   return (
     <>
-      {/* Chat Toggle Button - Fixed Position Above Footer */}
+      {/* Chat Toggle Button - Fixed Position Above Footer and Scroll Button */}
       <Box
         sx={{
           position: 'fixed',
-          bottom: footerHeight + 16,
+          bottom: footerHeight + 100, // Increased from 32 to 100 to avoid overlap with scroll button
           right: isMobile ? 16 : 24,
           zIndex: theme.zIndex.speedDial,
         }}
@@ -109,11 +109,11 @@ function CustomChatInterface() {
         <Box
           sx={{
             position: 'fixed',
-            bottom: footerHeight + 16,
+            bottom: footerHeight + 84, // Increased from 16 to 84 to match button position
             right: isMobile ? 16 : 24,
             zIndex: Math.max(theme.zIndex.footer + 100, theme.zIndex.modal),
             width: isMobile ? 'calc(100vw - 32px)' : 400,
-            height: isMobile ? `calc(100vh - ${footerHeight + 100}px)` : 500,
+            height: isMobile ? `calc(100vh - ${footerHeight + 168}px)` : 500, // Adjusted height calculation
             maxHeight: '80vh',
           }}
         >
@@ -148,7 +148,7 @@ function CustomChatInterface() {
               </Box>
               <IconButton
                 onClick={handleToggle}
-                sx={{ 
+                sx={{
                   color: 'inherit',
                   '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' }
                 }}
@@ -198,8 +198,8 @@ function CustomChatInterface() {
                           sx={{
                             width: 32,
                             height: 32,
-                            bgcolor: message.role === Role.User 
-                              ? theme.palette.primary.main 
+                            bgcolor: message.role === Role.User
+                              ? theme.palette.primary.main
                               : theme.palette.secondary.main,
                           }}
                         >
@@ -208,11 +208,11 @@ function CustomChatInterface() {
                         <Paper
                           sx={{
                             p: 1.5,
-                            backgroundColor: message.role === Role.User 
-                              ? theme.palette.primary.main 
+                            backgroundColor: message.role === Role.User
+                              ? theme.palette.primary.main
                               : theme.palette.grey[100],
-                            color: message.role === Role.User 
-                              ? theme.palette.primary.contrastText 
+                            color: message.role === Role.User
+                              ? theme.palette.primary.contrastText
                               : theme.palette.text.primary,
                             borderRadius: 2,
                             maxWidth: '100%',

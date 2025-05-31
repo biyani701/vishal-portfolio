@@ -14,21 +14,6 @@ code {
     monospace;
 }
 
-/* CopilotKit Popup Overrides - Simplified */
-/* .copilot-popup-container .copilotkit-popup {
-  width: 100% !important;
-  height: 100% !important;
-  position: static !important;
-  border: none !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
+* {
+  box-sizing: border-box;
 }
-
-.copilot-popup-container .copilotkit-popup > div {
-  width: 100% !important;
-  height: 100% !important;
-  display: flex !important;
-  flex-direction: column !important;
-} */

@@ -452,10 +452,10 @@ const NavigationBar = ({
   const matches = searchResults;
 
   // Get auth functions from both auth systems
-  const { user, isAuthenticated,checkSession } = useAuthContext();
+  const { user, isAuthenticated, checkSession } = useAuthContext();
   const legacyAuth = useLegacyAuth();
 
-  console.log('[Navbar] Auth context state:', { user, isAuthenticated });
+  console.log("[Navbar] Auth context state:", { user, isAuthenticated });
 
   // Force re-render when authentication state changes
   const [authStateKey, setAuthStateKey] = useState(0);
@@ -464,10 +464,8 @@ const NavigationBar = ({
   const [userRole, setUserRole] = useState(null);
 
   useEffect(() => {
-    setAuthStateKey(prev => prev + 1);
+    setAuthStateKey((prev) => prev + 1);
   }, [isAuthenticated, authJsAuthenticated, user]);
-
-  
 
   // Function to track menu clicks
   const trackMenuClick = (menuId, menuType) => {
@@ -603,7 +601,7 @@ const NavigationBar = ({
           session,
           userRole,
           user,
-          shouldShowAccount: isAuthenticated || isAuthJsAuthenticated
+          shouldShowAccount: isAuthenticated || isAuthJsAuthenticated,
         });
       } catch (error) {
         console.error("[Navbar] Error checking authentication status:", error);
@@ -948,12 +946,17 @@ const NavigationBar = ({
   const showDesktopNav = !isMobile || (isLandscape && !isMobile) || isTablet;
   const shouldShowMobileMenu = isMobile || (isLandscape && !showDesktopNav);
 
+  const headerHeight = isMobile
+    ? theme.customLayout.mobileHeaderHeight
+    : theme.customLayout.fixedHeaderHeight;
+
   return (
     <Box sx={{ display: "flex", width: "100%" }}>
       <StyledAppBar position="fixed">
         <Toolbar
           sx={{
-            minHeight: (theme) => theme.mixins.toolbar.minHeight,
+            // minHeight: (theme) => theme.mixins.toolbar.minHeight,
+            minHeight: headerHeight,
             width: "100%",
           }}
         >
@@ -1438,14 +1441,19 @@ const NavigationBar = ({
               {/* Account Button */}
               <Box sx={{ mr: 1, display: { xs: "none", md: "block" } }}>
                 {(() => {
-                  console.log('[Navbar] Rendering account button. Auth state:', {
-                    isAuthenticated,
-                    authJsAuthenticated,
-                    shouldShowAccount: isAuthenticated || authJsAuthenticated
-                  });
+                  console.log(
+                    "[Navbar] Rendering account button. Auth state:",
+                    {
+                      isAuthenticated,
+                      authJsAuthenticated,
+                      shouldShowAccount: isAuthenticated || authJsAuthenticated,
+                    }
+                  );
 
                   // Force re-render when authentication state changes
-                  const shouldShowAccount = Boolean(isAuthenticated || authJsAuthenticated);
+                  const shouldShowAccount = Boolean(
+                    isAuthenticated || authJsAuthenticated
+                  );
 
                   return shouldShowAccount ? (
                     <Box key={`account-${authStateKey}-${shouldShowAccount}`}>
@@ -1535,7 +1543,7 @@ const NavigationBar = ({
                   >
                     Account
                   </Typography>
-                  {(isAuthenticated || authJsAuthenticated) ? (
+                  {isAuthenticated || authJsAuthenticated ? (
                     <ToolpadAccountComponent variant="default" />
                   ) : (
                     <Typography variant="body2" color="text.secondary">
@@ -1674,9 +1682,14 @@ const NavigationBar = ({
               sx={{
                 ml: "auto",
                 mr: { xs: 2, sm: 1 },
-                zIndex: 10,
+                zIndex: 1400, // Increased z-index to ensure visibility above all content
+                position: "relative", // Ensure proper stacking context
                 transition: "transform 0.3s ease-in-out",
                 transform: mobileOpen ? "rotate(90deg)" : "rotate(0deg)",
+                backgroundColor: "transparent",
+                "&:hover": {
+                  backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                },
               }}
             >
               {mobileOpen ? <CloseIcon /> : <MenuIcon />}

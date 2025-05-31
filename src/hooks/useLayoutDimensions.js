@@ -82,12 +82,17 @@ export const useLayoutDimensions = () => {
 
   // Get responsive heights - with fallback values
   const headerHeight = isMobile
-    ? (theme.customLayout?.mobileHeaderHeight || 56)
-    : (theme.customLayout?.fixedHeaderHeight || 64);
+    ? isPortrait
+      ? theme.customLayout.mobileHeaderHeight
+      : theme.customLayout.fixedHeaderHeight
+    : theme.customLayout.fixedHeaderHeight;
 
   const footerHeight = isMobile
-    ? (theme.customLayout?.mobileFooterHeight || 56)
-    : (theme.customLayout?.fixedFooterHeight || 64);
+    ? isPortrait
+      ? theme.customLayout.mobileFooterHeight // 120px
+      : theme.customLayout.fixedFooterHeight // 56px (landscape treated like tablet/desktop)
+    : theme.customLayout.fixedFooterHeight;
+    
 
   const { width, height } = windowSize;
 
@@ -104,11 +109,20 @@ export const useLayoutDimensions = () => {
     xl: theme.spacing(6), // 48px
   };
 
+  const sideOffset = isPortrait ? (isMobile ? 54 : 120) : 54;
+  const topOffset = headerHeight + (isPortrait ? 54 : 120);
+  const bottomOffset = footerHeight + (isPortrait ? 54 : 120);
+  const verticalOffset = `calc(${topOffset}px + ${bottomOffset}px)`;
+
   const safeOffsets = {
     top: `calc(${headerHeight}px + ${safeAreaInsets.top}px + ${theme.spacing(2)})`,
     bottom: `calc(${footerHeight}px + ${safeAreaInsets.bottom}px + ${theme.spacing(2)})`,
     left: `calc(${safeAreaInsets.left}px + ${theme.spacing(2)})`,
     right: `calc(${safeAreaInsets.right}px + ${theme.spacing(2)})`,
+    sideOffset,
+    topOffset,
+    bottomOffset,
+    verticalOffset,
   };
 
   const isTallScreen = height > 900;

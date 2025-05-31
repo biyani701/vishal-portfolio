@@ -510,6 +510,7 @@ const handleResumeItemClick = (sectionId) => {
           boxSizing: "border-box",
           width: "100%",
           maxWidth: 320,
+          maxHeight: "95%"
         },
       }}
     >

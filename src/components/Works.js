@@ -279,16 +279,23 @@ const Works = () => {
   useEffect(() => {
     let result = [...projects];
 
-    // Filter by tab
+    // Filter by tab - fix the mapping to match exact project types
     if (activeTab !== "all") {
-      result = result.filter((project) =>
-        project.type.toLowerCase().includes(activeTab.toLowerCase())
-      );
+      const tabToTypeMap = {
+        "personal-project": "Personal Project",
+        "open-source-project": "Open Source Project",
+        "project": "Project"
+      };
+
+      const targetType = tabToTypeMap[activeTab];
+      if (targetType) {
+        result = result.filter((project) => project.type === targetType);
+      }
     }
 
     // Filter by search query
     if (searchQuery) {
-      const query = searchQuery.toLowerCase();      
+      const query = searchQuery.toLowerCase();
       result = result.filter(
         (project) =>
           project.title.toLowerCase().includes(query) ||
@@ -331,14 +338,7 @@ const Works = () => {
   // Handle tab change
   const handleTabChange = (_, newValue) => {
     setActiveTab(newValue);
-    if (newValue === "all") {
-      setFilteredProjects(projects);
-    } else {
-      const filtered = projects.filter(project => 
-        project.type.toLowerCase().replace(/\s+/g, "-") === newValue
-      );
-      setFilteredProjects(filtered);
-    }
+    // Don't filter here, let useEffect handle it
   };
 
   // Handle technology selection
@@ -444,7 +444,7 @@ const Works = () => {
           {sidebarPinned ? <PushPinIcon /> : <PushPinOutlinedIcon />}
         </IconButton>
       </Box>
-      
+
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -455,8 +455,8 @@ const Works = () => {
         <AccordionDetails>
           <List dense>
             {Object.entries(categories).map(([category, projects]) => (
-              <ListItem 
-                button 
+              <ListItem
+                button
                 key={category}
                 onClick={() => {
                   setActiveTab(category.toLowerCase().replace(/\s+/g, '-'));
@@ -499,14 +499,14 @@ const Works = () => {
                 <AccordionDetails>
                   <List dense>
                     {techs.map((tech) => (
-                      <ListItem 
-                        button 
+                      <ListItem
+                        button
                         key={tech}
                         onClick={() => {
                           setSelectedTech(tech);
                           setFilteredProjects(
-                            projects.filter(p => 
-                              p.technologies.some(t => 
+                            projects.filter(p =>
+                              p.technologies.some(t =>
                                 t.toLowerCase().includes(tech.toLowerCase())
                               )
                             )
@@ -575,9 +575,9 @@ const Works = () => {
           onMouseLeave={handleSidebarMouseLeave}
           sx={{
             display: { xs: "none", md: "block" },
-            width: sidebarOpen ? 280 : 30,
+            width: sidebarOpen ? 280 : 50,
             flexShrink: 0,
-            transition: "width 0.3s ease",
+            transition: "width 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
             position: "relative",
             borderRight: `3px solid ${alpha(theme.palette.divider, 0.1)}`,
             backgroundColor: alpha(theme.palette.background.paper, 0.9),
@@ -591,11 +591,14 @@ const Works = () => {
           {!sidebarOpen && (
             <Box
               sx={{
-                p: 2,
+                p: 1.5,
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 gap: 2,
+                height: "100%",
+                justifyContent: "flex-start",
+                pt: 3,
               }}
             >
               <IconButton
@@ -605,15 +608,47 @@ const Works = () => {
                 sx={{
                   border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
                   borderRadius: 1,
+                  mb: 2,
                 }}
               >
                 <ChevronRightIcon />
               </IconButton>
-              <LabelIcon color="primary" />
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 1,
+                  opacity: 0.7,
+                }}
+              >
+                <LabelIcon color="primary" sx={{ fontSize: 20 }} />
+                <Typography
+                  variant="caption"
+                  sx={{
+                    writingMode: "vertical-rl",
+                    textOrientation: "mixed",
+                    fontSize: "0.7rem",
+                    color: "text.secondary",
+                  }}
+                >
+                  Filters
+                </Typography>
+              </Box>
             </Box>
           )}
 
-          {renderSidebarContent()}
+          {/* Sidebar content with smooth transition */}
+          <Box
+            sx={{
+              opacity: sidebarOpen ? 1 : 0,
+              transform: sidebarOpen ? "translateX(0)" : "translateX(-20px)",
+              transition: "opacity 0.3s ease, transform 0.3s ease",
+              pointerEvents: sidebarOpen ? "auto" : "none",
+            }}
+          >
+            {renderSidebarContent()}
+          </Box>
         </Box>
 
         <Box
@@ -621,9 +656,9 @@ const Works = () => {
             flexGrow: 1,
             width: {
               xs: "100%",
-              md: sidebarOpen ? "calc(100% - 280px)" : "calc(100% - 60px)",
+              md: sidebarOpen ? "calc(100% - 280px)" : "calc(100% - 50px)",
             },
-            transition: "width 0.3s ease",            
+            transition: "width 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
           }}
         >
           <Container maxWidth="lg">
@@ -770,7 +805,7 @@ const Works = () => {
                     key={project.id}
                     // data-aos="fade-up"
                     // data-aos-delay={150 + index * 50}
-                    sx={{ flexBasis: "550px"}}                    
+                    sx={{ flexBasis: "550px"}}
                   >
                     <Card
                       elevation={2}
@@ -977,7 +1012,7 @@ const Works = () => {
                           color="primary"
                           size="medium"
                           endIcon={<ArrowForwardIcon sx={{ fontSize: "1rem" }} />}
-                          sx={{                            
+                          sx={{
                             borderRadius: 2,
                             textTransform: "none",
                             fontWeight: 600,

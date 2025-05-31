@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect, useMemo } from "react";
+import PropTypes from "prop-types";
 import {
   Drawer,
   Box,
@@ -24,7 +24,7 @@ import {
   Menu,
   MenuItem,
   Tooltip,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Close as CloseIcon,
   Home as HomeIcon,
@@ -44,12 +44,12 @@ import {
   Brightness4 as Brightness4Icon,
   Brightness7 as Brightness7Icon,
   Palette as PaletteIcon,
-} from '@mui/icons-material';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { AppProvider } from '@toolpad/core/AppProvider';
-import { SignInPage } from '@toolpad/core/SignInPage';
-import ToolpadAccountComponent from './auth/toolpad/ToolpadAccountComponent';
-import AuthJsClient from './auth/AuthJsClient';
+} from "@mui/icons-material";
+import { useNavigate, useLocation } from "react-router-dom";
+import { AppProvider } from "@toolpad/core/AppProvider";
+import { SignInPage } from "@toolpad/core/SignInPage";
+import ToolpadAccountComponent from "./auth/toolpad/ToolpadAccountComponent";
+import AuthJsClient from "./auth/AuthJsClient";
 
 const ModernMobileMenu = ({
   open,
@@ -69,12 +69,13 @@ const ModernMobileMenu = ({
   const location = useLocation();
   const [animationDelay, setAnimationDelay] = useState(0);
   const [expandedMenus, setExpandedMenus] = useState({});
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [recentItems, setRecentItems] = useState([]);
   const [expandedSections, setExpandedSections] = useState({
     account: false,
     settings: false,
-    signIn: false
+    signIn: false,
+    recent: false,
   });
 
   useEffect(() => {
@@ -82,12 +83,12 @@ const ModernMobileMenu = ({
       setAnimationDelay(100);
       // Load recent items from localStorage
       try {
-        const saved = localStorage.getItem('recentItems');
+        const saved = localStorage.getItem("recentItems");
         if (saved) {
           setRecentItems(JSON.parse(saved));
         }
       } catch (error) {
-        console.error('Error loading recent items:', error);
+        console.error("Error loading recent items:", error);
       }
     } else {
       setAnimationDelay(0);
@@ -95,32 +96,66 @@ const ModernMobileMenu = ({
   }, [open]);
 
   // Enhanced menu items with submenus
-  const menuItems = useMemo(() => [
-    { id: 'home', label: 'Home', icon: <HomeIcon />, path: '/' },
-    { id: 'hero', label: 'Hero', icon: <StarIcon />, path: '/heroref' },
-    { id: 'about', label: 'About Me', icon: <PersonIcon />, path: '/about' },
-    {
-      id: 'resume',
-      label: 'Resume',
-      icon: <WorkIcon />,
-      hasSubmenu: true,
-      submenu: resumeItems.map(item => ({
-        id: item.id,
-        label: item.label,
-        icon: item.icon || <WorkIcon />,
-        path: `/resume#${item.id}`
-      }))
-    },
-    { id: 'portfolio', label: 'Portfolio', icon: <WorkIcon />, path: '/works' },
-    { id: 'blog', label: 'Blog', icon: <ArticleIcon />, path: '/blogs' },
-    { id: 'contact', label: 'Contact', icon: <ContactMailIcon />, path: '/contact' },
-    { id: 'docs', label: 'Documentation', icon: <BookIcon />, path: '/docs' },
-  ], [resumeItems]);
+  const menuItems = useMemo(
+    () => [
+      { id: "home", label: "Home", icon: <HomeIcon />, path: "/" },
+      { id: "hero", label: "Hero", icon: <StarIcon />, path: "/heroref" },
+      { id: "about", label: "About Me", icon: <PersonIcon />, path: "/about" },
+      {
+        id: "resume",
+        label: "Resume",
+        icon: <WorkIcon />,
+        hasSubmenu: true,
+        submenu: resumeItems.map((item) => ({
+          id: item.id,
+          label: item.label,
+          icon: item.icon || <WorkIcon />,
+          path: `/resume#${item.id}`,
+        })),
+      },
+      {
+        id: "portfolio",
+        label: "Portfolio",
+        icon: <WorkIcon />,
+        path: "/works",
+      },
+      {
+        id: "knowledge",
+        label: "Knowledge Base",
+        icon: <BookIcon />,
+        hasSubmenu: true,
+        submenu: [
+          { id: "overview", label: "Overview", icon: <BookIcon />, path: "/knowledge" },
+          { id: "glossary", label: "Glossary", icon: <ArticleIcon />, path: "/knowledge/glossary" },
+          {
+            id: "domain",
+            label: "Domain Knowledge",
+            icon: <ArticleIcon />,
+            hasSubmenu: true,
+            submenu: [
+              { id: "credit-cards", label: "Credit Cards & Payments", icon: <ArticleIcon />, path: "/knowledge/domain/credit-cards" },
+              { id: "market-reference", label: "Market Reference Data", icon: <ArticleIcon />, path: "/knowledge/domain/market-reference" },
+              { id: "capital-markets", label: "Capital Markets", icon: <ArticleIcon />, path: "/knowledge/domain/capital-markets" },
+            ]
+          }
+        ],
+      },
+      { id: "blog", label: "Blog", icon: <ArticleIcon />, path: "/blogs" },
+      {
+        id: "contact",
+        label: "Contact",
+        icon: <ContactMailIcon />,
+        path: "/contact",
+      },
+      { id: "docs", label: "Documentation", icon: <BookIcon />, path: "/docs" },
+    ],
+    [resumeItems]
+  );
 
   // All searchable items including submenus
   const allSearchableItems = useMemo(() => {
     const items = [];
-    menuItems.forEach(item => {
+    menuItems.forEach((item) => {
       if (item.hasSubmenu) {
         items.push(...item.submenu);
       } else {
@@ -130,22 +165,22 @@ const ModernMobileMenu = ({
 
     // Add domain knowledge items
     if (domainKnowledgeData?.categories) {
-      domainKnowledgeData.categories.forEach(category => {
+      domainKnowledgeData.categories.forEach((category) => {
         items.push({
           id: `domain-${category.id}`,
           label: category.name,
           icon: <ArticleIcon />,
           path: `/knowledge/domain/${category.id}`,
-          keywords: ['knowledge', 'domain']
+          keywords: ["knowledge", "domain"],
         });
 
-        category.topics?.forEach(topic => {
+        category.topics?.forEach((topic) => {
           items.push({
             id: `domain-${category.id}-${topic.id}`,
             label: topic.title,
             icon: <ArticleIcon />,
             path: `/knowledge/domain/${category.id}/${topic.id}`,
-            keywords: ['knowledge', 'domain', category.name.toLowerCase()]
+            keywords: ["knowledge", "domain", category.name.toLowerCase()],
           });
         });
       });
@@ -159,11 +194,13 @@ const ModernMobileMenu = ({
     if (!searchTerm) return [];
 
     const searchLower = searchTerm.toLowerCase();
-    return allSearchableItems.filter(item =>
-      item.label.toLowerCase().includes(searchLower) ||
-      (item.keywords && item.keywords.some(keyword =>
-        keyword.toLowerCase().includes(searchLower)
-      ))
+    return allSearchableItems.filter(
+      (item) =>
+        item.label.toLowerCase().includes(searchLower) ||
+        (item.keywords &&
+          item.keywords.some((keyword) =>
+            keyword.toLowerCase().includes(searchLower)
+          ))
     );
   }, [searchTerm, allSearchableItems]);
 
@@ -185,7 +222,7 @@ const ModernMobileMenu = ({
     }
   };
 
-  // Previous implementation - Retain this in case of 
+  // Previous implementation - Retain this in case of
   // const [resumeAnchorEl, setResumeAnchorEl] = useState(null);
 
   // const handleResumeMenuClose = () => {
@@ -193,9 +230,9 @@ const ModernMobileMenu = ({
   // };
 
   const handleResumeMenuClose = () => {
-    setExpandedMenus(prev => ({
+    setExpandedMenus((prev) => ({
       ...prev,
-      resume: false
+      resume: false,
     }));
   };
 
@@ -205,18 +242,21 @@ const ModernMobileMenu = ({
       id: item.id,
       label: item.label,
       path: item.path,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
-    const updatedRecent = [newRecentItem, ...recentItems.filter(r => r.id !== item.id)].slice(0, 5);
+    const updatedRecent = [
+      newRecentItem,
+      ...recentItems.filter((r) => r.id !== item.id),
+    ].slice(0, 5);
     setRecentItems(updatedRecent);
-    localStorage.setItem('recentItems', JSON.stringify(updatedRecent));
+    localStorage.setItem("recentItems", JSON.stringify(updatedRecent));
 
     onClose();
 
     // Handle hash navigation for resume items
-    if (item.path.includes('#')) {
-      const [path, hash] = item.path.split('#');
+    if (item.path.includes("#")) {
+      const [path, hash] = item.path.split("#");
       if (path.startsWith("/resume")) {
         handleResumeItemClick(hash);
         return;
@@ -225,7 +265,7 @@ const ModernMobileMenu = ({
       setTimeout(() => {
         const element = document.getElementById(hash);
         if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
+          element.scrollIntoView({ behavior: "smooth" });
         }
       }, 100);
     } else {
@@ -234,9 +274,9 @@ const ModernMobileMenu = ({
   };
 
   const handleMenuToggle = (menuId) => {
-    setExpandedMenus(prev => ({
+    setExpandedMenus((prev) => ({
       ...prev,
-      [menuId]: !prev[menuId]
+      [menuId]: !prev[menuId],
     }));
   };
 
@@ -245,19 +285,19 @@ const ModernMobileMenu = ({
       await AuthJsClient.signOut();
       onClose();
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error("Error signing out:", error);
     }
   };
 
   const clearRecentItems = () => {
     setRecentItems([]);
-    localStorage.removeItem('recentItems');
+    localStorage.removeItem("recentItems");
   };
 
   const toggleSection = (section) => {
-    setExpandedSections(prev => ({
+    setExpandedSections((prev) => ({
       ...prev,
-      [section]: !prev[section]
+      [section]: !prev[section],
     }));
   };
 
@@ -269,43 +309,47 @@ const ModernMobileMenu = ({
       open={open}
       onClose={onClose}
       sx={{
-        '& .MuiDrawer-paper': {
-          width: '100vw',
-          height: '100vh',
-          background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.1) 0%, rgba(156, 39, 176, 0.1) 100%)',
-          backdropFilter: 'blur(20px)',
-          border: 'none',
+        "& .MuiDrawer-paper": {
+          width: "100vw",
+          height: "100vh",
+          maxHeight: "95%",
+          background: (theme) => theme.palette.mode === 'dark'
+            ? "linear-gradient(135deg, rgba(25, 118, 210, 0.15) 0%, rgba(156, 39, 176, 0.15) 100%)"
+            : "linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 240, 240, 0.95) 100%)",
+          backdropFilter: "blur(20px)",
+          border: "none",
+          color: (theme) => theme.palette.text.primary,
         },
       }}
     >
       <Box
         sx={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          position: 'relative',
-          overflow: 'hidden',
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
         {/* Header */}
         <Box
           sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
             p: 3,
-            borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+            borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
           }}
         >
           <Fade in={open} timeout={300}>
             <Typography
               variant="h5"
               sx={{
-                fontWeight: 'bold',
-                background: 'linear-gradient(45deg, #1976d2, #9c27b0)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
+                fontWeight: "bold",
+                background: "linear-gradient(45deg, #1976d2, #9c27b0)",
+                backgroundClip: "text",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
               }}
             >
               Menu
@@ -314,9 +358,9 @@ const ModernMobileMenu = ({
           <IconButton
             onClick={onClose}
             sx={{
-              color: 'text.primary',
-              transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
-              transition: 'transform 0.3s ease-in-out',
+              color: "text.primary",
+              transform: open ? "rotate(90deg)" : "rotate(0deg)",
+              transition: "transform 0.3s ease-in-out",
             }}
           >
             <CloseIcon />
@@ -326,13 +370,13 @@ const ModernMobileMenu = ({
         {/* User Section - Collapsible */}
         {isUserAuthenticated && (
           <Slide direction="left" in={open} timeout={400}>
-            <Box sx={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+            <Box sx={{ borderBottom: "1px solid rgba(255, 255, 255, 0.1)" }}>
               <ListItemButton
-                onClick={() => toggleSection('account')}
+                onClick={() => toggleSection("account")}
                 sx={{
                   p: 2,
-                  display: 'flex',
-                  alignItems: 'center',
+                  display: "flex",
+                  alignItems: "center",
                   gap: 2,
                 }}
               >
@@ -341,34 +385,42 @@ const ModernMobileMenu = ({
                   sx={{
                     width: 40,
                     height: 40,
-                    border: '2px solid',
-                    borderColor: 'primary.main',
+                    border: "2px solid",
+                    borderColor: "primary.main",
                   }}
                 >
-                  {user?.name?.[0] || user?.login?.[0] || 'U'}
+                  {user?.name?.[0] || user?.login?.[0] || "U"}
                 </Avatar>
                 <Box sx={{ flex: 1 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                    {user?.name || user?.login || 'User'}
+                  <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>
+                    {user?.name || user?.login || "User"}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {user?.email || 'Welcome back!'}
+                    {user?.email || "Welcome back!"}
                   </Typography>
                 </Box>
                 <IconButton size="small">
-                  {expandedSections.account ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                  {expandedSections.account ? (
+                    <ExpandLessIcon />
+                  ) : (
+                    <ExpandMoreIcon />
+                  )}
                 </IconButton>
               </ListItemButton>
 
               {/* Account Actions - Collapsible */}
-              <Collapse in={expandedSections.account} timeout="auto" unmountOnExit>
+              <Collapse
+                in={expandedSections.account}
+                timeout="auto"
+                unmountOnExit
+              >
                 <Box sx={{ p: 2, pt: 0 }}>
                   <List dense>
                     <ListItem disablePadding>
                       <ListItemButton
                         onClick={() => {
                           onClose();
-                          navigate('/profile');
+                          navigate("/profile");
                         }}
                         sx={{ borderRadius: 1, py: 1 }}
                       >
@@ -399,9 +451,9 @@ const ModernMobileMenu = ({
         {/* Authentication Section for Non-authenticated Users - Compact */}
         {!isUserAuthenticated && (
           <Slide direction="left" in={open} timeout={400}>
-            <Box sx={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+            <Box sx={{ borderBottom: "1px solid rgba(255, 255, 255, 0.1)" }}>
               <ListItemButton
-                onClick={() => toggleSection('signIn')}
+                onClick={() => toggleSection("signIn")}
                 sx={{ p: 2 }}
               >
                 <ListItemIcon>
@@ -412,17 +464,31 @@ const ModernMobileMenu = ({
                   secondary="Access your account"
                 />
                 <IconButton size="small">
-                  {expandedSections.signIn ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                  {expandedSections.signIn ? (
+                    <ExpandLessIcon />
+                  ) : (
+                    <ExpandMoreIcon />
+                  )}
                 </IconButton>
               </ListItemButton>
 
               {/* Sign-in Providers - Collapsible */}
-              <Collapse in={expandedSections.signIn} timeout="auto" unmountOnExit>
+              <Collapse
+                in={expandedSections.signIn}
+                timeout="auto"
+                unmountOnExit
+              >
                 <Box sx={{ p: 2, pt: 0 }}>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 2 }}
+                  >
                     Choose your preferred sign-in method:
                   </Typography>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Box
+                    sx={{ display: "flex", flexDirection: "column", gap: 1 }}
+                  >
                     {[
                       { id: "github", name: "GitHub", color: "#333" },
                       { id: "google", name: "Google", color: "#4285f4" },
@@ -433,26 +499,31 @@ const ModernMobileMenu = ({
                       <Box
                         key={provider.id}
                         onClick={async () => {
-                          console.log(`[Mobile Menu] Signing in with ${provider.id}`);
+                          console.log(
+                            `[Mobile Menu] Signing in with ${provider.id}`
+                          );
                           try {
                             await AuthJsClient.signIn(provider.id);
                             onClose();
                           } catch (error) {
-                            console.error(`[Mobile Menu] Error signing in with ${provider.id}:`, error);
+                            console.error(
+                              `[Mobile Menu] Error signing in with ${provider.id}:`,
+                              error
+                            );
                           }
                         }}
                         sx={{
-                          display: 'flex',
-                          alignItems: 'center',
+                          display: "flex",
+                          alignItems: "center",
                           gap: 2,
                           p: 1.5,
                           borderRadius: 1,
-                          border: '1px solid rgba(255, 255, 255, 0.2)',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease-in-out',
-                          '&:hover': {
-                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                            transform: 'translateX(4px)',
+                          border: "1px solid rgba(255, 255, 255, 0.2)",
+                          cursor: "pointer",
+                          transition: "all 0.2s ease-in-out",
+                          "&:hover": {
+                            backgroundColor: "rgba(255, 255, 255, 0.1)",
+                            transform: "translateX(4px)",
                           },
                         }}
                       >
@@ -460,11 +531,14 @@ const ModernMobileMenu = ({
                           sx={{
                             width: 20,
                             height: 20,
-                            borderRadius: '50%',
+                            borderRadius: "50%",
                             backgroundColor: provider.color,
                           }}
                         />
-                        <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
+                        <Typography
+                          variant="body2"
+                          sx={{ fontWeight: "medium" }}
+                        >
                           Continue with {provider.name}
                         </Typography>
                       </Box>
@@ -478,7 +552,9 @@ const ModernMobileMenu = ({
 
         {/* Search Section */}
         <Slide direction="left" in={open} timeout={500}>
-          <Box sx={{ p: 2, borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+          <Box
+            sx={{ p: 2, borderBottom: "1px solid rgba(255, 255, 255, 0.1)" }}
+          >
             <TextField
               fullWidth
               size="small"
@@ -493,17 +569,17 @@ const ModernMobileMenu = ({
                 ),
                 endAdornment: searchTerm && (
                   <InputAdornment position="end">
-                    <IconButton size="small" onClick={() => setSearchTerm('')}>
+                    <IconButton size="small" onClick={() => setSearchTerm("")}>
                       <ClearIcon />
                     </IconButton>
                   </InputAdornment>
                 ),
               }}
               sx={{
-                '& .MuiOutlinedInput-root': {
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                "& .MuiOutlinedInput-root": {
+                  backgroundColor: "rgba(255, 255, 255, 0.1)",
+                  "&:hover": {
+                    backgroundColor: "rgba(255, 255, 255, 0.15)",
                   },
                 },
               }}
@@ -513,7 +589,8 @@ const ModernMobileMenu = ({
             {searchTerm && searchResults.length > 0 && (
               <Box sx={{ mt: 2 }}>
                 <Typography variant="caption" color="text.secondary">
-                  {searchResults.length} result{searchResults.length !== 1 ? 's' : ''} found
+                  {searchResults.length} result
+                  {searchResults.length !== 1 ? "s" : ""} found
                 </Typography>
                 <List dense>
                   {searchResults.slice(0, 5).map((item) => (
@@ -522,8 +599,8 @@ const ModernMobileMenu = ({
                         onClick={() => handleItemClick(item)}
                         sx={{
                           borderRadius: 1,
-                          '&:hover': {
-                            backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                          "&:hover": {
+                            backgroundColor: "rgba(25, 118, 210, 0.1)",
                           },
                         }}
                       >
@@ -532,7 +609,7 @@ const ModernMobileMenu = ({
                         </ListItemIcon>
                         <ListItemText
                           primary={item.label}
-                          primaryTypographyProps={{ fontSize: '0.9rem' }}
+                          primaryTypographyProps={{ fontSize: "0.9rem" }}
                         />
                       </ListItemButton>
                     </ListItem>
@@ -543,54 +620,70 @@ const ModernMobileMenu = ({
           </Box>
         </Slide>
 
-        {/* Recent Items */}
+        {/* Recent Items - Collapsible */}
         {recentItems.length > 0 && (
           <Slide direction="left" in={open} timeout={600}>
-            <Box sx={{ p: 2, borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <HistoryIcon fontSize="small" />
-                  <Typography variant="subtitle2" fontWeight="bold">
-                    Recent
-                  </Typography>
-                </Box>
-                <Chip
-                  label="Clear"
-                  size="small"
-                  variant="outlined"
-                  onClick={clearRecentItems}
-                  sx={{ height: 20, fontSize: '0.7rem' }}
+            <Box sx={{ borderBottom: "1px solid rgba(255, 255, 255, 0.1)" }}>
+              <ListItemButton
+                onClick={() => toggleSection('recent')}
+                sx={{ p: 2 }}
+              >
+                <ListItemIcon>
+                  <HistoryIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary="Recent"
+                  secondary={`${recentItems.length} recent item${recentItems.length !== 1 ? 's' : ''}`}
                 />
-              </Box>
-              <List dense>
-                {recentItems.slice(0, 3).map((item) => (
-                  <ListItem key={`recent-${item.id}`} disablePadding>
-                    <ListItemButton
-                      onClick={() => handleItemClick(item)}
-                      sx={{
-                        borderRadius: 1,
-                        '&:hover': {
-                          backgroundColor: 'rgba(25, 118, 210, 0.1)',
-                        },
-                      }}
-                    >
-                      <ListItemIcon sx={{ minWidth: 32 }}>
-                        <HistoryIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText
-                        primary={item.label}
-                        primaryTypographyProps={{ fontSize: '0.9rem' }}
-                      />
-                    </ListItemButton>
-                  </ListItem>
-                ))}
-              </List>
+                <IconButton size="small">
+                  {expandedSections.recent ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                </IconButton>
+              </ListItemButton>
+
+              {/* Recent Items Content - Collapsible */}
+              <Collapse in={expandedSections.recent} timeout="auto" unmountOnExit>
+                <Box sx={{ p: 2, pt: 0 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+                    <Chip
+                      label="Clear All"
+                      size="small"
+                      variant="outlined"
+                      onClick={clearRecentItems}
+                      sx={{ height: 20, fontSize: "0.7rem" }}
+                    />
+                  </Box>
+                  <List dense>
+                    {recentItems.slice(0, 5).map((item) => (
+                      <ListItem key={`recent-${item.id}`} disablePadding>
+                        <ListItemButton
+                          onClick={() => handleItemClick(item)}
+                          sx={{
+                            borderRadius: 1,
+                            py: 1,
+                            "&:hover": {
+                              backgroundColor: "rgba(25, 118, 210, 0.1)",
+                            },
+                          }}
+                        >
+                          <ListItemIcon sx={{ minWidth: 32 }}>
+                            <HistoryIcon fontSize="small" />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={item.label}
+                            primaryTypographyProps={{ fontSize: "0.9rem" }}
+                          />
+                        </ListItemButton>
+                      </ListItem>
+                    ))}
+                  </List>
+                </Box>
+              </Collapse>
             </Box>
           </Slide>
         )}
 
         {/* Navigation Items */}
-        <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
+        <Box sx={{ flex: 1, overflow: "auto", p: 2 }}>
           <List>
             {menuItems.map((item, index) => (
               <Slide
@@ -602,21 +695,25 @@ const ModernMobileMenu = ({
                 <Box>
                   <ListItem disablePadding sx={{ mb: 1 }}>
                     <ListItemButton
-                      onClick={() => item.hasSubmenu ? handleMenuToggle(item.id) : handleItemClick(item)}
+                      onClick={() =>
+                        item.hasSubmenu
+                          ? handleMenuToggle(item.id)
+                          : handleItemClick(item)
+                      }
                       sx={{
                         borderRadius: 2,
                         py: 1.5,
                         px: 2,
-                        '&:hover': {
-                          backgroundColor: 'rgba(25, 118, 210, 0.1)',
-                          transform: 'translateX(8px)',
+                        "&:hover": {
+                          backgroundColor: "rgba(25, 118, 210, 0.1)",
+                          transform: "translateX(8px)",
                         },
-                        transition: 'all 0.3s ease-in-out',
+                        transition: "all 0.3s ease-in-out",
                       }}
                     >
                       <ListItemIcon
                         sx={{
-                          color: 'primary.main',
+                          color: "primary.main",
                           minWidth: 40,
                         }}
                       >
@@ -625,13 +722,17 @@ const ModernMobileMenu = ({
                       <ListItemText
                         primary={item.label}
                         primaryTypographyProps={{
-                          fontWeight: 'medium',
-                          fontSize: '1.1rem',
+                          fontWeight: "medium",
+                          fontSize: "1.1rem",
                         }}
                       />
                       {item.hasSubmenu && (
                         <IconButton size="small">
-                          {expandedMenus[item.id] ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                          {expandedMenus[item.id] ? (
+                            <ExpandLessIcon />
+                          ) : (
+                            <ExpandMoreIcon />
+                          )}
                         </IconButton>
                       )}
                     </ListItemButton>
@@ -639,35 +740,102 @@ const ModernMobileMenu = ({
 
                   {/* Submenu */}
                   {item.hasSubmenu && (
-                    <Collapse in={expandedMenus[item.id]} timeout="auto" unmountOnExit>
+                    <Collapse
+                      in={expandedMenus[item.id]}
+                      timeout="auto"
+                      unmountOnExit
+                    >
                       <List component="div" disablePadding>
                         {item.submenu.map((subItem) => (
-                          <ListItem key={subItem.id} disablePadding sx={{ pl: 4 }}>
-                            <ListItemButton
-                              onClick={() => handleItemClick(subItem)}
-                              sx={{
-                                borderRadius: 1,
-                                py: 1,
-                                px: 2,
-                                '&:hover': {
-                                  backgroundColor: 'rgba(25, 118, 210, 0.05)',
-                                  transform: 'translateX(4px)',
-                                },
-                                transition: 'all 0.2s ease-in-out',
-                              }}
-                            >
-                              <ListItemIcon sx={{ minWidth: 32, color: 'text.secondary' }}>
-                                {subItem.icon}
-                              </ListItemIcon>
-                              <ListItemText
-                                primary={subItem.label}
-                                primaryTypographyProps={{
-                                  fontSize: '0.95rem',
-                                  color: 'text.secondary',
+                          <Box key={subItem.id}>
+                            <ListItem disablePadding sx={{ pl: 4 }}>
+                              <ListItemButton
+                                onClick={() =>
+                                  subItem.hasSubmenu
+                                    ? handleMenuToggle(subItem.id)
+                                    : handleItemClick(subItem)
+                                }
+                                sx={{
+                                  borderRadius: 1,
+                                  py: 1,
+                                  px: 2,
+                                  "&:hover": {
+                                    backgroundColor: "rgba(25, 118, 210, 0.05)",
+                                    transform: "translateX(4px)",
+                                  },
+                                  transition: "all 0.2s ease-in-out",
                                 }}
-                              />
-                            </ListItemButton>
-                          </ListItem>
+                              >
+                                <ListItemIcon
+                                  sx={{ minWidth: 32, color: "text.secondary" }}
+                                >
+                                  {subItem.icon}
+                                </ListItemIcon>
+                                <ListItemText
+                                  primary={subItem.label}
+                                  primaryTypographyProps={{
+                                    fontSize: "0.95rem",
+                                    color: "text.secondary",
+                                  }}
+                                />
+                                {subItem.hasSubmenu && (
+                                  <IconButton size="small">
+                                    {expandedMenus[subItem.id] ? (
+                                      <ExpandLessIcon fontSize="small" />
+                                    ) : (
+                                      <ExpandMoreIcon fontSize="small" />
+                                    )}
+                                  </IconButton>
+                                )}
+                              </ListItemButton>
+                            </ListItem>
+
+                            {/* Nested Submenu */}
+                            {subItem.hasSubmenu && (
+                              <Collapse
+                                in={expandedMenus[subItem.id]}
+                                timeout="auto"
+                                unmountOnExit
+                              >
+                                <List component="div" disablePadding>
+                                  {subItem.submenu.map((nestedItem) => (
+                                    <ListItem
+                                      key={nestedItem.id}
+                                      disablePadding
+                                      sx={{ pl: 8 }}
+                                    >
+                                      <ListItemButton
+                                        onClick={() => handleItemClick(nestedItem)}
+                                        sx={{
+                                          borderRadius: 1,
+                                          py: 0.5,
+                                          px: 2,
+                                          "&:hover": {
+                                            backgroundColor: "rgba(25, 118, 210, 0.03)",
+                                            transform: "translateX(2px)",
+                                          },
+                                          transition: "all 0.2s ease-in-out",
+                                        }}
+                                      >
+                                        <ListItemIcon
+                                          sx={{ minWidth: 28, color: "text.disabled" }}
+                                        >
+                                          {nestedItem.icon}
+                                        </ListItemIcon>
+                                        <ListItemText
+                                          primary={nestedItem.label}
+                                          primaryTypographyProps={{
+                                            fontSize: "0.85rem",
+                                            color: "text.disabled",
+                                          }}
+                                        />
+                                      </ListItemButton>
+                                    </ListItem>
+                                  ))}
+                                </List>
+                              </Collapse>
+                            )}
+                          </Box>
                         ))}
                       </List>
                     </Collapse>
@@ -680,9 +848,9 @@ const ModernMobileMenu = ({
 
         {/* Settings Section - Collapsible */}
         <Slide direction="up" in={open} timeout={600}>
-          <Box sx={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+          <Box sx={{ borderTop: "1px solid rgba(255, 255, 255, 0.1)" }}>
             <ListItemButton
-              onClick={() => toggleSection('settings')}
+              onClick={() => toggleSection("settings")}
               sx={{ p: 2 }}
             >
               <ListItemIcon>
@@ -693,12 +861,20 @@ const ModernMobileMenu = ({
                 secondary="Theme & preferences"
               />
               <IconButton size="small">
-                {expandedSections.settings ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                {expandedSections.settings ? (
+                  <ExpandLessIcon />
+                ) : (
+                  <ExpandMoreIcon />
+                )}
               </IconButton>
             </ListItemButton>
 
             {/* Settings Content - Collapsible */}
-            <Collapse in={expandedSections.settings} timeout="auto" unmountOnExit>
+            <Collapse
+              in={expandedSections.settings}
+              timeout="auto"
+              unmountOnExit
+            >
               <Box sx={{ p: 2, pt: 0 }}>
                 {/* Dark Mode Toggle */}
                 <FormControlLabel
@@ -711,10 +887,14 @@ const ModernMobileMenu = ({
                     />
                   }
                   label={
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      {isDarkMode ? <Brightness7Icon fontSize="small" /> : <Brightness4Icon fontSize="small" />}
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      {/* {isDarkMode ? (
+                        <Brightness7Icon fontSize="small" />
+                      ) : (
+                        <Brightness4Icon fontSize="small" />
+                      )} */}
                       <Typography variant="body2">
-                        {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+                        Dark Mode
                       </Typography>
                     </Box>
                   }
@@ -723,10 +903,14 @@ const ModernMobileMenu = ({
 
                 {/* Color Palette */}
                 <Box>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ mb: 1 }}
+                  >
                     Color Theme
                   </Typography>
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
                     {availablePalettes?.map((palette, index) => (
                       <Tooltip key={palette.name} title={palette.name} arrow>
                         <Box
@@ -734,14 +918,17 @@ const ModernMobileMenu = ({
                           sx={{
                             width: 24,
                             height: 24,
-                            borderRadius: '50%',
+                            borderRadius: "50%",
                             bgcolor: palette.primary,
-                            border: '2px solid',
-                            borderColor: index === currentPaletteIndex ? 'primary.main' : 'transparent',
-                            cursor: 'pointer',
-                            transition: 'transform 0.2s',
-                            '&:hover': {
-                              transform: 'scale(1.2)',
+                            border: "2px solid",
+                            borderColor:
+                              index === currentPaletteIndex
+                                ? "primary.main"
+                                : "transparent",
+                            cursor: "pointer",
+                            transition: "transform 0.2s",
+                            "&:hover": {
+                              transform: "scale(1.2)",
                             },
                           }}
                         />

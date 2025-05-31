@@ -22,6 +22,8 @@ import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import { styled, alpha } from "@mui/material/styles";
+import useResponsiveFooterHeight from "../hooks/useResponsiveFooterHeight";
+import { useLayoutDimensions } from "../hooks/useLayoutDimensions";
 
 // Styled components
 const HeroContainer = styled(Box)(({ theme }) => ({
@@ -31,20 +33,20 @@ const HeroContainer = styled(Box)(({ theme }) => ({
   justifyContent: "center",
   alignItems: "center",
   position: "relative",
-  paddingTop: theme.spacing(8), // Standard top padding
-  paddingLeft: theme.spacing(2),
-  paddingRight: theme.spacing(2),
-  paddingBottom: theme.spacing(4),
+  // paddingTop: theme.spacing(8),
+  // paddingLeft: theme.spacing(2),
+  // paddingRight: theme.spacing(2),
+  // paddingBottom: theme.spacing(4),
   background:
     theme.palette.mode === "dark"
       ? "linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 25%, #2d1b69 50%, #1a1a1a 75%, #0f0f0f 100%)"
       : "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #3b82f6 50%, #e2e8f0 75%, #f8fafc 100%)",
   backgroundSize: "400% 400%",
-  animation: "gradientShift 15s ease infinite",
+  animation: "gradientShift 30s ease infinite",
   color: theme.palette.text.primary,
   textAlign: "center",
   overflow: "hidden",
-  [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down("sm")]: {
     paddingTop: theme.spacing(6),
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
@@ -91,11 +93,26 @@ const ProfileSection = styled(Box)(({ theme }) => ({
   justifyContent: "center",
   gap: theme.spacing(3),
   minHeight: "50vh", // Optional: gives some minimum height to work with
+
+  [theme.breakpoints.down("md")]: {
+    position: "relative",
+    top: `-${theme.customLayout?.fixedHeaderHeight || 64}px`, // Move up by header height
+    marginBottom: `-${theme.customLayout?.fixedHeaderHeight || 64}px`, // Compensate for the negative top
+    paddingTop: theme.spacing(2), // Add some padding to prevent overlap
+
+    // Ensure avatar is centered horizontally
+    "& .MuiAvatar-root": {
+      alignSelf: "center",
+    },
+  },
+
   [theme.breakpoints.up("md")]: {
     flexDirection: "row",
     gap: theme.spacing(6),
     textAlign: "left",
     justifyContent: "flex-start", // Reset for desktop
+    top: 0, // Reset top position for desktop
+    marginBottom: 0, // Reset margin for desktop
   },
 }));
 
@@ -106,7 +123,7 @@ const AnimatedAvatar = styled(Avatar)(({ theme }) => ({
   boxShadow: `0 20px 60px rgba(0,0,0,0.3), 0 0 0 10px ${alpha(theme.palette.primary.main, 0.2)}`,
   transition: "all 0.3s ease",
   position: "relative",
-  marginBottom: theme.spacing(2),
+  // marginBottom: theme.spacing(2),
 
   "&::before": {
     content: '""',
@@ -133,17 +150,21 @@ const AnimatedAvatar = styled(Avatar)(({ theme }) => ({
     },
   },
   [theme.breakpoints.down("sm")]: {
-    width: 100,
-    height: 100,
-    marginBottom: theme.spacing(1),
+    width: 80,
+    height: 80,
+    // marginBottom: theme.spacing(1),
   },
   [theme.breakpoints.up("sm")]: {
+    width: 120,
+    height: 120,
+  },
+  [theme.breakpoints.up("md")]: {
     width: 140,
     height: 140,
   },
-  [theme.breakpoints.up("md")]: {
-    width: 180,
-    height: 180,
+  [theme.breakpoints.up("lg")]: {
+    width: 160,
+    height: 160,
   },
 }));
 
@@ -183,8 +204,6 @@ const Name = styled(Typography)(({ theme }) => ({
     width: "auto",
   },
 }));
-
-
 
 const Description = styled(Typography, {
   shouldForwardProp: (prop) => prop !== "center" && prop !== "highlight",
@@ -557,6 +576,11 @@ const Hero = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
+  const isPortrait = useMediaQuery("(orientation: portrait)");
+  const { safeOffsets, headerHeight, footerHeight } = useLayoutDimensions();
+
+  const heightOffset = footerHeight + headerHeight;
+  const calculatedMinHeight = `calc(100vh - ${heightOffset}px) + theme.spacing(1)`;
 
   const scrollToSection = (sectionId) => {
     const section = document.getElementById(sectionId);
@@ -581,7 +605,7 @@ const Hero = () => {
     "Confluence",
   ];
   const typewriterTexts = [
-    "Technical Program Manager",    
+    "Technical Program Manager",
     "Delivery Director",
     "Agile/AI Advocate",
     "Data Viz Entusiast",
@@ -589,12 +613,14 @@ const Hero = () => {
   ];
 
   return (
-    <HeroContainer>
+    <HeroContainer sx={{ minHeight: calculatedMinHeight }}>
       {/* Floating background icons */}
       <FloatingIcon
         sx={{
-          top: { xs: 20, sm: 40 },
-          left: { xs: 20, sm: 40 },
+          // top: { xs: 20, sm: 40 },
+          // left: { xs: 20, sm: 40 },
+          top: `${safeOffsets.topOffset}px`,
+          left: `${safeOffsets.sideOffset}px`,
           animationDelay: "2s",
         }}
       >
@@ -603,8 +629,10 @@ const Hero = () => {
 
       <FloatingIcon
         sx={{
-          top: { xs: 20, sm: 40 },
-          right: { xs: 20, sm: 40 },
+          // top: { xs: 20, sm: 40 },
+          // right: { xs: 20, sm: 40 },
+          top: `${safeOffsets.topOffset}px`,
+          right: `${safeOffsets.sideOffset}px`,
           animationDelay: "2s",
         }}
       >
@@ -613,9 +641,11 @@ const Hero = () => {
 
       <FloatingIcon
         sx={{
-          bottom: { xs: 120, sm: 140 },
-          left: { xs: 20, sm: 40 },
-          animationDelay: "4s",
+          // bottom: { xs: 120, sm: 140 },
+          // left: { xs: 20, sm: 40 },
+          bottom: `${safeOffsets.bottomOffset}px`,
+          left: `${safeOffsets.sideOffset}px`,
+          animationDelay: "2s",
         }}
       >
         <TipsAndUpdatesIcon sx={{ fontSize: { xs: 28, sm: 36, md: 40 } }} />
@@ -623,23 +653,25 @@ const Hero = () => {
 
       <FloatingIcon
         sx={{
-          bottom: { xs: 120, sm: 140 },
-          right: { xs: 20, sm: 40 },
-          animationDelay: "4s",
+          // bottom: { xs: 120, sm: 140 },
+          // right: { xs: 20, sm: 40 },
+          bottom: `${safeOffsets.bottomOffset}px`,
+          right: `${safeOffsets.sideOffset}px`,
+          animationDelay: "2s",
         }}
       >
         <TrendingUpIcon sx={{ fontSize: { xs: 28, sm: 36, md: 40 } }} />
-      </FloatingIcon>      
+      </FloatingIcon>
 
       <ContentContainer maxWidth="lg">
-        <ProfileSection>
-          <AnimatedAvatar
-            src="/images/DSC_0694.jpg"
-            alt="Vishal Biyani"
-          />
+        <ProfileSection sx={{ position: "relative" }}>
+          <AnimatedAvatar src="/images/DSC_0694.jpg" alt="Vishal Biyani" />
           <IntroSection>
             <Box>
-              <Typography variant="h6" sx={{ color: "text.secondary", mb: 0.5 }}>
+              <Typography
+                variant="h6"
+                sx={{ color: "text.secondary", mb: 0.5 }}
+              >
                 Hi, I&apos;m
               </Typography>
               <Name variant="h1">Vishal Biyani</Name>
@@ -703,103 +735,101 @@ const Hero = () => {
         </ProfileSection>
 
         {/* Stats Section */}
-        {!isSmallScreen && (
-          <Grid
-            container
-            spacing={{ xs: 1, sm: 2 }}
-            justifyContent="center"
-            sx={{
-              mt: 1,
-              maxWidth: { xs: "100%", sm: "600px" },
-              mx: "auto",
-            }}
-          >
-            {[
-              { number: "25+", text: "Years Experience" },
-              { number: "150+", text: "Team Members Coached" },
-              { number: "50+", text: "Applications Managed" },
-            ].map((stat, index) => (
-              <React.Fragment key={index}>
-                {isMobile ? (
-                  <Paper
-                    key={index}
-                    elevation={0}
+        <Grid
+          container
+          spacing={{ xs: 1, sm: 2 }}
+          justifyContent="center"
+          sx={{
+            mt: { xs: -8, sm: 1 },
+            maxWidth: { xs: "100%", sm: "600px" },
+            mx: "auto",
+          }}
+        >
+          {[
+            { number: "25+", text: "Years Experience" },
+            { number: "150+", text: "Team Members Coached" },
+            { number: "50+", text: "Applications Managed" },
+          ].map((stat, index) => (
+            <React.Fragment key={index}>
+              {isMobile ? (
+                <Paper
+                  key={index}
+                  elevation={0}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 0.5,
+                    px: 1,
+                    py: 0.5,
+                    borderRadius: 1.5,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    backgroundColor: "background.paper",
+                    minWidth: "fit-content",
+                    maxWidth: { xs: "32%", sm: "auto" },
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    fontWeight="bold"
+                    color="primary.main"
                     sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 0.5,
-                      px: 1,
-                      py: 0.5,
-                      borderRadius: 1.5,
-                      border: "1px solid",
-                      borderColor: "divider",
-                      backgroundColor: "background.paper",
-                      minWidth: "fit-content",
-                      maxWidth: { xs: "32%", sm: "auto" },
+                      fontSize: "0.75rem",
+                      whiteSpace: "nowrap",
                     }}
                   >
+                    {stat.number}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{
+                      fontSize: "0.65rem",
+                      lineHeight: 1.1,
+                      textAlign: "center",
+                    }}
+                  >
+                    {stat.text}
+                  </Typography>
+                </Paper>
+              ) : (
+                <Grid item xs={6} sm={6} md={4} lg={3}>
+                  <StatCard>
                     <Typography
-                      variant="caption"
+                      variant="h4"
                       fontWeight="bold"
-                      color="primary.main"
+                      color="primary"
                       sx={{
-                        fontSize: "0.75rem",
-                        whiteSpace: "nowrap",
+                        fontSize: {
+                          xs: "clamp(0.9rem, 2.5vw, 1.25rem)",
+                          sm: "1.25rem",
+                          md: "1.5rem",
+                        },
                       }}
                     >
                       {stat.number}
                     </Typography>
                     <Typography
-                      variant="caption"
+                      variant="body2"
                       color="text.secondary"
                       sx={{
-                        fontSize: "0.65rem",
-                        lineHeight: 1.1,
+                        fontSize: {
+                          xs: "clamp(0.65rem, 2.5vw, 0.75rem)",
+                          sm: "0.75rem",
+                        },
+                        lineHeight: 1.0,
+                        mt: 0.2,
                         textAlign: "center",
                       }}
                     >
                       {stat.text}
                     </Typography>
-                  </Paper>
-                ) : (
-                  <Grid item xs={6} sm={6} md={4} lg={3}>
-                    <StatCard>
-                      <Typography
-                        variant="h4"
-                        fontWeight="bold"
-                        color="primary"
-                        sx={{
-                          fontSize: {
-                            xs: "clamp(0.9rem, 2.5vw, 1.25rem)",
-                            sm: "1.25rem",
-                            md: "1.5rem",
-                          },
-                        }}
-                      >
-                        {stat.number}
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          fontSize: {
-                            xs: "clamp(0.65rem, 2.5vw, 0.75rem)",
-                            sm: "0.75rem",
-                          },
-                          lineHeight: 1.0,
-                          mt: 0.2,
-                          textAlign: "center",
-                        }}
-                      >
-                        {stat.text}
-                      </Typography>
-                    </StatCard>
-                  </Grid>
-                )}
-              </React.Fragment>
-            ))}
-          </Grid>
-        )}
+                  </StatCard>
+                </Grid>
+              )}
+            </React.Fragment>
+          ))}
+        </Grid>
       </ContentContainer>
 
       <Box
@@ -813,11 +843,11 @@ const Hero = () => {
         <ScrollDownButton
           onClick={() => scrollToSection("summary")}
           aria-label="scroll down"
+          sx={{ mb: `${footerHeight}px` }}
         >
-          <KeyboardArrowDownIcon sx={{ fontSize: 32 }} />
-        </ScrollDownButton>        
+          <KeyboardArrowDownIcon sx={{ fontSize: 40 }} />
+        </ScrollDownButton>
       </Box>
-      
     </HeroContainer>
   );
 };

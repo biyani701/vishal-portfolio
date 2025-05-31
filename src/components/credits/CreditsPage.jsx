@@ -88,7 +88,46 @@ const creditsData = [
     gradient: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
     category: "inspiration",
     categoryColor: "secondary"
-  }
+  },
+  {
+    id: 6,
+    icon: CodeIcon,
+    title: "Mobile Menu 1",
+    description: "This template was used as a reference for the design of Mobile Menu.",
+    link: {
+      url: "https://codepen.io/tiffachoo/pen/yzZRXK",
+      text: "View Template"
+    },
+    gradient: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+    category: "inspiration",
+    categoryColor: "secondary"
+  },
+  {
+    id: 7,
+    icon: CodeIcon,
+    title: "Mobile Menu 1",
+    description: "This template was used as a reference for the design of Mobile Menu.",
+    link: {
+      url: "https://codepen.io/mxbck/pen/xdaGNL",
+      text: "View Template"
+    },
+    gradient: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+    category: "inspiration",
+    categoryColor: "secondary"
+  },
+  {
+    id: 8,
+    icon: CodeIcon,
+    title: "Mobile Menu 1",
+    description: "This template was used as a reference for the design of Mobile Menu.",
+    link: {
+      url: "https://codepen.io/sfi0zy/pen/oZNmRp",
+      text: "View Template"
+    },
+    gradient: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+    category: "inspiration",
+    categoryColor: "secondary"
+  },
 ];
 
 const categoryIcons = {

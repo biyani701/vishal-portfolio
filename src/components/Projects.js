@@ -1,3 +1,4 @@
+import React from "react";
 const projects = [
   {
     title: "Portfolio Website",

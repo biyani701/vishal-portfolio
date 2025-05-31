@@ -1,10 +1,18 @@
 import React, { useState, useEffect, useMemo } from "react";
+import ReactMarkdown from 'react-markdown';
+import rehypeSanitize from 'rehype-sanitize';
+import removeMarkdown from 'remove-markdown';
 import {
   Box,
   Container,
   Typography,
   Card,
   CardContent,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
   Grid,
   Chip,
   useTheme,
@@ -16,6 +24,8 @@ import {
   Stack,
 } from "@mui/material";
 import Icon from "@mui/material/Icon";
+import ReplayIcon from '@mui/icons-material/Replay';
+import CloseIcon from "@mui/icons-material/Close";
 import glossaryData from "../../data/glossaryData";
 
 // Glossary component
@@ -85,21 +95,47 @@ const Glossary = () => {
       }, {});
   }, [filteredItems]);
 
-  // Handle card flip with animation
+  // Handle card flip with animation - only one card flipped at a time
   const handleCardFlip = (id) => {
-    // Add a small delay to make the animation smoother
-    setFlippedCards((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
+    setFlippedCards((prev) => {
+      // If clicking on already flipped card, just flip it back
+      if (prev[id]) {
+        return { ...prev, [id]: false };
+      }
+
+      // Otherwise, flip all cards back and flip the clicked one
+      const newState = {};
+      Object.keys(prev).forEach(key => {
+        newState[key] = false;
+      });
+      newState[id] = true;
+
+      return newState;
+    });
   };
 
-  // Truncate text function
-  const truncateText = (text, maxLength = 120) => {
-    if (text.length <= maxLength) return text;
-    return text.substr(0, maxLength) + '...';
+  // Handle text expansion dialog
+  const handleTextExpand = (e, item) => {
+    e.stopPropagation(); // Prevent card flip when clicking on text
+    setDialogContent(item);
+    setDialogOpen(true);
   };
-  
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setDialogContent({});
+  };
+
+  // Configurable truncation length
+  const TRUNCATION_LENGTH = 120;
+
+  // Truncate text function
+  const truncateText = (text, maxLength = TRUNCATION_LENGTH) => {
+    const plainText = removeMarkdown(text || '');
+    if (plainText.length <= maxLength) return plainText;
+    return plainText.substring(0, maxLength) + '...';
+  };
+
   // Count items for each filter
   const filterCounts = useMemo(() => {
     const counts = { all: glossaryData.length };
@@ -220,7 +256,7 @@ const Glossary = () => {
                     >
                       <Box
                           sx={{
-                            position: 'absolute',
+                            position: 'relative',
                             top: 15,
                             right: -8,
                             bgcolor: 'primary.main',
@@ -234,7 +270,7 @@ const Glossary = () => {
                             boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
                             '&::after': {
                               content: '""',
-                              position: 'absolute',
+                              position: 'relative',
                               right: -8,
                               top: 0,
                               width: 0,
@@ -254,11 +290,14 @@ const Glossary = () => {
                             height: '100%',
                             position: 'relative',
                             transformStyle: 'preserve-3d',
-                            transition: 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                            transition: 'transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
                             transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
                             cursor: 'pointer',
+                            perspective: '1000px',
                             '&:hover': {
-                              transform: isFlipped ? 'rotateY(180deg) scale(1.02)' : 'rotateY(0deg) scale(1.02)',
+                              transform: isFlipped
+                                ? 'rotateY(180deg) scale(1.02) translateZ(10px)'
+                                : 'rotateY(0deg) scale(1.02) translateZ(10px)',
                             }
                           }}
                           onClick={() => handleCardFlip(item.id)}
@@ -294,7 +333,7 @@ const Glossary = () => {
                           {/* Front */}
                           <CardContent
                             sx={{
-                              position: "relative",
+                              position: "absolute",
                               top: 0,
                               left: 0,
                               width: "100%",
@@ -302,10 +341,8 @@ const Glossary = () => {
                               display: "flex",
                               flexDirection: "column",
                               p: { xs: 1.5, sm: 2 },
-                              opacity: isFlipped ? 0 : 1,
-                              transition: "opacity 0.4s ease-in-out",
-                              pointerEvents: isFlipped ? "none" : "auto",
-                              zIndex: isFlipped ? 0 : 1,
+                              backfaceVisibility: "hidden",
+                              transform: "rotateY(0deg)",
                               bgcolor:
                                 theme.palette.mode === "dark"
                                   ? "background.paper"
@@ -332,7 +369,7 @@ const Glossary = () => {
                                 }}
                               >
                                 {item.acronym}
-                              </Typography>                              
+                              </Typography>
                               <Divider sx={{ width: '60%', mb: 2, bgcolor: 'primary.main', height: 2 }} />
                               <Typography
                                 variant="body2"
@@ -366,7 +403,7 @@ const Glossary = () => {
                             </Box>
                           </CardContent>
 
-                          {/* Back */}
+                          {/* Back side */}
                           <CardContent
                             sx={{
                               position: "absolute",
@@ -378,9 +415,7 @@ const Glossary = () => {
                               flexDirection: "column",
                               transform: 'rotateY(180deg)',
                               p: { xs: 1.5, sm: 2 },
-                              opacity: isFlipped ? 1 : 0,
-                              transition: "opacity 0.4s ease-in-out",
-                              pointerEvents: isFlipped ? "auto" : "none",
+                              backfaceVisibility: "hidden",
                               bgcolor:
                                 theme.palette.mode === "dark"
                                   ? "primary.dark"
@@ -389,7 +424,6 @@ const Glossary = () => {
                                 theme.palette.mode === "dark"
                                   ? "white"
                                   : "text.primary",
-                              zIndex: isFlipped ? 1 : 0,
                               overflow: "hidden",
                             }}
                           >
@@ -435,8 +469,20 @@ const Glossary = () => {
                                   maxWidth: "100%",
                                   overflowWrap: "break-word",
                                 }}
+                                onClick={needsTruncation ? (e) => handleTextExpand(e, item) : undefined}
                               >
-                                {item.details}
+                                {/* {item.details} */}
+                                {truncatedDetails}
+                                {needsTruncation && (
+                                    <Box component="span" sx={{
+                                      color: 'rgba(255,255,255,0.8)',
+                                      fontStyle: 'italic',
+                                      textDecoration: 'underline',
+                                      ml: 1
+                                    }}>
+                                      Read more
+                                    </Box>
+                                  )}
                               </Typography>
                             </Box>
                             <Box
@@ -451,8 +497,10 @@ const Glossary = () => {
                               <Typography
                                 variant="caption"
                                 sx={{ opacity: 0.7 }}
+                                display="flex" alignItems="center" gap={0.5}
                               >
-                                (Click to go back)
+                                <ReplayIcon fontSize="inherit" />
+                                Click to flip back
                               </Typography>
                             </Box>
                           </CardContent>
@@ -488,6 +536,62 @@ const Glossary = () => {
           </Typography>
         )}
       </Container>
+        {/* Full text dialog */}
+      <Dialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            maxHeight: '80vh'
+          }
+        }}
+      >
+        <DialogTitle sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          bgcolor: 'primary.main',
+          color: 'white'
+        }}>
+          <Box>
+            <Typography variant="h6" component="span" sx={{ fontWeight: 'bold' }}>
+              {dialogContent.acronym}
+            </Typography>
+            <Typography variant="subtitle2" sx={{ opacity: 0.9, mt: 0.5 }}>
+              {dialogContent.fullForm}
+            </Typography>
+          </Box>
+          <IconButton
+            onClick={handleDialogClose}
+            sx={{ color: 'white' }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ mt: 2 }}>
+          <Typography variant="body1" sx={{
+            lineHeight: 1.7,
+            textAlign: 'justify'
+          }}>
+            <ReactMarkdown rehypePlugins={[rehypeSanitize]}>
+            {dialogContent.details}
+            </ReactMarkdown>
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button
+            onClick={handleDialogClose}
+            variant="contained"
+            sx={{ borderRadius: 2 }}
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
     </Box>
   );
 };
