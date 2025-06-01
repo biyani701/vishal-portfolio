@@ -75,38 +75,11 @@ const PrivacyPreferencesButton = () => {
 
   const iconSize = buttonSize <= 32 ? "small" : "medium";
 
-  // Simplified modal positioning - let CSS handle most of the work
+  // Simplified modal handling - CSS handles positioning
   const addModalClasses = () => {
     const klaroModal = document.querySelector('.klaro');
-    const klaroModalContent = document.querySelector('.klaro .cm-modal');
-    
-    if (!klaroModal || !klaroModalContent) return;
 
-    // Add custom classes for CSS targeting
-    klaroModal.classList.add('klaro-custom');
-    klaroModalContent.classList.add('klaro-modal-custom');
-
-    // Add orientation and device classes
-    if (isMobile) {
-      klaroModal.classList.add('klaro-mobile');
-      klaroModalContent.classList.add('klaro-mobile');
-      
-      if (isPortrait) {
-        klaroModal.classList.add('klaro-portrait');
-        klaroModalContent.classList.add('klaro-portrait');
-      } else {
-        klaroModal.classList.add('klaro-landscape');
-        klaroModalContent.classList.add('klaro-landscape');
-      }
-    } else {
-      klaroModal.classList.add('klaro-desktop');
-      klaroModalContent.classList.add('klaro-desktop');
-    }
-
-    // Set CSS custom properties for dynamic values
-    document.documentElement.style.setProperty('--footer-height', `${footerHeight}px`);
-    document.documentElement.style.setProperty('--viewport-height', `${window.innerHeight}px`);
-    document.documentElement.style.setProperty('--viewport-width', `${window.innerWidth}px`);
+    if (!klaroModal) return;
 
     // Add backdrop click to close
     const handleBackdropClick = (e) => {
@@ -114,7 +87,7 @@ const PrivacyPreferencesButton = () => {
         window.klaro?.hide();
       }
     };
-    
+
     klaroModal.removeEventListener('click', handleBackdropClick);
     klaroModal.addEventListener('click', handleBackdropClick);
   };
@@ -139,31 +112,13 @@ const PrivacyPreferencesButton = () => {
     // Event listeners for modal show/hide
     const handleKlaroShow = () => {
       setIsModalOpen(true);
-      
-      // Apply classes multiple times to ensure they stick
-      setTimeout(addModalClasses, 10);
-      setTimeout(addModalClasses, 50);
+
+      // Apply backdrop click handler
       setTimeout(addModalClasses, 100);
-      setTimeout(addModalClasses, 200);
-      
-      // Handle orientation changes
-      const handleOrientationChange = () => {
-        setTimeout(() => {
-          document.documentElement.style.setProperty('--viewport-height', `${window.innerHeight}px`);
-          document.documentElement.style.setProperty('--viewport-width', `${window.innerWidth}px`);
-          addModalClasses();
-        }, 100);
-      };
-      
-      window.addEventListener('resize', handleOrientationChange);
-      window.addEventListener('orientationchange', handleOrientationChange);
     };
-    
+
     const handleKlaroHide = () => {
       setIsModalOpen(false);
-      // Clean up event listeners
-      window.removeEventListener('resize', addModalClasses);
-      window.removeEventListener('orientationchange', addModalClasses);
     };
 
     window.addEventListener('klaro-show', handleKlaroShow);
@@ -175,7 +130,7 @@ const PrivacyPreferencesButton = () => {
       window.removeEventListener('klaro-show', handleKlaroShow);
       window.removeEventListener('klaro-hide', handleKlaroHide);
     };
-  }, [isMobile, isPortrait, footerHeight]);
+  }, []);
 
   const handleClick = () => {
     if (window.klaro && typeof window.klaro.show === "function") {

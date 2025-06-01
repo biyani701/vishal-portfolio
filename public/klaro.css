@@ -453,7 +453,7 @@ to create a white background.
     margin: 0 auto;
     max-width: 640px;
     height: auto;
-    width: auto;
+    width: auto;    
   }
 }
 .klaro .cookie-modal .cm-modal .hide {
@@ -731,4 +731,93 @@ to create a white background.
 }
 .klaro .cookie-notice-hidden {
   display: none !important;
+}
+
+/* Enhanced mobile styles for better UX */
+@media (max-width: 600px) {
+  .klaro .cookie-modal {
+    padding: 0 !important;
+  }
+
+  .klaro .cm-modal.cm-klaro {
+    position: fixed !important;
+    bottom: 1px !important; /* Adjust this value based on your footer height */
+    top: auto  !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    max-height: 90vh !important;
+    margin: 0 !important;
+    border-radius: 8px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+
+  .klaro .cm-modal.cm-klaro.bottom-sheet {
+    bottom: 0 !important;
+    border-radius: 12px 12px 0 0 !important;
+    max-height: 80vh !important;
+  }
+}
+
+@media (max-width: 600px) and (orientation: portrait) {
+  .klaro .cookie-modal {
+    padding: 0 !important;
+    bottom: 0 !important;
+    top: auto !important;
+  }
+
+/* Very small screens (320px and below) */
+@media (max-width: 320px) {
+  .klaro .cm-modal.cm-klaro {
+    width: calc(100vw - 8px) !important;
+    max-width: calc(100vw - 8px) !important;
+    border-radius: 4px !important;
+  }
+}
+
+/* Landscape mobile orientation */
+@media (max-width: 900px) and (orientation: landscape) {
+  .klaro .cm-modal.cm-klaro {
+    max-height: 85vh !important;
+    width: calc(100vw - 32px) !important;
+    max-width: 600px !important;
+  }
+}
+
+/* Portrait mobile orientation - more specific */
+@media (max-width: 600px) and (orientation: portrait) {
+  .klaro .cm-modal.cm-klaro {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    max-height: 85vh !important;
+  }
+}
+
+/* Ensure modal is always centered and visible */
+.klaro .cookie-modal .cm-bg {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Additional mobile fixes for better UX */
+@media (max-width: 600px) {
+  .klaro .cm-modal .cm-header {
+    padding: 0.75rem !important;
+  }
+
+  .klaro .cm-modal .cm-body {
+    padding: 0.75rem !important;
+  }
+
+  .klaro .cm-modal .cm-footer {
+    padding: 0.75rem !important;
+  }
+
+  .klaro .cm-modal .hide {
+    top: 10px !important;
+    right: 10px !important;
+  }
 }

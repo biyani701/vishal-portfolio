@@ -32,6 +32,7 @@ jobs:
           REACT_APP_GOOGLE_CLIENT_ID: ${{ vars.REACT_APP_GOOGLE_CLIENT_ID }}
           REACT_APP_REDIRECT_URI: ${{ vars.REACT_APP_REDIRECT_URI }}
           REACT_APP_TOKEN_PROXY_URL: ${{ vars.REACT_APP_TOKEN_PROXY_URL }}
+          REACT_APP_COPILOTKIT_PUBLIC_API_KEY: ${{ secrets.REACT_APP_COPILOTKIT_PUBLIC_API_KEY }}
 
       # Copy 404.html to build folder for main site
       - name: Copy 404.html for main site
