@@ -6,11 +6,14 @@ import SvgIcon from "@mui/material/SvgIcon";
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { Close as CloseIcon } from "@mui/icons-material";
+import { useLayoutDimensions } from "../hooks/useLayoutDimensions";
 
 // Styled IconButton for cookie preferences
 const CookieIconButton = styled(IconButton)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   color: theme.palette.getContrastText(theme.palette.primary.main),
+  position: 'relative',
+  flexShrink: 0,
   "&:hover": {
     backgroundColor: theme.palette.primary.dark,
     transform: "scale(1.05)",
@@ -23,6 +26,16 @@ const CookieIconButton = styled(IconButton)(({ theme }) => ({
   },
   "&.pulse": {
     animation: "pulse 2s infinite",
+  },
+  // Ensure proper touch targets and visibility on all screen sizes
+  [theme.breakpoints.down('sm')]: {
+    minWidth: 44,
+    minHeight: 44,
+    // Ensure button stays within viewport in landscape
+    '@media (orientation: landscape)': {
+      minWidth: 36,
+      minHeight: 36,
+    },
   },
 }));
 
@@ -38,57 +51,141 @@ const CookieIcon = (props) => (
 
 const PrivacyPreferencesButton = () => {
   const theme = useTheme();
-  const isSmallMobile = useMediaQuery(theme.breakpoints.down('smallMobile'));
+  const { 
+    isMobile, 
+    isSmallScreen,
+    isPortrait,
+    spacing 
+  } = useLayoutDimensions();
+  
   const [klaroReady, setKlaroReady] = useState(false);
   const [pulsing, setPulsing] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Get footer height for positioning calculations
+  const footerHeight = theme.customLayout?.footerHeight?.mobile || 56;
+  
+  // Simplified size calculation
+  const buttonSize = (() => {
+    if (isSmallScreen) return 32;
+    if (isMobile && !isPortrait) return 36;
+    if (isMobile) return 40;
+    return 36;
+  })();
+
+  const iconSize = buttonSize <= 32 ? "small" : "medium";
+
+  // Simplified modal positioning - let CSS handle most of the work
+  const addModalClasses = () => {
+    const klaroModal = document.querySelector('.klaro');
+    const klaroModalContent = document.querySelector('.klaro .cm-modal');
+    
+    if (!klaroModal || !klaroModalContent) return;
+
+    // Add custom classes for CSS targeting
+    klaroModal.classList.add('klaro-custom');
+    klaroModalContent.classList.add('klaro-modal-custom');
+
+    // Add orientation and device classes
+    if (isMobile) {
+      klaroModal.classList.add('klaro-mobile');
+      klaroModalContent.classList.add('klaro-mobile');
+      
+      if (isPortrait) {
+        klaroModal.classList.add('klaro-portrait');
+        klaroModalContent.classList.add('klaro-portrait');
+      } else {
+        klaroModal.classList.add('klaro-landscape');
+        klaroModalContent.classList.add('klaro-landscape');
+      }
+    } else {
+      klaroModal.classList.add('klaro-desktop');
+      klaroModalContent.classList.add('klaro-desktop');
+    }
+
+    // Set CSS custom properties for dynamic values
+    document.documentElement.style.setProperty('--footer-height', `${footerHeight}px`);
+    document.documentElement.style.setProperty('--viewport-height', `${window.innerHeight}px`);
+    document.documentElement.style.setProperty('--viewport-width', `${window.innerWidth}px`);
+
+    // Add backdrop click to close
+    const handleBackdropClick = (e) => {
+      if (e.target === klaroModal) {
+        window.klaro?.hide();
+      }
+    };
+    
+    klaroModal.removeEventListener('click', handleBackdropClick);
+    klaroModal.addEventListener('click', handleBackdropClick);
+  };
+
   useEffect(() => {
-    // Check if Klaro is available and has the show method
+    // Check if Klaro is available
     const checkKlaro = () => {
       if (window.klaro && typeof window.klaro.show === "function") {
         setKlaroReady(true);
         clearInterval(interval);
       }
     };
-    // Set up an interval to check periodically
+    
     const interval = setInterval(checkKlaro, 1000);
-
-    // Initial check
     checkKlaro();
 
-    // Add pulse animation after a delay
+    // Add pulse animation after delay
     const pulseTimer = setTimeout(() => {
       setPulsing(true);
     }, 3000);
 
-    // Listen for Klaro modal events
-    const handleKlaroShow = () => setIsModalOpen(true);
-    const handleKlaroHide = () => setIsModalOpen(false);
+    // Event listeners for modal show/hide
+    const handleKlaroShow = () => {
+      setIsModalOpen(true);
+      
+      // Apply classes multiple times to ensure they stick
+      setTimeout(addModalClasses, 10);
+      setTimeout(addModalClasses, 50);
+      setTimeout(addModalClasses, 100);
+      setTimeout(addModalClasses, 200);
+      
+      // Handle orientation changes
+      const handleOrientationChange = () => {
+        setTimeout(() => {
+          document.documentElement.style.setProperty('--viewport-height', `${window.innerHeight}px`);
+          document.documentElement.style.setProperty('--viewport-width', `${window.innerWidth}px`);
+          addModalClasses();
+        }, 100);
+      };
+      
+      window.addEventListener('resize', handleOrientationChange);
+      window.addEventListener('orientationchange', handleOrientationChange);
+    };
+    
+    const handleKlaroHide = () => {
+      setIsModalOpen(false);
+      // Clean up event listeners
+      window.removeEventListener('resize', addModalClasses);
+      window.removeEventListener('orientationchange', addModalClasses);
+    };
 
     window.addEventListener('klaro-show', handleKlaroShow);
     window.addEventListener('klaro-hide', handleKlaroHide);
 
-    // Clean up interval on unmount
     return () => {
       clearInterval(interval);
       clearTimeout(pulseTimer);
       window.removeEventListener('klaro-show', handleKlaroShow);
       window.removeEventListener('klaro-hide', handleKlaroHide);
     };
-  }, []);
+  }, [isMobile, isPortrait, footerHeight]);
 
   const handleClick = () => {
     if (window.klaro && typeof window.klaro.show === "function") {
       try {
         if (isModalOpen) {
-          // If modal is open, close it
           window.klaro.hide();
         } else {
-          // If modal is closed, open it
           window.klaro.show();
         }
-        setPulsing(false); // Stop pulsing once clicked
+        setPulsing(false);
       } catch (error) {
         console.error("Error toggling Klaro modal:", error);
       }
@@ -97,7 +194,6 @@ const PrivacyPreferencesButton = () => {
     }
   };
 
-  // Don't render anything if Klaro isn't ready
   if (!klaroReady) {
     return null;
   }
@@ -108,17 +204,28 @@ const PrivacyPreferencesButton = () => {
         onClick={handleClick}
         aria-label={isModalOpen ? "Close Cookie Settings" : "Cookie Settings"}
         className={pulsing && !isModalOpen ? "pulse" : ""}
-        size="small"
+        size={iconSize}
         sx={{
-          padding: isSmallMobile ? 0.3 : 0.5,
-          minWidth: isSmallMobile ? 28 : 32,
-          width: isSmallMobile ? 28 : 32,
-          height: isSmallMobile ? 28 : 32,
+          width: buttonSize,
+          height: buttonSize,
+          minWidth: buttonSize,
+          padding: spacing.xs / 2,
           transform: isModalOpen ? 'rotate(180deg)' : 'rotate(0deg)',
-          transition: 'transform 0.3s ease',
+          transition: 'transform 0.3s ease, background-color 0.3s ease',
+          zIndex: 'auto',
+          
+          '@media (pointer: coarse)': {
+            '&:hover': {
+              backgroundColor: theme.palette.primary.dark,
+              transform: isModalOpen ? 'rotate(180deg) scale(1.05)' : 'scale(1.05)',
+            },
+          },
         }}
       >
-        {isModalOpen ? <CloseIcon fontSize="small" /> : <CookieIcon fontSize="small" />}
+        {isModalOpen ? 
+          <CloseIcon fontSize={iconSize} /> : 
+          <CookieIcon fontSize={iconSize} />
+        }
       </CookieIconButton>
     </Tooltip>
   );

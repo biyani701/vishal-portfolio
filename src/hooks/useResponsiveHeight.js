@@ -13,7 +13,7 @@ export const useResponsiveHeight = (heightType) => {
   return useMemo(() => {
     const heights = theme.customLayout[`${heightType}Height`];
     
-    const getHeight = (portraitKey, landscapeKey, fallbackReduction = 16) => {
+    const resolveHeight = (portraitKey, landscapeKey, fallbackReduction = 16) => {
       if (isLandscape) {
         return heights[landscapeKey] || (heights[portraitKey] - fallbackReduction);
       }
@@ -21,19 +21,19 @@ export const useResponsiveHeight = (heightType) => {
     };
     
     if (isSmallMobile) {
-      return getHeight('smallMobile', 'mobileLandscape');
+      return resolveHeight('smallMobile', 'mobileLandscape');
     }
     if (isMobile) {             // 321-480px (iPhone 12 mini, most phones)
-      return getHeight('mobile', 'mobileLandscape');
+      return resolveHeight('mobile', 'mobileLandscape');
     }
     if (isLargeMobile) {        // 481-540px (iPhone 14 Pro Max, large phones)
-      return getHeight('largeMobile', 'largeMobileLandscape');
+      return resolveHeight('largeMobile', 'largeMobileLandscape');
     }    
     if (isTablet) {
-      return getHeight('sm', 'smLandscape');
+      return resolveHeight('sm', 'smLandscape');
     }
     
-    return heights.md;
+    return typeof heights.md === 'number' ? heights.md : 56;
     
   }, [theme.customLayout, isSmallMobile, isMobile, isLargeMobile, isTablet, isLandscape]);
 };

@@ -337,30 +337,58 @@ export const getTheme = (mode, paletteIndex = 0) => {
       // mobileFooterHeight: 72,
 
       // Orientation-aware content height calculator
-      getContentHeight: (breakpoint = "md", isLandscape = false) => {
-        const portraitHeights = {
-          smallMobile: { header: 48, footer: 120 }, // 320px phones
-          mobile: { header: 52, footer: 96 }, // 480px phones
-          largeMobile: { header: 56, footer: 80 }, // 540px phones
-          tablet: { header: 60, footer: 72 }, // 768px tablets
-          xs: { header: 56, footer: 80 }, // Consistent naming
-          sm: { header: 60, footer: 72 },
-          md: { header: 64, footer: 56 },
-        };
+      // Usage: const { height, header, footer } = theme.customLayout.getContentHeight(theme)("sm", false);
+      // Don't use getContentHeight. Instead use hooks
+      getContentHeight: function (theme) {
+        let cache = {};
 
-        const landscapeHeights = {
-          smallMobile: { header: 40, footer: 72 },
-          mobile: { header: 44, footer: 64 },
-          largeMobile: { header: 48, footer: 56 },
-          tablet: { header: 52, footer: 48 },
-          xs: { header: 48, footer: 56 }, // Consistent naming
-          sm: { header: 52, footer: 48 },
-          md: { header: 64, footer: 56 },
-        };
+        if (typeof window !== "undefined") {
+          window.addEventListener("resize", () => {
+            cache = {};
+          });
+        }
 
-        const heights = isLandscape ? landscapeHeights : portraitHeights;
-        const { header, footer } = heights[breakpoint] || heights.md;
-        return `calc(100vh - ${header}px - ${footer}px)`;
+        return (breakpoint, isLandscape = false) => {
+          // Dynamically infer breakpoint from screen width if not provided
+          if (!breakpoint && theme?.breakpoints?.values) {
+            const width = window.innerWidth;
+            const bpEntries = Object.entries(theme.breakpoints.values)
+              .filter(([k]) => !k.includes("Landscape")) // skip custom ones
+              .sort((a, b) => b[1] - a[1]); // sort descending
+
+            for (const [bp, minWidth] of bpEntries) {
+              if (width >= minWidth) {
+                breakpoint = bp;
+                break;
+              }
+            }
+
+            // Fallback if none match
+            breakpoint = breakpoint || "md";
+          }
+
+          const key = `${breakpoint}_${isLandscape ? "landscape" : "portrait"}`;
+          if (cache[key]) return cache[key];
+
+          const header =
+            this.headerHeight[
+              isLandscape ? `${breakpoint}Landscape` : breakpoint
+            ] ??
+            this.headerHeight[breakpoint] ??
+            this.headerHeight.md;
+
+          const footer =
+            this.footerHeight[
+              isLandscape ? `${breakpoint}Landscape` : breakpoint
+            ] ??
+            this.footerHeight[breakpoint] ??
+            this.footerHeight.md;
+
+          const height = window.innerHeight - header - footer;
+
+          cache[key] = { height, header, footer };
+          return cache[key];
+        };
       },
 
       // Content area calculations helper
@@ -371,9 +399,12 @@ export const getTheme = (mode, paletteIndex = 0) => {
       // },
     },
     zIndex: {
-      appBar: 1100,
-      drawer: 1200,
-      footer: 1050,
+      // appBar: 1100,
+      // drawer: 1200,
+      // footer: 1050,
+      appBar: 10,
+      drawer: 1500,
+      footer: 10,
     },
     // End Newly Added Theme Properties
     palette: {

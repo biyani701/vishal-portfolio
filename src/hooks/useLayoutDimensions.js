@@ -1,5 +1,5 @@
 // hooks/useLayoutDimensions.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useTheme, useMediaQuery } from "@mui/material";
 
 /**
@@ -34,6 +34,28 @@ export const useLayoutDimensions = () => {
     right: 0,
   });
 
+  const getDynamicHeight = (type) => {
+    const layout = theme.customLayout[`${type}Height`];
+
+    if (!layout) return 56;
+
+    const portraitKey = (() => {
+      if (isMobile) return "mobile";
+      if (isTablet) return "tablet";
+      return "md";
+    })();
+
+    const landscapeKey = (() => {
+      if (isMobile) return "mobileLandscape";
+      if (isTablet) return "tabletLandscape";
+      return "md";
+    })();
+
+    return isPortrait
+      ? (layout[portraitKey] ?? layout.md)
+      : (layout[landscapeKey] ?? layout[portraitKey] ?? layout.md);
+  };
+
   const [windowSize, setWindowSize] = useState(() => {
     if (typeof window !== "undefined") {
       return {
@@ -58,7 +80,8 @@ export const useLayoutDimensions = () => {
       // Safe area insets using CSS env variables
       const computed = getComputedStyle(document.documentElement);
       const getInset = (prop) => {
-        const val = computed.getPropertyValue(`env(safe-area-inset-${prop})`) || "0px";
+        const val =
+          computed.getPropertyValue(`env(safe-area-inset-${prop})`) || "0px";
         return parseInt(val) || 0;
       };
 
@@ -75,24 +98,21 @@ export const useLayoutDimensions = () => {
 
     // Add resize listener
     window.addEventListener("resize", updateDimensions);
-    
+
     // Cleanup
     return () => window.removeEventListener("resize", updateDimensions);
   }, []);
 
   // Get responsive heights - with fallback values
-  const headerHeight = isMobile
-    ? isPortrait
-      ? theme.customLayout.mobileHeaderHeight
-      : theme.customLayout.fixedHeaderHeight
-    : theme.customLayout.fixedHeaderHeight;
+  const headerHeight = useMemo(
+    () => getDynamicHeight("header"),
+    [theme, isMobile, isTablet, isPortrait]
+  );
 
-  const footerHeight = isMobile
-    ? isPortrait
-      ? theme.customLayout.mobileFooterHeight // 120px
-      : theme.customLayout.fixedFooterHeight // 56px (landscape treated like tablet/desktop)
-    : theme.customLayout.fixedFooterHeight;
-    
+  const footerHeight = useMemo(
+    () => getDynamicHeight("footer"),
+    [theme, isMobile, isTablet, isPortrait]
+  );
 
   const { width, height } = windowSize;
 
@@ -132,16 +152,16 @@ export const useLayoutDimensions = () => {
   const isSmallScreen = (() => {
     // Very small devices (iPhone SE and similar)
     if (height < 600) return true;
-    
+
     // Small portrait screens
     if (isPortrait && height < 700 && isMobile) return true;
-    
+
     // Small landscape screens
     if (!isPortrait && height < 500) return true;
-    
+
     // iPhone SE specifically
     if (isIPhoneSE) return true;
-    
+
     return false;
   })();
 
