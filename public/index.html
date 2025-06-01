@@ -91,7 +91,8 @@
       function loadKlaroScript() {
         console.log("Loading Klaro script...");
         const klaroScript = document.createElement("script");
-        klaroScript.src = "%PUBLIC_URL%/klaro.js";
+        // klaroScript.src = "%PUBLIC_URL%/klaro.js";
+        klaroScript.src = "%PUBLIC_URL%/klaro-no-css.js";
         klaroScript.defer = true;
         klaroScript.setAttribute('data-klaro-config', 'klaroConfig');
 

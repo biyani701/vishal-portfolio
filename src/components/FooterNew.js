@@ -89,7 +89,19 @@ const Footer = () => {
 
         {/* Third Column - Mobile: 1, Others: 4 */}
         <Grid item xs={1} sm={4} md={4}>
+          <Box
+              sx={{
+                position: "absolute",
+                right: 8,
+                top: "50%",
+                transform: "translateY(-50%)",
+                display: "flex",
+                alignItems: "center",
+                height: "100%",
+              }}
+            >
           <CopilotChatBubble />
+          </Box>
         </Grid>
       </FooterContainer>
     </>
