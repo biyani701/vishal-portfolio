@@ -37,6 +37,8 @@ function CustomChatInterface() {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
+  const inputRef = useRef(null);
 
   // Use responsive footer height
   const footerHeight = useResponsiveHeight('footer');
@@ -53,10 +55,25 @@ function CustomChatInterface() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [visibleMessages]);
 
+  // Focus input when chat opens on mobile
+  useEffect(() => {
+    if (isOpen && isMobile && inputRef.current) {
+      // Delay focus to ensure the chat window is fully rendered
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, isMobile]);
+
   const handleSendMessage = () => {
     if (inputValue.trim()) {
       appendMessage(new TextMessage({ content: inputValue.trim(), role: Role.User }));
       setInputValue('');
+      // Refocus input after sending message on mobile
+      if (isMobile && inputRef.current) {
+        setTimeout(() => inputRef.current?.focus(), 100);
+      }
     }
   };
 
@@ -69,6 +86,38 @@ function CustomChatInterface() {
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
+  };
+
+  // Prevent chat from closing when clicking inside the chat container
+  const handleChatContainerClick = (e) => {
+    e.stopPropagation();
+  };
+
+  // Handle input focus events
+  const handleInputFocus = (e) => {
+    e.stopPropagation();
+    // Prevent any parent handlers from interfering
+  };
+
+  const handleInputClick = (e) => {
+    e.stopPropagation();
+    // Ensure input gets focus on mobile
+    if (isMobile && inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
+  // Handle touch events for mobile
+  const handleInputTouchStart = (e) => {
+    e.stopPropagation();
+  };
+
+  const handleInputTouchEnd = (e) => {
+    e.stopPropagation();
+    // Ensure input gets focus on touch end
+    if (isMobile && inputRef.current) {
+      inputRef.current.focus();
+    }
   };
 
   return (
@@ -109,6 +158,8 @@ function CustomChatInterface() {
           }}
         >
           <Paper
+            ref={chatContainerRef}
+            onClick={handleChatContainerClick}
             elevation={8}
             sx={{
               width: '100%',
@@ -225,12 +276,17 @@ function CustomChatInterface() {
             {/* Input Area */}
             <Box sx={{ p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
               <TextField
+                ref={inputRef}
                 fullWidth
                 multiline
                 maxRows={3}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyPress={handleKeyPress}
+                onFocus={handleInputFocus}
+                onClick={handleInputClick}
+                onTouchStart={handleInputTouchStart}
+                onTouchEnd={handleInputTouchEnd}
                 placeholder="Ask me anything..."
                 disabled={isLoading}
                 variant="outlined"
@@ -262,6 +318,11 @@ function CustomChatInterface() {
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     borderRadius: 3,
+                  },
+                  // Ensure proper touch target size on mobile
+                  '& .MuiOutlinedInput-input': {
+                    minHeight: isMobile ? '20px' : 'auto',
+                    padding: isMobile ? '12px 14px' : '8.5px 14px',
                   },
                 }}
               />
