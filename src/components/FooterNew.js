@@ -280,10 +280,10 @@ const Footer = () => {
     left: 0,
     right: 0,
     zIndex: theme.zIndex.footer + 1,
-    backgroundColor: theme.palette.primary.main, // Example background
+    backgroundColor: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
     display: "flex",
-    alignItems: "center", // Changed from "stretch" to "center"
+    alignItems: "center",
     justifyContent: "space-between",
     borderTop: `1px solid ${theme.palette.divider}`,
     backdropFilter: "blur(8px)",
@@ -291,7 +291,6 @@ const Footer = () => {
       duration: theme.transitions.duration.standard,
     }),
     px: { xs: 1, sm: 3, md: 4 },
-    // Ensure it's above other content
     isolation: "auto",
   }));
 
@@ -301,7 +300,7 @@ const Footer = () => {
         {/* Left Section - Privacy Button */}
         <Grid
           item
-          xs={useCompactMode ? 2 : 1}
+          xs={useCompactMode ? 3 : 2}
           sm={3}
           md={4}
           sx={{
@@ -317,7 +316,7 @@ const Footer = () => {
         {/* Center Section - Links, Copyright, Social */}
         <Grid
           item
-          xs={useCompactMode ? 8 : 10}
+          xs={useCompactMode ? 9 : 10}
           sm={6}
           md={4}
           sx={{
@@ -418,34 +417,37 @@ const Footer = () => {
           )}
         </Grid>
 
-        {/* Right Section - Chat Bubble */}
+        {/* Right Section - Empty space for chat bubble to position independently */}
         <Grid
           item
-          xs={useCompactMode ? 2 : 1}
+          xs={0}
           sm={3}
           md={4}
           sx={{
-            display: "flex",
+            display: { xs: "none", sm: "flex" },
             alignItems: "center",
             justifyContent: "flex-end",
             minHeight: "100%",
-            position: "relative",
           }}
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              right: 8,
-              top: "50%",
-              transform: "translateY(-50%)",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <CopilotChatBubble />
-          </Box>
-        </Grid>
+        />
       </FooterContainer>
+
+      {/* Chat Bubble - Positioned independently outside Grid constraints */}
+      <Box
+        sx={{
+          position: "fixed",
+          bottom: '24px',
+          left: 64,
+          zIndex: Math.max(theme.zIndex.footer + 10, theme.zIndex.modal - 50),
+          // Ensure it doesn't interfere with touch events
+          pointerEvents: "none",
+          "& > *": {
+            pointerEvents: "auto", // Re-enable pointer events for the chat bubble itself
+          },
+        }}
+      >
+        <CopilotChatBubble />
+      </Box>
 
       {/* Enhanced Drawer for Mobile */}
       {drawerContent && (
