@@ -26,6 +26,8 @@ import {
   useMediaQuery,
   Tooltip,
   Icon,
+  Grid,
+  Container,
 } from "@mui/material";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { SignInPage } from "@toolpad/core/SignInPage";
@@ -84,6 +86,8 @@ import { initKnowledgeBaseMenuFix } from "./KnowledgeBaseMenuFix";
 import EnhancedMobileDrawer from "./EnhancedMobileDrawer";
 import ModernMobileMenu from "./ModernMobileMenu";
 import { useResponsiveHeight } from "../hooks/useResponsiveHeight";
+import { useLayoutDimensions } from "../hooks/useLayoutDimensions";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 
 const itemVariants = {
   hidden: { opacity: 0, scale: 0.95, y: -5 },
@@ -397,12 +401,14 @@ const NavigationBar = ({
   const [settingsHover, setSettingsHover] = useState(false);
   const [knowledgeAnchorEl, setKnowledgeAnchorEl] = useState(null);
   const [blogAnchorEl, setBlogAnchorEl] = useState(null);
+  const [overflowMenuAnchorEl, setOverflowMenuAnchorEl] = useState(null);
   // State for search results
   const [searchResults, setSearchResults] = useState([]);
   // State for keyboard navigation in search results
   const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
 
   const headerHeight = useResponsiveHeight("header");
+  const { isDesktop } = useLayoutDimensions();
 
   // Initialize search index and add data
   React.useEffect(() => {
@@ -819,6 +825,15 @@ const NavigationBar = ({
     handlePaletteMenuClose();
   };
 
+  // Overflow menu handlers
+  const handleOverflowMenuOpen = (event) => {
+    setOverflowMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleOverflowMenuClose = () => {
+    setOverflowMenuAnchorEl(null);
+  };
+
   // Get icon for each nav item
   const getIconForNavItem = (id) => {
     switch (id) {
@@ -908,6 +923,175 @@ const NavigationBar = ({
     []
   );
 
+  // Navigation items for grid layout
+  const gridNavigationItems = useMemo(
+    () => [
+      {
+        id: "home",
+        label: "Home",
+        path: "/",
+        component: (
+          <Button
+            component={RouterLink}
+            to="/"
+            onClick={() => {
+              trackMenuClick("home", "main-menu");
+              if (location.pathname === "/") {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            }}
+          >
+            Home
+          </Button>
+        ),
+      },
+      {
+        id: "hero",
+        label: "Hero",
+        path: "/heroref",
+        component: (
+          <Button
+            component={RouterLink}
+            to="/heroref"
+            onClick={() => trackMenuClick("about", "main-menu")}
+          >
+            Hero
+          </Button>
+        ),
+      },
+      {
+        id: "about",
+        label: "About Me",
+        path: "/about",
+        component: (
+          <Button
+            component={RouterLink}
+            to="/about"
+            onClick={() => trackMenuClick("about", "main-menu")}
+          >
+            About Me
+          </Button>
+        ),
+      },
+      {
+        id: "resume",
+        label: "Resume",
+        hasSubmenu: true,
+        component: (
+          <Button
+            id="resume-button"
+            onClick={(e) => {
+              handleResumeMenuOpen(e);
+              trackMenuClick("resume-menu", "main-menu");
+            }}
+            endIcon={<KeyboardArrowDownIcon />}
+            aria-controls="resume-menu"
+            aria-haspopup="true"
+            aria-expanded={Boolean(resumeAnchorEl) ? "true" : undefined}
+          >
+            Resume
+          </Button>
+        ),
+      },
+      {
+        id: "portfolio",
+        label: "Portfolio",
+        path: "/works",
+        component: (
+          <Button
+            component={RouterLink}
+            to="/works"
+            onClick={() => trackMenuClick("portfolio", "main-menu")}
+          >
+            Portfolio
+          </Button>
+        ),
+      },
+      {
+        id: "knowledge",
+        label: "Knowledge Base",
+        hasSubmenu: true,
+        component: (
+          <Button
+            id="knowledge-button"
+            onClick={(e) => {
+              // Remove any existing force-hide-menu classes
+              document
+                .querySelectorAll(".force-hide-menu")
+                .forEach((el) => {
+                  el.classList.remove("force-hide-menu");
+                });
+
+              // Remove navigating class from body
+              document.body.classList.remove("navigating");
+
+              // If menu is already open, close it
+              if (knowledgeAnchorEl) {
+                setKnowledgeAnchorEl(null);
+              } else {
+                // Otherwise open it
+                setKnowledgeAnchorEl(e.currentTarget);
+                trackMenuClick("knowledge-base", "main-menu");
+              }
+            }}
+            endIcon={<KeyboardArrowDownIcon />}
+            aria-controls="knowledge-menu"
+            aria-haspopup="true"
+            aria-expanded={Boolean(knowledgeAnchorEl) ? "true" : undefined}
+          >
+            Knowledge Base
+          </Button>
+        ),
+      },
+      {
+        id: "blog",
+        label: "Blog",
+        hasSubmenu: true,
+        component: (
+          <Button
+            id="blog-button"
+            onClick={(e) => {
+              handleBlogMenuOpen(e);
+              trackMenuClick("blog-menu", "main-menu");
+            }}
+            endIcon={<KeyboardArrowDownIcon />}
+            aria-controls="blog-menu"
+            aria-haspopup="true"
+            aria-expanded={Boolean(blogAnchorEl) ? "true" : undefined}
+          >
+            Blog
+          </Button>
+        ),
+      },
+      {
+        id: "contact",
+        label: "Contact Me",
+        path: "/contact",
+        component: (
+          <Button
+            onClick={() => {
+              navigate("/contact");
+              trackMenuClick("contact", "main-menu");
+            }}
+            startIcon={<ContactMailIcon />}
+          >
+            Contact Me
+          </Button>
+        ),
+      },
+    ],
+    [
+      location.pathname,
+      resumeAnchorEl,
+      knowledgeAnchorEl,
+      blogAnchorEl,
+      navigate,
+      trackMenuClick,
+      handleResumeMenuOpen,
+      handleBlogMenuOpen,
+    ]
+  );
+
   // New Addition
   const groupedResumeItems = [
     {
@@ -966,43 +1150,27 @@ const NavigationBar = ({
       <StyledAppBar>
         <Toolbar
           sx={{
-            // minHeight: (theme) => theme.mixins.toolbar.minHeight,
             minHeight: headerHeight,
             width: "100%",
             boxSizing: "border-box",
+            padding: 0,
           }}
         >
-          <Typography variant="h6" noWrap component="div" 
-          sx={{ flexGrow: 1 }}
-          >
-            <Box
-              component="img"
-              src="/images/my-logo.jpg" // or use require/import if inside src
-              alt="Logo"
-              sx={{                
-                maxHeight: '60px',
-                maxWidth: '60px',
-                borderRadius: 2,
-                boxShadow: 3,
-              }}
-            />
-            <Button
-              component={RouterLink}
-              to="/"
-              onClick={() => {
-                trackMenuClick("home", "main-menu");
-                if (location.pathname === "/") {
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }
-              }}
-            >
-              {hostName}
-            </Button>
-          </Typography>
-
-          {/* Desktop and Landscape Navigation */}
-          {showDesktopNav && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {/* Mobile Layout - Keep existing mobile menu */}
+          {!showDesktopNav && (
+            <>
+              <Box
+                component="img"
+                src="/images/my-logo.jpg"
+                alt="Logo"
+                sx={{
+                  maxHeight: "40px",
+                  maxWidth: "40px",
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  mr: 1,
+                }}
+              />
               <Button
                 component={RouterLink}
                 to="/"
@@ -1012,725 +1180,707 @@ const NavigationBar = ({
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }
                 }}
+                sx={{ flexGrow: 1, justifyContent: "flex-start" }}
               >
-                Home
+                {hostName}
               </Button>
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                edge="end"
+                onClick={handleDrawerToggle}
+              >
+                <MenuIcon />
+              </IconButton>
+            </>
+          )}
 
-              <Button
-                component={RouterLink}
-                to="/heroref"
-                onClick={() => trackMenuClick("about", "main-menu")}
-              >
-                Hero
-              </Button>
+          {/* Desktop Grid Layout */}
+          {showDesktopNav && (
+            <Container maxWidth="xl" sx={{ px: { xs: 1, sm: 2 } }}>
+              <Grid container spacing={1} alignItems="center">
+                {/* Column 1: Logo/Icon */}
+                <Grid item xs={1}>
+                  <Box
+                    component="img"
+                    src="/images/my-logo.jpg"
+                    alt="Logo"
+                    sx={{
+                      maxHeight: "50px",
+                      maxWidth: "50px",
+                      borderRadius: 2,
+                      boxShadow: 3,                      
+                    }}
+                  />
+                </Grid>
 
-              <Button
-                component={RouterLink}
-                to="/about"
-                onClick={() => trackMenuClick("about", "main-menu")}
-              >
-                About Me
-              </Button>
+                {/* Column 2: Hostname Button */}
+                <Grid item xs={1}>
+                  <Button
+                    component={RouterLink}
+                    to="/"
+                    onClick={() => {
+                      trackMenuClick("home", "main-menu");
+                      if (location.pathname === "/") {
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }
+                    }}
+                    size="small"
+                  >
+                    {hostName}
+                  </Button>
+                </Grid>
 
-              {/* Resume Menu */}
-              <Button
-                id="resume-button"
-                onClick={(e) => {
-                  handleResumeMenuOpen(e);
-                  trackMenuClick("resume-menu", "main-menu");
-                }}
-                endIcon={<KeyboardArrowDownIcon />}
-                aria-controls="resume-menu"
-                aria-haspopup="true"
-                aria-expanded={Boolean(resumeAnchorEl) ? "true" : undefined}
-              >
-                Resume
-              </Button>
-              {/* New section */}
-              <Menu
-                id="resume-menu"
-                anchorEl={resumeAnchorEl}
-                open={Boolean(resumeAnchorEl)}
-                onClose={handleResumeMenuClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                transformOrigin={{ vertical: "top", horizontal: "left" }}
-                PaperProps={{
-                  elevation: 4,
-                  sx: {
-                    borderRadius: 2,
-                    minWidth: 220,
-                    bgcolor: theme.palette.background.paper,
-                    boxShadow: theme.shadows[4],
-                  },
-                }}
-              >
-                {groupedResumeItems.map((group, groupIndex) => (
-                  <Box key={group.label}>
-                    <Typography
-                      variant="subtitle2"
-                      sx={{
-                        px: 2,
-                        py: 1,
-                        fontWeight: 600,
-                        color: theme.palette.text.secondary,
-                        textTransform: "uppercase",
-                      }}
-                    >
-                      {group.label}
-                    </Typography>
-                    {group.items.map((item, itemIndex) => (
-                      <motion.div
-                        key={item.id}
-                        custom={groupIndex * 10 + itemIndex}
-                        initial="hidden"
-                        animate="visible"
-                        variants={itemVariants}
-                      >
-                        <MenuItem
-                          key={item.id}
-                          onClick={() => handleResumeItemClick(item.id)}
-                          sx={{
-                            py: 1.2,
-                            px: 2,
-                            gap: 1,
-                            "&:hover": {
-                              bgcolor: theme.palette.action.hover,
-                            },
-                            "&:focus": {
-                              bgcolor: theme.palette.action.selected,
-                            },
-                          }}
-                        >
-                          <ListItemIcon
-                            sx={{
-                              color: theme.palette.text.secondary,
-                              minWidth: 32,
-                            }}
-                          >
-                            {getIconForNavItem(item.id)}
-                          </ListItemIcon>
-                          <ListItemText
-                            primary={item.label}
-                            slotProps={{
-                              primary: {
-                                variant: "body1",
-                                sx: { color: theme.palette.text.primary },
-                              },
-                            }}
-                          />
-                        </MenuItem>
-                      </motion.div>
+                {/* Columns 3-9: Navigation Menu Items */}
+                <Grid item xs={7}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 0.5,
+                      overflow: "hidden",
+                    }}
+                  >
+                    {gridNavigationItems.slice(0, 7).map((item) => (
+                      <Box key={item.id} sx={{ flexShrink: 0 }}>
+                        {item.component}
+                      </Box>
                     ))}
-                    {groupIndex < groupedResumeItems.length - 1 && (
-                      <Divider sx={{ my: 1 }} />
+                    {gridNavigationItems.length > 7 && (
+                      <IconButton
+                        onClick={handleOverflowMenuOpen}
+                        size="small"
+                        sx={{ ml: 1 }}
+                      >
+                        <MoreHorizIcon />
+                      </IconButton>
                     )}
                   </Box>
-                ))}
-              </Menu>
-              {/* End New Section */}
+                </Grid>
 
-              <Button
-                component={RouterLink}
-                to="/works"
-                onClick={() => trackMenuClick("portfolio", "main-menu")}
-              >
-                Portfolio
-              </Button>
+                {/* Columns 10-11: Search Box */}
+                <Grid item xs={2}>
+                  <Search>
+                    <SearchIconWrapper>
+                      <SearchIcon />
+                    </SearchIconWrapper>
+                    <StyledInputBase
+                      placeholder="Search…"
+                      inputProps={{ "aria-label": "search" }}
+                      value={query}
+                      onChange={handleSearchChange}
+                      onKeyDown={handleSearchKeyDown}
+                      onFocus={(e) => {
+                        if (e.target.value) {
+                          setSearchAnchorEl(e.currentTarget);
+                          trackMenuClick("search", "main-menu");
+                        }
+                      }}
+                    />
+                    {Boolean(searchAnchorEl) && (
+                      <SearchResultsDropdown>
+                        {matches.length > 0 ? (
+                          matches.map((item, index) => (
+                            <SearchResultItem
+                              key={index}
+                              button
+                              onClick={() => handleSearchResultClick(item.section)}
+                              selected={index === selectedResultIndex}
+                              sx={{
+                                backgroundColor:
+                                  index === selectedResultIndex
+                                    ? theme.palette.action.selected
+                                    : "transparent",
+                                "&:hover": {
+                                  backgroundColor:
+                                    index === selectedResultIndex
+                                      ? theme.palette.action.selected
+                                      : theme.palette.action.hover,
+                                },
+                              }}
+                            >
+                              <SearchResultSection>
+                                {item.section}
+                              </SearchResultSection>
+                              <SearchResultContent>
+                                {item.content}
+                              </SearchResultContent>
+                            </SearchResultItem>
+                          ))
+                        ) : (
+                          <ListItem>
+                            <Typography color="text.secondary">
+                              No results found
+                            </Typography>
+                          </ListItem>
+                        )}
+                      </SearchResultsDropdown>
+                    )}
+                  </Search>
+                </Grid>
 
-              {/* Knowledge Base Menu */}
-              <Button
-                id="knowledge-button"
-                onClick={(e) => {
-                  // Remove any existing force-hide-menu classes
-                  document
-                    .querySelectorAll(".force-hide-menu")
-                    .forEach((el) => {
-                      el.classList.remove("force-hide-menu");
-                    });
+                {/* Column 12: Gear Icon */}
+                <Grid item xs={1}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    {/* Account Button */}
+                    <Box sx={{ display: { xs: "none", md: "block" } }}>
+                      {(() => {
+                        const shouldShowAccount = Boolean(
+                          isAuthenticated || authJsAuthenticated
+                        );
 
-                  // Remove navigating class from body
-                  document.body.classList.remove("navigating");
+                        return shouldShowAccount ? (
+                          <Box key={`account-${authStateKey}-${shouldShowAccount}`}>
+                            <ToolpadAccountComponent variant="preview" />
+                          </Box>
+                        ) : null;
+                      })()}
+                    </Box>
 
-                  // If menu is already open, close it
-                  if (knowledgeAnchorEl) {
-                    setKnowledgeAnchorEl(null);
-                  } else {
-                    // Otherwise open it
-                    setKnowledgeAnchorEl(e.currentTarget);
-                    trackMenuClick("knowledge-base", "main-menu");
+                    {/* Settings Icon */}
+                    <IconButton
+                      onClick={(e) => {
+                        handleSettingsClick(e);
+                        trackMenuClick("settings", "main-menu");
+                      }}
+                      onMouseEnter={handleSettingsMouseEnter}
+                      color="inherit"
+                      aria-label="settings"
+                      size="small"
+                    >
+                      <SettingsIcon />
+                    </IconButton>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Container>
+          )}
+
+          {/* Overflow Menu for items that don't fit */}
+          <Menu
+            anchorEl={overflowMenuAnchorEl}
+            open={Boolean(overflowMenuAnchorEl)}
+            onClose={handleOverflowMenuClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+            transformOrigin={{ vertical: "top", horizontal: "left" }}
+            slotProps={{
+              paper: {
+                elevation: 4,
+                sx: {
+                  borderRadius: 2,
+                  minWidth: 180,
+                  bgcolor: theme.palette.background.paper,
+                  boxShadow: theme.shadows[4],
+                  p: 1,
+                },
+              },
+            }}
+          >
+            {gridNavigationItems.slice(7).map((item) => (
+              <MenuItem
+                key={item.id}
+                onClick={() => {
+                  handleOverflowMenuClose();
+                  if (item.path) {
+                    navigate(item.path);
                   }
                 }}
-                endIcon={<KeyboardArrowDownIcon />}
-                aria-controls="knowledge-menu"
-                aria-haspopup="true"
-                aria-expanded={Boolean(knowledgeAnchorEl) ? "true" : undefined}
+                sx={{ py: 1.2, px: 2, gap: 1 }}
               >
-                Knowledge Base
-              </Button>
-              {Boolean(knowledgeAnchorEl) && (
-                <KnowledgeBaseMenu
-                  id="knowledge-menu"
-                  anchorEl={knowledgeAnchorEl}
-                  open={Boolean(knowledgeAnchorEl)}
-                  onClose={() => setKnowledgeAnchorEl(null)}
-                  anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                  transformOrigin={{ vertical: "top", horizontal: "left" }}
-                  disableScrollLock={true}
-                  keepMounted={false} // Don't keep the menu in the DOM when closed
-                  onClick={() => setKnowledgeAnchorEl(null)} // Close menu when any item is clicked
+                <ListItemText primary={item.label} />
+              </MenuItem>
+            ))}
+          </Menu>
+
+          {/* Resume Menu */}
+          <Menu
+            id="resume-menu"
+            anchorEl={resumeAnchorEl}
+            open={Boolean(resumeAnchorEl)}
+            onClose={handleResumeMenuClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+            transformOrigin={{ vertical: "top", horizontal: "left" }}
+            slotProps={{
+              paper: {
+                elevation: 4,
+                sx: {
+                  borderRadius: 2,
+                  minWidth: 220,
+                  bgcolor: theme.palette.background.paper,
+                  boxShadow: theme.shadows[4],
+                },
+              },
+            }}
+          >
+            {groupedResumeItems.map((group, groupIndex) => (
+              <Box key={group.label}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    px: 2,
+                    py: 1,
+                    fontWeight: 600,
+                    color: theme.palette.text.secondary,
+                    textTransform: "uppercase",
+                  }}
                 >
-                  <MenuItem
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      // Use our force close function
-                      forceCloseMenuAndNavigate(
-                        "/knowledge",
-                        "knowledge-overview",
-                        "knowledge-menu"
-                      );
-                    }}
-                    sx={{
-                      py: 1.2,
-                      px: 2,
-                      gap: 1,
-                      cursor: "pointer",
-                    }}
+                  {group.label}
+                </Typography>
+                {group.items.map((item, itemIndex) => (
+                  <motion.div
+                    key={item.id}
+                    custom={groupIndex * 10 + itemIndex}
+                    initial="hidden"
+                    animate="visible"
+                    variants={itemVariants}
                   >
-                    <ListItemIcon
-                      sx={{ color: theme.palette.text.secondary, minWidth: 32 }}
+                    <MenuItem
+                      key={item.id}
+                      onClick={() => handleResumeItemClick(item.id)}
+                      sx={{
+                        py: 1.2,
+                        px: 2,
+                        gap: 1,
+                        "&:hover": {
+                          bgcolor: theme.palette.action.hover,
+                        },
+                        "&:focus": {
+                          bgcolor: theme.palette.action.selected,
+                        },
+                      }}
                     >
-                      <MenuBookIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Overview" />
-                  </MenuItem>
-                  <MenuItem
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      // Use our force close function
-                      forceCloseMenuAndNavigate(
-                        "/knowledge/glossary",
-                        "knowledge-glossary",
-                        "knowledge-menu"
-                      );
-                    }}
-                    sx={{
-                      py: 1.2,
-                      px: 2,
-                      gap: 1,
-                      cursor: "pointer",
-                    }}
-                  >
-                    <ListItemIcon
-                      sx={{ color: theme.palette.text.secondary, minWidth: 32 }}
-                    >
-                      <LibraryBooksIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Glossary" />
-                  </MenuItem>
-                  <Divider sx={{ my: 1 }} />
-                  <Typography
-                    variant="subtitle2"
-                    sx={{
-                      px: 2,
-                      py: 0.5,
-                      fontWeight: 600,
-                      color: theme.palette.text.secondary,
-                      textTransform: "uppercase",
-                      fontSize: "0.75rem",
-                    }}
-                  >
-                    Domain Knowledge
-                  </Typography>
-                  <Box sx={{ maxHeight: "300px", overflowY: "auto" }}>
-                    {domainKnowledgeData.categories.map((category) => (
-                      <MenuItem
-                        key={category.id}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          // Use our force close function
-                          forceCloseMenuAndNavigate(
-                            `/knowledge/domain/${category.id}`,
-                            `domain-${category.id}`,
-                            "knowledge-menu"
-                          );
-                        }}
+                      <ListItemIcon
                         sx={{
-                          py: 1.2,
-                          px: 2,
-                          gap: 1,
-                          cursor: "pointer",
+                          color: theme.palette.text.secondary,
+                          minWidth: 32,
                         }}
                       >
-                        <ListItemIcon
-                          sx={{
-                            color: theme.palette.text.secondary,
-                            minWidth: 32,
-                          }}
-                        >
-                          <Icon>{category.icon}</Icon>
-                        </ListItemIcon>
-                        <ListItemText primary={category.name} />
-                      </MenuItem>
-                    ))}
-                  </Box>
-                </KnowledgeBaseMenu>
-              )}
+                        {getIconForNavItem(item.id)}
+                      </ListItemIcon>
+                      <ListItemText
+                        primary={item.label}
+                        slotProps={{
+                          primary: {
+                            variant: "body1",
+                            sx: { color: theme.palette.text.primary },
+                          },
+                        }}
+                      />
+                    </MenuItem>
+                  </motion.div>
+                ))}
+                {groupIndex < groupedResumeItems.length - 1 && (
+                  <Divider sx={{ my: 1 }} />
+                )}
+              </Box>
+            ))}
+          </Menu>
 
-              {/* Blog Menu */}
-              <Button
-                id="blog-button"
+          {/* Knowledge Base Menu */}
+          {Boolean(knowledgeAnchorEl) && (
+            <KnowledgeBaseMenu
+              id="knowledge-menu"
+              anchorEl={knowledgeAnchorEl}
+              open={Boolean(knowledgeAnchorEl)}
+              onClose={() => setKnowledgeAnchorEl(null)}
+              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+              transformOrigin={{ vertical: "top", horizontal: "left" }}
+              disableScrollLock={true}
+              keepMounted={false}
+              onClick={() => setKnowledgeAnchorEl(null)}
+            >
+              <MenuItem
                 onClick={(e) => {
-                  handleBlogMenuOpen(e);
-                  trackMenuClick("blog-menu", "main-menu");
+                  e.preventDefault();
+                  e.stopPropagation();
+                  forceCloseMenuAndNavigate(
+                    "/knowledge",
+                    "knowledge-overview",
+                    "knowledge-menu"
+                  );
                 }}
-                endIcon={<KeyboardArrowDownIcon />}
-                aria-controls="blog-menu"
-                aria-haspopup="true"
-                aria-expanded={Boolean(blogAnchorEl) ? "true" : undefined}
-              >
-                Blog
-              </Button>
-              <Menu
-                id="blog-menu"
-                anchorEl={blogAnchorEl}
-                open={Boolean(blogAnchorEl)}
-                onClose={handleBlogMenuClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                transformOrigin={{ vertical: "top", horizontal: "left" }}
-                PaperProps={{
-                  elevation: 4,
-                  sx: {
-                    borderRadius: 2,
-                    minWidth: 180,
-                    bgcolor: theme.palette.background.paper,
-                    boxShadow: theme.shadows[4],
-                    p: 1,
-                  },
-                }}
-                MenuListProps={{
-                  onClick: handleBlogMenuClose, // Close menu when any item is clicked
+                sx={{
+                  py: 1.2,
+                  px: 2,
+                  gap: 1,
+                  cursor: "pointer",
                 }}
               >
+                <ListItemIcon
+                  sx={{ color: theme.palette.text.secondary, minWidth: 32 }}
+                >
+                  <MenuBookIcon />
+                </ListItemIcon>
+                <ListItemText primary="Overview" />
+              </MenuItem>
+              <MenuItem
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  forceCloseMenuAndNavigate(
+                    "/knowledge/glossary",
+                    "knowledge-glossary",
+                    "knowledge-menu"
+                  );
+                }}
+                sx={{
+                  py: 1.2,
+                  px: 2,
+                  gap: 1,
+                  cursor: "pointer",
+                }}
+              >
+                <ListItemIcon
+                  sx={{ color: theme.palette.text.secondary, minWidth: 32 }}
+                >
+                  <LibraryBooksIcon />
+                </ListItemIcon>
+                <ListItemText primary="Glossary" />
+              </MenuItem>
+              <Divider sx={{ my: 1 }} />
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  px: 2,
+                  py: 0.5,
+                  fontWeight: 600,
+                  color: theme.palette.text.secondary,
+                  textTransform: "uppercase",
+                  fontSize: "0.75rem",
+                }}
+              >
+                Domain Knowledge
+              </Typography>
+              <Box sx={{ maxHeight: "300px", overflowY: "auto" }}>
+                {domainKnowledgeData.categories.map((category) => (
+                  <MenuItem
+                    key={category.id}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      forceCloseMenuAndNavigate(
+                        `/knowledge/domain/${category.id}`,
+                        `domain-${category.id}`,
+                        "knowledge-menu"
+                      );
+                    }}
+                    sx={{
+                      py: 1.2,
+                      px: 2,
+                      gap: 1,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <ListItemIcon
+                      sx={{
+                        color: theme.palette.text.secondary,
+                        minWidth: 32,
+                      }}
+                    >
+                      <Icon>{category.icon}</Icon>
+                    </ListItemIcon>
+                    <ListItemText primary={category.name} />
+                  </MenuItem>
+                ))}
+              </Box>
+            </KnowledgeBaseMenu>
+          )}
+
+          {/* Blog Menu */}
+          <Menu
+            id="blog-menu"
+            anchorEl={blogAnchorEl}
+            open={Boolean(blogAnchorEl)}
+            onClose={handleBlogMenuClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+            transformOrigin={{ vertical: "top", horizontal: "left" }}
+            slotProps={{
+              paper: {
+                elevation: 4,
+                sx: {
+                  borderRadius: 2,
+                  minWidth: 180,
+                  bgcolor: theme.palette.background.paper,
+                  boxShadow: theme.shadows[4],
+                  p: 1,
+                },
+              },
+            }}
+            MenuListProps={{
+              onClick: handleBlogMenuClose,
+            }}
+          >
+            <MenuItem
+              component={RouterLink}
+              to="/blogs"
+              onClick={() => {
+                handleBlogMenuClose();
+                trackMenuClick("view-all-blogs", "blog-menu");
+              }}
+              sx={{ py: 1.2, px: 2, gap: 1 }}
+            >
+              <ListItemIcon
+                sx={{ color: theme.palette.text.secondary, minWidth: 32 }}
+              >
+                <VisibilityIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="View All" />
+            </MenuItem>
+
+            {/* Admin menu items */}
+            {(isAuthenticated || authJsAuthenticated) &&
+              userRole === "admin" && (
                 <MenuItem
+                  key="create-new"
                   component={RouterLink}
-                  to="/blogs"
+                  to="/blog/new"
                   onClick={() => {
                     handleBlogMenuClose();
-                    trackMenuClick("view-all-blogs", "blog-menu");
+                    trackMenuClick("create-new-blog", "blog-menu");
                   }}
                   sx={{ py: 1.2, px: 2, gap: 1 }}
                 >
                   <ListItemIcon
-                    sx={{ color: theme.palette.text.secondary, minWidth: 32 }}
+                    sx={{
+                      color: theme.palette.text.secondary,
+                      minWidth: 32,
+                    }}
                   >
-                    <VisibilityIcon fontSize="small" />
+                    <AddIcon fontSize="small" />
                   </ListItemIcon>
-                  <ListItemText primary="View All" />
+                  <ListItemText primary="Create New" />
                 </MenuItem>
+              )}
 
-                {/* Admin menu items */}
-                {(isAuthenticated || authJsAuthenticated) &&
-                  userRole === "admin" && (
-                    <MenuItem
-                      key="create-new"
-                      component={RouterLink}
-                      to="/blog/new"
-                      onClick={() => {
-                        handleBlogMenuClose();
-                        trackMenuClick("create-new-blog", "blog-menu");
-                      }}
-                      sx={{ py: 1.2, px: 2, gap: 1 }}
-                    >
-                      <ListItemIcon
-                        sx={{
-                          color: theme.palette.text.secondary,
-                          minWidth: 32,
-                        }}
-                      >
-                        <AddIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText primary="Create New" />
-                    </MenuItem>
-                  )}
-
-                {/* Edit - For admin or moderator roles */}
-                {(isAuthenticated || authJsAuthenticated) &&
-                  (userRole === "admin" || userRole === "moderator") && (
-                    <MenuItem
-                      key="edit"
-                      component={RouterLink}
-                      to="/blogs"
-                      onClick={() => {
-                        handleBlogMenuClose();
-                        trackMenuClick("edit-blog", "blog-menu");
-                      }}
-                      sx={{ py: 1.2, px: 2, gap: 1 }}
-                    >
-                      <ListItemIcon
-                        sx={{
-                          color: theme.palette.text.secondary,
-                          minWidth: 32,
-                        }}
-                      >
-                        <EditIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText primary="Edit" />
-                    </MenuItem>
-                  )}
-
-                {/* Delete - Only for admin role */}
-                {(isAuthenticated || authJsAuthenticated) &&
-                  userRole === "admin" && (
-                    <MenuItem
-                      key="delete"
-                      component={RouterLink}
-                      to="/blogs"
-                      onClick={() => {
-                        handleBlogMenuClose();
-                        trackMenuClick("delete-blog", "blog-menu");
-                      }}
-                      sx={{ py: 1.2, px: 2, gap: 1 }}
-                    >
-                      <ListItemIcon
-                        sx={{
-                          color: theme.palette.text.secondary,
-                          minWidth: 32,
-                        }}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText primary="Delete" />
-                    </MenuItem>
-                  )}
-              </Menu>
-              <Button
-                onClick={() => {
-                  navigate("/contact");
-                  trackMenuClick("contact", "main-menu");
-                }}
-                startIcon={<ContactMailIcon />}
-              >
-                Contact Me
-              </Button>
-
-              <Search>
-                <SearchIconWrapper>
-                  <SearchIcon />
-                </SearchIconWrapper>
-                <StyledInputBase
-                  placeholder="Search…"
-                  inputProps={{ "aria-label": "search" }}
-                  value={query}
-                  onChange={handleSearchChange}
-                  onKeyDown={handleSearchKeyDown}
-                  onFocus={(e) => {
-                    if (e.target.value) {
-                      setSearchAnchorEl(e.currentTarget);
-                      trackMenuClick("search", "main-menu");
-                    }
+            {/* Edit - For admin or moderator roles */}
+            {(isAuthenticated || authJsAuthenticated) &&
+              (userRole === "admin" || userRole === "moderator") && (
+                <MenuItem
+                  key="edit"
+                  component={RouterLink}
+                  to="/blogs"
+                  onClick={() => {
+                    handleBlogMenuClose();
+                    trackMenuClick("edit-blog", "blog-menu");
                   }}
-                />
-                {Boolean(searchAnchorEl) && (
-                  <SearchResultsDropdown>
-                    {matches.length > 0 ? (
-                      matches.map((item, index) => (
-                        <SearchResultItem
-                          key={index}
-                          button
-                          onClick={() => handleSearchResultClick(item.section)}
-                          selected={index === selectedResultIndex}
-                          sx={{
-                            backgroundColor:
-                              index === selectedResultIndex
-                                ? theme.palette.action.selected
-                                : "transparent",
-                            "&:hover": {
-                              backgroundColor:
-                                index === selectedResultIndex
-                                  ? theme.palette.action.selected
-                                  : theme.palette.action.hover,
-                            },
-                          }}
-                        >
-                          <SearchResultSection>
-                            {item.section}
-                          </SearchResultSection>
-                          <SearchResultContent>
-                            {item.content}
-                          </SearchResultContent>
-                        </SearchResultItem>
-                      ))
-                    ) : (
-                      <ListItem>
-                        <Typography color="text.secondary">
-                          No results found
-                        </Typography>
-                      </ListItem>
-                    )}
-                  </SearchResultsDropdown>
-                )}
-              </Search>
+                  sx={{ py: 1.2, px: 2, gap: 1 }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      color: theme.palette.text.secondary,
+                      minWidth: 32,
+                    }}
+                  >
+                    <EditIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary="Edit" />
+                </MenuItem>
+              )}
 
-              {/* Account Button */}
-              <Box sx={{ mr: 1, display: { xs: "none", md: "block" } }}>
-                {(() => {
-                  console.log(
-                    "[Navbar] Rendering account button. Auth state:",
-                    {
-                      isAuthenticated,
-                      authJsAuthenticated,
-                      shouldShowAccount: isAuthenticated || authJsAuthenticated,
-                    }
-                  );
+            {/* Delete - Only for admin role */}
+            {(isAuthenticated || authJsAuthenticated) &&
+              userRole === "admin" && (
+                <MenuItem
+                  key="delete"
+                  component={RouterLink}
+                  to="/blogs"
+                  onClick={() => {
+                    handleBlogMenuClose();
+                    trackMenuClick("delete-blog", "blog-menu");
+                  }}
+                  sx={{ py: 1.2, px: 2, gap: 1 }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      color: theme.palette.text.secondary,
+                      minWidth: 32,
+                    }}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary="Delete" />
+                </MenuItem>
+              )}
+          </Menu>
 
-                  // Force re-render when authentication state changes
-                  const shouldShowAccount = Boolean(
-                    isAuthenticated || authJsAuthenticated
-                  );
-
-                  return shouldShowAccount ? (
-                    <Box key={`account-${authStateKey}-${shouldShowAccount}`}>
-                      <ToolpadAccountComponent variant="preview" />
-                    </Box>
-                  ) : (
-                    <Tooltip title="Sign in to access your account">
-                      <IconButton
-                        onClick={(e) => {
-                          handleSettingsClick(e);
-                          trackMenuClick("sign-in", "main-menu");
-                        }}
-                        color="inherit"
-                        aria-label="sign in"
-                        size="small"
-                      >
-                        <PersonIcon />
-                      </IconButton>
-                    </Tooltip>
-                  );
-                })()}
-              </Box>
-
-              {/* Settings Icon */}
-              <IconButton
-                onClick={(e) => {
-                  handleSettingsClick(e);
-                  trackMenuClick("settings", "main-menu");
-                }}
-                onMouseEnter={handleSettingsMouseEnter}
-                color="inherit"
-                aria-label="settings"
-                sx={{ ml: 1 }}
-              >
-                <SettingsIcon />
-              </IconButton>
-
-              {/* Settings Menu */}
-              <Menu
-                anchorEl={settingsAnchorEl}
-                open={Boolean(settingsAnchorEl)}
-                onClose={handleSettingsClose}
-                MenuListProps={{
-                  onMouseEnter: () => setSettingsHover(true),
-                  onMouseLeave: handleSettingsMouseLeave,
-                  sx: { minWidth: 220 },
-                }}
-                PaperProps={{
-                  elevation: 3,
-                  sx: {
-                    mt: 1.5,
-                    overflow: "visible",
-                    filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
-                    "&:before": {
-                      content: '""',
-                      display: "block",
-                      position: "absolute",
-                      top: 0,
-                      right: 14,
-                      width: 10,
-                      height: 10,
-                      bgcolor: "background.paper",
-                      transform: "translateY(-50%) rotate(45deg)",
-                      zIndex: 0,
-                    },
+          {/* Settings Menu */}
+          <Menu
+            anchorEl={settingsAnchorEl}
+            open={Boolean(settingsAnchorEl)}
+            onClose={handleSettingsClose}
+            MenuListProps={{
+              onMouseEnter: () => setSettingsHover(true),
+              onMouseLeave: handleSettingsMouseLeave,
+              sx: { minWidth: 220 },
+            }}
+            slotProps={{
+              paper: {
+                elevation: 3,
+                sx: {
+                  mt: 1.5,
+                  overflow: "visible",
+                  filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+                  "&:before": {
+                    content: '""',
+                    display: "block",
+                    position: "absolute",
+                    top: 0,
+                    right: 14,
+                    width: 10,
+                    height: 10,
+                    bgcolor: "background.paper",
+                    transform: "translateY(-50%) rotate(45deg)",
+                    zIndex: 0,
                   },
-                }}
-                transformOrigin={{ horizontal: "right", vertical: "top" }}
-                anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
-              >
-                {/* User Profile Section */}
-                <Box
-                  sx={{
-                    px: 2,
-                    py: 1.5,
-                    borderBottom: "1px solid",
-                    borderColor: "divider",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    width: "100%",
-                  }}
-                >
-                  <Typography
-                    variant="subtitle1"
-                    sx={{ mb: 1, fontWeight: "bold" }}
-                  >
-                    Account
-                  </Typography>
-                  {isAuthenticated || authJsAuthenticated ? (
-                    <ToolpadAccountComponent variant="default" />
-                  ) : (
-                    <Typography variant="body2" color="text.secondary">
-                      Please sign in to access your account
-                    </Typography>
-                  )}
-                </Box>
-                {/* Mui Sign in */}
-                {!(isAuthenticated || authJsAuthenticated) && (
-                  <MenuItem>
-                    <Box sx={{ width: "100%" }}>
-                      <AppProvider theme={theme}>
-                        <SignInPage
-                          providers={[
-                            { id: "github", name: "GitHub" },
-                            { id: "google", name: "Google" },
-                            { id: "facebook", name: "Facebook" },
-                            { id: "linkedin", name: "LinkedIn" },
-                            { id: "auth0", name: "Auth0" },
-                          ]}
-                          signIn={async (provider) => {
-                            // Call the signIn function from AuthJsClient
-                            if (provider && provider.id) {
-                              console.log(
-                                `[Navbar] Signing in with ${provider.id}`
-                              );
-                              try {
-                                await AuthJsClient.signIn(provider.id);
-                              } catch (error) {
-                                console.error(
-                                  `[Navbar] Error signing in with ${provider.id}:`,
-                                  error
-                                );
-                              }
-                            }
-                          }}
-                        />
-                      </AppProvider>
-                    </Box>
-                  </MenuItem>
-                )}
-
-                {/* Theme Toggle */}
-                <MenuItem onClick={() => toggleDarkMode(!isDarkMode)}>
-                  <ListItemIcon>
-                    {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={isDarkMode ? "Light Mode" : "Dark Mode"}
-                  />
-                </MenuItem>
-
-                {/* Color Palette Section */}
-                <Box
-                  sx={{
-                    px: 2,
-                    py: 1,
-                    borderTop: "1px solid",
-                    borderColor: "divider",
-                  }}
-                >
-                  <Typography
-                    variant="subtitle2"
-                    color="text.secondary"
-                    sx={{ mb: 1 }}
-                  >
-                    Color Theme
-                  </Typography>
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                    {availablePalettes.map((palette, index) => (
-                      <Tooltip key={palette.name} title={palette.name} arrow>
-                        <Box
-                          onClick={() => handlePaletteSelect(index)}
-                          sx={{
-                            width: 24,
-                            height: 24,
-                            borderRadius: "50%",
-                            bgcolor: palette.primary,
-                            border: "2px solid",
-                            borderColor:
-                              index === currentPaletteIndex
-                                ? "primary.main"
-                                : "transparent",
-                            cursor: "pointer",
-                            transition: "transform 0.2s",
-                            "&:hover": {
-                              transform: "scale(1.2)",
-                            },
-                          }}
-                        />
-                      </Tooltip>
-                    ))}
-                  </Box>
-                </Box>
-
-                {/* User Actions */}
-                {(isAuthenticated || authJsAuthenticated) && (
-                  <Box sx={{ borderTop: "1px solid", borderColor: "divider" }}>
-                    <MenuItem
-                      component={RouterLink}
-                      to="/profile"
-                      onClick={handleSettingsClose}
-                    >
-                      <ListItemIcon>
-                        <PersonIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText primary="Profile" />
-                    </MenuItem>
-                    <MenuItem
-                      onClick={() => {
-                        handleSettingsClose();
-                        combinedLogout();
-                      }}
-                    >
-                      <ListItemIcon>
-                        <LogoutIcon fontSize="small" />
-                      </ListItemIcon>
-                      <ListItemText primary="Logout" />
-                    </MenuItem>
-                  </Box>
-                )}
-              </Menu>
-            </Box>
-          )}
-
-          {/* Only show the right hamburger on mobile and handle tablet in landscape */}
-          {shouldShowMobileMenu && (
-            <IconButton
-              aria-label={
-                mobileOpen ? "Close navigation menu" : "Open navigation menu"
-              }
-              aria-expanded={mobileOpen}
-              aria-controls="mobile-navigation"
-              edge="end"
-              onClick={handleDrawerToggle}
-              sx={{
-                ml: "auto",
-                mr: { xs: 2, sm: 1 },
-                zIndex: 1400, // Increased z-index to ensure visibility above all content
-                position: "relative", // Ensure proper stacking context
-                transition: "transform 0.3s ease-in-out",
-                transform: mobileOpen ? "rotate(90deg)" : "rotate(0deg)",
-                backgroundColor: "transparent",
-                "&:hover": {
-                  backgroundColor: alpha(theme.palette.primary.main, 0.1),
                 },
+              },
+            }}
+            transformOrigin={{ horizontal: "right", vertical: "top" }}
+            anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+          >
+            {/* User Profile Section */}
+            <Box
+              sx={{
+                px: 2,
+                py: 1.5,
+                borderBottom: "1px solid",
+                borderColor: "divider",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                width: "100%",
               }}
             >
-              {mobileOpen ? <CloseIcon /> : <MenuIcon />}
-            </IconButton>
-          )}
+              <Typography
+                variant="subtitle1"
+                sx={{ mb: 1, fontWeight: "bold" }}
+              >
+                Account
+              </Typography>
+              {isAuthenticated || authJsAuthenticated ? (
+                <ToolpadAccountComponent variant="default" />
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  Please sign in to access your account
+                </Typography>
+              )}
+            </Box>
+            {/* Mui Sign in */}
+            {!(isAuthenticated || authJsAuthenticated) && (
+              <MenuItem>
+                <Box sx={{ width: "100%" }}>
+                  <AppProvider theme={theme}>
+                    <SignInPage
+                      providers={[
+                        { id: "github", name: "GitHub" },
+                        { id: "google", name: "Google" },
+                        { id: "facebook", name: "Facebook" },
+                        { id: "linkedin", name: "LinkedIn" },
+                        { id: "auth0", name: "Auth0" },
+                      ]}
+                      signIn={async (provider) => {
+                        // Call the signIn function from AuthJsClient
+                        if (provider && provider.id) {
+                          console.log(
+                            `[Navbar] Signing in with ${provider.id}`
+                          );
+                          try {
+                            await AuthJsClient.signIn(provider.id);
+                          } catch (error) {
+                            console.error(
+                              `[Navbar] Error signing in with ${provider.id}:`,
+                              error
+                            );
+                          }
+                        }
+                      }}
+                    />
+                  </AppProvider>
+                </Box>
+              </MenuItem>
+            )}
+
+            {/* Theme Toggle */}
+            <MenuItem onClick={() => toggleDarkMode(!isDarkMode)}>
+              <ListItemIcon>
+                {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+              </ListItemIcon>
+              <ListItemText
+                primary={isDarkMode ? "Light Mode" : "Dark Mode"}
+              />
+            </MenuItem>
+
+            {/* Color Palette Section */}
+            <Box
+              sx={{
+                px: 2,
+                py: 1,
+                borderTop: "1px solid",
+                borderColor: "divider",
+              }}
+            >
+              <Typography
+                variant="subtitle2"
+                color="text.secondary"
+                sx={{ mb: 1 }}
+              >
+                Color Theme
+              </Typography>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                {availablePalettes.map((palette, index) => (
+                  <Tooltip key={palette.name} title={palette.name} arrow>
+                    <Box
+                      onClick={() => handlePaletteSelect(index)}
+                      sx={{
+                        width: 24,
+                        height: 24,
+                        borderRadius: "50%",
+                        bgcolor: palette.primary,
+                        border: "2px solid",
+                        borderColor:
+                          index === currentPaletteIndex
+                            ? "primary.main"
+                            : "transparent",
+                        cursor: "pointer",
+                        transition: "transform 0.2s",
+                        "&:hover": {
+                          transform: "scale(1.2)",
+                        },
+                      }}
+                    />
+                  </Tooltip>
+                ))}
+              </Box>
+            </Box>
+
+            {/* User Actions */}
+            {(isAuthenticated || authJsAuthenticated) && (
+              <Box sx={{ borderTop: "1px solid", borderColor: "divider" }}>
+                <MenuItem
+                  component={RouterLink}
+                  to="/profile"
+                  onClick={handleSettingsClose}
+                >
+                  <ListItemIcon>
+                    <PersonIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary="Profile" />
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleSettingsClose();
+                    combinedLogout();
+                  }}
+                >
+                  <ListItemIcon>
+                    <LogoutIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary="Logout" />
+                </MenuItem>
+              </Box>
+            )}
+          </Menu>
         </Toolbar>
       </StyledAppBar>
 
