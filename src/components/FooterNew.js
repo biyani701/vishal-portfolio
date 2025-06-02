@@ -316,7 +316,7 @@ const Footer = () => {
         {/* Center Section - Links, Copyright, Social */}
         <Grid
           item
-          xs={useCompactMode ? 9 : 10}
+          xs={useCompactMode ? 8 : 9}
           sm={6}
           md={4}
           sx={{
@@ -420,24 +420,27 @@ const Footer = () => {
         {/* Right Section - Empty space for chat bubble to position independently */}
         <Grid
           item
-          xs={0}
+          xs={1}
           sm={3}
           md={4}
           sx={{
-            display: { xs: "none", sm: "flex" },
+            display: { xs: "flex", sm: "flex" },
             alignItems: "center",
-            justifyContent: "flex-end",
+            justifyContent: "flex-start",
             minHeight: "100%",
+            minWidth: '45px',
           }}
-        />
+        >
+          &nbsp;
+          </Grid>
       </FooterContainer>
 
       {/* Chat Bubble - Positioned independently outside Grid constraints */}
       <Box
         sx={{
           position: "fixed",
-          bottom: '24px',
-          left: 64,
+          bottom: '16px',
+          right: '16px',
           zIndex: Math.max(theme.zIndex.footer + 10, theme.zIndex.modal - 50),
           // Ensure it doesn't interfere with touch events
           pointerEvents: "none",
