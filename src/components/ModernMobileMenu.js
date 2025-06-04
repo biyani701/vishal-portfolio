@@ -125,19 +125,44 @@ const ModernMobileMenu = ({
         icon: <BookIcon />,
         hasSubmenu: true,
         submenu: [
-          { id: "overview", label: "Overview", icon: <BookIcon />, path: "/knowledge" },
-          { id: "glossary", label: "Glossary", icon: <ArticleIcon />, path: "/knowledge/glossary" },
+          {
+            id: "overview",
+            label: "Overview",
+            icon: <BookIcon />,
+            path: "/knowledge",
+          },
+          {
+            id: "glossary",
+            label: "Glossary",
+            icon: <ArticleIcon />,
+            path: "/knowledge/glossary",
+          },
           {
             id: "domain",
             label: "Domain Knowledge",
             icon: <ArticleIcon />,
             hasSubmenu: true,
             submenu: [
-              { id: "credit-cards", label: "Credit Cards & Payments", icon: <ArticleIcon />, path: "/knowledge/domain/credit-cards" },
-              { id: "market-reference", label: "Market Reference Data", icon: <ArticleIcon />, path: "/knowledge/domain/market-reference" },
-              { id: "capital-markets", label: "Capital Markets", icon: <ArticleIcon />, path: "/knowledge/domain/capital-markets" },
-            ]
-          }
+              {
+                id: "credit-cards",
+                label: "Credit Cards & Payments",
+                icon: <ArticleIcon />,
+                path: "/knowledge/domain/credit-cards",
+              },
+              {
+                id: "market-reference",
+                label: "Market Reference Data",
+                icon: <ArticleIcon />,
+                path: "/knowledge/domain/market-reference",
+              },
+              {
+                id: "capital-markets",
+                label: "Capital Markets",
+                icon: <ArticleIcon />,
+                path: "/knowledge/domain/capital-markets",
+              },
+            ],
+          },
         ],
       },
       { id: "blog", label: "Blog", icon: <ArticleIcon />, path: "/blogs" },
@@ -313,9 +338,10 @@ const ModernMobileMenu = ({
           width: "100vw",
           height: "100vh",
           maxHeight: "95%",
-          background: (theme) => theme.palette.mode === 'dark'
-            ? "linear-gradient(135deg, rgba(25, 118, 210, 0.15) 0%, rgba(156, 39, 176, 0.15) 100%)"
-            : "linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 240, 240, 0.95) 100%)",
+          background: (theme) =>
+            theme.palette.mode === "dark"
+              ? "linear-gradient(135deg, rgba(25, 118, 210, 0.15) 0%, rgba(156, 39, 176, 0.15) 100%)"
+              : "linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 240, 240, 0.95) 100%)",
           backdropFilter: "blur(20px)",
           border: "none",
           color: (theme) => theme.palette.text.primary,
@@ -379,9 +405,9 @@ const ModernMobileMenu = ({
                   alignItems: "center",
                   gap: 2,
                 }}
-              >
+              >                
                 <Avatar
-                  src={user?.image || user?.avatar_url}
+                  src={user?.image || user?.avatarUrl || user?.avatar_url}
                   sx={{
                     width: 40,
                     height: 40,
@@ -625,7 +651,7 @@ const ModernMobileMenu = ({
           <Slide direction="left" in={open} timeout={600}>
             <Box sx={{ borderBottom: "1px solid rgba(255, 255, 255, 0.1)" }}>
               <ListItemButton
-                onClick={() => toggleSection('recent')}
+                onClick={() => toggleSection("recent")}
                 sx={{ p: 2 }}
               >
                 <ListItemIcon>
@@ -633,17 +659,27 @@ const ModernMobileMenu = ({
                 </ListItemIcon>
                 <ListItemText
                   primary="Recent"
-                  secondary={`${recentItems.length} recent item${recentItems.length !== 1 ? 's' : ''}`}
+                  secondary={`${recentItems.length} recent item${recentItems.length !== 1 ? "s" : ""}`}
                 />
                 <IconButton size="small">
-                  {expandedSections.recent ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                  {expandedSections.recent ? (
+                    <ExpandLessIcon />
+                  ) : (
+                    <ExpandMoreIcon />
+                  )}
                 </IconButton>
               </ListItemButton>
 
               {/* Recent Items Content - Collapsible */}
-              <Collapse in={expandedSections.recent} timeout="auto" unmountOnExit>
+              <Collapse
+                in={expandedSections.recent}
+                timeout="auto"
+                unmountOnExit
+              >
                 <Box sx={{ p: 2, pt: 0 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+                  <Box
+                    sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}
+                  >
                     <Chip
                       label="Clear All"
                       size="small"
@@ -805,20 +841,26 @@ const ModernMobileMenu = ({
                                       sx={{ pl: 8 }}
                                     >
                                       <ListItemButton
-                                        onClick={() => handleItemClick(nestedItem)}
+                                        onClick={() =>
+                                          handleItemClick(nestedItem)
+                                        }
                                         sx={{
                                           borderRadius: 1,
                                           py: 0.5,
                                           px: 2,
                                           "&:hover": {
-                                            backgroundColor: "rgba(25, 118, 210, 0.03)",
+                                            backgroundColor:
+                                              "rgba(25, 118, 210, 0.03)",
                                             transform: "translateX(2px)",
                                           },
                                           transition: "all 0.2s ease-in-out",
                                         }}
                                       >
                                         <ListItemIcon
-                                          sx={{ minWidth: 28, color: "text.disabled" }}
+                                          sx={{
+                                            minWidth: 28,
+                                            color: "text.disabled",
+                                          }}
                                         >
                                           {nestedItem.icon}
                                         </ListItemIcon>
@@ -893,9 +935,7 @@ const ModernMobileMenu = ({
                       ) : (
                         <Brightness4Icon fontSize="small" />
                       )} */}
-                      <Typography variant="body2">
-                        Dark Mode
-                      </Typography>
+                      <Typography variant="body2">Dark Mode</Typography>
                     </Box>
                   }
                   sx={{ mb: 2, ml: 0 }}

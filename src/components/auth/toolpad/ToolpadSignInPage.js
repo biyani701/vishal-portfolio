@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { SignInPage } from '@toolpad/core/SignInPage';
+import { useTheme } from '@mui/material/styles';
 import config from '../../../config';
 
 /**
@@ -9,6 +10,7 @@ import config from '../../../config';
  * that connects to the my-auth-backend server
  */
 const ToolpadSignInPage = () => {
+  const theme = useTheme();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -94,7 +96,7 @@ const ToolpadSignInPage = () => {
   };
 
   return (
-    <AppProvider branding={branding}>
+    <AppProvider branding={branding} theme={theme}>
       <SignInPage
         providers={providers}
         signIn={handleSignIn}

@@ -546,24 +546,24 @@ const handleResumeItemClick = (sectionId) => {
           </Box>
 
           {/* Authentication Section */}
-          {(isAuthenticated || authJsAuthenticated) ? (
-            <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
-                Account
-              </Typography>
-              <ToolpadAccountComponent variant="default" />
-            </Box>
-          ) : (
-            <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
-                Sign In
-              </Typography>
+          <Box sx={{ p: 2, borderBottom: 1, borderColor: "divider" }}>
+            <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>
+              {(isAuthenticated || authJsAuthenticated) ? "Account" : "Sign In"}
+            </Typography>
+            {!(isAuthenticated || authJsAuthenticated) && (
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
                 Access your account and personalized features
               </Typography>
-              <ToolpadAccountComponent variant="default" />
-            </Box>
-          )}
+            )}
+            <ToolpadAccountComponent
+              variant="default"
+              isDarkMode={isDarkMode}
+              toggleDarkMode={toggleDarkMode}
+              availablePalettes={availablePalettes}
+              currentPaletteIndex={currentPaletteIndex}
+              changePalette={changePalette}
+            />
+          </Box>
 
           {/* Search Section */}
           <SearchableNavigation

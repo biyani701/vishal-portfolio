@@ -1344,7 +1344,7 @@ const NavigationBar = ({
                 }}
               >
                 {/* Account Button */}
-                <Box sx={{ display: { xs: "none", md: "block" } }}>
+                {/* <Box sx={{ display: { xs: "none", md: "block" } }}>
                   {(() => {
                     const shouldShowAccount = Boolean(
                       isAuthenticated || authJsAuthenticated
@@ -1356,7 +1356,7 @@ const NavigationBar = ({
                       </Box>
                     ) : null;
                   })()}
-                </Box>
+                </Box> */}
 
                 {/* Settings Icon */}
                 <IconButton
@@ -1817,18 +1817,17 @@ const NavigationBar = ({
               >
                 Account
               </Typography>
-              {isAuthenticated || authJsAuthenticated ? (
-                
-                <ToolpadAccountComponent variant="expanded" />
-                
-              ) : (
-                <Typography variant="body2" color="text.secondary">
-                  Please sign in to access your account
-                </Typography>
-              )}
+              <ToolpadAccountComponent
+                variant="expanded"
+                isDarkMode={isDarkMode}
+                toggleDarkMode={toggleDarkMode}
+                availablePalettes={availablePalettes}
+                currentPaletteIndex={currentPaletteIndex}
+                changePalette={changePalette}
+              />
             </Box>
             {/* Mui Sign in */}
-            {!(isAuthenticated || authJsAuthenticated) && (
+            {/* {!(isAuthenticated || authJsAuthenticated) && (
               <MenuItem>
                 <Box sx={{ width: "100%" }}>
                   <AppProvider theme={theme}>
@@ -1860,7 +1859,7 @@ const NavigationBar = ({
                   </AppProvider>
                 </Box>
               </MenuItem>
-            )}
+            )} */}
 
             {/* Theme and Settings Section - Always visible */}
             <Box sx={{ borderTop: "1px solid", borderColor: "divider" }}>
@@ -1870,7 +1869,7 @@ const NavigationBar = ({
                   {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
                 </ListItemIcon>
                 <ListItemText
-                  primary={isDarkMode ? "Light Mode" : "Dark Mode"}
+                  primary={isDarkMode ? "Dark Mode" : "Light Mode"}
                 />
               </MenuItem>
 
