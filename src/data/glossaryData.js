@@ -47,32 +47,30 @@ const glossaryData = [
     icon: "payments",
   },
   {
-    id: "89718856",
-    acronym: "OTB",
-    fullForm: "Open To Buy",
-    details:
-      '"Buy to open" is a term used by brokerages to represent the establishment of a new (opening) longcallorputposition. A buy-to-open order indicates to market participants that the trader is establishing a new position rather than closing out an existing position.',
-    category: "General",
-    icon: "info",
-  },
+  "id": "89718856",
+  "acronym": "OTB",
+  "fullForm": "Open To Buy",
+  "details": "**OTB** (*Open To Buy*) refers to the **available credit** a cardholder can still spend on their credit card. It is calculated as:\n\n`OTB = Credit Limit - Current Balance`\n\nIn the context of credit cards:\n- **Credit Limit**: The maximum amount the issuer allows you to borrow.\n- **Current Balance**: The total of all posted transactions, including purchases, fees, and pending payments.\n\nFor example, if your credit limit is ₹1,00,000 and you've already spent ₹60,000, your OTB is ₹40,000. \n\n> 💡 *OTB helps track how much spending power remains on the card before reaching the limit.*",
+  "category": "Finance",
+  "icon": "info"
+},
   {
-    id: "89718869",
-    acronym: "IPM",
-    fullForm: "Integrated Product Messages",
-    details:
-      "In-product marketing is an additional channel in thedigital marketingtoolkit, which includesemail marketing,search engine marketing(SEM),social media marketing, many forms ofdisplay advertising, andmobile advertising. It can also refer to the strategy used by a company to reach specific segments of their customer base to provide in-product customer service and support.",
-    category: "Business",
-    icon: "business",
-  },
-  {
-    id: "89751559",
-    acronym: "UCAF",
-    fullForm: "MasterCard's Universal Cardholder Authentication Field",
-    details:
-      "The vast majority of transactions made when a customer uses a card to make a payment in a store (EFTPOS) use ISO 8583 at some point in the communication chain. In particular, theMastercard,VisaandVervenetworks base their authorization communications on the standard.",
-    category: "General",
-    icon: "info",
-  },
+  id: "89718869",
+  acronym: "IPM",
+  "fullForm": "Integrated Product Messages",
+  "details": "**IPM** (*Integrated Product Messages*) is a data exchange format used by **Mastercard** to communicate detailed clearing and settlement information for transactions. \n\nIt includes:\n- Transaction-level data (amount, date, location, currency)\n- Interchange fee details\n- Chargeback and dispute data\n\n**IPM files** are essential for reconciling transactions, reporting, and ensuring compliance across Mastercard's global payment network.\n\n> 📊 IPM ensures financial institutions and processors receive rich, structured data for each transaction in the Mastercard ecosystem.",
+  "category": "Payments",
+  "icon": "account_balance"
+},
+ {
+  "id": "89751559",
+  "acronym": "UCAF",
+  "fullForm": "Universal Cardholder Authentication Field",
+  "details": "**UCAF** (*Universal Cardholder Authentication Field*) is a standardized authentication data field developed by **Mastercard** and supported by global card networks including **Visa**, **Verve**, and others through the **EMVCo** framework.\n\nIt is a critical part of the **3-D Secure (3DS)** ecosystem, used in **card-not-present** (CNP) transactions to:\n\n- Carry authentication data from the **Access Control Server (ACS)** to the card issuer\n- Embed cardholder identity verification results directly in the **authorization message**\n- Improve issuer decision-making and reduce **fraud and chargebacks**\n\nUCAF is used across multiple 3DS implementations:\n- **Mastercard** → Identity Check (3DS)\n- **Visa** → Visa Secure\n- **Verve** → Verve e-commerce 3DS via EMVCo-compliant solutions\n\n**Transaction Lifecycle with UCAF in 3DS**:\n1. Cardholder initiates a payment online.\n2. The ACS performs authentication (e.g., OTP, biometrics).\n3. The result (pass/fail, method) is encoded into the **UCAF**.\n4. UCAF is sent to the **issuer** as part of the authorization message.\n5. The issuer uses this to **approve/decline** the transaction.\n\n> 🔐 **UCAF** enables **frictionless, secure digital commerce** by ensuring authenticated transaction data is shared seamlessly across networks.",
+  "category": "Payments",
+  "icon": "shield"
+}
+,
   {
     id: "89784337",
     acronym: "AEVV",
@@ -463,14 +461,13 @@ const glossaryData = [
     icon: "computer",
   },
   {
-    id: "458457089",
-    acronym: "ACDV",
-    fullForm: "Automated Credit Dispute Verfication",
-    details:
-      "Experian is the best overall credit monitoring service. It offers free and paid plans and a solid feature set that includes three-bureau credit monitoring, FICO score access, and identity theft insurance.",
-    category: "Finance",
-    icon: "payments",
-  },
+  "id": "458457089",
+  "acronym": "ACDV",
+  "fullForm": "Automated Credit Dispute Verification",
+  "details": "**ACDV** stands for *Automated Credit Dispute Verification*. It is a standardized electronic process used by credit reporting agencies and data furnishers to communicate and resolve consumer credit disputes. \n\nThe ACDV process is part of the **e-OSCAR** system (Online Solution for Complete and Accurate Reporting), where: \n- Credit bureaus receive disputes from consumers. \n- The bureau creates an ACDV form and sends it electronically to the original data furnisher (e.g., a bank). \n- The furnisher reviews and responds with corrections or verification. \n\nThis workflow ensures that disputed credit items are investigated and corrected or validated in a timely and consistent manner.",
+  "category": "Finance",
+  "icon": "payments"
+},
   {
     id: "458620929",
     acronym: "AUD",

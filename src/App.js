@@ -18,7 +18,7 @@ import Fab from "@mui/material/Fab";
 
 import NavigationBar from "./components/ImprovedNavbar";
 import Hero from "./components/HeroNew";
-// import HeroRef from "./components/Hero";
+import HeroRef from "./archive/Hero";
 import ProfileSummary from "./components/ProfileSummaryNew";
 // import EnhancedSkillsWithTabs from './components/EnhancedSkillsWithTabs';
 import Skills from "./components/Skills";
@@ -63,6 +63,7 @@ import ToolpadSignInPageWrapper from "./pages/toolpad-signin";
 import KnowledgeBase from "./components/knowledge/KnowledgeBase";
 import Glossary from "./components/knowledge/Glossary";
 import DomainKnowledge from "./components/knowledge/DomainKnowledge";
+import ThreeDSFlowStepper from "./components/knowledge/ThreeDSFlowStepper";
 
 // Enhanced Blog components
 import BlogList from "./components/blog/BlogList";
@@ -420,6 +421,8 @@ function App(props) {
             <Route path="/knowledge" element={<KnowledgeBase />} />
             <Route path="/knowledge/glossary" element={<Glossary />} />
             <Route path="/knowledge/domain/:categoryId" element={<DomainKnowledge />} />            
+            <Route path="/knowledge/domain/:categoryId/:topicId" element={<DomainKnowledge />} />
+            <Route path="/knowledge/ThreeDSFlowStepper" element={<ThreeDSFlowStepper />} />
 
             {/* Blog Routes */}
             <Route path="/blogs" element={<BlogList />} />
@@ -456,7 +459,7 @@ function App(props) {
             {/* <Route path="/blog/edit/:blogId" element={<BlogEditor />} /> */}
             <Route path="/click-test" element={<ClickTest />} />
             <Route path="/config-test" element={<ConfigTest />} />
-            {/* <Route path="/heroref" element={<HeroRef />} /> */}
+            <Route path="/heroref" element={<HeroRef />} />
 
             <Route path="*" element={<div>404 Not Found</div>} />
           </Routes>

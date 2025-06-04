@@ -1,7 +1,7 @@
 // src/components/auth/ModernSignIn.js
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuthContext } from '../../context/AuthProvider';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuthContext } from "../../context/AuthProvider";
 
 // MUI components
 import {
@@ -14,22 +14,28 @@ import {
   Divider,
   Snackbar,
   Alert,
-  CircularProgress
-} from '@mui/material';
+  CircularProgress,
+  ThemeProvider,
+} from "@mui/material";
 
 // MUI Toolpad Core components
-import { AppProvider } from '@toolpad/core/AppProvider';
-import { Account } from '@toolpad/core/Account';
-import { SignInPage } from '@toolpad/core/SignInPage';
-
+import { AppProvider } from "@toolpad/core/AppProvider";
+// import { Account } from '@toolpad/core/Account';
+import { SignInPage } from "@toolpad/core/SignInPage";
+import AuthJsClient from "./AuthJsClient";
 // Icons
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGithub, faGoogle, faFacebookF, faLinkedinIn } from '@fortawesome/free-brands-svg-icons';
-import { faLock, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
-import { Logout, Login } from '@mui/icons-material';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faGithub,
+  faGoogle,
+  faFacebookF,
+  faLinkedinIn,
+} from "@fortawesome/free-brands-svg-icons";
+import { faLock, faShieldAlt } from "@fortawesome/free-solid-svg-icons";
+// import { Logout, Login } from '@mui/icons-material';
 
 // Config
-import config from '../../config';
+import config from "../../config";
 
 /**
  * Modern Sign In component that integrates with Auth.js v5
@@ -43,11 +49,20 @@ const ModernSignIn = () => {
 
   const [loading, setLoading] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState('info');
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("info");
 
   // Get the redirect path from location state or default to '/'
-  const from = location.state?.from?.pathname || '/';
+  const from = location.state?.from?.pathname || "/";
+
+  // Define the providers for the Toolpad SignInPage component
+  const providers = [
+    { id: "github", name: "GitHub" },
+    { id: "google", name: "Google" },
+    { id: "facebook", name: "Facebook" },
+    { id: "linkedin", name: "LinkedIn" },
+    { id: "auth0", name: "Auth0" },
+  ];
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -61,9 +76,9 @@ const ModernSignIn = () => {
     try {
       // Validate provider
       if (!provider) {
-        console.error('[Auth] No provider specified for sign-in');
-        setSnackbarMessage('Error: No authentication provider specified');
-        setSnackbarSeverity('error');
+        console.error("[Auth] No provider specified for sign-in");
+        setSnackbarMessage("Error: No authentication provider specified");
+        setSnackbarSeverity("error");
         setSnackbarOpen(true);
         return;
       }
@@ -71,35 +86,41 @@ const ModernSignIn = () => {
       setLoading(true);
 
       // Store the redirect path in sessionStorage
-      sessionStorage.setItem('auth_redirect', from);
+      sessionStorage.setItem("auth_redirect", from);
 
       // Also store a flag to indicate we're in the authentication process
-      sessionStorage.setItem('auth_in_progress', 'true');
-      sessionStorage.setItem('auth_provider', provider);
-      sessionStorage.setItem('auth_timestamp', Date.now().toString());
+      sessionStorage.setItem("auth_in_progress", "true");
+      sessionStorage.setItem("auth_provider", provider);
+      sessionStorage.setItem("auth_timestamp", Date.now().toString());
 
       // Show loading message
       setSnackbarMessage(`Redirecting to ${provider} authentication...`);
-      setSnackbarSeverity('info');
+      setSnackbarSeverity("info");
       setSnackbarOpen(true);
 
       // Get the auth server URL from runtime config or config
-      const authServerUrl = (window.runtimeConfig && window.runtimeConfig.AUTH_SERVER_URL) ||
-                           config.auth.serverUrl;
+      const authServerUrl =
+        (window.runtimeConfig && window.runtimeConfig.AUTH_SERVER_URL) ||
+        config.auth.serverUrl;
 
       // Use the full URL as the callback URL - this is crucial for Auth.js to redirect back correctly
-      const callbackUrl = encodeURIComponent(`${window.location.origin}/auth-callback`);
+      const callbackUrl = encodeURIComponent(
+        `${window.location.origin}/auth-callback`
+      );
 
       // Get the client ID from runtime config, environment variables, or default to 'portfolio'
-      const clientId = (window.runtimeConfig && window.runtimeConfig.CLIENT_ID) ||
-                      process.env.REACT_APP_CLIENT_ID ||
-                      'portfolio';
+      const clientId =
+        (window.runtimeConfig && window.runtimeConfig.CLIENT_ID) ||
+        process.env.REACT_APP_CLIENT_ID ||
+        "portfolio";
 
       // Construct the sign-in URL with client ID and origin as query parameters
       const origin = encodeURIComponent(window.location.origin);
 
       // Make sure provider is a string and properly formatted
-      const providerParam = encodeURIComponent(String(provider).toLowerCase().trim());
+      const providerParam = encodeURIComponent(
+        String(provider).toLowerCase().trim()
+      );
 
       const signInUrl = `${authServerUrl}/api/auth/signin/${providerParam}?callbackUrl=${callbackUrl}&clientId=${clientId}&origin=${origin}`;
 
@@ -116,7 +137,7 @@ const ModernSignIn = () => {
     } catch (error) {
       console.error(`[Auth] Error during ${provider} sign-in:`, error);
       setSnackbarMessage(`Error during sign-in: ${error.message}`);
-      setSnackbarSeverity('error');
+      setSnackbarSeverity("error");
       setSnackbarOpen(true);
       setLoading(false);
     }
@@ -125,31 +146,19 @@ const ModernSignIn = () => {
   // Define the branding for the Toolpad Account component
   const branding = {
     logo: (
-      <img
-        src="/logo192.png"
-        alt="Portfolio Logo"
-        style={{ height: 40 }}
-      />
+      <img src="/logo192.png" alt="Portfolio Logo" style={{ height: 40 }} />
     ),
-    title: 'Portfolio',
+    title: "Portfolio",
   };
 
-  // Define the providers for the Toolpad SignInPage component
-  const providers = [
-    { id: 'github', name: 'GitHub' },
-    { id: 'google', name: 'Google' },
-    { id: 'facebook', name: 'Facebook' },
-    { id: 'linkedin', name: 'LinkedIn' }
-  ];
-
   // Prepare user data for the Account component if authenticated
-  const { user } = useAuthContext();
-  const userData = isAuthenticated && user ? {
-    id: user.id || user.sub,
-    name: user.name || user.login || 'User',
-    email: user.email || '',
-    avatarUrl: user.image || user.avatar_url || '',
-  } : null;
+  // const { user } = useAuthContext();
+  // const userData = isAuthenticated && user ? {
+  //   id: user.id || user.sub,
+  //   name: user.name || user.login || 'User',
+  //   email: user.email || '',
+  //   avatarUrl: user.image || user.avatar_url || '',
+  // } : null;
 
   return (
     <Container maxWidth="sm" sx={{ mt: 8, mb: 4 }}>
@@ -157,9 +166,9 @@ const ModernSignIn = () => {
         elevation={3}
         sx={{
           p: { xs: 2, sm: 4 },
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
           borderRadius: 2,
           backgroundColor: theme.palette.background.paper,
         }}
@@ -167,39 +176,135 @@ const ModernSignIn = () => {
         {/* Header */}
         <Box
           sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            width: '100%',
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            width: "100%",
             mb: 3,
           }}
         >
-          <Typography variant="h4" component="h1" gutterBottom fontWeight="bold">
+          <Typography
+            variant="h4"
+            component="h1"
+            gutterBottom
+            fontWeight="bold"
+          >
             Sign In
           </Typography>
 
           <Typography variant="body1" color="text.secondary" align="center">
             {location.state?.from ? (
               <>
-                <FontAwesomeIcon icon={faLock} style={{ marginRight: '8px' }} />
+                <FontAwesomeIcon icon={faLock} style={{ marginRight: "8px" }} />
                 You need to sign in to access this protected content
               </>
             ) : (
-              'Sign in to access exclusive features'
+              "Sign in to access exclusive features"
             )}
           </Typography>
         </Box>
 
         {loading ? (
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', my: 3 }}>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              my: 3,
+            }}
+          >
             <CircularProgress sx={{ mb: 2 }} />
-            <Typography variant="body1">Redirecting to authentication provider...</Typography>
+            <Typography variant="body1">
+              Redirecting to authentication provider...
+            </Typography>
           </Box>
         ) : (
-          <Box sx={{ width: '100%', mt: 2 }}>
+          <Box sx={{ width: "100%", mt: 2 }}>
             {/* MUI Toolpad Core Account Component */}
-            <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center' }}>
-              <AppProvider branding={branding} authentication={{ signIn: (provider) => handleSignIn(provider.id) }}>
+            <Box sx={{ mb: 4, display: "flex", justifyContent: "center" }}>
+              <ThemeProvider theme={theme}>
+                <AppProvider
+                  branding={branding}
+                  theme={theme}
+                  authentication={{
+                    signIn: handleSignIn,
+                    signOut: () => {}, // Not needed for sign-in page
+                  }}
+                >
+                  <SignInPage
+                    providers={providers}
+                    // signIn={handleSignIn}
+                    signIn={async (provider) => {
+                                            // Call the signIn function from AuthJsClient
+                                            if (provider && provider.id) {
+                                              console.log(
+                                                `[Navbar] Signing in with ${provider.id}`
+                                              );
+                                              try {
+                                                await AuthJsClient.signIn(provider.id);
+                                              } catch (error) {
+                                                console.error(
+                                                  `[Navbar] Error signing in with ${provider.id}:`,
+                                                  error
+                                                );
+                                              }
+                                            }
+                                          }}
+                    slotProps={{
+                      emailField: {
+                        variant: "outlined",
+                        sx: {
+                          "& .MuiOutlinedInput-root": {
+                            backgroundColor: theme.palette.background.paper,
+                            "&:hover .MuiOutlinedInput-notchedOutline": {
+                              borderColor: theme.palette.primary.main,
+                            },
+                          },
+                        },
+                      },
+                      passwordField: {
+                        variant: "outlined",
+                        sx: {
+                          "& .MuiOutlinedInput-root": {
+                            backgroundColor: theme.palette.background.paper,
+                            "&:hover .MuiOutlinedInput-notchedOutline": {
+                              borderColor: theme.palette.primary.main,
+                            },
+                          },
+                        },
+                      },
+                      submitButton: {
+                        variant: "contained",
+                        sx: {
+                          backgroundColor: theme.palette.primary.main,
+                          color: theme.palette.primary.contrastText,
+                          "&:hover": {
+                            backgroundColor: theme.palette.primary.dark,
+                          },
+                        },
+                      },
+                    }}
+                    sx={{
+                      backgroundColor: theme.palette.background.paper,
+                      color: theme.palette.text.primary,
+                      "& .MuiButton-root": {
+                        borderRadius: theme.shape.borderRadius,
+                      },
+                      "& .MuiPaper-root": {
+                        backgroundColor: theme.palette.background.paper,
+                        color: theme.palette.text.primary,
+                      },
+                      "& .MuiTypography-root": {
+                        color: theme.palette.text.primary,
+                      },
+                      "& .MuiDivider-root": {
+                        borderColor: theme.palette.divider,
+                      },
+                    }}
+                  />
+                </AppProvider>
+              </ThemeProvider>
+              {/* <AppProvider branding={branding} authentication={{ signIn: (provider) => handleSignIn(provider.id) }}>
                 <Account
                   user={userData}
                   signIn={() => navigate('/signin-toolpad')}
@@ -233,7 +338,7 @@ const ModernSignIn = () => {
                     },
                   }}
                 />
-              </AppProvider>
+              </AppProvider> */}
             </Box>
 
             <Divider sx={{ my: 3 }}>
@@ -247,15 +352,15 @@ const ModernSignIn = () => {
               <Button
                 variant="contained"
                 fullWidth
-                onClick={() => handleSignIn('github')}
+                onClick={() => handleSignIn("github")}
                 startIcon={<FontAwesomeIcon icon={faGithub} />}
                 sx={{
-                  backgroundColor: '#24292e',
-                  color: '#fff',
+                  backgroundColor: "#24292e",
+                  color: "#fff",
                   py: 1.5,
                   mb: 2,
-                  '&:hover': {
-                    backgroundColor: '#2c3440',
+                  "&:hover": {
+                    backgroundColor: "#2c3440",
                   },
                 }}
               >
@@ -265,15 +370,15 @@ const ModernSignIn = () => {
               <Button
                 variant="contained"
                 fullWidth
-                onClick={() => handleSignIn('google')}
+                onClick={() => handleSignIn("google")}
                 startIcon={<FontAwesomeIcon icon={faGoogle} />}
                 sx={{
-                  backgroundColor: '#4285F4',
-                  color: '#fff',
+                  backgroundColor: "#4285F4",
+                  color: "#fff",
                   py: 1.5,
                   mb: 2,
-                  '&:hover': {
-                    backgroundColor: '#3367D6',
+                  "&:hover": {
+                    backgroundColor: "#3367D6",
                   },
                 }}
               >
@@ -283,15 +388,15 @@ const ModernSignIn = () => {
               <Button
                 variant="contained"
                 fullWidth
-                onClick={() => handleSignIn('facebook')}
+                onClick={() => handleSignIn("facebook")}
                 startIcon={<FontAwesomeIcon icon={faFacebookF} />}
                 sx={{
-                  backgroundColor: '#1877F2',
-                  color: '#fff',
+                  backgroundColor: "#1877F2",
+                  color: "#fff",
                   py: 1.5,
                   mb: 2,
-                  '&:hover': {
-                    backgroundColor: '#166FE5',
+                  "&:hover": {
+                    backgroundColor: "#166FE5",
                   },
                 }}
               >
@@ -301,14 +406,14 @@ const ModernSignIn = () => {
               <Button
                 variant="contained"
                 fullWidth
-                onClick={() => handleSignIn('linkedin')}
+                onClick={() => handleSignIn("linkedin")}
                 startIcon={<FontAwesomeIcon icon={faLinkedinIn} />}
                 sx={{
-                  backgroundColor: '#0077B5',
-                  color: '#fff',
+                  backgroundColor: "#0077B5",
+                  color: "#fff",
                   py: 1.5,
-                  '&:hover': {
-                    backgroundColor: '#006699',
+                  "&:hover": {
+                    backgroundColor: "#006699",
                   },
                 }}
               >
@@ -325,16 +430,23 @@ const ModernSignIn = () => {
             <Button
               variant="outlined"
               fullWidth
-              onClick={() => navigate('/')}
+              onClick={() => navigate("/")}
               sx={{ mt: 1 }}
             >
               Continue as Guest
             </Button>
 
             {/* Footer */}
-            <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-              <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center' }}>
-                <FontAwesomeIcon icon={faShieldAlt} style={{ marginRight: '8px' }} />
+            <Box sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ display: "flex", alignItems: "center" }}
+              >
+                <FontAwesomeIcon
+                  icon={faShieldAlt}
+                  style={{ marginRight: "8px" }}
+                />
                 Your information is securely handled
               </Typography>
             </Box>
@@ -346,12 +458,12 @@ const ModernSignIn = () => {
         open={snackbarOpen}
         autoHideDuration={6000}
         onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
         <Alert
           onClose={() => setSnackbarOpen(false)}
           severity={snackbarSeverity}
-          sx={{ width: '100%' }}
+          sx={{ width: "100%" }}
         >
           {snackbarMessage}
         </Alert>

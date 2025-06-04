@@ -2,8 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { Account } from '@toolpad/core/Account';
+import { 
+  Typography, 
+  Box, 
+  CircularProgress, 
+  useTheme,
+  Button 
+} from '@mui/material';
+import { Login, Logout } from '@mui/icons-material';
 import { useAuthContext } from '../../../context/AuthProvider';
-import { Logout } from '@mui/icons-material';
+
 import config from '../../../config';
 import PropTypes from "prop-types";
 import AuthJsClient from '../AuthJsClient';
@@ -13,8 +21,14 @@ import AuthJsClient from '../AuthJsClient';
  * that connects to the my-auth-backend server
  */
 const ToolpadAccountComponent = ({ variant = 'default' }) => {
-  const { user, isAuthenticated } = useAuthContext();
-  const [loading, setLoading] = useState(false);
+  // const { user, isAuthenticated } = useAuthContext();
+  const { 
+      isAuthenticated, 
+      user, 
+      loading, 
+      signOut 
+    } = useAuthContext();
+  // const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [authJsAuthenticated, setAuthJsAuthenticated] = useState(false);
   const navigate = useNavigate();

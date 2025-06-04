@@ -5,8 +5,7 @@ import { Link as RouterLink } from "react-router-dom";
 import { Document } from "flexsearch";
 import { styled, alpha, useTheme } from "@mui/material/styles";
 import {
-  AppBar,
-  Avatar,
+  AppBar,  
   Toolbar,
   Typography,
   IconButton,
@@ -26,14 +25,9 @@ import {
   useMediaQuery,
   Tooltip,
   Icon,
-  Grid,
-  Container,
 } from "@mui/material";
 import { AppProvider } from "@toolpad/core/AppProvider";
 import { SignInPage } from "@toolpad/core/SignInPage";
-import ArticleIcon from "@mui/icons-material/Article";
-import PaletteIcon from "@mui/icons-material/Palette";
-import CloseIcon from "@mui/icons-material/Close";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -87,7 +81,7 @@ import EnhancedMobileDrawer from "./EnhancedMobileDrawer";
 import ModernMobileMenu from "./ModernMobileMenu";
 import { useResponsiveHeight } from "../hooks/useResponsiveHeight";
 import { useLayoutDimensions } from "../hooks/useLayoutDimensions";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 const itemVariants = {
   hidden: { opacity: 0, scale: 0.95, y: -5 },
@@ -1016,11 +1010,9 @@ const NavigationBar = ({
             id="knowledge-button"
             onClick={(e) => {
               // Remove any existing force-hide-menu classes
-              document
-                .querySelectorAll(".force-hide-menu")
-                .forEach((el) => {
-                  el.classList.remove("force-hide-menu");
-                });
+              document.querySelectorAll(".force-hide-menu").forEach((el) => {
+                el.classList.remove("force-hide-menu");
+              });
 
               // Remove navigating class from body
               document.body.classList.remove("navigating");
@@ -1156,7 +1148,7 @@ const NavigationBar = ({
             padding: 0,
           }}
         >
-          {/* Mobile Layout - Keep existing mobile menu */}
+          {/* Mobile Layout - Improved alignment */}
           {!showDesktopNav && (
             <>
               <Box
@@ -1168,7 +1160,8 @@ const NavigationBar = ({
                   maxWidth: "40px",
                   borderRadius: 2,
                   boxShadow: 3,
-                  mr: 1,
+                  ml: 1,
+                  mr: 2,
                 }}
               />
               <Button
@@ -1180,181 +1173,206 @@ const NavigationBar = ({
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }
                 }}
-                sx={{ flexGrow: 1, justifyContent: "flex-start" }}
+                sx={{
+                  flexGrow: 1,
+                  justifyContent: "center",
+                  textAlign: "center",
+                }}
               >
                 {hostName}
               </Button>
               <IconButton
                 color="inherit"
                 aria-label="open drawer"
-                edge="end"
                 onClick={handleDrawerToggle}
+                sx={{ mr: 1 }}
               >
                 <MenuIcon />
               </IconButton>
             </>
           )}
 
-          {/* Desktop Grid Layout */}
+          {/* Desktop/iPad Flexbox Layout */}
           {showDesktopNav && (
-            <Container maxWidth="xl" sx={{ px: { xs: 1, sm: 2 } }}>
-              <Grid container spacing={1} alignItems="center">
-                {/* Column 1: Logo/Icon */}
-                <Grid item xs={1}>
-                  <Box
-                    component="img"
-                    src="/images/my-logo.jpg"
-                    alt="Logo"
-                    sx={{
-                      maxHeight: "50px",
-                      maxWidth: "50px",
-                      borderRadius: 2,
-                      boxShadow: 3,                      
-                    }}
-                  />
-                </Grid>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                width: "100%",
+                px: { xs: 1, sm: 2 },
+                gap: 1,
+              }}
+            >
+              {/* Site Icon - Leftmost */}
+              <Box
+                component="img"
+                src="/images/my-logo.jpg"
+                alt="Logo"
+                sx={{
+                  maxHeight: "50px",
+                  maxWidth: "50px",
+                  borderRadius: 2,
+                  boxShadow: 3,
+                  flexShrink: 0,
+                }}
+              />
 
-                {/* Column 2: Hostname Button */}
-                <Grid item xs={1}>
-                  <Button
-                    component={RouterLink}
-                    to="/"
-                    onClick={() => {
-                      trackMenuClick("home", "main-menu");
-                      if (location.pathname === "/") {
-                        window.scrollTo({ top: 0, behavior: "smooth" });
+              {/* Hostname Button - Next to icon */}
+              <Button
+                component={RouterLink}
+                to="/"
+                onClick={() => {
+                  trackMenuClick("home", "main-menu");
+                  if (location.pathname === "/") {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }
+                }}
+                size="small"
+                sx={{ flexShrink: 0 }}
+              >
+                {hostName}
+              </Button>
+
+              {/* Navigation Items - Center with overflow handling */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 0.5,
+                  flex: 1,
+                  overflow: "hidden",
+                  minWidth: 0, // Allow shrinking
+                }}
+              >
+                {/* Show items that fit, hide others in overflow menu */}
+                {gridNavigationItems.map((item, index) => (
+                  <Box
+                    key={item.id}
+                    sx={{
+                      flexShrink: 0,
+                      display: {
+                        xs: index < 3 ? "block" : "none",
+                        md: index < 6 ? "block" : "none",
+                      },
+                    }}
+                  >
+                    {item.component}
+                  </Box>
+                ))}
+
+                {/* Overflow menu with vertical dots */}
+                <IconButton
+                  onClick={handleOverflowMenuOpen}
+                  size="small"
+                  sx={{ ml: 1, flexShrink: 0 }}
+                >
+                  <MoreVertIcon />
+                </IconButton>
+              </Box>
+
+              {/* Search Box - Before gear icon */}
+              <Box sx={{ flexShrink: 0, minWidth: { xs: 150, md: 200 } }}>
+                <Search>
+                  <SearchIconWrapper>
+                    <SearchIcon />
+                  </SearchIconWrapper>
+                  <StyledInputBase
+                    placeholder="Search…"
+                    inputProps={{ "aria-label": "search" }}
+                    value={query}
+                    onChange={handleSearchChange}
+                    onKeyDown={handleSearchKeyDown}
+                    onFocus={(e) => {
+                      if (e.target.value) {
+                        setSearchAnchorEl(e.currentTarget);
+                        trackMenuClick("search", "main-menu");
                       }
                     }}
-                    size="small"
-                  >
-                    {hostName}
-                  </Button>
-                </Grid>
-
-                {/* Columns 3-9: Navigation Menu Items */}
-                <Grid item xs={7}>
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: 0.5,
-                      overflow: "hidden",
-                    }}
-                  >
-                    {gridNavigationItems.slice(0, 7).map((item) => (
-                      <Box key={item.id} sx={{ flexShrink: 0 }}>
-                        {item.component}
-                      </Box>
-                    ))}
-                    {gridNavigationItems.length > 7 && (
-                      <IconButton
-                        onClick={handleOverflowMenuOpen}
-                        size="small"
-                        sx={{ ml: 1 }}
-                      >
-                        <MoreHorizIcon />
-                      </IconButton>
-                    )}
-                  </Box>
-                </Grid>
-
-                {/* Columns 10-11: Search Box */}
-                <Grid item xs={2}>
-                  <Search>
-                    <SearchIconWrapper>
-                      <SearchIcon />
-                    </SearchIconWrapper>
-                    <StyledInputBase
-                      placeholder="Search…"
-                      inputProps={{ "aria-label": "search" }}
-                      value={query}
-                      onChange={handleSearchChange}
-                      onKeyDown={handleSearchKeyDown}
-                      onFocus={(e) => {
-                        if (e.target.value) {
-                          setSearchAnchorEl(e.currentTarget);
-                          trackMenuClick("search", "main-menu");
-                        }
-                      }}
-                    />
-                    {Boolean(searchAnchorEl) && (
-                      <SearchResultsDropdown>
-                        {matches.length > 0 ? (
-                          matches.map((item, index) => (
-                            <SearchResultItem
-                              key={index}
-                              button
-                              onClick={() => handleSearchResultClick(item.section)}
-                              selected={index === selectedResultIndex}
-                              sx={{
+                  />
+                  {Boolean(searchAnchorEl) && (
+                    <SearchResultsDropdown>
+                      {matches.length > 0 ? (
+                        matches.map((item, index) => (
+                          <SearchResultItem
+                            key={index}
+                            button
+                            onClick={() =>
+                              handleSearchResultClick(item.section)
+                            }
+                            selected={index === selectedResultIndex}
+                            sx={{
+                              backgroundColor:
+                                index === selectedResultIndex
+                                  ? theme.palette.action.selected
+                                  : "transparent",
+                              "&:hover": {
                                 backgroundColor:
                                   index === selectedResultIndex
                                     ? theme.palette.action.selected
-                                    : "transparent",
-                                "&:hover": {
-                                  backgroundColor:
-                                    index === selectedResultIndex
-                                      ? theme.palette.action.selected
-                                      : theme.palette.action.hover,
-                                },
-                              }}
-                            >
-                              <SearchResultSection>
-                                {item.section}
-                              </SearchResultSection>
-                              <SearchResultContent>
-                                {item.content}
-                              </SearchResultContent>
-                            </SearchResultItem>
-                          ))
-                        ) : (
-                          <ListItem>
-                            <Typography color="text.secondary">
-                              No results found
-                            </Typography>
-                          </ListItem>
-                        )}
-                      </SearchResultsDropdown>
-                    )}
-                  </Search>
-                </Grid>
+                                    : theme.palette.action.hover,
+                              },
+                            }}
+                          >
+                            <SearchResultSection>
+                              {item.section}
+                            </SearchResultSection>
+                            <SearchResultContent>
+                              {item.content}
+                            </SearchResultContent>
+                          </SearchResultItem>
+                        ))
+                      ) : (
+                        <ListItem>
+                          <Typography color="text.secondary">
+                            No results found
+                          </Typography>
+                        </ListItem>
+                      )}
+                    </SearchResultsDropdown>
+                  )}
+                </Search>
+              </Box>
 
-                {/* Column 12: Gear Icon */}
-                <Grid item xs={1}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    {/* Account Button */}
-                    <Box sx={{ display: { xs: "none", md: "block" } }}>
-                      {(() => {
-                        const shouldShowAccount = Boolean(
-                          isAuthenticated || authJsAuthenticated
-                        );
+              {/* Gear Icon - Rightmost */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  flexShrink: 0,
+                }}
+              >
+                {/* Account Button */}
+                <Box sx={{ display: { xs: "none", md: "block" } }}>
+                  {(() => {
+                    const shouldShowAccount = Boolean(
+                      isAuthenticated || authJsAuthenticated
+                    );
 
-                        return shouldShowAccount ? (
-                          <Box key={`account-${authStateKey}-${shouldShowAccount}`}>
-                            <ToolpadAccountComponent variant="preview" />
-                          </Box>
-                        ) : null;
-                      })()}
-                    </Box>
+                    return shouldShowAccount ? (
+                      <Box key={`account-${authStateKey}-${shouldShowAccount}`}>
+                        <ToolpadAccountComponent variant="preview" />
+                      </Box>
+                    ) : null;
+                  })()}
+                </Box>
 
-                    {/* Settings Icon */}
-                    <IconButton
-                      onClick={(e) => {
-                        handleSettingsClick(e);
-                        trackMenuClick("settings", "main-menu");
-                      }}
-                      onMouseEnter={handleSettingsMouseEnter}
-                      color="inherit"
-                      aria-label="settings"
-                      size="small"
-                    >
-                      <SettingsIcon />
-                    </IconButton>
-                  </Box>
-                </Grid>
-              </Grid>
-            </Container>
+                {/* Settings Icon */}
+                <IconButton
+                  onClick={(e) => {
+                    handleSettingsClick(e);
+                    trackMenuClick("settings", "main-menu");
+                  }}
+                  onMouseEnter={handleSettingsMouseEnter}
+                  color="inherit"
+                  aria-label="settings"
+                  size="small"
+                >
+                  <SettingsIcon />
+                </IconButton>
+              </Box>
+            </Box>
           )}
 
           {/* Overflow Menu for items that don't fit */}
@@ -1377,20 +1395,39 @@ const NavigationBar = ({
               },
             }}
           >
-            {gridNavigationItems.slice(7).map((item) => (
-              <MenuItem
-                key={item.id}
-                onClick={() => {
-                  handleOverflowMenuClose();
-                  if (item.path) {
-                    navigate(item.path);
-                  }
-                }}
-                sx={{ py: 1.2, px: 2, gap: 1 }}
-              >
-                <ListItemText primary={item.label} />
-              </MenuItem>
-            ))}
+            {/* Show items that are hidden based on screen size */}
+            {gridNavigationItems.map((item, index) => {
+              const shouldShow = isMobile ? index >= 3 : index >= 6;
+              if (!shouldShow) return null;
+
+              return (
+                <MenuItem
+                  key={item.id}
+                  onClick={() => {
+                    handleOverflowMenuClose();
+                    if (item.path) {
+                      navigate(item.path);
+                    } else if (item.hasSubmenu) {
+                      // Handle submenu items
+                      if (item.id === "resume") {
+                        setResumeAnchorEl(
+                          document.getElementById("resume-button")
+                        );
+                      } else if (item.id === "knowledge") {
+                        setKnowledgeAnchorEl(
+                          document.getElementById("knowledge-button")
+                        );
+                      } else if (item.id === "blog") {
+                        setBlogAnchorEl(document.getElementById("blog-button"));
+                      }
+                    }
+                  }}
+                  sx={{ py: 1.2, px: 2, gap: 1 }}
+                >
+                  <ListItemText primary={item.label} />
+                </MenuItem>
+              );
+            })}
           </Menu>
 
           {/* Resume Menu */}
@@ -1538,6 +1575,30 @@ const NavigationBar = ({
                 </ListItemIcon>
                 <ListItemText primary="Glossary" />
               </MenuItem>
+
+              <MenuItem
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  forceCloseMenuAndNavigate(
+                    "/knowledge/ThreeDSFlowStepper",                    
+                  );
+                }}
+                sx={{
+                  py: 1.2,
+                  px: 2,
+                  gap: 1,
+                  cursor: "pointer",
+                }}
+              >
+                <ListItemIcon
+                  sx={{ color: theme.palette.text.secondary, minWidth: 32 }}
+                >
+                  <LibraryBooksIcon />
+                </ListItemIcon>
+                <ListItemText primary="3DS Flow" />
+              </MenuItem>
+              
               <Divider sx={{ my: 1 }} />
               <Typography
                 variant="subtitle2"
@@ -1606,9 +1667,9 @@ const NavigationBar = ({
                   p: 1,
                 },
               },
-            }}
-            MenuListProps={{
-              onClick: handleBlogMenuClose,
+              root: {
+                onClick: handleBlogMenuClose,
+              },
             }}
           >
             <MenuItem
@@ -1709,11 +1770,6 @@ const NavigationBar = ({
             anchorEl={settingsAnchorEl}
             open={Boolean(settingsAnchorEl)}
             onClose={handleSettingsClose}
-            MenuListProps={{
-              onMouseEnter: () => setSettingsHover(true),
-              onMouseLeave: handleSettingsMouseLeave,
-              sx: { minWidth: 220 },
-            }}
             slotProps={{
               paper: {
                 elevation: 3,
@@ -1721,6 +1777,7 @@ const NavigationBar = ({
                   mt: 1.5,
                   overflow: "visible",
                   filter: "drop-shadow(0px 2px 8px rgba(0,0,0,0.32))",
+                  minWidth: 220,
                   "&:before": {
                     content: '""',
                     display: "block",
@@ -1734,6 +1791,8 @@ const NavigationBar = ({
                     zIndex: 0,
                   },
                 },
+                onMouseEnter: () => setSettingsHover(true),
+                onMouseLeave: handleSettingsMouseLeave,
               },
             }}
             transformOrigin={{ horizontal: "right", vertical: "top" }}
@@ -1801,56 +1860,59 @@ const NavigationBar = ({
               </MenuItem>
             )}
 
-            {/* Theme Toggle */}
-            <MenuItem onClick={() => toggleDarkMode(!isDarkMode)}>
-              <ListItemIcon>
-                {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
-              </ListItemIcon>
-              <ListItemText
-                primary={isDarkMode ? "Light Mode" : "Dark Mode"}
-              />
-            </MenuItem>
+            {/* Theme and Settings Section - Always visible */}
+            <Box sx={{ borderTop: "1px solid", borderColor: "divider" }}>
+              {/* Theme Toggle */}
+              <MenuItem onClick={() => toggleDarkMode(!isDarkMode)}>
+                <ListItemIcon>
+                  {isDarkMode ? <Brightness7Icon /> : <Brightness4Icon />}
+                </ListItemIcon>
+                <ListItemText
+                  primary={isDarkMode ? "Light Mode" : "Dark Mode"}
+                />
+              </MenuItem>
 
-            {/* Color Palette Section */}
-            <Box
-              sx={{
-                px: 2,
-                py: 1,
-                borderTop: "1px solid",
-                borderColor: "divider",
-              }}
-            >
-              <Typography
-                variant="subtitle2"
-                color="text.secondary"
-                sx={{ mb: 1 }}
+              {/* Color Palette Section */}
+              <Box
+                sx={{
+                  px: 2,
+                  py: 1,
+                  borderTop: "1px solid",
+                  borderColor: "divider",
+                }}
               >
-                Color Theme
-              </Typography>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                {availablePalettes.map((palette, index) => (
-                  <Tooltip key={palette.name} title={palette.name} arrow>
-                    <Box
-                      onClick={() => handlePaletteSelect(index)}
-                      sx={{
-                        width: 24,
-                        height: 24,
-                        borderRadius: "50%",
-                        bgcolor: palette.primary,
-                        border: "2px solid",
-                        borderColor:
-                          index === currentPaletteIndex
-                            ? "primary.main"
-                            : "transparent",
-                        cursor: "pointer",
-                        transition: "transform 0.2s",
-                        "&:hover": {
-                          transform: "scale(1.2)",
-                        },
-                      }}
-                    />
-                  </Tooltip>
-                ))}
+                <Typography
+                  variant="subtitle2"
+                  color="text.secondary"
+                  sx={{ mb: 1 }}
+                >
+                  Color Theme
+                </Typography>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                  {availablePalettes.map((palette, index) => (
+                    <Tooltip key={palette.name} title={palette.name} arrow>
+                      <Box
+                        onClick={() => handlePaletteSelect(index)}
+                        sx={{
+                          width: 24,
+                          height: 24,
+                          borderRadius: "50%",
+                          bgcolor: palette.primary,
+                          border: "2px solid",
+                          borderColor:
+                            index === currentPaletteIndex
+                              ? "primary.main"
+                              : "transparent",
+                          cursor: "pointer",
+                          transition: "transform 0.2s",
+                          "&:hover": {
+                            transform: "scale(1.2)",
+                          },
+                        }}
+                      />
+                    </Tooltip>
+                  ))}
+                </Box>
               </Box>
             </Box>
 

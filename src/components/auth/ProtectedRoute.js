@@ -5,6 +5,7 @@ import { Box, CircularProgress, Typography } from '@mui/material';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLock, faLockOpen } from '@fortawesome/free-solid-svg-icons';
 import AuthJsClient from './AuthJsClient';
+import PropTypes from "prop-types";
 
 /**
  * ProtectedRoute component that redirects to the sign-in page if the user is not authenticated
@@ -103,6 +104,11 @@ const ProtectedRoute = ({ children, requireAuth = true }) => {
 
   // If authenticated or auth not required, render the children with lock icon
   return <ProtectedContent>{childrenWithAuthStatus || children}</ProtectedContent>;
+};
+
+ProtectedRoute.propTypes = {
+  children: PropTypes.node,
+  requireAuth: PropTypes.bool,
 };
 
 export default ProtectedRoute;

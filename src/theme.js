@@ -1,6 +1,7 @@
 // theme.js
 import { createTheme } from "@mui/material/styles";
 import { generateSemanticColors } from "./utilities/colorUtils"; // Import the color utility function
+
 // Define multiple palettes for light and dark modes
 
 export const palettes = {
