@@ -1818,7 +1818,9 @@ const NavigationBar = ({
                 Account
               </Typography>
               {isAuthenticated || authJsAuthenticated ? (
-                <ToolpadAccountComponent variant="default" />
+                
+                <ToolpadAccountComponent variant="expanded" />
+                
               ) : (
                 <Typography variant="body2" color="text.secondary">
                   Please sign in to access your account
