@@ -28,15 +28,13 @@ import { useLayoutDimensions } from "../hooks/useLayoutDimensions";
 // Styled components
 const HeroContainer = styled(Box)(({ theme }) => ({
   minHeight: "100vh",
+  minHeight: "100dvh", // Dynamic viewport height for mobile browsers
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
   alignItems: "center",
   position: "relative",
-  // paddingTop: theme.spacing(8),
-  // paddingLeft: theme.spacing(2),
-  // paddingRight: theme.spacing(2),
-  // paddingBottom: theme.spacing(4),
+  padding: theme.spacing(2, 1),
   background:
     theme.palette.mode === "dark"
       ? "linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 25%, #2d1b69 50%, #1a1a1a 75%, #0f0f0f 100%)"
@@ -46,11 +44,27 @@ const HeroContainer = styled(Box)(({ theme }) => ({
   color: theme.palette.text.primary,
   textAlign: "center",
   overflow: "hidden",
+
+  // Mobile portrait optimizations
   [theme.breakpoints.down("sm")]: {
-    paddingTop: theme.spacing(6),
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
+    padding: theme.spacing(1, 0.5),
+    minHeight: "calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
+    minHeight: "calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
   },
+
+  // Very small mobile screens
+  "@media (max-width: 375px)": {
+    padding: theme.spacing(0.5, 0.25),
+  },
+
+  // Mobile landscape optimizations
+  "@media (max-height: 500px) and (orientation: landscape)": {
+    minHeight: "100vh",
+    padding: theme.spacing(1, 0.5),
+    justifyContent: "flex-start",
+    paddingTop: theme.spacing(2),
+  },
+
   "@keyframes gradientShift": {
     "0%": {
       backgroundPosition: "0% 50%",
@@ -84,6 +98,24 @@ const ContentContainer = styled(Container)(({ theme }) => ({
   flexDirection: "column",
   alignItems: "center",
   gap: theme.spacing(4),
+  width: "100%",
+  maxWidth: "100%",
+
+  [theme.breakpoints.down("sm")]: {
+    gap: theme.spacing(2),
+    padding: theme.spacing(0, 1),
+  },
+
+  // Very small screens
+  "@media (max-width: 375px)": {
+    gap: theme.spacing(1.5),
+    padding: theme.spacing(0, 0.5),
+  },
+
+  // Mobile landscape
+  "@media (max-height: 500px) and (orientation: landscape)": {
+    gap: theme.spacing(1),
+  },
 }));
 
 const ProfileSection = styled(Box)(({ theme }) => ({
@@ -92,13 +124,13 @@ const ProfileSection = styled(Box)(({ theme }) => ({
   alignItems: "center",
   justifyContent: "center",
   gap: theme.spacing(3),
-  minHeight: "50vh", // Optional: gives some minimum height to work with
+  width: "100%",
+  maxWidth: "100%",
 
+  // Mobile optimizations - remove problematic negative positioning
   [theme.breakpoints.down("md")]: {
-    position: "relative",
-    top: `-${theme.customLayout?.fixedHeaderHeight || 64}px`, // Move up by header height
-    marginBottom: `-${theme.customLayout?.fixedHeaderHeight || 64}px`, // Compensate for the negative top
-    paddingTop: theme.spacing(2), // Add some padding to prevent overlap
+    gap: theme.spacing(2),
+    padding: theme.spacing(1, 0),
 
     // Ensure avatar is centered horizontally
     "& .MuiAvatar-root": {
@@ -106,13 +138,33 @@ const ProfileSection = styled(Box)(({ theme }) => ({
     },
   },
 
+  // Very small screens
+  [theme.breakpoints.down("sm")]: {
+    gap: theme.spacing(1.5),
+    padding: theme.spacing(0.5, 0),
+  },
+
+  // Mobile landscape - switch to horizontal layout like desktop
+  "@media (max-height: 500px) and (orientation: landscape)": {
+    flexDirection: "row",
+    gap: theme.spacing(2),
+    padding: theme.spacing(0.5, 1),
+    alignItems: "center",
+    justifyContent: "flex-start",
+    textAlign: "left",
+
+    // Avatar positioning in landscape
+    "& .MuiAvatar-root": {
+      alignSelf: "center",
+      flexShrink: 0,
+    },
+  },
+
   [theme.breakpoints.up("md")]: {
     flexDirection: "row",
     gap: theme.spacing(6),
     textAlign: "left",
-    justifyContent: "flex-start", // Reset for desktop
-    top: 0, // Reset top position for desktop
-    marginBottom: 0, // Reset margin for desktop
+    justifyContent: "flex-start",
   },
 }));
 
@@ -123,7 +175,7 @@ const AnimatedAvatar = styled(Avatar)(({ theme }) => ({
   boxShadow: `0 20px 60px rgba(0,0,0,0.3), 0 0 0 10px ${alpha(theme.palette.primary.main, 0.2)}`,
   transition: "all 0.3s ease",
   position: "relative",
-  // marginBottom: theme.spacing(2),
+  flexShrink: 0, // Prevent avatar from shrinking
 
   "&::before": {
     content: '""',
@@ -149,11 +201,26 @@ const AnimatedAvatar = styled(Avatar)(({ theme }) => ({
       transform: "rotate(360deg)",
     },
   },
+
+  // Very small mobile screens
+  "@media (max-width: 375px)": {
+    width: 70,
+    height: 70,
+    border: `3px solid ${theme.palette.primary.main}`,
+  },
+
   [theme.breakpoints.down("sm")]: {
     width: 80,
     height: 80,
-    // marginBottom: theme.spacing(1),
   },
+
+  // Mobile landscape - smaller avatar
+  "@media (max-height: 500px) and (orientation: landscape)": {
+    width: 60,
+    height: 60,
+    border: `2px solid ${theme.palette.primary.main}`,
+  },
+
   [theme.breakpoints.up("sm")]: {
     width: 120,
     height: 120,
@@ -174,6 +241,26 @@ const IntroSection = styled(Box)(({ theme }) => ({
   alignItems: "center",
   gap: theme.spacing(2),
   maxWidth: 600,
+  width: "100%",
+
+  [theme.breakpoints.down("sm")]: {
+    gap: theme.spacing(1.5),
+    maxWidth: "100%",
+  },
+
+  // Very small screens
+  "@media (max-width: 375px)": {
+    gap: theme.spacing(1),
+  },
+
+  // Mobile landscape - align left like desktop
+  "@media (max-height: 500px) and (orientation: landscape)": {
+    gap: theme.spacing(1),
+    alignItems: "flex-start",
+    textAlign: "left",
+    flex: 1, // Take remaining space next to avatar
+  },
+
   [theme.breakpoints.up("md")]: {
     alignItems: "flex-start",
   },
@@ -191,17 +278,32 @@ const Name = styled(Typography)(({ theme }) => ({
   WebkitTextFillColor: "transparent",
   textShadow:
     theme.palette.mode === "dark" ? "0 0 30px rgba(96, 165, 250, 0.5)" : "none",
+  textAlign: "center",
+
+  // Very small screens
+  "@media (max-width: 375px)": {
+    fontSize: "clamp(1.2rem, 6vw, 1.8rem)",
+    letterSpacing: "0.5px",
+  },
+
   // Mobile specific
   [theme.breakpoints.down("md")]: {
-    fontSize: "clamp(1.5rem, 5.5vw, 2.5rem)", // Responsive sizing
+    fontSize: "clamp(1.5rem, 5.5vw, 2.5rem)",
     width: "100%",
     display: "block",
+  },
+
+  // Mobile landscape - smaller text and left align
+  "@media (max-height: 500px) and (orientation: landscape)": {
+    fontSize: "clamp(1.2rem, 4vw, 1.8rem)",
+    textAlign: "left",
   },
 
   [theme.breakpoints.up("md")]: {
     fontSize: "3.5rem",
     display: "inline-block",
     width: "auto",
+    textAlign: "left",
   },
 }));
 
@@ -209,18 +311,39 @@ const Description = styled(Typography, {
   shouldForwardProp: (prop) => prop !== "center" && prop !== "highlight",
 })(({ theme, center, highlight }) => ({
   color: highlight ? theme.palette.primary.main : theme.palette.text.secondary,
-  textAlign: center ? "center" : "justify",
+  textAlign: center ? "center" : "center", // Always center on mobile
   lineHeight: 1.2,
   marginBottom: theme.spacing(1.5),
+
+  // Very small screens
+  "@media (max-width: 375px)": {
+    fontSize: "clamp(0.7rem, 3vw, 0.8rem)",
+    lineHeight: 1.1,
+    marginBottom: theme.spacing(0.5),
+    padding: theme.spacing(0, 0.5),
+  },
+
   [theme.breakpoints.up("md")]: {
     fontSize: "1.0rem",
+    textAlign: center ? "center" : "justify",
   },
+
   [theme.breakpoints.down("md")]: {
     fontSize: "clamp(0.75rem, 2.5vw, 0.875rem)",
-    lineHeight: 1.0,
+    lineHeight: 1.1,
     marginBottom: theme.spacing(1),
     width: "100%",
     display: "block",
+    padding: theme.spacing(0, 1),
+  },
+
+  // Mobile landscape - more compact and left aligned
+  "@media (max-height: 500px) and (orientation: landscape)": {
+    fontSize: "clamp(0.7rem, 2vw, 0.8rem)",
+    lineHeight: 1.0,
+    marginBottom: theme.spacing(0.5),
+    textAlign: "left",
+    padding: theme.spacing(0),
   },
 }));
 
@@ -249,13 +372,23 @@ const ActionButton = styled(Button)(({ theme }) => ({
     transform: "translateY(-3px)",
     boxShadow: theme.shadows[12],
   },
+
+  // Very small screens
+  "@media (max-width: 375px)": {
+    padding: "6px 12px",
+    fontSize: "0.75rem",
+    borderRadius: "20px",
+    minWidth: "90px",
+    maxWidth: "45vw", // Allow two buttons side by side
+  },
+
   // Mobile optimizations
   [theme.breakpoints.down("md")]: {
     padding: "10px 20px",
     fontSize: "0.875rem",
-    borderRadius: "25px", // Slightly less rounded on mobile
-    minWidth: "120px", // Minimum width to prevent too narrow buttons
-    maxWidth: "90vw", // Prevent overflow on very small screens
+    borderRadius: "25px",
+    minWidth: "120px",
+    maxWidth: "40vw", // Allow two buttons side by side
   },
 
   // Very small screens
@@ -263,6 +396,14 @@ const ActionButton = styled(Button)(({ theme }) => ({
     padding: "8px 16px",
     fontSize: "0.8rem",
     minWidth: "100px",
+    maxWidth: "42vw",
+  },
+
+  // Mobile landscape - more compact
+  "@media (max-height: 500px) and (orientation: landscape)": {
+    padding: "6px 12px",
+    fontSize: "0.75rem",
+    minWidth: "80px",
   },
 }));
 
@@ -530,22 +671,33 @@ const TypewriterTextMUI = ({
       sx={{
         display: "inline-block",
         minWidth: {
-          xs: "85vw", // Mobile: use most of screen width
+          xs: "90vw", // Mobile: use most of screen width
           sm: `${longestText.length * 0.75}em`, // Desktop: character-based width
         },
         maxWidth: {
-          // xs: "85vw",
-          xs: "100vw",
+          xs: "95vw", // Prevent overflow
           sm: "none", // Desktop: no max width
         },
         textAlign: "left",
         position: "relative",
         whiteSpace: "nowrap",
         overflow: "hidden",
-        px: { xs: 1, sm: 0 }, // Small horizontal padding on mobile
+        px: { xs: 0.5, sm: 0 }, // Small horizontal padding on mobile
         fontSize: {
-          xs: "clamp(1rem, 4vw, 1.8rem)", // Responsive font that scales with viewport
+          xs: "clamp(0.9rem, 4vw, 1.6rem)", // More conservative responsive font
           sm: "inherit",
+        },
+        // Very small screens
+        "@media (max-width: 375px)": {
+          minWidth: "95vw",
+          fontSize: "clamp(0.8rem, 5vw, 1.4rem)",
+        },
+        // Mobile landscape - more compact and better width
+        "@media (max-height: 500px) and (orientation: landscape)": {
+          fontSize: "clamp(0.8rem, 3vw, 1.2rem)",
+          minWidth: "auto", // Let it size naturally
+          maxWidth: "60vw", // Don't take too much width
+          px: 0,
         },
       }}
     >
@@ -576,7 +728,6 @@ const Hero = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-  const isPortrait = useMediaQuery("(orientation: portrait)");
   const { safeOffsets, headerHeight, footerHeight } = useLayoutDimensions();
 
   const heightOffset = footerHeight + headerHeight;
@@ -706,7 +857,18 @@ const Hero = () => {
               </Box>
             )}
 
-            <Stack direction="row" spacing={2.5} sx={{ mb: 1 }}>
+            <Stack
+              direction="row"
+              spacing={2.5}
+              sx={{
+                mb: 1,
+                // Mobile landscape - align left and reduce spacing
+                "@media (max-height: 500px) and (orientation: landscape)": {
+                  spacing: 1.5,
+                  justifyContent: "flex-start",
+                },
+              }}
+            >
               <ActionButton
                 variant="contained"
                 onClick={() => navigate("/contact")}
@@ -735,101 +897,148 @@ const Hero = () => {
         </ProfileSection>
 
         {/* Stats Section */}
-        <Grid
-          container
-          spacing={{ xs: 1, sm: 2 }}
-          justifyContent="center"
-          sx={{
-            mt: { xs: -8, sm: 1 },
-            maxWidth: { xs: "100%", sm: "600px" },
-            mx: "auto",
-          }}
-        >
-          {[
-            { number: "25+", text: "Years Experience" },
-            { number: "150+", text: "Team Members Coached" },
-            { number: "50+", text: "Applications Managed" },
-          ].map((stat, index) => (
-            <React.Fragment key={index}>
-              {isMobile ? (
-                <Paper
-                  key={index}
-                  elevation={0}
+        {isMobile ? (
+          // Mobile horizontal layout
+          <Box
+            sx={{
+              display: "flex",
+              gap: 1,
+              justifyContent: "space-between",
+              alignItems: "center",
+              mt: { xs: 1, sm: 2 },
+              px: 1,
+              width: "100%",
+              maxWidth: "100%",
+              // Very small screens
+              "@media (max-width: 375px)": {
+                gap: 0.5,
+                px: 0.5,
+              },
+              // Mobile landscape adjustments - more compact and positioned better
+              "@media (max-height: 500px) and (orientation: landscape)": {
+                mt: 0.5,
+                gap: 0.5,
+                px: 0.5,
+                maxWidth: "80%", // Don't take full width in landscape
+              },
+            }}
+          >
+            {[
+              { number: "25+", text: "Years Experience" },
+              { number: "150+", text: "Team Members Coached" },
+              { number: "50+", text: "Applications Managed" },
+            ].map((stat, index) => (
+              <Box
+                key={index}
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 0.25,
+                  px: 0.5,
+                  py: 0.5,
+                  borderRadius: 1,
+                  border: "1px solid",
+                  borderColor: "divider",
+                  backgroundColor: "background.paper",
+                  minWidth: "fit-content",
+                  flex: "1 1 0", // Equal flex distribution
+                  textAlign: "center",
+                  // Very small screens
+                  "@media (max-width: 375px)": {
+                    px: 0.25,
+                    py: 0.25,
+                  },
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  fontWeight="bold"
+                  color="primary.main"
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 0.5,
-                    px: 1,
-                    py: 0.5,
-                    borderRadius: 1.5,
-                    border: "1px solid",
-                    borderColor: "divider",
-                    backgroundColor: "background.paper",
-                    minWidth: "fit-content",
-                    maxWidth: { xs: "32%", sm: "auto" },
+                    fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                    lineHeight: 1,
+                    // Very small screens
+                    "@media (max-width: 375px)": {
+                      fontSize: "0.65rem",
+                    },
                   }}
                 >
+                  {stat.number}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{
+                    fontSize: { xs: "0.6rem", sm: "0.65rem" },
+                    lineHeight: 1.1,
+                    textAlign: "center",
+                    // Very small screens
+                    "@media (max-width: 375px)": {
+                      fontSize: "0.55rem",
+                      lineHeight: 1.0,
+                    },
+                  }}
+                >
+                  {stat.text}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        ) : (
+          // Desktop grid layout
+          <Grid
+            container
+            spacing={{ xs: 1, sm: 2 }}
+            justifyContent="center"
+            sx={{
+              mt: { xs: 1, sm: 2 },
+              maxWidth: { xs: "100%", sm: "600px" },
+              mx: "auto",
+              width: "100%",
+            }}
+          >
+            {[
+              { number: "25+", text: "Years Experience" },
+              { number: "150+", text: "Team Members Coached" },
+              { number: "50+", text: "Applications Managed" },
+            ].map((stat, index) => (
+              <Grid item xs={6} sm={6} md={4} lg={3} key={index}>
+                <StatCard>
                   <Typography
-                    variant="caption"
+                    variant="h4"
                     fontWeight="bold"
-                    color="primary.main"
+                    color="primary"
                     sx={{
-                      fontSize: "0.75rem",
-                      whiteSpace: "nowrap",
+                      fontSize: {
+                        xs: "clamp(0.9rem, 2.5vw, 1.25rem)",
+                        sm: "1.25rem",
+                        md: "1.5rem",
+                      },
                     }}
                   >
                     {stat.number}
                   </Typography>
                   <Typography
-                    variant="caption"
+                    variant="body2"
                     color="text.secondary"
                     sx={{
-                      fontSize: "0.65rem",
-                      lineHeight: 1.1,
+                      fontSize: {
+                        xs: "clamp(0.65rem, 2.5vw, 0.75rem)",
+                        sm: "0.75rem",
+                      },
+                      lineHeight: 1.0,
+                      mt: 0.2,
                       textAlign: "center",
                     }}
                   >
                     {stat.text}
                   </Typography>
-                </Paper>
-              ) : (
-                <Grid item xs={6} sm={6} md={4} lg={3}>
-                  <StatCard>
-                    <Typography
-                      variant="h4"
-                      fontWeight="bold"
-                      color="primary"
-                      sx={{
-                        fontSize: {
-                          xs: "clamp(0.9rem, 2.5vw, 1.25rem)",
-                          sm: "1.25rem",
-                          md: "1.5rem",
-                        },
-                      }}
-                    >
-                      {stat.number}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        fontSize: {
-                          xs: "clamp(0.65rem, 2.5vw, 0.75rem)",
-                          sm: "0.75rem",
-                        },
-                        lineHeight: 1.0,
-                        mt: 0.2,
-                        textAlign: "center",
-                      }}
-                    >
-                      {stat.text}
-                    </Typography>
-                  </StatCard>
-                </Grid>
-              )}
-            </React.Fragment>
-          ))}
-        </Grid>
+                </StatCard>
+              </Grid>
+            ))}
+          </Grid>
+        )}
       </ContentContainer>
 
       <Box
@@ -837,13 +1046,27 @@ const Hero = () => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          mt: { xs: 4, sm: 6 },
+          mt: { xs: 2, sm: 4 }, // Reduced margin for mobile
+          // Mobile landscape - minimal margin
+          "@media (max-height: 500px) and (orientation: landscape)": {
+            mt: 1,
+          },
         }}
       >
         <ScrollDownButton
           onClick={() => scrollToSection("summary")}
           aria-label="scroll down"
-          sx={{ mb: `${footerHeight}px` }}
+          sx={{
+            mb: `${footerHeight}px`,
+            // Smaller button on mobile landscape
+            "@media (max-height: 500px) and (orientation: landscape)": {
+              width: 40,
+              height: 40,
+              "& .MuiSvgIcon-root": {
+                fontSize: 28,
+              },
+            },
+          }}
         >
           <KeyboardArrowDownIcon sx={{ fontSize: 40 }} />
         </ScrollDownButton>

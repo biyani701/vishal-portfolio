@@ -9,10 +9,10 @@ const AUTH_SERVER_URL = (window.runtimeConfig && window.runtimeConfig.AUTH_SERVE
 
 // Check if AUTH_SERVER_URL is defined
 if (!AUTH_SERVER_URL) {
-  console.error('[Config] ERROR: AUTH_SERVER_URL is not defined in runtime config or environment variables');
+  console.warn('[Config] ERROR: AUTH_SERVER_URL is not defined in runtime config or environment variables');
   // Log a visible error to help with debugging
   if (typeof document !== 'undefined') {
-    console.error('[Config] Authentication will not work correctly without a valid AUTH_SERVER_URL');
+    console.warn('[Config] Authentication will not work correctly without a valid AUTH_SERVER_URL');
   }
 }
 
