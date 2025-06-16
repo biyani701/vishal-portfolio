@@ -6,7 +6,8 @@ html {
   display: flex;
   flex-direction: column;
   text-align: center;
-  min-height: 100vh;  
+  min-height: 100vh;  /* Fallback */
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
   position: relative;
   padding-bottom: 60px;
 }
@@ -24,7 +25,8 @@ html {
 
 .App-header {
   background-color: #282c34;
-  min-height: 100vh;
+  min-height: 100vh; /* Fallback */
+  min-height: 100dvh; /* Dynamic viewport height */
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -818,8 +818,11 @@ to create a white background.
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
     width: calc(100vw - 16px) !important;
+    width: calc(100dvw - 16px) !important; /* Dynamic viewport width */
     max-width: calc(100vw - 16px) !important;
+    max-width: calc(100dvw - 16px) !important; /* Dynamic viewport width */
     max-height: 90vh !important;
+    max-height: 90dvh !important; /* Dynamic viewport height */
     margin: 0 !important;
     border-radius: 8px !important;
     overflow-y: auto !important;
@@ -844,11 +847,10 @@ to create a white background.
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
     max-height: 85vh !important;
+    max-height: 85svh !important; /* Small viewport height for landscape consistency */
     width: calc(100vw - 32px) !important;
+    width: calc(100dvw - 32px) !important; /* Dynamic viewport width */
     max-width: 600px !important;
-    /* max-height: 85vh !important;
-    width: calc(100vw - 32px) !important;
-    max-width: 600px !important; */
   }
 }
 
@@ -859,9 +861,11 @@ to create a white background.
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
     max-height: 85vh !important;
+    max-height: 85dvh !important; /* Dynamic viewport height */
     width: calc(100vw - 32px) !important;
-    max-width: 600px !important;   
-  }  
+    width: calc(100dvw - 32px) !important; /* Dynamic viewport width */
+    max-width: 600px !important;
+  }
 }
 
 /* Portrait mobile orientation - more specific */

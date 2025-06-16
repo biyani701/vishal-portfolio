@@ -55,6 +55,7 @@ import { useAuthContext } from "./context/AuthProvider";
 import AuthSessionCheck from "./components/AuthSessionCheck";
 import ClickTest from "./components/ClickTest";
 import ConfigTest from "./components/ConfigTest";
+import viewportDemo from "./components/ViewportDemo";
 
 // Toolpad SignIn Page
 import ToolpadSignInPageWrapper from "./pages/toolpad-signin";
@@ -74,6 +75,7 @@ import { palettes } from "./theme";
 
 // Import just the minimal non-themeable styles
 import "./App.minimal.css";
+import ViewportDemo from "./components/ViewportDemo";
 
 
 
@@ -459,6 +461,7 @@ function App(props) {
             {/* <Route path="/blog/edit/:blogId" element={<BlogEditor />} /> */}
             <Route path="/click-test" element={<ClickTest />} />
             <Route path="/config-test" element={<ConfigTest />} />
+            <Route path="/viewport-demo" element={<ViewportDemo />} />
             <Route path="/heroref" element={<HeroRef />} />
 
             <Route path="*" element={<div>404 Not Found</div>} />

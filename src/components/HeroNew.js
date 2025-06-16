@@ -24,11 +24,16 @@ import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import { styled, alpha } from "@mui/material/styles";
 import useResponsiveFooterHeight from "../hooks/useResponsiveFooterHeight";
 import { useLayoutDimensions } from "../hooks/useLayoutDimensions";
+import {
+  AnimatedAvatar,
+  AvatarWrapper,
+  ResponsiveAvatar,
+} from "./hero/AnimatedAvatar";
 
 // Styled components
 const HeroContainer = styled(Box)(({ theme }) => ({
-  minHeight: "100vh",
-  minHeight: "100dvh", // Dynamic viewport height for mobile browsers
+  // Use modern viewport units with fallbacks
+  ...theme.viewport.helpers.fullHeight(),
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
@@ -45,11 +50,19 @@ const HeroContainer = styled(Box)(({ theme }) => ({
   textAlign: "center",
   overflow: "hidden",
 
+  // Enhanced mobile support with safe areas
+  paddingTop: `max(${theme.spacing(2)}, env(safe-area-inset-top, 0px))`,
+  paddingBottom: `max(${theme.spacing(2)}, env(safe-area-inset-bottom, 0px))`,
+  paddingLeft: `max(${theme.spacing(1)}, env(safe-area-inset-left, 0px))`,
+  paddingRight: `max(${theme.spacing(1)}, env(safe-area-inset-right, 0px))`,
+
   // Mobile portrait optimizations
   [theme.breakpoints.down("sm")]: {
     padding: theme.spacing(1, 0.5),
-    minHeight: "calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
-    minHeight: "calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
+    minHeight:
+      "calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
+    minHeight:
+      "calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom))",
   },
 
   // Very small mobile screens
@@ -97,13 +110,18 @@ const ContentContainer = styled(Container)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  gap: theme.spacing(4),
+  gap: theme.spacing(2),
   width: "100%",
   maxWidth: "100%",
 
   [theme.breakpoints.down("sm")]: {
     gap: theme.spacing(2),
     padding: theme.spacing(0, 1),
+  },
+
+  [theme.breakpoints.up("md")]: {
+    alignItems: "flex-start",
+    textAlign: "left",
   },
 
   // Very small screens
@@ -168,84 +186,83 @@ const ProfileSection = styled(Box)(({ theme }) => ({
   },
 }));
 
-const AnimatedAvatar = styled(Avatar)(({ theme }) => ({
-  width: 120,
-  height: 120,
-  border: `4px solid ${theme.palette.primary.main}`,
-  boxShadow: `0 20px 60px rgba(0,0,0,0.3), 0 0 0 10px ${alpha(theme.palette.primary.main, 0.2)}`,
-  transition: "all 0.3s ease",
-  position: "relative",
-  flexShrink: 0, // Prevent avatar from shrinking
+// const AnimatedAvatar = styled(Avatar)(({ theme }) => ({
+//   width: 120,
+//   height: 120,
+//   border: `4px solid ${theme.palette.primary.main}`,
+//   boxShadow: `0 20px 60px rgba(0,0,0,0.3), 0 0 0 10px ${alpha(theme.palette.primary.main, 0.2)}`,
+//   transition: "all 0.3s ease",
+//   position: "relative",
+//   flexShrink: 0, // Prevent avatar from shrinking
 
-  "&::before": {
-    content: '""',
-    position: "absolute",
-    top: -6,
-    left: -6,
-    right: -6,
-    bottom: -6,
-    background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`,
-    borderRadius: "50%",
-    zIndex: -1,
-    animation: "rotate 4s linear infinite",
-  },
-  "&:hover": {
-    transform: "scale(1.05)",
-    boxShadow: `0 30px 80px rgba(0,0,0,0.4), 0 0 0 15px ${alpha(theme.palette.primary.main, 0.3)}`,
-  },
-  "@keyframes rotate": {
-    "0%": {
-      transform: "rotate(0deg)",
-    },
-    "100%": {
-      transform: "rotate(360deg)",
-    },
-  },
+//   "&::before": {
+//     content: '""',
+//     position: "absolute",
+//     top: -6,
+//     left: -6,
+//     right: -6,
+//     bottom: -6,
+//     background: `linear-gradient(45deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main}, ${theme.palette.primary.main})`,
+//     borderRadius: "50%",
+//     zIndex: -1,
+//     animation: "rotate 4s linear infinite",
+//   },
+//   "&:hover": {
+//     transform: "scale(1.05)",
+//     boxShadow: `0 30px 80px rgba(0,0,0,0.4), 0 0 0 15px ${alpha(theme.palette.primary.main, 0.3)}`,
+//   },
+//   "@keyframes rotate": {
+//     "0%": {
+//       transform: "rotate(0deg)",
+//     },
+//     "100%": {
+//       transform: "rotate(360deg)",
+//     },
+//   },
 
-  // Very small mobile screens
-  "@media (max-width: 375px)": {
-    width: 70,
-    height: 70,
-    border: `3px solid ${theme.palette.primary.main}`,
-  },
+//   // Very small mobile screens
+//   "@media (max-width: 375px)": {
+//     width: 70,
+//     height: 70,
+//     border: `3px solid ${theme.palette.primary.main}`,
+//   },
 
-  [theme.breakpoints.down("sm")]: {
-    width: 80,
-    height: 80,
-  },
+//   [theme.breakpoints.down("sm")]: {
+//     width: 80,
+//     height: 80,
+//   },
 
-  // Mobile landscape - smaller avatar
-  "@media (max-height: 500px) and (orientation: landscape)": {
-    width: 60,
-    height: 60,
-    border: `2px solid ${theme.palette.primary.main}`,
-  },
+//   // Mobile landscape - smaller avatar
+//   "@media (max-height: 500px) and (orientation: landscape)": {
+//     width: 60,
+//     height: 60,
+//     border: `2px solid ${theme.palette.primary.main}`,
+//   },
 
-  [theme.breakpoints.up("sm")]: {
-    width: 120,
-    height: 120,
-  },
-  [theme.breakpoints.up("md")]: {
-    width: 140,
-    height: 140,
-  },
-  [theme.breakpoints.up("lg")]: {
-    width: 160,
-    height: 160,
-  },
-}));
+//   [theme.breakpoints.up("sm")]: {
+//     width: 120,
+//     height: 120,
+//   },
+//   [theme.breakpoints.up("md")]: {
+//     width: 140,
+//     height: 140,
+//   },
+//   [theme.breakpoints.up("lg")]: {
+//     width: 160,
+//     height: 160,
+//   },
+// }));
 
 const IntroSection = styled(Box)(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
   gap: theme.spacing(2),
-  maxWidth: 600,
-  width: "100%",
+
+  border: "2px solid red",
 
   [theme.breakpoints.down("sm")]: {
     gap: theme.spacing(1.5),
-    maxWidth: "100%",
   },
 
   // Very small screens
@@ -258,7 +275,10 @@ const IntroSection = styled(Box)(({ theme }) => ({
     gap: theme.spacing(1),
     alignItems: "flex-start",
     textAlign: "left",
-    flex: 1, // Take remaining space next to avatar
+    minWidth: "50vw",
+    minWidth: "50dvw",
+    maxWidth: "60vw",
+    maxWidth: "60dvw",
   },
 
   [theme.breakpoints.up("md")]: {
@@ -728,7 +748,17 @@ const Hero = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
-  const { safeOffsets, headerHeight, footerHeight } = useLayoutDimensions();
+  const {
+    safeOffsets,
+    headerHeight,
+    footerHeight,
+    safeAreaInsets,
+    spacing,
+    windowSize,
+    isSmallMobile,
+    hasModernViewportSupport,
+    isPortrait,
+  } = useLayoutDimensions();
 
   const heightOffset = footerHeight + headerHeight;
   const calculatedMinHeight = `calc(100vh - ${heightOffset}px) + theme.spacing(1)`;
@@ -745,6 +775,22 @@ const Hero = () => {
         behavior: "smooth",
       });
     }
+  };
+
+  const cornerOffset = {
+    // Distance from the actual screen edges
+    top: `calc(${headerHeight}px + ${safeAreaInsets.top || 0}px + ${spacing.sm})`,
+    bottom: `calc(${footerHeight}px + ${safeAreaInsets.bottom || 0}px + ${spacing.sm})`,
+    side: `${spacing.sm}`, // Or use a fixed value like "32px"
+  };
+
+  const getBottomPosition = () => {
+    const baseOffset = `${footerHeight}px + ${safeAreaInsets.bottom || 0}px + ${spacing.sm}`;
+
+    if (hasModernViewportSupport) {
+      return `calc(${baseOffset} + env(safe-area-inset-bottom, 0px))`;
+    }
+    return `calc(${baseOffset})`;
   };
 
   const skills = [
@@ -768,10 +814,8 @@ const Hero = () => {
       {/* Floating background icons */}
       <FloatingIcon
         sx={{
-          // top: { xs: 20, sm: 40 },
-          // left: { xs: 20, sm: 40 },
-          top: `${safeOffsets.topOffset}px`,
-          left: `${safeOffsets.sideOffset}px`,
+          top: cornerOffset.top,
+          left: cornerOffset.side,
           animationDelay: "2s",
         }}
       >
@@ -780,10 +824,10 @@ const Hero = () => {
 
       <FloatingIcon
         sx={{
-          // top: { xs: 20, sm: 40 },
-          // right: { xs: 20, sm: 40 },
-          top: `${safeOffsets.topOffset}px`,
-          right: `${safeOffsets.sideOffset}px`,
+          // top: `${safeOffsets.topOffset}px`,
+          // right: `${safeOffsets.sideOffset}px`,
+          top: cornerOffset.top,
+          right: cornerOffset.side,
           animationDelay: "2s",
         }}
       >
@@ -792,10 +836,10 @@ const Hero = () => {
 
       <FloatingIcon
         sx={{
-          // bottom: { xs: 120, sm: 140 },
-          // left: { xs: 20, sm: 40 },
-          bottom: `${safeOffsets.bottomOffset}px`,
-          left: `${safeOffsets.sideOffset}px`,
+          // bottom: `${safeOffsets.bottomOffset}px`,
+          // left: `${safeOffsets.sideOffset}px`,
+          bottom: cornerOffset.bottom,
+          left: cornerOffset.side,
           animationDelay: "2s",
         }}
       >
@@ -804,10 +848,10 @@ const Hero = () => {
 
       <FloatingIcon
         sx={{
-          // bottom: { xs: 120, sm: 140 },
-          // right: { xs: 20, sm: 40 },
-          bottom: `${safeOffsets.bottomOffset}px`,
-          right: `${safeOffsets.sideOffset}px`,
+          // bottom: `${safeOffsets.bottomOffset}px`,
+          // right: `${safeOffsets.sideOffset}px`,
+          bottom: cornerOffset.bottom,
+          right: cornerOffset.side,
           animationDelay: "2s",
         }}
       >
@@ -816,17 +860,47 @@ const Hero = () => {
 
       <ContentContainer maxWidth="lg">
         <ProfileSection sx={{ position: "relative" }}>
-          <AnimatedAvatar src="/images/DSC_0694.jpg" alt="Vishal Biyani" />
-          <IntroSection>
-            <Box>
-              <Typography
-                variant="h6"
-                sx={{ color: "text.secondary", mb: 0.5 }}
-              >
-                Hi, I&apos;m
-              </Typography>
-              <Name variant="h1">Vishal Biyani</Name>
+          {/* <AnimatedAvatar src="/images/DSC_0694.jpg" alt="Vishal Biyani" /> */}
+          <ResponsiveAvatar
+            src="/images/MakePassportPhoto.jpg"
+            alt="Vishal Biyani"
+            sx={{
+              "& img": {
+                objectFit: "cover",
+                objectPosition: "center 8%", // Adjust this percentage
+                transform: "scale(1.05)", // Slight zoom if needed
+              },
+            }}
+          />
 
+          <IntroSection>
+            {isMobile && !isPortrait ? (
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{ color: "text.secondary", mb: 0.5 }}
+                >
+                  Hi, I&apos;m Vishal Biyani
+                </Typography>
+              </Box>
+            ) : (
+              <Box>
+                <Typography
+                  variant="h6"
+                  sx={{ color: "text.secondary", mb: 0.5 }}
+                >
+                  Hi, I&apos;m
+                </Typography>
+                <Name variant="h1">Vishal Biyani</Name>
+              </Box>
+            )}
+            <Box>
               <Typography variant="h2">
                 <TypewriterTextMUI texts={typewriterTexts} />
               </Typography>
@@ -923,67 +997,68 @@ const Hero = () => {
               },
             }}
           >
-            {[
-              { number: "25+", text: "Years Experience" },
-              { number: "150+", text: "Team Members Coached" },
-              { number: "50+", text: "Applications Managed" },
-            ].map((stat, index) => (
-              <Box
-                key={index}
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 0.25,
-                  px: 0.5,
-                  py: 0.5,
-                  borderRadius: 1,
-                  border: "1px solid",
-                  borderColor: "divider",
-                  backgroundColor: "background.paper",
-                  minWidth: "fit-content",
-                  flex: "1 1 0", // Equal flex distribution
-                  textAlign: "center",
-                  // Very small screens
-                  "@media (max-width: 375px)": {
-                    px: 0.25,
-                    py: 0.25,
-                  },
-                }}
-              >
-                <Typography
-                  variant="caption"
-                  fontWeight="bold"
-                  color="primary.main"
+            {!isSmallMobile &&
+              [
+                { number: "25+", text: "Years Experience" },
+                { number: "150+", text: "Team Members Coached" },
+                { number: "50+", text: "Applications Managed" },
+              ].map((stat, index) => (
+                <Box
+                  key={index}
                   sx={{
-                    fontSize: { xs: "0.7rem", sm: "0.75rem" },
-                    lineHeight: 1,
-                    // Very small screens
-                    "@media (max-width: 375px)": {
-                      fontSize: "0.65rem",
-                    },
-                  }}
-                >
-                  {stat.number}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  color="text.secondary"
-                  sx={{
-                    fontSize: { xs: "0.6rem", sm: "0.65rem" },
-                    lineHeight: 1.1,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: 0.25,
+                    px: 0.5,
+                    py: 0.5,
+                    borderRadius: 1,
+                    border: "1px solid",
+                    borderColor: "divider",
+                    backgroundColor: "background.paper",
+                    minWidth: "fit-content",
+                    flex: "1 1 0", // Equal flex distribution
                     textAlign: "center",
                     // Very small screens
                     "@media (max-width: 375px)": {
-                      fontSize: "0.55rem",
-                      lineHeight: 1.0,
+                      px: 0.25,
+                      py: 0.25,
                     },
                   }}
                 >
-                  {stat.text}
-                </Typography>
-              </Box>
-            ))}
+                  <Typography
+                    variant="caption"
+                    fontWeight="bold"
+                    color="primary.main"
+                    sx={{
+                      fontSize: { xs: "0.7rem", sm: "0.75rem" },
+                      lineHeight: 1,
+                      // Very small screens
+                      "@media (max-width: 375px)": {
+                        fontSize: "0.65rem",
+                      },
+                    }}
+                  >
+                    {stat.number}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{
+                      fontSize: { xs: "0.6rem", sm: "0.65rem" },
+                      lineHeight: 1.1,
+                      textAlign: "center",
+                      // Very small screens
+                      "@media (max-width: 375px)": {
+                        fontSize: "0.55rem",
+                        lineHeight: 1.0,
+                      },
+                    }}
+                  >
+                    {stat.text}
+                  </Typography>
+                </Box>
+              ))}
           </Box>
         ) : (
           // Desktop grid layout
@@ -1057,13 +1132,24 @@ const Hero = () => {
           onClick={() => scrollToSection("summary")}
           aria-label="scroll down"
           sx={{
-            mb: `${footerHeight}px`,
-            // Smaller button on mobile landscape
-            "@media (max-height: 500px) and (orientation: landscape)": {
+            // mb: `${footerHeight}px`,
+            // bottom: safeOffsets.mobileBottom,
+            bottom: getBottomPosition(),
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 1000,
+            "@media (max-width: 599.95px)": {
+              width: 24,
+              height: 24,
+              "& .MuiSvgIcon-root": {
+                fontSize: 16,
+              },
+            },
+            "@media (max-height: 600px) and (orientation: landscape)": {
               width: 40,
               height: 40,
               "& .MuiSvgIcon-root": {
-                fontSize: 28,
+                fontSize: 24,
               },
             },
           }}

@@ -78,7 +78,9 @@ html {
       left: 50% !important;
       transform: translateX(-50%);
       width: calc(100% - 2rem) !important;
+      width: calc(100dvw - 2rem) !important; /* Dynamic viewport width */
       max-width: calc(100% - 2rem);
+      max-width: calc(100dvw - 2rem); /* Dynamic viewport width */
       padding: 0.75rem;
       bottom: 3.5rem !important; /* Ensure it doesn't overlap with footer */
     }

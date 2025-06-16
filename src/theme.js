@@ -284,7 +284,7 @@ export const getTheme = (mode, paletteIndex = 0) => {
         md: 900,
         lg: 1200,
         xl: 1536,
-        smallMobile: 320, // Small mobile phones
+        smallMobile: 321, // Small mobile phones
         mobile: 480, // Most mobile phones
         largeMobile: 540, // Large mobile phones
         tablet: 768, // Tablets
@@ -299,6 +299,73 @@ export const getTheme = (mode, paletteIndex = 0) => {
     //     },
     //   },
     // },
+    // Viewport utilities for modern viewport units with fallbacks
+    viewport: {
+      // Viewport unit utilities with fallbacks for older browsers
+      units: {
+        // Dynamic viewport height - adjusts as mobile browser UI shows/hides
+        dvh: (value) => ({
+          height: `${value}vh`, // Fallback for older browsers
+          height: `${value}dvh`, // Modern browsers
+        }),
+        // Small viewport height - smallest possible viewport
+        svh: (value) => ({
+          height: `${value}vh`, // Fallback
+          height: `${value}svh`, // Modern
+        }),
+        // Large viewport height - largest possible viewport
+        lvh: (value) => ({
+          height: `${value}vh`, // Fallback
+          height: `${value}lvh`, // Modern
+        }),
+        // Dynamic viewport width
+        dvw: (value) => ({
+          width: `${value}vw`, // Fallback
+          width: `${value}dvw`, // Modern
+        }),
+        // Viewport inline (width in horizontal writing mode)
+        vi: (value) => ({
+          width: `${value}vw`, // Fallback
+          width: `${value}vi`, // Modern
+        }),
+        // Viewport block (height in horizontal writing mode)
+        vb: (value) => ({
+          height: `${value}vh`, // Fallback
+          height: `${value}vb`, // Modern
+        }),
+      },
+
+      // Helper functions for common viewport calculations
+      helpers: {
+        // Full viewport height with modern units
+        fullHeight: () => ({
+          minHeight: "100vh", // Fallback
+          minHeight: "100dvh", // Dynamic - best for mobile
+        }),
+
+        // Content height calculation with header/footer
+        contentHeight: (headerPx, footerPx) => ({
+          height: `calc(100vh - ${headerPx}px - ${footerPx}px)`, // Fallback
+          height: `calc(100dvh - ${headerPx}px - ${footerPx}px)`, // Modern
+        }),
+
+        // Safe area aware height
+        safeContentHeight: (headerPx, footerPx, safeTop = 0, safeBottom = 0) => ({
+          height: `calc(100vh - ${headerPx}px - ${footerPx}px - ${safeTop}px - ${safeBottom}px)`, // Fallback
+          height: `calc(100dvh - ${headerPx}px - ${footerPx}px - env(safe-area-inset-top, ${safeTop}px) - env(safe-area-inset-bottom, ${safeBottom}px))`, // Modern with safe areas
+        }),
+
+        // Mobile-optimized viewport height
+        mobileOptimizedHeight: () => ({
+          minHeight: "100vh", // Fallback
+          minHeight: "100svh", // Small viewport for consistent mobile experience
+          "@supports (height: 100dvh)": {
+            minHeight: "100dvh", // Dynamic if supported
+          },
+        }),
+      },
+    },
+
     customLayout: {
       headerHeight: {
         xs: 56, // Mobile
