@@ -402,7 +402,7 @@ const NavigationBar = ({
   const [selectedResultIndex, setSelectedResultIndex] = useState(-1);
 
   const headerHeight = useResponsiveHeight("header");
-  const { isDesktop } = useLayoutDimensions();
+  // const { isDesktop } = useLayoutDimensions();
 
   // Initialize search index and add data
   React.useEffect(() => {
@@ -939,20 +939,20 @@ const NavigationBar = ({
           </Button>
         ),
       },
-      {
-        id: "hero",
-        label: "Hero",
-        path: "/heroref",
-        component: (
-          <Button
-            component={RouterLink}
-            to="/heroref"
-            onClick={() => trackMenuClick("about", "main-menu")}
-          >
-            Hero
-          </Button>
-        ),
-      },
+      // {
+      //   id: "hero",
+      //   label: "Hero",
+      //   path: "/heroref",
+      //   component: (
+      //     <Button
+      //       component={RouterLink}
+      //       to="/heroref"
+      //       onClick={() => trackMenuClick("about", "main-menu")}
+      //     >
+      //       Hero
+      //     </Button>
+      //   ),
+      // },
       {
         id: "about",
         label: "About Me",

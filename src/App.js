@@ -17,8 +17,8 @@ import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import Fab from "@mui/material/Fab";
 
 import NavigationBar from "./components/ImprovedNavbar";
-import Hero from "./components/HeroNew";
-import HeroRef from "./archive/Hero";
+import Hero from "./components/Hero";
+
 import ProfileSummary from "./components/ProfileSummaryNew";
 // import EnhancedSkillsWithTabs from './components/EnhancedSkillsWithTabs';
 import Skills from "./components/Skills";
@@ -462,7 +462,7 @@ function App(props) {
             <Route path="/click-test" element={<ClickTest />} />
             <Route path="/config-test" element={<ConfigTest />} />
             <Route path="/viewport-demo" element={<ViewportDemo />} />
-            <Route path="/heroref" element={<HeroRef />} />
+            {/* <Route path="/heroref" element={<HeroRef />} /> */}
 
             <Route path="*" element={<div>404 Not Found</div>} />
           </Routes>

@@ -5,10 +5,8 @@ import {
   Box,
   Typography,
   Button,
-  Paper,
   Container,
   IconButton,
-  Avatar,
   Chip,
   Stack,
   Grid,
@@ -49,6 +47,8 @@ const HeroContainer = styled(Box)(({ theme }) => ({
   color: theme.palette.text.primary,
   textAlign: "center",
   overflow: "hidden",
+  minHeight: "100vh",
+  minHeight: "100dvh",
 
   // Enhanced mobile support with safe areas
   paddingTop: `max(${theme.spacing(2)}, env(safe-area-inset-top, 0px))`,
@@ -72,22 +72,17 @@ const HeroContainer = styled(Box)(({ theme }) => ({
 
   // Mobile landscape optimizations
   "@media (max-height: 500px) and (orientation: landscape)": {
-    minHeight: "100vh",
-    padding: theme.spacing(1, 0.5),
+    padding: theme.spacing(0.5, 1),
     justifyContent: "flex-start",
-    paddingTop: theme.spacing(2),
+    paddingTop: `calc(env(safe-area-inset-top, 0px) + ${theme.spacing(1)})`,
+    paddingBottom: `calc(env(safe-area-inset-bottom, 0px) + ${theme.spacing(1)})`,
+    gap: theme.spacing(1),
   },
 
   "@keyframes gradientShift": {
-    "0%": {
-      backgroundPosition: "0% 50%",
-    },
-    "50%": {
-      backgroundPosition: "100% 50%",
-    },
-    "100%": {
-      backgroundPosition: "0% 50%",
-    },
+    "0%": { backgroundPosition: "0% 50%" },
+    "50%": { backgroundPosition: "100% 50%" },
+    "100%": { backgroundPosition: "0% 50%" },
   },
   "&::before": {
     content: '""',
@@ -113,6 +108,8 @@ const ContentContainer = styled(Container)(({ theme }) => ({
   gap: theme.spacing(2),
   width: "100%",
   maxWidth: "100%",
+  // flex: "1 1 auto",
+  // minHeight: 0,
 
   [theme.breakpoints.down("sm")]: {
     gap: theme.spacing(2),
@@ -133,6 +130,10 @@ const ContentContainer = styled(Container)(({ theme }) => ({
   // Mobile landscape
   "@media (max-height: 500px) and (orientation: landscape)": {
     gap: theme.spacing(1),
+    padding: theme.spacing(0, 1),
+    justifyContent: "flex-start",
+    alignItems: "stretch",
+    height: "100%",
   },
 }));
 
@@ -144,6 +145,8 @@ const ProfileSection = styled(Box)(({ theme }) => ({
   gap: theme.spacing(3),
   width: "100%",
   maxWidth: "100%",
+  flex: "1 1 auto",
+  minHeight: 0,
 
   // Mobile optimizations - remove problematic negative positioning
   [theme.breakpoints.down("md")]: {
@@ -159,15 +162,16 @@ const ProfileSection = styled(Box)(({ theme }) => ({
   // Very small screens
   [theme.breakpoints.down("sm")]: {
     gap: theme.spacing(1.5),
-    padding: theme.spacing(0.5, 0),
+    // padding: theme.spacing(0.5, 0),
+    padding: theme.spacing(0, 0.5),
   },
 
   // Mobile landscape - switch to horizontal layout like desktop
   "@media (max-height: 500px) and (orientation: landscape)": {
     flexDirection: "row",
     gap: theme.spacing(2),
-    padding: theme.spacing(0.5, 1),
-    alignItems: "center",
+    padding: theme.spacing(1, 1),
+    alignItems: "flex-start",
     justifyContent: "flex-start",
     textAlign: "left",
 
@@ -258,8 +262,9 @@ const IntroSection = styled(Box)(({ theme }) => ({
   flexDirection: "column",
   alignItems: "center",
   gap: theme.spacing(2),
-
-  border: "2px solid red",
+  // flex: "1 1 auto",
+  minWidth: 0, // Allow shrinking
+  width: "100%", // Take full width in mobile portrait
 
   [theme.breakpoints.down("sm")]: {
     gap: theme.spacing(1.5),
@@ -275,14 +280,21 @@ const IntroSection = styled(Box)(({ theme }) => ({
     gap: theme.spacing(1),
     alignItems: "flex-start",
     textAlign: "left",
-    minWidth: "50vw",
-    minWidth: "50dvw",
-    maxWidth: "60vw",
-    maxWidth: "60dvw",
+    // flex: "1 1 0",
+    minWidth: 0, // Allow shrinking below content size
+    width: "auto", // Let flexbox handle the width
+    paddingLeft: theme.spacing(1), // Small padding from avatar
+    paddingTop: theme.spacing(5), // Ensures that it does not go under header
+    // Ensure content doesn't overflow
+    "& > *": {
+      maxWidth: "100%",
+      overflow: "hidden",
+    },
   },
 
   [theme.breakpoints.up("md")]: {
     alignItems: "flex-start",
+    minWidth: 0,
   },
 }));
 
@@ -749,13 +761,21 @@ const Hero = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const isSmallScreen = useMediaQuery(theme.breakpoints.down("md"));
   const {
+    device, 
+    isLandscape,
     safeOffsets,
+    deviceName, 
+  deviceType, 
+  matchesDimensions,
+  isSpecificDevice,
     headerHeight,
     footerHeight,
     safeAreaInsets,
     spacing,
     windowSize,
     isSmallMobile,
+    isMediumMobile,
+    isLargeMobile,
     hasModernViewportSupport,
     isPortrait,
   } = useLayoutDimensions();
@@ -874,26 +894,45 @@ const Hero = () => {
           />
 
           <IntroSection>
-            {isMobile && !isPortrait ? (
+            {
+            (isMobile || (deviceType === 'ios' || deviceType === 'android')) && isLandscape ? 
+            (
               <Box
                 sx={{
                   display: "flex",
                   flexDirection: "column",
-                  alignItems: "center",
+                  alignItems: "flex-start",
+                  width: "100%",
                 }}
               >
                 <Typography
                   variant="h6"
-                  sx={{ color: "text.secondary", mb: 0.5 }}
+                  sx={{
+                    color: "text.secondary",
+                    mb: 0.5,
+                    fontSize: "clamp(0.8rem, 2.5vw, 1rem)",
+                    textAlign: "left",
+                  }}
                 >
                   Hi, I&apos;m Vishal Biyani
                 </Typography>
               </Box>
             ) : (
-              <Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: { xs: "center", md: "flex-start" },
+                  width: "100%",
+                }}
+              >
                 <Typography
                   variant="h6"
-                  sx={{ color: "text.secondary", mb: 0.5 }}
+                  sx={{
+                    color: "text.secondary",
+                    mb: 0.5,
+                    textAlign: { xs: "center", md: "left" },
+                  }}
                 >
                   Hi, I&apos;m
                 </Typography>
@@ -919,8 +958,8 @@ const Hero = () => {
                   gap: 1,
                   mb: 2,
                   gridTemplateColumns: {
-                    xs: "repeat(4, 1fr)", // 3 columns on mobile
-                    md: "repeat(8, 1fr)", // 6 columns on medium and up
+                    xs: "repeat(4, 1fr)", // 4 columns on mobile
+                    md: "repeat(8, 1fr)", // 8 columns on medium and up
                   },
                   justifyItems: "center", // Center chips in cells
                 }}
@@ -1131,9 +1170,7 @@ const Hero = () => {
         <ScrollDownButton
           onClick={() => scrollToSection("summary")}
           aria-label="scroll down"
-          sx={{
-            // mb: `${footerHeight}px`,
-            // bottom: safeOffsets.mobileBottom,
+          sx={{            
             bottom: getBottomPosition(),
             left: "50%",
             transform: "translateX(-50%)",

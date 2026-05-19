@@ -99,7 +99,7 @@ const ModernMobileMenu = ({
   const menuItems = useMemo(
     () => [
       { id: "home", label: "Home", icon: <HomeIcon />, path: "/" },
-      { id: "hero", label: "Hero", icon: <StarIcon />, path: "/heroref" },
+      // { id: "hero", label: "Hero", icon: <StarIcon />, path: "/heroref" },
       { id: "about", label: "About Me", icon: <PersonIcon />, path: "/about" },
       {
         id: "resume",

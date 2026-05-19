@@ -7,28 +7,146 @@ import { useTheme, useMediaQuery } from "@mui/material";
  * @returns {Object} Object containing header height, footer height, and content height calculations
  */
 
-const isIPhoneXSize = (width, height) => {
-  const knownDimensions = [
-    [375, 812], // iPhone X, XS, 12 Mini
-    [414, 896], // iPhone XR, 11
-    [390, 844], // iPhone 12, 12 Pro, 13, 13 Pro, 14, 14 Pro
-    [428, 926], // iPhone 12 Pro Max, 13 Pro Max, 14 Plus, 14 Pro Max
-  ];
+// Generic device detection system for all mobile devices
+const DEVICE_DATABASE = {
+  // iOS Devices
+  '375x812': { name: 'iPhone X/XS/11 Pro/12 Mini/13 Mini', type: 'ios', hasNotch: true, safeArea: { top: 44, bottom: 34 } },
+  '390x844': { name: 'iPhone 12/12 Pro/13/13 Pro/14/14 Pro', type: 'ios', hasNotch: true, safeArea: { top: 47, bottom: 34 } },
+  '414x896': { name: 'iPhone XR/11', type: 'ios', hasNotch: true, safeArea: { top: 44, bottom: 34 } },
+  '428x926': { name: 'iPhone 12 Pro Max/13 Pro Max/14 Plus', type: 'ios', hasNotch: true, safeArea: { top: 47, bottom: 34 } },
+  '430x932': { name: 'iPhone 14 Pro Max/15 Pro Max', type: 'ios', hasNotch: true, safeArea: { top: 59, bottom: 34 } },
+  '393x852': { name: 'iPhone 15/15 Pro', type: 'ios', hasNotch: true, safeArea: { top: 59, bottom: 34 } },
+  '375x667': { name: 'iPhone SE 2/3', type: 'ios', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '414x736': { name: 'iPhone 8 Plus', type: 'ios', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  
+  // Popular Android Devices
+  '360x640': { name: 'Samsung Galaxy S5/J3', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '375x667': { name: 'Samsung Galaxy A50/A51', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '412x869': { name: 'Samsung Galaxy S20/S21', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '412x915': { name: 'Samsung Galaxy S22/S23', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '384x854': { name: 'Google Pixel 3/4', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '393x851': { name: 'Google Pixel 5/6/7', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '360x780': { name: 'Samsung Galaxy Note 10', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '412x883': { name: 'OnePlus 8/9', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '411x731': { name: 'Xiaomi Mi 11', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
 
-  return knownDimensions.some(
-    ([w, h]) => (width === w && height === h) || (width === h && height === w)
-  );
+  // OnePlus Devices
+  '412x869': { name: 'OnePlus 7/7 Pro', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '412x883': { name: 'OnePlus 8/8 Pro', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '412x915': { name: 'OnePlus 9/9 Pro', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '412x919': { name: 'OnePlus 10/10 Pro', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '412x892': { name: 'OnePlus 11/11 Pro', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '384x824': { name: 'OnePlus Nord', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '412x876': { name: 'OnePlus Nord 2/3', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  
+  // Xiaomi Devices
+  '393x851': { name: 'Xiaomi Mi 10/10 Pro', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '411x869': { name: 'Xiaomi Mi 11/11 Pro', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '412x892': { name: 'Xiaomi 12/12 Pro', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '393x873': { name: 'Xiaomi 13/13 Pro', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '412x915': { name: 'Xiaomi 14/14 Pro', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '393x786': { name: 'Xiaomi Redmi Note 10/11', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '412x824': { name: 'Xiaomi Redmi Note 12/13', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '384x854': { name: 'Xiaomi POCO F3/F4', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '412x869': { name: 'Xiaomi POCO X3/X4', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
+  '393x851': { name: 'Xiaomi POCO M3/M4', type: 'android', hasNotch: false, safeArea: { top: 0, bottom: 0 } },
 };
 
-// Detect if browser supports modern viewport units
+
+
+// Generic device detection function
+const detectDevice = (width, height) => {
+  const isPortrait = height > width;
+  const isLandscape = width > height;
+  
+  // Check both orientations
+  const portraitKey = `${Math.min(width, height)}x${Math.max(width, height)}`;
+  const currentKey = `${width}x${height}`;
+  
+  // Try to find exact match first
+  let deviceInfo = DEVICE_DATABASE[currentKey];
+  
+  // If not found, try portrait orientation
+  if (!deviceInfo) {
+    deviceInfo = DEVICE_DATABASE[portraitKey];
+  }
+  
+  // Determine device category based on screen size
+  const deviceCategory = getDeviceCategory(width, height);
+  
+  return {
+    isPortrait,
+    isLandscape,
+    orientation: isLandscape ? 'landscape' : 'portrait',
+    
+    // Device identification
+    deviceInfo: deviceInfo || null,
+    deviceName: deviceInfo?.name || 'Unknown Device',
+    deviceType: deviceInfo?.type || detectDeviceType(),
+    deviceCategory,
+    
+    // Physical characteristics
+    hasNotch: deviceInfo?.hasNotch || false,
+    hasSafeArea: deviceInfo?.hasNotch || false,
+    
+    // Screen characteristics
+    isSmallScreen: deviceCategory === 'small',
+    isMediumScreen: deviceCategory === 'medium', 
+    isLargeScreen: deviceCategory === 'large',
+    isExtraLargeScreen: deviceCategory === 'xlarge',
+    
+    // Aspect ratio
+    aspectRatio: Math.max(width, height) / Math.min(width, height),
+    isWideScreen: (Math.max(width, height) / Math.min(width, height)) > 2,
+    
+    // Safe area insets
+    safeAreaInsets: deviceInfo?.safeArea || { top: 0, bottom: 0, left: 0, right: 0 },
+    
+    // Dimensions
+    dimensions: { width, height, portraitKey, currentKey }
+  };
+}
+
+// Categorize device based on screen size
+const getDeviceCategory = (width, height) => {
+  const minDimension = Math.min(width, height);
+  const maxDimension = Math.max(width, height);
+  
+  // Small phones (iPhone SE, older Android)
+  if (minDimension <= 375 && maxDimension <= 667) return 'small';
+  
+  // Medium phones (standard size)
+  if (minDimension <= 390 && maxDimension <= 844) return 'medium';
+  
+  // Large phones (Plus/Max sizes)
+  if (minDimension <= 430 && maxDimension <= 932) return 'large';
+  
+  // Extra large or tablets
+  return 'xlarge';
+};
+
+// Detect device type from user agent if device not in database
+const detectDeviceType = () => {
+  if (typeof navigator === 'undefined') return 'unknown';
+  
+  const userAgent = navigator.userAgent.toLowerCase();
+  
+  if (/iphone|ipad|ipod/.test(userAgent)) return 'ios';
+  if (/android/.test(userAgent)) return 'android';
+  if (/windows phone/.test(userAgent)) return 'windows';
+  
+  return 'unknown';
+};
+
+// Detect if device supports modern viewport units
 const supportsModernViewport = () => {
   if (typeof window === "undefined") return false;
 
   try {
     // Test for dvh support
-    const testEl = document.createElement('div');
-    testEl.style.height = '100dvh';
-    return testEl.style.height === '100dvh';
+    const testEl = document.createElement("div");
+    testEl.style.height = "100dvh";
+    return testEl.style.height === "100dvh";
   } catch {
     return false;
   }
@@ -46,15 +164,23 @@ export const useLayoutDimensions = () => {
   const isMediumMobile = useMediaQuery(theme.breakpoints.between("smallMobile", "mobile"));
   const isLargeMobile = useMediaQuery(theme.breakpoints.between("mobile", "largeMobile"));
 
-  const [isIPhoneXOrSimilar, setIsIPhoneXOrSimilar] = useState(false);
-  const [isPortrait, setIsPortrait] = useState(true);
-  const [safeAreaInsets, setSafeAreaInsets] = useState({
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
+  const [deviceState, setDeviceState] = useState({
+    deviceInfo: null,
+    safeAreaInsets: { top: 0, bottom: 0, left: 0, right: 0 },
+    hasModernViewportSupport: false
   });
-  const [hasModernViewportSupport, setHasModernViewportSupport] = useState(false);
+
+  const [windowSize, setWindowSize] = useState(() => {
+    if (typeof window !== "undefined") {
+      return {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      };
+    }
+    return { width: 0, height: 0 };
+  });
+
+  const [isPortrait, setIsPortrait] = useState(true);
 
   const getDynamicHeight = (type) => {
     const layout = theme.customLayout[`${type}Height`];
@@ -84,37 +210,31 @@ export const useLayoutDimensions = () => {
       : (layout[landscapeKey] ?? layout[portraitKey] ?? layout.md);
   };
 
-  const [windowSize, setWindowSize] = useState(() => {
-    if (typeof window !== "undefined") {
-      return {
-        width: window.innerWidth,
-        height: window.innerHeight,
-      };
-    }
-    return { width: 0, height: 0 };
-  });
+  
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Check for modern viewport support
-    setHasModernViewportSupport(supportsModernViewport());
+
 
     const updateDimensions = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
 
+      // Get comprehensive device information
+      const detectedDevice = detectDevice(width, height);
+
       setWindowSize({ width, height });
-      setIsIPhoneXOrSimilar(isIPhoneXSize(width, height));
-      setIsPortrait(height >= width);
+      // Calculate safe area insets
+      const computed = getComputedStyle(document.documentElement);
 
       // Enhanced safe area insets calculation
-      const computed = getComputedStyle(document.documentElement);
+      
       const getInset = (prop) => {
-        // Try multiple approaches to get safe area insets
+        // Try modern CSS env() function
         let val = computed.getPropertyValue(`env(safe-area-inset-${prop})`);
 
-        // Fallback for older syntax
+        // Fallback to constant() for older browsers
         if (!val || val === "0px") {
           val = computed.getPropertyValue(`constant(safe-area-inset-${prop})`);
         }
@@ -125,27 +245,60 @@ export const useLayoutDimensions = () => {
           return isNaN(numVal) ? 0 : numVal;
         }
 
-        // Fallback values for known devices when safe area isn't detected
-        if (isIPhoneXSize(width, height)) {
+        // Use device-specific fallbacks
+        if (detectedDevice.hasSafeArea) {
+          const safeArea = detectedDevice.safeAreaInsets;
           switch (prop) {
             case "top":
-              return isPortrait ? 44 : 0;
+              return detectedDevice.isPortrait ? safeArea.top : 0;
             case "bottom":
-              return isPortrait ? 34 : 21;
+              return detectedDevice.isPortrait ? safeArea.bottom : (safeArea.bottom > 0 ? 21 : 0);
+            case "left":
+              return detectedDevice.isLandscape ? safeArea.bottom : 0;
+            case "right":
+              return detectedDevice.isLandscape ? safeArea.bottom : 0;
             default:
               return 0;
           }
-        }
+        }        
 
         return 0;
       };
 
-      setSafeAreaInsets({
-        top: getInset("top"),
-        bottom: getInset("bottom"),
-        left: getInset("left"),
-        right: getInset("right"),
+      setDeviceState({
+        deviceInfo: detectedDevice,
+        safeAreaInsets: {
+          top: getInset("top"),
+          bottom: getInset("bottom"),
+          left: getInset("left"),
+          right: getInset("right"),
+        },
+        hasModernViewportSupport: supportsModernViewport()
       });
+
+      // Debug logging
+      console.log('Device Detection:', {
+        dimensions: `${width}x${height}`,
+        device: detectedDevice.deviceName,
+        type: detectedDevice.deviceType,
+        orientation: detectedDevice.orientation,
+        category: detectedDevice.deviceCategory,
+        hasNotch: detectedDevice.hasNotch,
+        aspectRatio: detectedDevice.aspectRatio.toFixed(2)
+      });
+
+      setIsPortrait(detectedDevice.isPortrait);
+
+      // Debug logging for iPhone 12 Pro detection
+      if (detectedDevice.deviceName?.includes('iPhone 12 Pro')) {
+        console.log("iPhone 12 Pro detected:", {
+          dimensions: `${width}x${height}`,
+          orientation: detectedDevice.isLandscape ? "landscape" : "portrait",
+          deviceName: detectedDevice.deviceName,
+        });
+      }
+
+
     };
 
     // Initial calculation
@@ -184,29 +337,30 @@ export const useLayoutDimensions = () => {
 
   // Modern viewport-aware content height calculations
   const contentHeight = useMemo(() => {
-    if (hasModernViewportSupport) {
+    if (deviceState.hasModernViewportSupport) {
       return `calc(100dvh - ${headerHeight}px - ${footerHeight}px)`;
     }
     return `calc(100vh - ${headerHeight}px - ${footerHeight}px)`;
-  }, [hasModernViewportSupport, headerHeight, footerHeight]);
+  }, [deviceState.hasModernViewportSupport, headerHeight, footerHeight]);
+
 
   const contentHeightWithPadding = useMemo(() => {
-    if (hasModernViewportSupport) {
+    if (deviceState.hasModernViewportSupport) {
       return `calc(100dvh - ${headerHeight}px - ${footerHeight}px - 2rem)`;
     }
     return `calc(100vh - ${headerHeight}px - ${footerHeight}px - 2rem)`;
-  }, [hasModernViewportSupport, headerHeight, footerHeight]);
+  }, [deviceState.hasModernViewportSupport, headerHeight, footerHeight]);
 
   // Safe content height that accounts for safe areas
   const safeContentHeight = useMemo(() => {
-    const safeTop = safeAreaInsets.top || 0;
-    const safeBottom = safeAreaInsets.bottom || 0;
+    const safeTop = deviceState.safeAreaInsets.top || 0;
+    const safeBottom = deviceState.safeAreaInsets.bottom || 0;
 
-    if (hasModernViewportSupport) {
+    if (deviceState.hasModernViewportSupport) {
       return `calc(100dvh - ${headerHeight}px - ${footerHeight}px - env(safe-area-inset-top, ${safeTop}px) - env(safe-area-inset-bottom, ${safeBottom}px))`;
     }
     return `calc(100vh - ${headerHeight}px - ${footerHeight}px - ${safeTop}px - ${safeBottom}px)`;
-  }, [hasModernViewportSupport, headerHeight, footerHeight, safeAreaInsets]);
+  }, [deviceState.hasModernViewportSupport, headerHeight, footerHeight, deviceState.safeAreaInsets]);
 
   // Get spacing values for consistent padding
   const spacing = {
@@ -236,44 +390,26 @@ export const useLayoutDimensions = () => {
 
   const responsiveOffset = getResponsiveOffset();
   const sideOffset = responsiveOffset;
-  const topOffset = headerHeight + responsiveOffset + safeAreaInsets.top;
-  const bottomOffset = footerHeight + responsiveOffset + safeAreaInsets.bottom;
+  const topOffset = headerHeight + responsiveOffset + deviceState.safeAreaInsets.top;
+  const bottomOffset = footerHeight + responsiveOffset + deviceState.safeAreaInsets.bottom;
   const verticalOffset = `calc(${topOffset}px + ${bottomOffset}px)`;
 
   // Enhanced safe offsets with proper mobile calculations
   const safeOffsets = {
-    top: `calc(${headerHeight}px + env(safe-area-inset-top, ${safeAreaInsets.top}px) + ${theme.spacing(2)})`,
-    bottom: `calc(${footerHeight}px + env(safe-area-inset-bottom, ${safeAreaInsets.bottom}px) + ${theme.spacing(2)})`,
-    left: `calc(env(safe-area-inset-left, ${safeAreaInsets.left}px) + ${theme.spacing(2)})`,
-    right: `calc(env(safe-area-inset-right, ${safeAreaInsets.right}px) + ${theme.spacing(2)})`,
+    top: `calc(${headerHeight}px + env(safe-area-inset-top, ${deviceState.safeAreaInsets.top}px) + ${theme.spacing(2)})`,
+    bottom: `calc(${footerHeight}px + env(safe-area-inset-bottom, ${deviceState.safeAreaInsets.bottom}px) + ${theme.spacing(2)})`,
+    left: `calc(env(safe-area-inset-left, ${deviceState.safeAreaInsets.left}px) + ${theme.spacing(2)})`,
+    right: `calc(env(safe-area-inset-right, ${deviceState.safeAreaInsets.right}px) + ${theme.spacing(2)})`,
     sideOffset,
     topOffset,
     bottomOffset,
     verticalOffset,
     // Additional mobile-specific offsets
-    mobileTop: `calc(${headerHeight}px + ${Math.max(safeAreaInsets.top, 8)}px + ${theme.spacing(1)})`,
-    mobileBottom: `calc(${footerHeight}px + ${Math.max(safeAreaInsets.bottom, 8)}px + ${theme.spacing(1)})`,
+    mobileTop: `calc(${headerHeight}px + ${Math.max(deviceState.safeAreaInsets.top, 8)}px + ${theme.spacing(1)})`,
+    mobileBottom: `calc(${footerHeight}px + ${Math.max(deviceState.safeAreaInsets.bottom, 8)}px + ${theme.spacing(1)})`,
   };
 
-  const isTallScreen = height > 900;
-  const isIPhoneSE = width === 375 && height === 667;
 
-  // Small screen detection logic
-  const isSmallScreen = (() => {
-    // Very small devices (iPhone SE and similar)
-    if (height < 600) return true;
-
-    // Small portrait screens
-    if (isPortrait && height < 700 && isMobile) return true;
-
-    // Small landscape screens
-    if (!isPortrait && height < 500) return true;
-
-    // iPhone SE specifically
-    if (isIPhoneSE) return true;
-
-    return false;
-  })();
 
   return {
     // Basic dimensions
@@ -291,36 +427,84 @@ export const useLayoutDimensions = () => {
     isSmallMobile,
     isMediumMobile,
     isLargeMobile,
+    // Generic device information
+    device: deviceState.deviceInfo || {},
 
-    // Device detection
-    isIPhoneXOrSimilar,
-    isPortrait,
-    isSmallScreen,
-    isTallScreen,
-    isIPhoneSE,
+    // Quick access to common properties
+    isPortrait: deviceState.deviceInfo?.isPortrait || height >= width,
+    isLandscape: deviceState.deviceInfo?.isLandscape || width > height,
+    orientation: deviceState.deviceInfo?.orientation || (width > height ? 'landscape' : 'portrait'),
 
-    // Viewport support
-    hasModernViewportSupport,
+    // Device characteristics
+    deviceName: deviceState.deviceInfo?.deviceName || 'Unknown Device',
+    deviceType: deviceState.deviceInfo?.deviceType || 'unknown',
+    deviceCategory: deviceState.deviceInfo?.deviceCategory || 'unknown',
+    hasNotch: deviceState.deviceInfo?.hasNotch || false,
+    hasSafeArea: deviceState.deviceInfo?.hasSafeArea || false,
+    aspectRatio: deviceState.deviceInfo?.aspectRatio || 1,
+
+    // Screen size categories
+    isSmallScreen: deviceState.deviceInfo?.isSmallScreen || false,
+    isMediumScreen: deviceState.deviceInfo?.isMediumScreen || false,
+    isLargeScreen: deviceState.deviceInfo?.isLargeScreen || false,
+    isWideScreen: deviceState.deviceInfo?.isWideScreen || false,
+    // Safe areas
+    safeAreaInsets: deviceState.safeAreaInsets,
+    hasModernViewportSupport: deviceState.hasModernViewportSupport,
+
+    // Utility functions
+    isSpecificDevice: (deviceName) => {
+      return deviceState.deviceInfo?.deviceName?.toLowerCase().includes(deviceName.toLowerCase()) || false;
+    },
+
+    isDeviceInLandscape: () => {
+      return deviceState.deviceInfo?.isLandscape || false;
+    },
+
+    isDeviceInPortrait: () => {
+      return deviceState.deviceInfo?.isPortrait || false;
+    },
+
+    // Helper to check if current device matches specific dimensions
+    matchesDimensions: (targetWidth, targetHeight) => {
+      return (width === targetWidth && height === targetHeight) ||
+             (width === targetHeight && height === targetWidth);
+    },
+
+    // Get device-specific safe offsets
+    getSafeOffset: (side) => {
+      const spacing = theme.spacing(2);
+      const inset = deviceState.safeAreaInsets[side] || 0;
+
+      switch (side) {
+        case 'top':
+          return `calc(${headerHeight}px + ${inset}px + ${spacing})`;
+        case 'bottom':
+          return `calc(${footerHeight}px + ${inset}px + ${spacing})`;
+        default:
+          return `calc(${inset}px + ${spacing})`;
+      }
+    },
 
     // Layout utilities
     spacing,
-    safeAreaInsets,
+    // safeAreaInsets,
     safeOffsets,
     windowSize,
 
     // Modern viewport helper functions
     getContentHeightWithOffset: (offset = 0) => {
-      if (hasModernViewportSupport) {
+      if (deviceState.hasModernViewportSupport) {
         return `calc(100dvh - ${headerHeight}px - ${footerHeight}px - ${offset}px)`;
       }
       return `calc(100vh - ${headerHeight}px - ${footerHeight}px - ${offset}px)`;
     },
 
     getSafeContentHeightWithOffset: (offset = 0) => {
-      const safeTop = safeAreaInsets.top || 0;
-      const safeBottom = safeAreaInsets.bottom || 0;
+      const safeTop = deviceState.safeAreaInsets.top || 0;
+      const safeBottom = deviceState.safeAreaInsets.bottom || 0;
 
-      if (hasModernViewportSupport) {
+      if (deviceState.hasModernViewportSupport) {
         return `calc(100dvh - ${headerHeight}px - ${footerHeight}px - env(safe-area-inset-top, ${safeTop}px) - env(safe-area-inset-bottom, ${safeBottom}px) - ${offset}px)`;
       }
       return `calc(100vh - ${headerHeight}px - ${footerHeight}px - ${safeTop}px - ${safeBottom}px - ${offset}px)`;
@@ -335,10 +519,10 @@ export const useLayoutDimensions = () => {
       "--footer-height": `${footerHeight}px`,
       "--content-height": contentHeight,
       "--safe-content-height": safeContentHeight,
-      "--safe-area-inset-top": `${safeAreaInsets.top}px`,
-      "--safe-area-inset-bottom": `${safeAreaInsets.bottom}px`,
-      "--safe-area-inset-left": `${safeAreaInsets.left}px`,
-      "--safe-area-inset-right": `${safeAreaInsets.right}px`,
+      "--safe-area-inset-top": `${deviceState.safeAreaInsets.top}px`,
+      "--safe-area-inset-bottom": `${deviceState.safeAreaInsets.bottom}px`,
+      "--safe-area-inset-left": `${deviceState.safeAreaInsets.left}px`,
+      "--safe-area-inset-right": `${deviceState.safeAreaInsets.right}px`,
     },
 
     // Enhanced breakpoint helpers

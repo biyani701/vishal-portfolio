@@ -47,9 +47,9 @@ const AnimatedAvatar = styled(Avatar)(({ theme }) => {
     // Responsive sizing
     // Very small mobile screens
     "@media (max-width: 375px)": {
-      width: 70,
-      height: 70,
-      border: `3px solid ${theme.palette.primary.main}`,
+      width: 60,
+      height: 60,
+      border: `3px solid ${theme.palette.primary.main}`,      
     },
 
     // Small mobile portrait
@@ -133,8 +133,9 @@ const ResponsiveAvatar = ({ src, alt, ...props }) => {
     if (breakpoints.isMobile && isPortrait) {
       return {
         ...baseStyles,
-        paddingTop: `calc(${headerHeight}px + ${safeAreaInsets.top || 0}px + ${spacing.md})`,
+        // paddingTop: `calc(${headerHeight}px + ${safeAreaInsets.top || 0}px + ${spacing.md})`,        
         display: 'flex',
+        alignItems: 'center',        
         justifyContent: 'center',
         width: '100%',
       };
@@ -144,12 +145,13 @@ const ResponsiveAvatar = ({ src, alt, ...props }) => {
     if (breakpoints.isMobile && !isPortrait) {
       return {
         ...baseStyles,
-        paddingTop: `calc(${headerHeight}px + ${safeAreaInsets.top || 0}px + ${spacing.sm})`,
+        paddingTop: `calc(${headerHeight}px + ${safeAreaInsets.top || 0}px + ${spacing.md})`,
         display: 'flex',
         justifyContent: 'flex-start',
         paddingLeft: spacing.lg,
       };
     }
+    
     if (breakpoints.isTablet) {
       return {
         ...baseStyles,
