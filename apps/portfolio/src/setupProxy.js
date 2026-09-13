@@ -3,12 +3,9 @@ const { createProxyMiddleware } = require('http-proxy-middleware');
 
 module.exports = function(app) {
   // Get the Auth.js server URL from environment variable or use a default for development
-  const AUTH_SERVER_URL = process.env.REACT_APP_AUTH_SERVER_URL || 'http://localhost:3000';
-  // Analytics API URL
-  const ANALYTICS_API_URL = 'https://click-tracker-five.vercel.app';
+  const AUTH_SERVER_URL = process.env.REACT_APP_AUTH_SERVER_URL || 'http://localhost:4000';
 
   console.log(`[Proxy] Using Auth server URL: ${AUTH_SERVER_URL}`);
-  console.log(`[Proxy] Using Analytics API URL: ${ANALYTICS_API_URL}`);
 
   // Enhanced proxy configuration for Auth.js
   const authProxy = createProxyMiddleware({
@@ -56,45 +53,7 @@ module.exports = function(app) {
     }
   });
 
-  // Enhanced proxy configuration for Analytics API
-  const analyticsProxy = createProxyMiddleware({
-    target: ANALYTICS_API_URL,
-    changeOrigin: true,
-    secure: true, // Set to true for production API
-    logLevel: 'debug',
-    pathRewrite: {
-      // No path rewriting needed as we're using the same paths
-    },
-    onProxyReq: (proxyReq, req, res) => {
-      // Add origin header to help with CORS
-      proxyReq.setHeader('origin', 'https://vishal.biyani.xyz');
-
-      // Log the request for debugging
-      console.log(`[Analytics Proxy] Proxying ${req.method} ${req.url} to ${ANALYTICS_API_URL}${req.url}`);
-      console.log(`[Analytics Proxy] Headers:`, proxyReq.getHeaders());
-    },
-    onProxyRes: (proxyRes, req, res) => {
-      // Log the response for debugging
-      console.log(`[Analytics Proxy] Received ${proxyRes.statusCode} for ${req.method} ${req.url}`);
-
-      // Handle CORS headers
-      proxyRes.headers['access-control-allow-origin'] = '*';
-    },
-    onError: (err, req, res) => {
-      console.error('[Analytics Proxy] Error:', err);
-      res.writeHead(500, {
-        'Content-Type': 'text/plain',
-      });
-      res.end(`Analytics Proxy error: ${err.message}`);
-    }
-  });
-
   // Apply the proxy to both /api/auth and /auth paths
   app.use('/api/auth', authProxy);
   app.use('/auth', authProxy);
-
-  // Apply the analytics proxy to /api/track, /api/stats, and /api/user/role paths
-  app.use('/api/track', analyticsProxy);
-  app.use('/api/stats', analyticsProxy);
-  app.use('/api/user/role', analyticsProxy);
 };

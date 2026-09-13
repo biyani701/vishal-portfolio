@@ -30,12 +30,15 @@ const GitHubAuth = () => {
   const theme = useTheme();
   const { mode } = useColorScheme();
 
-  // Handle the GitHub OAuth login
+  // Handle the GitHub OAuth login via the Auth.js backend
   const handleLogin = () => {
     setLoading(true);
     try {
-      const githubAuthUrl = `https://github.com/login/oauth/authorize?client_id=${config.github.clientId}&redirect_uri=${config.github.redirectUri}&scope=user,repo`;
-      window.location.href = githubAuthUrl;
+      sessionStorage.setItem("auth_redirect", window.location.pathname);
+      const callbackUrl = encodeURIComponent(
+        `${window.location.origin}/auth-callback`
+      );
+      window.location.href = `${config.auth.serverUrl}/api/auth/signin/github?callbackUrl=${callbackUrl}`;
     } catch (error) {
       setError("Failed to initiate GitHub login");
       setLoading(false);

@@ -1,11 +1,17 @@
-name: Deploy to Production
+name: Deploy portfolio to GitHub Pages
 on:
   push:
     branches:
       - main
+    paths:
+      - "apps/portfolio/**"
+      - ".github/workflows/deploy-portfolio.yml"
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/portfolio
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -25,13 +31,9 @@ jobs:
           # Set environment to PROD for GitHub Actions builds
           ENVIRONMENT: PROD
           # Required configuration - will cause build to fail if missing
-          REACT_APP_AUTH_SERVER_URL: https://my-next-auth-app-ten.vercel.app
+          REACT_APP_AUTH_SERVER_URL: https://my-oauth-proxy.vercel.app
           # Optional configuration - from GitHub repository variables
           REACT_APP_CLIENT_URL: https://vishal.biyani.xyz
-          REACT_APP_GITHUB_CLIENT_ID: ${{ vars.REACT_APP_GITHUB_CLIENT_ID }}
-          REACT_APP_GOOGLE_CLIENT_ID: ${{ vars.REACT_APP_GOOGLE_CLIENT_ID }}
-          REACT_APP_REDIRECT_URI: ${{ vars.REACT_APP_REDIRECT_URI }}
-          REACT_APP_TOKEN_PROXY_URL: ${{ vars.REACT_APP_TOKEN_PROXY_URL }}
           REACT_APP_COPILOTKIT_PUBLIC_API_KEY: ${{ secrets.REACT_APP_COPILOTKIT_PUBLIC_API_KEY }}
 
       # Copy 404.html to build folder for main site
@@ -169,5 +171,5 @@ jobs:
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
+          publish_dir: ./apps/portfolio/build
           cname: vishal.biyani.xyz

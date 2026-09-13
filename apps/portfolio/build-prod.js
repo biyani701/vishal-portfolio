@@ -58,20 +58,8 @@ const runtimeConfig = {
   AUTH_SERVER_URL,
   CLIENT_ID: process.env.REACT_APP_CLIENT_ID || 'portfolio',
 
-  // Analytics API URL for click tracking
-  ANALYTICS_API_URL: process.env.REACT_APP_ANALYTICS_API_URL || 'https://click-tracker-five.vercel.app/api',
-
   // Client URL (your React app on GitHub Pages)
   CLIENT_URL: process.env.REACT_APP_CLIENT_URL,
-
-  // OAuth Client IDs
-  GITHUB_CLIENT_ID: process.env.REACT_APP_GITHUB_CLIENT_ID,
-  GOOGLE_CLIENT_ID: process.env.REACT_APP_GOOGLE_CLIENT_ID,
-
-  // Legacy URLs (for backward compatibility)
-  REDIRECT_URI: process.env.REACT_APP_REDIRECT_URI,
-  TOKEN_PROXY_URL: process.env.REACT_APP_TOKEN_PROXY_URL,
-  AUTH_URL: process.env.REACT_APP_AUTH_URL,
 
   // Build timestamp for debugging
   BUILD_TIMESTAMP: new Date().toISOString(),
