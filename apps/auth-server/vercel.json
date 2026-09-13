@@ -1,4 +1,5 @@
 {
+  "ignoreCommand": "npx turbo-ignore",
   "env": {
     "NEXTAUTH_URL": "https://my-oauth-proxy.vercel.app"
   },
