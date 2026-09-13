@@ -1,0 +1,14 @@
+# Allow all web crawlers
+User-agent: *
+Allow: /
+
+# Disallow sensitive paths
+Disallow: /api/
+Disallow: /api/auth/
+Disallow: /api/auth/session
+Disallow: /api/auth/signin
+Disallow: /api/auth/signout
+Disallow: /api/auth/callback/
+
+# Sitemap location
+Sitemap: https://my-oauth-proxy.vercel.app/sitemap.xml
