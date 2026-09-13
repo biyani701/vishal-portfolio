@@ -332,6 +332,11 @@ const EnhancedMobileDrawer = ({
   domainKnowledgeData,
   isAuthenticated,
   authJsAuthenticated,
+  isDarkMode,
+  toggleDarkMode,
+  availablePalettes,
+  currentPaletteIndex,
+  changePalette,
   // ... other props
 }) => {
   const navigate = useNavigate();

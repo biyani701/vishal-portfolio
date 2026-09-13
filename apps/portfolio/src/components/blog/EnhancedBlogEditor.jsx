@@ -45,7 +45,7 @@ import {
   FormatListNumbered,
   LooksOne,
   LooksTwo,
-  LooksThree,
+  Looks3 as LooksThree,
   Looks4,
   Looks5,
   Looks6,
