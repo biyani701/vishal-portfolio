@@ -1,0 +1,19 @@
+.navbarWrapper {
+  position: relative;
+}
+
+.themeToggleWrapper {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+}
+
+/* Adjust position for mobile */
+@media (max-width: 996px) {
+  .themeToggleWrapper {
+    right: 70px; /* Leave space for the mobile menu button */
+  }
+}

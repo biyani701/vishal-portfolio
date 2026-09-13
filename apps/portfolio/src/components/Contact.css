@@ -1,0 +1,63 @@
+.footer {
+  width: 100%;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1500;
+  background-color: #1a237e;
+  height: 60px; /* Set an explicit height to match the padding-bottom in .App */
+}
+
+.footer .container {
+  padding: 0 1rem;
+}
+
+.footer-link {
+  color: white !important;
+  text-decoration: none;
+  transition: opacity 0.3s ease;
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.footer-link:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.social-link {
+  color: white !important;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+
+.social-link:hover {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .footer {
+  background-color: #121212;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .footer {
+    padding: 0.5rem 0;
+  }
+  
+  .footer .container {
+    padding: 0 1rem;
+  }
+  
+  .footer .MuiBox-root {
+    gap: 1rem;
+  }
+  
+  .footer-link {
+    font-size: 0.75rem;
+  }
+} 

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Web site created using create-react-app"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link rel="stylesheet" href="%PUBLIC_URL%/klaro.css" />    
+    <!-- Runtime configuration script -->
+    <script src="%PUBLIC_URL%/runtime-config.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Teko:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>Personal Portfolio VB</title>
+    <script type="text/javascript">
+      (function (location) {
+        if (location.search[1] === "/") {
+          var decoded = location.search
+            .slice(1)
+            .split("&")
+            .map(function (s) {
+              return s.replace(/~and~/g, "&");
+            })
+            .join("?");
+          window.history.replaceState(
+            null,
+            null,
+            location.pathname.slice(0, -1) + decoded + location.hash
+          );
+        }
+      })(window.location);
+    </script>
+  </head>
+
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <div id="klaro"></div>
+
+    <!-- Load Klaro config first -->
+    <script src="%PUBLIC_URL%/klaro-config.js"></script>
+
+    <script>
+
+      // Function to safely initialize Klaro
+      function initializeKlaro() {
+        console.log("Attempting to initialize Klaro...");
+
+        if (typeof window.klaro === "undefined") {
+          console.error("Klaro not available yet");
+          return;
+        }
+
+        if (typeof window.klaro.run !== "function") {
+          console.error("Klaro.run is not a function");
+          return;
+        }
+
+        try {
+          console.log("Initializing Klaro with config");
+          window.klaro.run(window.klaroConfig);
+          console.log("Klaro initialized successfully");
+        } catch (error) {
+          console.error("Error initializing Klaro:", error);
+        }
+      }
+
+      // Load Klaro script with proper error handling
+      function loadKlaroScript() {
+        console.log("Loading Klaro script...");
+        const klaroScript = document.createElement("script");
+        // klaroScript.src = "%PUBLIC_URL%/klaro.js";
+        klaroScript.src = "%PUBLIC_URL%/klaro-no-css.js";
+        klaroScript.defer = true;
+        klaroScript.setAttribute('data-klaro-config', 'klaroConfig');
+
+        console.log("Klaro script created:", klaroScript);
+
+        // Check if Klaro script is already loaded
+        klaroScript.onload = function () {
+          console.log("Klaro script loaded successfully");
+          // Wait for both script load and DOM ready
+          if (document.readyState === "complete") {
+            initializeKlaro();
+          } else {
+            window.addEventListener("load", initializeKlaro);
+          }
+        };
+
+        klaroScript.onerror = function () {
+          console.error("Failed to load Klaro script");
+        };
+
+        document.head.appendChild(klaroScript);
+      }
+
+      // Start the process when DOM is ready
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", loadKlaroScript);
+      } else {
+        loadKlaroScript();
+      }
+    </script>
+  </body>
+</html>

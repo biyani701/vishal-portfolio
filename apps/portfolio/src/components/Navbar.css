@@ -1,0 +1,196 @@
+/* Base Navbar Styles */
+.navbar {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  /* background-color: #333;
+  color: white; */
+  padding: 10px 20px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.navbar a {
+  /* color: white; */
+  text-decoration: none;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .navbar .mobile-btn {
+    display: block;
+  }
+
+  .navbar .nav {
+    display: none;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    /* background-color: #333; */
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+  }
+
+  .navbar .nav.show {
+    display: block;
+  }
+
+  .navbar .nav li {
+    margin-bottom: 15px;
+  }
+
+  .navbar .nav li:last-child {
+    margin-bottom: 0;
+  }
+
+  .navbar .nav li a {
+    font-size: 20px;
+    text-transform: capitalize;
+  }
+}
+
+/* Custom styles for Material-UI components */
+/* AppBar in LIGHT MODE */
+/* body.light-mode .MuiAppBar-root {
+  background-color: #1a237e !important; 
+  color: #ffffff;
+} */
+
+/* AppBar in DARK MODE when enableColorOnDark=true */
+/* body.dark-mode .MuiAppBar-root {
+  background-color: #0a1142 !important; 
+  color: #ffffff;
+} */
+
+/* Keep app bar color unchanged in dark mode if data-attribute is set to true */
+/* body.dark-mode .MuiAppBar-root[data-color-on-dark="true"] {
+  background-color: #1a237e !important; 
+} */
+
+/* Drawer styles */
+.MuiDrawer-paper {
+  width: 280px;
+  transition: background-color 0.3s ease;
+}
+
+/* Light mode drawer */
+/* body.light-mode .MuiDrawer-paper {
+  background-color: #ffffff;
+  color: #333333;
+} */
+
+/* Dark mode drawer */
+/* body.dark-mode .MuiDrawer-paper {
+  background-color: #121212;
+  color: #ffffff;
+} */
+
+/* List items in navigation */
+/* .MuiListItem-root {
+  transition: background-color 0.2s ease;
+}
+
+body.light-mode .MuiListItem-root:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+body.dark-mode .MuiListItem-root:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+} */
+
+/* Button styles */
+.MuiButton-root {
+  text-transform: none;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+/* Menu items */
+/* .MuiMenuItem-root {
+  transition: background-color 0.2s ease;
+} */
+
+/* Menu item hover effects */
+/* body.light-mode .MuiMenuItem-root:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+} */
+
+/* body.dark-mode .MuiMenuItem-root:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+} */
+
+/* Main content area padding to account for fixed AppBar */
+main {
+  padding-top: 64px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+@media (max-width: 600px) {
+  main {
+    padding-top: 56px;
+  }
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 64px; /* Accounts for fixed navbar */
+}
+
+@media (max-width: 600px) {
+  html {
+    scroll-padding-top: 56px;
+  }
+}
+
+/* Remove default margin and padding */
+body {
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  min-height: 100vh; /* Fallback */
+  min-height: 100dvh; /* Dynamic viewport height for mobile */
+}
+
+/* Dark mode styles */
+/* body.dark-mode {
+  background-color: #121212;
+  color: #ffffff;
+} */
+
+/* body.light-mode {
+  background-color: #ffffff;
+  color: #000000;
+} */
+
+/* Focus styles for accessibility */
+:focus {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
+}
+
+/* Custom scroll bar for better UX */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  /* background-color: rgba(155, 155, 155, 0.5); */
+  border-radius: 20px;
+}
+
+/* body.dark-mode ::-webkit-scrollbar-thumb {
+  background-color: rgba(155, 155, 155, 0.3);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(155, 155, 155, 0.7);
+} */

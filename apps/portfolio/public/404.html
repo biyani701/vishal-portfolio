@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script type="text/javascript">
+      (function () {
+        const search = window.location.search;
+        const params = new URLSearchParams(search);
+        const debug = params.get("debug") === "true";
+        const code = params.get("code");
+        const state = params.get("state");
+        const error = params.get("error");
+
+        console.log("🚀 404.html loaded");
+        console.log("🔍 Query params:", Object.fromEntries(params.entries()));
+        console.log("🐞 Debug mode:", debug);
+        console.log("📍 Current path:", window.location.pathname);
+
+        // Check if this is a docs path
+        const isDocsPath = window.location.pathname.startsWith('/docs/');
+
+        // Store the full path for the original URL
+        sessionStorage.setItem("redirect", window.location.href);
+        
+        if (isDocsPath) {
+          console.log("📚 Docs path detected:", window.location.pathname);
+          
+          // Extract the path after /docs/
+          const docsSubPath = window.location.pathname.substring(5); // Remove '/docs'
+          
+          // Save the specific docs path for proper handling
+          sessionStorage.setItem("docusaurusPath", docsSubPath);
+          
+          if (docsSubPath === "/" || docsSubPath === "") {
+            console.log("⏩ At docs root");
+          } else {
+            console.log("⏩ Docs subpath:", docsSubPath);
+          }
+        }
+
+        if (code || error) {
+          localStorage.setItem("oauth.code", code ?? "");
+          localStorage.setItem("oauth.state", state ?? "");
+          localStorage.setItem("oauth.error", error ?? "");
+          console.log("💾 Stored OAuth info in localStorage");
+        }
+
+        // Check if we're already on the callback path to prevent infinite loops
+        const isCallbackPath = window.location.pathname.includes('/callback');
+
+        if (code && !isCallbackPath) {
+          // Store the code in localStorage but don't redirect to callback again
+          console.log("↪️ OAuth code detected, will be handled by main app");
+          // We'll let the main app handle the redirect to avoid loops
+        }
+
+        if (!debug) {
+          // Handle docs paths correctly - without creating redirect loops
+          if (isDocsPath) {
+            const docsPath = window.location.pathname;
+            const isDocsIndex = docsPath === "/docs/" || docsPath === "/docs";
+            
+            if (!isDocsIndex) {
+              // We're trying to access a specific docs page, don't redirect to root
+              console.log("⏩ Redirecting to docs home with path information...");
+              const targetUrl = "/docs/?path=" + encodeURIComponent(docsPath.substring(6));
+              setTimeout(() => {
+                window.location.href = targetUrl;
+              }, 100);
+            } else {
+              // We're already at docs index, don't redirect
+              console.log("✅ Already at docs index");
+            }
+          }
+          // Always redirect to home page for OAuth flows
+          else if (code) {
+            console.log("⏩ OAuth flow detected, redirecting to home page...");
+            setTimeout(() => {
+              window.location.href = "/";
+            }, 100);
+          }
+          // For other 404s, redirect to home
+          else {
+            console.log("⏩ No special case, going to home page...");
+            setTimeout(() => {
+              window.location.href = "/";
+            }, 100);
+          }
+        } else {
+          console.log("🛑 Debug mode — staying on this page.");
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <p>Redirecting... If you are not redirected automatically, <a href="/">click here</a>.</p>
+    <script>
+      // Add support for handling internal Docusaurus navigation after initial load
+      if (window.location.pathname.startsWith('/docs/')) {
+        document.write('<script src="/docs/docusaurus.js" defer><\/script>');
+      }
+    </script>
+  </body>
+</html>

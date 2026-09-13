@@ -1,0 +1,100 @@
+/* ProfileSummary section styles */
+.summary-section {
+    padding: 4rem 0;
+    background-color: var(--background-color, #f5f7fa);
+  }
+  
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+  }
+  
+  /* Enhance card transitions */
+  .MuiCard-root {
+    transition: all 0.3s ease-in-out !important;
+  }
+  
+  .MuiCard-root:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2) !important;
+    border-left: 4px solid var(--primary-color, #3f51b5) !important;
+  }
+  
+  /* Custom styling for chips */
+  .MuiChip-outlined {
+    border-width: 1px !important;
+    font-weight: 500 !important;
+  }
+  
+  /* Custom avatar styling */
+  .profile-avatar {
+    background-color: var(--primary-color, #3f51b5) !important;
+    color: white !important;
+  }
+  
+  /* Custom styling for section dividers */
+  .section-divider {
+    margin: 1rem 0 !important;
+    background-color: rgba(0, 0, 0, 0.08) !important;
+  }
+  
+  /* Custom styling for section titles */
+  .section-title {
+    position: relative;
+    padding-left: 16px;
+    margin-bottom: 24px;
+    font-weight: 600 !important;
+  }
+  
+  .section-title::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background-color: var(--primary-color, #3f51b5);
+    border-radius: 4px;
+  }
+  
+  /* Passion statement styling */
+  .passion-text {
+    font-style: italic;
+    color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.02);
+    padding: 16px;
+    border-radius: 4px;
+    max-width: 800px;
+    margin: 32px auto 0;
+    text-align: center;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 960px) {
+    .summary-section {
+      padding: 2rem 0;
+    }
+    
+    .MuiGrid-item {
+      margin-bottom: 16px;
+    }
+  }
+  
+  /* Dark mode support */
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background-color: #121212;
+      --primary-color: #90caf9;
+    }
+    
+    .passion-text {
+      color: rgba(255, 255, 255, 0.7);
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    
+    .section-divider {
+      background-color: rgba(255, 255, 255, 0.12) !important;
+    }
+  }
