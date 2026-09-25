@@ -13,7 +13,8 @@ async function lint(fixture: string, path: string) {
   return result!.messages.map((m) => ({ rule: m.ruleId, message: m.message }))
 }
 
-describe('UF-3 lint guards', () => {
+// The first lint loads ESLint and typescript-eslint cold, which can exceed 5s while the browser tests run alongside.
+describe('UF-3 lint guards', { timeout: 30_000 }, () => {
   it.each([
     ['radix-import.tsx', '@radix-ui/react-dialog'],
     ['radix-ui-import.tsx', 'radix-ui'],
@@ -53,6 +54,25 @@ describe('UF-3 lint guards', () => {
   it('allows arbitrary Tailwind values in src/design and src/ui', async () => {
     expect(await lint('arbitrary-value.tsx', 'src/design/fixture.tsx')).toEqual([])
     expect(await lint('arbitrary-value.tsx', 'src/ui/fixture.tsx')).toEqual([])
+  })
+
+  it('rejects AI icons everywhere (§4.4)', async () => {
+    for (const path of ['src/routes/fixture.tsx', 'src/ui/fixture.tsx', 'src/routes/home.tsx']) {
+      expect(await lint('ai-icon.tsx', path)).toEqual([
+        { rule: 'no-restricted-imports', message: expect.stringContaining("'Sparkles' import from 'lucide-react' is restricted") },
+      ])
+    }
+  })
+
+  it('allows the Portrait only in the Home hero (DD-4)', async () => {
+    for (const path of ['src/routes/about.tsx', 'src/ui/fixture.tsx', 'src/components/ProjectCard.tsx']) {
+      expect(await lint('portrait-import.tsx', path)).toEqual([
+        { rule: 'no-restricted-imports', message: expect.stringContaining('DD-4') },
+      ])
+    }
+    for (const path of ['src/routes/home.tsx', 'src/components/home/Hero.tsx']) {
+      expect(await lint('portrait-import.tsx', path)).toEqual([])
+    }
   })
 
   it('accepts token utilities, arbitrary variants and non-class strings', async () => {

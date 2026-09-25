@@ -5,17 +5,17 @@
 - [x] 1.3 Add ESLint 9 flat config with the UF-3 guards (forbidden imports, `@base-ui/react` only in `src/ui`, no `asChild`, no arbitrary Tailwind values outside `src/design`/`src/ui`); verify fixture files violating each rule fail lint
 - [x] 1.4 Add the Playwright harness with the 9-viewport matrix and a route list fixture (no-overflow and header-overlap assertions); verify it runs green against the placeholder
 - [x] 1.5 Configuration: `VITE_*` variables, `runtime-config.js` loader, and a required-variable check at build; verify that a missing `VITE_API_BASE_URL` fails the build with its name
-- [ ] 1.6 CI workflow for `apps/web` (Node 22, pnpm: lint, typecheck, test, build, e2e) plus a Vercel preview per PR; verify a PR shows all checks and a preview URL; production Pages deploy stays on `apps/portfolio`
+- [x] 1.6 CI workflow for `apps/web` (Node 22, pnpm: lint, typecheck, test, build, e2e) plus a Vercel preview per PR; verify a PR shows all checks and a preview URL; production Pages deploy stays on `apps/portfolio`
 
 ## 2. P2 — Design system
 
-- [ ] 2.1 `src/design/tokens.css`: the §4 light and dark tokens, the four `@custom-variant` modes and the no-flash theme script in `index.html`; verify a token snapshot test and that the dark theme applies before first paint (Playwright with emulated dark scheme)
-- [ ] 2.2 Self-host Bricolage Grotesque, Newsreader and JetBrains Mono (woff2 subsets, preload); verify fallback rendering with fonts blocked
-- [ ] 2.3 `shadcn init --base base`, then add Button, Dialog, AlertDialog, Drawer, Popover, PreviewCard, Menu, ContextMenu, NavigationMenu, Autocomplete, Combobox, Select, Tabs, Tooltip, Toast, Collapsible, Accordion, Field/Form/Input/Checkbox/RadioGroup, ToggleGroup, ScrollArea and Separator, restyled with Programme tokens and `cva`; verify none import Radix/vaul/cmdk
-- [ ] 2.4 Contract tests for Dialog, Drawer, Menu, Autocomplete, Popover, Tabs and Toast (focus trap/restore, Escape, outside click, keyboard navigation, 44px targets); verify all pass
-- [ ] 2.5 StatusChip, Portrait (DD-4 guard), Lucide icon wrapper and motion helpers (`Reveal`, reduced-motion gate); verify unit tests, including reduced motion
-- [ ] 2.6 `/_dev/ui` gallery (dev only) showing every component in light and dark; verify axe finds no violations there
-- [ ] 2.7 Add the UI rule block to `CLAUDE.md` and `AGENTS.md` (Base UI 1.x, `render` not `asChild`, `shadcn add`, tokens only); verify both files contain it
+- [x] 2.1 `src/design/tokens.css`: the §4 light and dark tokens, the four `@custom-variant` modes and the no-flash theme script in `index.html`; verify a token snapshot test and that the dark theme applies before first paint (Playwright with emulated dark scheme)
+- [x] 2.2 Self-host Bricolage Grotesque, Newsreader and JetBrains Mono (woff2 subsets, preload); verify fallback rendering with fonts blocked
+- [x] 2.3 `shadcn init --base base`, then add Button, Dialog, AlertDialog, Drawer, Popover, PreviewCard, Menu, ContextMenu, NavigationMenu, Autocomplete, Combobox, Select, Tabs, Tooltip, Toast, Collapsible, Accordion, Field/Form/Input/Checkbox/RadioGroup, ToggleGroup, ScrollArea and Separator, restyled with Programme tokens and `cva`; verify none import Radix/vaul/cmdk
+- [x] 2.4 Contract tests for Dialog, Drawer, Menu, Autocomplete, Popover, Tabs and Toast (focus trap/restore, Escape, outside click, keyboard navigation, 44px targets); verify all pass
+- [x] 2.5 StatusChip, Portrait (DD-4 guard), Lucide icon wrapper and motion helpers (`Reveal`, reduced-motion gate); verify unit tests, including reduced motion
+- [x] 2.6 `/_dev/ui` gallery (dev only) showing every component in light and dark; verify axe finds no violations there
+- [x] 2.7 Add the UI rule block to `CLAUDE.md` and `AGENTS.md` (Base UI 1.x, `render` not `asChild`, `shadcn add`, tokens only); verify both files contain it
 
 ## 3. P3 — Layout foundation
 

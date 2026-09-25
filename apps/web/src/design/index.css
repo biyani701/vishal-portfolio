@@ -1,2 +1,7 @@
-/* Tailwind v4 entry. Programme tokens (@theme, themes, @custom-variant modes) arrive in P2.1 via tokens.css. */
+/* Tailwind v4 entry: the framework, the self-hosted fonts, then the Programme tokens (§4) that replace its defaults. */
 @import 'tailwindcss';
+@import './fonts.css';
+@import './tokens.css';
+/* Enter/exit animations and the Base UI state variants (data-open:, data-checked:, …) used by src/ui. */
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';

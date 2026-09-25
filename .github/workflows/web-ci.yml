@@ -57,14 +57,15 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
-      - name: Unit tests
+      # Chromium runs both the src/ui contract tests (Vitest browser mode) and the Playwright matrix.
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Unit and contract tests
         run: pnpm test
 
       - name: Build
         run: pnpm build
-
-      - name: Install Playwright browser
-        run: pnpm exec playwright install --with-deps chromium
 
       - name: Playwright viewport matrix
         run: pnpm e2e
