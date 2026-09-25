@@ -1,2 +1,3 @@
-/* Tailwind v4 entry. Programme tokens (@theme, themes, @custom-variant modes) arrive in P2.1 via tokens.css. */
+/* Tailwind v4 entry: the framework, then the Programme tokens (§4) that replace its defaults. */
 @import 'tailwindcss';
+@import './tokens.css';

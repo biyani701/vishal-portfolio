@@ -9,7 +9,7 @@
 
 ## 2. P2 — Design system
 
-- [ ] 2.1 `src/design/tokens.css`: the §4 light and dark tokens, the four `@custom-variant` modes and the no-flash theme script in `index.html`; verify a token snapshot test and that the dark theme applies before first paint (Playwright with emulated dark scheme)
+- [x] 2.1 `src/design/tokens.css`: the §4 light and dark tokens, the four `@custom-variant` modes and the no-flash theme script in `index.html`; verify a token snapshot test and that the dark theme applies before first paint (Playwright with emulated dark scheme)
 - [ ] 2.2 Self-host Bricolage Grotesque, Newsreader and JetBrains Mono (woff2 subsets, preload); verify fallback rendering with fonts blocked
 - [ ] 2.3 `shadcn init --base base`, then add Button, Dialog, AlertDialog, Drawer, Popover, PreviewCard, Menu, ContextMenu, NavigationMenu, Autocomplete, Combobox, Select, Tabs, Tooltip, Toast, Collapsible, Accordion, Field/Form/Input/Checkbox/RadioGroup, ToggleGroup, ScrollArea and Separator, restyled with Programme tokens and `cva`; verify none import Radix/vaul/cmdk
 - [ ] 2.4 Contract tests for Dialog, Drawer, Menu, Autocomplete, Popover, Tabs and Toast (focus trap/restore, Escape, outside click, keyboard navigation, 44px targets); verify all pass

@@ -14,15 +14,20 @@ export default defineConfig({
     baseURL: `http://localhost:${port}`,
     trace: 'retain-on-failure',
   },
-  projects: viewports.map((viewport) => ({
-    name: viewportName(viewport),
-    use: {
-      ...devices['Desktop Chrome'],
-      viewport: { width: viewport.width, height: viewport.height },
-      isMobile: viewport.touch,
-      hasTouch: viewport.touch,
-    },
-  })),
+  projects: [
+    ...viewports.map((viewport) => ({
+      name: viewportName(viewport),
+      testIgnore: /theme\.spec\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: viewport.width, height: viewport.height },
+        isMobile: viewport.touch,
+        hasTouch: viewport.touch,
+      },
+    })),
+    // Viewport-independent checks run once.
+    { name: 'theme', testMatch: /theme\.spec\.ts/, use: { ...devices['Desktop Chrome'] } },
+  ],
   webServer: {
     command: `pnpm preview --port ${port} --strictPort`,
     url: `http://localhost:${port}`,
