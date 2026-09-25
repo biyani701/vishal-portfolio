@@ -25,7 +25,7 @@ describe('AppShell', () => {
     expect(main).toHaveAttribute('id', 'main')
     expect(screen.getByRole('link', { name: 'Skip to content' })).toHaveAttribute('href', '#main')
     expect(screen.getByRole('banner')).toContainElement(screen.getByRole('link', { name: 'Vishal Biyani' }))
-    expect(screen.getByRole('banner')).toContainElement(screen.getByRole('group', { name: 'Theme' }))
+    expect(screen.getByRole('banner')).toContainElement(screen.getByRole('button', { name: /^Theme: / }))
     expect(screen.getByRole('contentinfo')).toBeInTheDocument()
   })
 

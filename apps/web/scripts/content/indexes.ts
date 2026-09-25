@@ -1,26 +1,10 @@
 import { milestonesOf, periodLabel, roleDates, roleStatus } from '../../content/derive.ts'
+import type { SearchEntry, SearchIndex } from '../../content/schema.ts'
 import type { Content } from './load.ts'
 
 // Build artefacts (design.md "System architecture"): /search-index.json feeds the ⌘K palette, and
 // /ai-context.json is the only corpus Ask's tools read. Both are built from the published records only, in a
 // fixed order and without timestamps, so the same content always produces byte-identical files.
-
-export type SearchGroup = 'page' | 'role' | 'project' | 'article' | 'topic' | 'term'
-
-export interface SearchEntry {
-  id: string
-  group: SearchGroup
-  title: string
-  /** Secondary line, e.g. a term's full form or a project's summary. */
-  summary: string
-  url: string
-  keywords: string[]
-}
-
-export interface SearchIndex {
-  version: 1
-  entries: SearchEntry[]
-}
 
 const PAGES: [path: string, title: string, summary: string][] = [
   ['/', 'Home', 'Who Vishal is, the Programme Line and selected work'],

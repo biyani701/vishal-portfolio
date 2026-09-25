@@ -12,6 +12,7 @@ describe('resolveConfig', () => {
       apiBaseUrl: 'https://api.example.test',
       authServerUrl: 'https://auth.example.test',
       authClientId: 'portfolio',
+      authProviders: 'github,google',
       analyticsApiUrl: undefined,
     })
   })

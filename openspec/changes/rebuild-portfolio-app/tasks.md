@@ -33,10 +33,10 @@
 
 ## 5. P5 — Navigation shell and auth
 
-- [ ] 5.1 Navigation in three compositions (desktop NavigationMenu; Drawer for tablet/mobile; 44px compact bar) with current-section indication; verify the Playwright nav flows in each mode
-- [ ] 5.2 Command palette (Dialog + Autocomplete) over the search index, with the "Ask: …" option stubbed until P11; verify ⌘K opens it, results are grouped, and the keyboard works
+- [x] 5.1 Navigation in three compositions (desktop NavigationMenu; Drawer for tablet/mobile; 44px compact bar) with current-section indication; verify the Playwright nav flows in each mode
+- [x] 5.2 Command palette (Dialog + Autocomplete) over the search index, with the "Ask: …" option stubbed until P11; verify ⌘K opens it, results are grouped, and the keyboard works
 - [ ] 5.3 AuthProvider using the existing Auth.js endpoints; SignInPanel; AccountMenu; `/account`; callback routes at their existing paths; verify a GitHub sign-in round trip against the auth server on a preview
-- [ ] 5.4 Footer and legal links; verify links resolve and the footer stays static in all modes
+- [x] 5.4 Footer and legal links; verify links resolve and the footer stays static in all modes
 
 ## 6. P6 — Home and Programme Line
 

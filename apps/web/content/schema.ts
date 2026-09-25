@@ -159,3 +159,21 @@ export const markdownCollections = {
   writing: articleMetaSchema,
   knowledge: topicMetaSchema,
 } as const
+
+/** /search-index.json, built by scripts/content/indexes.ts for the ⌘K palette. */
+export type SearchGroup = 'page' | 'role' | 'project' | 'article' | 'topic' | 'term'
+
+export interface SearchEntry {
+  id: string
+  group: SearchGroup
+  title: string
+  /** Secondary line, e.g. a term's full form or a project's summary. */
+  summary: string
+  url: string
+  keywords: string[]
+}
+
+export interface SearchIndex {
+  version: 1
+  entries: SearchEntry[]
+}
