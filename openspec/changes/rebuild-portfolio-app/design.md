@@ -67,7 +67,7 @@ apps/web/
 - Dark mode comes from a `data-theme` attribute plus `prefers-color-scheme`. An inline script in `index.html` applies the saved or OS theme before first paint.
 - Layout modes are `@custom-variant`s; `useLayoutMode` reads the same query strings through `matchMedia`.
 - shadcn components are generated with `init --base base`. They are restyled to Programme tokens, and their variants are defined with `cva`.
-- Lint guards enforce UF-3: `no-restricted-imports` for forbidden packages, a custom rule against `asChild`, and `tailwindcss/no-arbitrary-value` outside `src/design` and `src/ui`.
+- Lint guards enforce UF-3: `no-restricted-imports` for forbidden packages, a custom rule against `asChild`, and a custom `portfolio/no-arbitrary-tailwind` rule outside `src/design` and `src/ui` (chosen over `eslint-plugin-tailwindcss`, whose `no-arbitrary-value` misses arbitrary properties and the v4 `(--var)` shorthand).
 
 ### A4. Programme Line implementation
 - **Data:** a pure function `buildProgramme(roles, milestones, width)` returns segments (x, width, labelInside), milestone clusters (the 12px rule) and axis ticks. It is unit-tested at 288 / 343 / 358 / 500 / 1100 px.
