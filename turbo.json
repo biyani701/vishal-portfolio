@@ -2,12 +2,20 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
-      "outputs": ["build/**", ".next/**", "!.next/cache/**"]
+      "dependsOn": ["^build"],
+      "env": ["VITE_*"],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["dist/**", "build/**", ".next/**", "!.next/cache/**"]
     },
     "dev": {
       "cache": false,
       "persistent": true
     },
-    "lint": {}
+    "lint": {},
+    "typecheck": {},
+    "test": {},
+    "e2e": {
+      "dependsOn": ["build"]
+    }
   }
 }

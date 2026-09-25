@@ -55,7 +55,6 @@
     "build:dev": "powershell -File ./build-dev.ps1",
     "build:prod": "powershell -File ./build-prod.ps1",
     "build:prod:node": "node build-prod.js",
-    "test": "react-scripts test",
     "eject": "react-scripts eject",
     "deploy": "npm run build:prod && gh-pages -d build"
   },
