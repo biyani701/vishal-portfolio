@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "System architecture — rebuilt portfolio",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "browser",
+      "type": "external",
+      "label": "Visitor browser",
+      "sublabel": "SPA · runtime-config",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "web",
+      "type": "frontend",
+      "label": "apps/web",
+      "sublabel": "GitHub Pages · static",
+      "pos": [
+        320,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ],
+      "tag": "Programme UI"
+    },
+    {
+      "id": "auth",
+      "type": "security",
+      "label": "apps/auth-server",
+      "sublabel": "Auth.js · unchanged",
+      "pos": [
+        320,
+        80
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "apps/api",
+      "sublabel": "Vercel · api subdomain",
+      "pos": [
+        640,
+        300
+      ],
+      "size": [
+        180,
+        64
+      ],
+      "tag": "new (D-9)"
+    },
+    {
+      "id": "llm",
+      "type": "external",
+      "label": "LLM provider",
+      "sublabel": "Anthropic Claude",
+      "pos": [
+        960,
+        140
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "pg",
+      "type": "database",
+      "label": "Postgres",
+      "sublabel": "contact_messages",
+      "pos": [
+        960,
+        300
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "mail",
+      "type": "external",
+      "label": "Email provider",
+      "sublabel": "owner notification",
+      "pos": [
+        960,
+        460
+      ],
+      "size": [
+        170,
+        64
+      ]
+    },
+    {
+      "id": "kv",
+      "type": "database",
+      "label": "KV store",
+      "sublabel": "rate limits · budget",
+      "pos": [
+        640,
+        500
+      ],
+      "size": [
+        180,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Vercel",
+      "wraps": [
+        "auth",
+        "api",
+        "kv"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "b-w",
+      "from": "browser",
+      "to": "web",
+      "label": "HTTPS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "w-a",
+      "from": "web",
+      "to": "auth",
+      "label": "OAuth · session",
+      "variant": "security",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "w-api",
+      "from": "web",
+      "to": "api",
+      "label": "AG-UI · /contact",
+      "variant": "emphasis"
+    },
+    {
+      "id": "api-llm",
+      "from": "api",
+      "to": "llm",
+      "label": "tool calls"
+    },
+    {
+      "id": "api-pg",
+      "from": "api",
+      "to": "pg",
+      "label": "store first",
+      "labelDy": 16
+    },
+    {
+      "id": "api-mail",
+      "from": "api",
+      "to": "mail",
+      "label": "then email",
+      "variant": "dashed"
+    },
+    {
+      "id": "api-kv",
+      "from": "api",
+      "to": "kv",
+      "label": "limits",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Static site, separate services",
+      "items": [
+        "apps/web stays on GitHub Pages; secrets never ship in the bundle",
+        "Agent tools read the published ai-context.json only"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Contact is store-then-notify",
+      "items": [
+        "Success only after the message is stored",
+        "Cron retries undelivered email and purges past retention"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Auth unchanged",
+      "items": [
+        "Auth.js paths and callbacks preserved",
+        "No changes to apps/auth-server"
+      ]
+    }
+  ]
+}

@@ -18,3 +18,17 @@ apps/auth-server/out
 # misc
 .DS_Store
 *.log
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+.beads/proxieddb/
+*.gate.lock*
+
+# apps/web + apps/api build and test output (rebuild-portfolio-app)
+apps/*/dist
+.vercel
+playwright-report/
+test-results/
+blob-report/

@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Component layers — shadcn + Base UI",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "baseui",
+      "type": "external",
+      "label": "Base UI",
+      "sublabel": "@base-ui/react 1.x",
+      "pos": [
+        40,
+        260
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "ui",
+      "type": "frontend",
+      "label": "src/ui",
+      "sublabel": "shadcn · owned source",
+      "pos": [
+        320,
+        260
+      ],
+      "size": [
+        190,
+        64
+      ],
+      "tag": "contract tests"
+    },
+    {
+      "id": "comps",
+      "type": "frontend",
+      "label": "Compositions",
+      "sublabel": "ProgrammeLine · StatusChip",
+      "pos": [
+        600,
+        260
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "sections",
+      "type": "frontend",
+      "label": "Sections",
+      "sublabel": "Hero · CaseStudy · Ask",
+      "pos": [
+        880,
+        260
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "pages",
+      "type": "frontend",
+      "label": "Pages",
+      "sublabel": "thin routes",
+      "pos": [
+        880,
+        440
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "shell",
+      "type": "frontend",
+      "label": "AppShell",
+      "sublabel": "nav · PageShell · footer",
+      "pos": [
+        600,
+        440
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "tokens",
+      "type": "database",
+      "label": "tokens.css",
+      "sublabel": "@theme · modes · themes",
+      "pos": [
+        320,
+        80
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "ck",
+      "type": "external",
+      "label": "CopilotKit v2",
+      "sublabel": "headless hooks",
+      "pos": [
+        600,
+        80
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "content",
+      "type": "database",
+      "label": "Content layer",
+      "sublabel": "typed records",
+      "pos": [
+        880,
+        80
+      ],
+      "size": [
+        190,
+        64
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "b-u",
+      "from": "baseui",
+      "to": "ui",
+      "label": "behaviour",
+      "variant": "emphasis"
+    },
+    {
+      "id": "u-c",
+      "from": "ui",
+      "to": "comps",
+      "variant": "emphasis"
+    },
+    {
+      "id": "c-s",
+      "from": "comps",
+      "to": "sections",
+      "variant": "emphasis"
+    },
+    {
+      "id": "s-p",
+      "from": "sections",
+      "to": "pages",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "variant": "emphasis"
+    },
+    {
+      "id": "p-sh",
+      "from": "pages",
+      "to": "shell",
+      "label": "mounted in"
+    },
+    {
+      "id": "t-u",
+      "from": "tokens",
+      "to": "ui",
+      "label": "styles",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "id": "ck-c",
+      "from": "ck",
+      "to": "comps",
+      "label": "Ask hooks",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "id": "ct-s",
+      "from": "content",
+      "to": "sections",
+      "label": "props",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Behaviour vs identity",
+      "items": [
+        "Base UI supplies focus, keyboard and dismissal behaviour",
+        "Programme identity lives in owned compositions"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Owned, tested primitives",
+      "items": [
+        "Only src/ui may import @base-ui/react",
+        "Contract tests for Dialog, Drawer, Menu, Autocomplete, Popover"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Forbidden",
+      "items": [
+        "No Radix, vaul, cmdk or @base-ui-components/react",
+        "No raw colours, sizes or media queries outside tokens.css"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Ask — AG-UI interaction (Programme)",
+    "viewBox": [
+      1000,
+      640
+    ],
+    "column_fit": "spread",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    {
+      "id": "visitor",
+      "type": "external",
+      "label": "Visitor",
+      "sublabel": "any page"
+    },
+    {
+      "id": "ui",
+      "type": "frontend",
+      "label": "Ask UI",
+      "sublabel": "Programme components"
+    },
+    {
+      "id": "ck",
+      "type": "frontend",
+      "label": "CopilotKit v2",
+      "sublabel": "useAgent · hooks"
+    },
+    {
+      "id": "runtime",
+      "type": "backend",
+      "label": "Runtime",
+      "sublabel": "/api/copilotkit"
+    },
+    {
+      "id": "agent",
+      "type": "backend",
+      "label": "Portfolio agent",
+      "sublabel": "LLM + tools"
+    },
+    {
+      "id": "content",
+      "type": "database",
+      "label": "Content index",
+      "sublabel": "ai-context.json"
+    },
+    {
+      "id": "tally",
+      "type": "external",
+      "label": "Contact form",
+      "sublabel": "Tally"
+    }
+  ],
+  "segments": [
+    {
+      "from": 150,
+      "to": 290,
+      "label": "Ask + context"
+    },
+    {
+      "from": 300,
+      "to": 440,
+      "label": "Tool call → UI"
+    },
+    {
+      "from": 450,
+      "to": 580,
+      "label": "Confirmation"
+    }
+  ],
+  "messages": [
+    {
+      "id": "ask",
+      "from": "visitor",
+      "to": "ui",
+      "y": 165,
+      "label": "question",
+      "variant": "default"
+    },
+    {
+      "id": "run",
+      "from": "ui",
+      "to": "ck",
+      "y": 195,
+      "label": "run + page context",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ann-start",
+      "from": "ui",
+      "to": "visitor",
+      "y": 210,
+      "label": "announce: started",
+      "variant": "return"
+    },
+    {
+      "id": "sse",
+      "from": "ck",
+      "to": "runtime",
+      "y": 235,
+      "label": "RUN_STARTED (AG-UI)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "invoke",
+      "from": "runtime",
+      "to": "agent",
+      "y": 262,
+      "label": "invoke",
+      "variant": "default"
+    },
+    {
+      "id": "tool",
+      "from": "agent",
+      "to": "content",
+      "y": 315,
+      "label": "search_projects",
+      "variant": "emphasis"
+    },
+    {
+      "id": "rows",
+      "from": "content",
+      "to": "agent",
+      "y": 345,
+      "label": "3 records",
+      "variant": "return"
+    },
+    {
+      "id": "events",
+      "from": "agent",
+      "to": "ck",
+      "y": 380,
+      "label": "TOOL_CALL_* + TEXT events",
+      "variant": "return"
+    },
+    {
+      "id": "render",
+      "from": "ck",
+      "to": "ui",
+      "y": 415,
+      "label": "render result card",
+      "variant": "return"
+    },
+    {
+      "id": "ann-done",
+      "from": "ui",
+      "to": "visitor",
+      "y": 438,
+      "label": "announce: 3 sources",
+      "variant": "return"
+    },
+    {
+      "id": "hitl",
+      "from": "agent",
+      "to": "ck",
+      "y": 470,
+      "label": "draft_contact (HITL)",
+      "variant": "security"
+    },
+    {
+      "id": "confirm-ui",
+      "from": "ck",
+      "to": "ui",
+      "y": 496,
+      "label": "confirmation card",
+      "variant": "return"
+    },
+    {
+      "id": "confirm",
+      "from": "visitor",
+      "to": "ui",
+      "y": 522,
+      "label": "confirm",
+      "variant": "default"
+    },
+    {
+      "id": "submit",
+      "from": "ui",
+      "to": "tally",
+      "y": 548,
+      "label": "submit (client)",
+      "variant": "dashed"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "ui",
+      "from": 160,
+      "to": 554,
+      "type": "frontend"
+    },
+    {
+      "participant": "ck",
+      "from": 190,
+      "to": 506,
+      "type": "frontend"
+    },
+    {
+      "participant": "runtime",
+      "from": 230,
+      "to": 268,
+      "type": "backend"
+    },
+    {
+      "participant": "agent",
+      "from": 257,
+      "to": 476,
+      "type": "backend"
+    },
+    {
+      "participant": "content",
+      "from": 310,
+      "to": 350,
+      "type": "database"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Grounded",
+      "items": [
+        "Tools read only the published content index",
+        "Answers cite the records they used"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Native, not themed",
+      "items": [
+        "Questions as headings, answers as serif prose, results as site cards",
+        "Activity = StatusChip + plain-language line; details on expand"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Human in the loop",
+      "items": [
+        "Anything that leaves the site needs explicit confirmation",
+        "Submission happens client-side through the existing Tally form"
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Accessible by design",
+      "items": [
+        "@react-aria/live-announcer: start, tool status, completion",
+        "Never announces tokens; Stop is a real button"
+      ]
+    }
+  ]
+}
