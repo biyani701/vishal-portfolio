@@ -55,3 +55,34 @@ test.describe('OS in light mode', () => {
     await expectTheme(page, 'dark')
   })
 })
+
+// Theme control (task 3.4): the choice survives a reload, and "system" tracks the OS live.
+test.describe('theme control', () => {
+  test.use({ colorScheme: 'light' })
+
+  test('a chosen theme persists across reloads', async ({ page, context }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Dark theme' }).click()
+    await expectTheme(page, 'dark')
+
+    await page.reload()
+    await expectTheme(page, 'dark')
+    await expect(page.getByRole('button', { name: 'Dark theme' })).toHaveAttribute('aria-pressed', 'true')
+    expect(await page.evaluate(() => localStorage.getItem('themeMode'))).toBe('dark')
+    expect((await context.cookies()).find((cookie) => cookie.name === 'themeMode')?.value).toBe('dark')
+  })
+
+  test('"system" follows the OS, including a change while the page is open', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Dark theme' }).click()
+    await page.getByRole('button', { name: 'Match system theme' }).click()
+    await expectTheme(page, 'light')
+
+    await page.emulateMedia({ colorScheme: 'dark' })
+    await expectTheme(page, 'dark')
+
+    await page.reload()
+    await expectTheme(page, 'dark')
+    await expect(page.getByRole('button', { name: 'Match system theme' })).toHaveAttribute('aria-pressed', 'true')
+  })
+})

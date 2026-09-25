@@ -19,10 +19,10 @@
 
 ## 3. P3 — Layout foundation
 
-- [ ] 3.1 `useLayoutMode` with the same queries as the CSS variants; verify unit tests for 932×430, 568×320, 1024×768, 390×844 and 768×1024
-- [ ] 3.2 AppShell (header 64/56/44, static footer, header height published as a CSS variable, `viewport-fit=cover`, safe areas) and PageShell; verify Playwright header-overlap and no-overflow on the placeholder routes
-- [ ] 3.3 `redirects.ts` implementing the full route migration map, and 404 page; verify a test iterates every legacy path and asserts its destination with `replace`
-- [ ] 3.4 Theme control (light/dark/system) with persistence through the existing consent-gated cookie plus local-storage fallback; verify it persists across reloads and follows the OS on "system"
+- [x] 3.1 `useLayoutMode` with the same queries as the CSS variants; verify unit tests for 932×430, 568×320, 1024×768, 390×844 and 768×1024
+- [x] 3.2 AppShell (header 64/56/44, static footer, header height published as a CSS variable, `viewport-fit=cover`, safe areas) and PageShell; verify Playwright header-overlap and no-overflow on the placeholder routes
+- [x] 3.3 `redirects.ts` implementing the full route migration map, and 404 page; verify a test iterates every legacy path and asserts its destination with `replace`
+- [x] 3.4 Theme control (light/dark/system) with persistence through the existing consent-gated cookie plus local-storage fallback; verify it persists across reloads and follows the OS on "system"
 
 ## 4. P4 — Content layer
 

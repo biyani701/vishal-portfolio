@@ -145,6 +145,24 @@
   }
 }
 
+/*
+ * Safe areas (index.html sets viewport-fit=cover): page gutters never fall inside a notch or side cutout, and
+ * the header (shell-header) and footer clear the top and bottom insets. Components use these instead of env() directly.
+ */
+@utility px-page {
+  padding-left: max(var(--spacing-gutter), env(safe-area-inset-left));
+  padding-right: max(var(--spacing-gutter), env(safe-area-inset-right));
+}
+/* The AppShell header box: exactly --shell-header tall (html, below), border included, content under the top inset. */
+@utility shell-header {
+  box-sizing: border-box;
+  height: var(--shell-header);
+  padding-top: env(safe-area-inset-top);
+}
+@utility pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* §4.5 durations as utilities: duration-colour (150ms), duration-reveal (220ms), duration-overlay (320ms). */
 @utility duration-colour {
   transition-duration: var(--duration-colour);
@@ -247,6 +265,9 @@
   }
 
   html {
+    /* Rendered header height (AppShell: top safe area + --spacing-header). Anchor targets scroll to below it. */
+    --shell-header: calc(var(--spacing-header) + env(safe-area-inset-top));
+    scroll-padding-top: var(--shell-header);
     background-color: var(--color-bg);
     color: var(--color-ink);
     font-size: 100%;
