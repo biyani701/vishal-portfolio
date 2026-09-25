@@ -2,3 +2,6 @@
 @import 'tailwindcss';
 @import './fonts.css';
 @import './tokens.css';
+/* Enter/exit animations and the Base UI state variants (data-open:, data-checked:, …) used by src/ui. */
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';

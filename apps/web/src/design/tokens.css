@@ -126,6 +126,23 @@
   --default-transition-duration: 150ms;
 }
 
+/*
+ * §4.3 / responsive spec: interactive targets are at least 44×44 CSS px. Compact controls keep their visual
+ * size and get an invisible, centred hit area of at least --spacing-target. The element (or an ancestor)
+ * must be positioned; src/ui controls add `relative` unless they are already absolute.
+ */
+@utility hit-target {
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: max(100%, var(--spacing-target));
+    height: max(100%, var(--spacing-target));
+    translate: -50% -50%;
+  }
+}
+
 @layer base {
   :root {
     color-scheme: light;

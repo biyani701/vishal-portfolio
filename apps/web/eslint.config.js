@@ -40,6 +40,8 @@ export default defineConfig([
     files: ['src/ui/**/*.{ts,tsx}'],
     rules: {
       'no-restricted-imports': ['error', { patterns: forbiddenPackages }],
+      // shadcn components export their cva variants and hooks next to the components.
+      'react-refresh/only-export-components': 'off',
     },
   },
   {

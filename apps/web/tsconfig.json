@@ -13,5 +13,12 @@
     {
       "path": "./tsconfig.e2e.json"
     }
-  ]
+  ],
+  "compilerOptions": {
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+  }
 }
