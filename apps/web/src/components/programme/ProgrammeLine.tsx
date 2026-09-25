@@ -64,7 +64,7 @@ export function ProgrammeLine({
     <section
       aria-labelledby={headingId}
       className={cn(
-        'flex flex-col gap-4 border-t-2 border-border-strong pt-4 compact-landscape:grid compact-landscape:grid-cols-4 compact-landscape:gap-6',
+        'flex flex-col gap-4 border-t-2 border-border-strong pt-4 compact-landscape:grid compact-landscape:grid-cols-4 compact-landscape:gap-4',
         className,
       )}
     >
@@ -217,13 +217,14 @@ function Lanes({ data, summary }: { data: ProgrammeData; summary: string }) {
 
 function CompactLanes({ data, summary }: { data: ProgrammeData; summary: string }) {
   const [ref, programme, measure] = useProgramme(data, 620)
-  // A summary figure: one link to Experience, no per-segment targets (§6.2).
+  // A summary figure: one link to Experience, no per-segment targets (§6.2). Its padding and the pane gap are
+  // tight so "IFC" fits inside its ~38px segment at 844px (§6.3), with room for Linux's whole-pixel text metrics.
   return (
     <Link
       to="/experience"
       aria-label={`${summary} Open Experience.`}
       data-form="compact"
-      className="hidden rounded-lg border border-border bg-surface px-4 pt-3 pb-2 text-ink hover:border-border-strong compact-landscape:block"
+      className="hidden rounded-lg border border-border bg-surface px-3 pt-3 pb-2 text-ink hover:border-border-strong compact-landscape:block"
     >
       <figure className="flex flex-col gap-2 text-label font-medium">
         <LaneRows programme={programme} measure={measure} compact />
