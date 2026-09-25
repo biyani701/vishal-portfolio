@@ -66,6 +66,43 @@ describe.each(['light', 'dark'] as const)('UiGallery in the %s theme', (theme) =
     expect(await violations()).toEqual([])
   })
 
+  // axe doesn't test non-text contrast, so check WCAG 1.4.11 for form-control outlines directly.
+  it('gives every form-control outline 3:1 against the page', async () => {
+    const rgb = (color: string) => color.match(/[\d.]+/g)!.slice(0, 3).map(Number)
+    const luminance = (color: string) => {
+      const [r, g, b] = rgb(color).map((v) => (v / 255 <= 0.04045 ? v / 255 / 12.92 : ((v / 255 + 0.055) / 1.055) ** 2.4))
+      return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!
+    }
+    const contrast = (a: string, b: string) => {
+      const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x)
+      return (hi! + 0.05) / (lo! + 0.05)
+    }
+    const page = getComputedStyle(document.documentElement).backgroundColor
+    const controls = document.querySelectorAll(
+      '[data-slot="input"], [data-slot="textarea"], [data-slot="input-group"], [data-slot="select-trigger"], [data-slot="checkbox"], [data-slot="radio-group-item"]',
+    )
+    expect(controls.length).toBeGreaterThanOrEqual(8)
+    const outlined = [...controls].filter(
+      (el) => !el.closest('[data-slot="input-group"]') || el.getAttribute('data-slot') === 'input-group',
+    )
+    const weak = outlined
+      .map((el) => ({ slot: el.getAttribute('data-slot'), ratio: contrast(getComputedStyle(el).borderTopColor, page) }))
+      .filter(({ ratio }) => ratio < 3)
+    expect(weak).toEqual([])
+
+    // And the outline is the border-control token itself, not an accidental fallback such as currentColor.
+    const probe = document.createElement('span')
+    probe.style.color = 'var(--color-border-control)'
+    document.body.append(probe)
+    const token = getComputedStyle(probe).color
+    probe.remove()
+    const offToken = outlined
+      .filter((el) => el.getAttribute('aria-invalid') !== 'true' && !el.hasAttribute('data-checked'))
+      .map((el) => ({ slot: el.getAttribute('data-slot'), color: getComputedStyle(el).borderTopColor }))
+      .filter(({ color }) => color !== token)
+    expect(offToken).toEqual([])
+  })
+
   it.each(OVERLAYS)('has no axe violations with the %s open', async (_, open, exempt) => {
     await open()
     expect(await violations(exempt)).toEqual([])
