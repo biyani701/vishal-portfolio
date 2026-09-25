@@ -57,7 +57,22 @@ test('compact landscape lanes fit IFC inside its segment from 844px', async ({ p
   const segments = form(page, 'compact').locator('[data-role]')
   await expect(segments).toHaveCount(5)
   for (const role of ['jpmc', 'ifc', 'bfs-uk', 'corecard']) {
-    await expect(segments.and(page.locator(`[data-role="${role}"]`))).not.toBeEmpty()
+    const segment = segments.and(page.locator(`[data-role="${role}"]`))
+    // On failure, report the geometry: the segment's width and its label measured in the page's font.
+    const metrics = await segment.evaluate((el) => {
+      const style = getComputedStyle(el.parentElement!)
+      const context = document.createElement('canvas').getContext('2d')!
+      context.font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`
+      const label = el.getAttribute('data-role') === 'ifc' ? 'IFC' : ''
+      return {
+        segment: el.getBoundingClientRect().width,
+        track: el.parentElement!.getBoundingClientRect().width,
+        label: context.measureText(label).width,
+        font: context.font,
+        loaded: document.fonts.check(context.font),
+      }
+    })
+    await expect(segment, `${role}: ${JSON.stringify(metrics)}`).not.toBeEmpty()
   }
 })
 
