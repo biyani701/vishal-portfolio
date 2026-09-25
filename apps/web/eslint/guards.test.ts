@@ -13,7 +13,8 @@ async function lint(fixture: string, path: string) {
   return result!.messages.map((m) => ({ rule: m.ruleId, message: m.message }))
 }
 
-describe('UF-3 lint guards', () => {
+// The first lint loads ESLint and typescript-eslint cold, which can exceed 5s while the browser tests run alongside.
+describe('UF-3 lint guards', { timeout: 30_000 }, () => {
   it.each([
     ['radix-import.tsx', '@radix-ui/react-dialog'],
     ['radix-ui-import.tsx', 'radix-ui'],
