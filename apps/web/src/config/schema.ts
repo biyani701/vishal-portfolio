@@ -16,6 +16,8 @@ export const configKeys = {
   apiBaseUrl: { env: 'VITE_API_BASE_URL', runtime: 'API_BASE_URL', required: true, url: true },
   authServerUrl: { env: 'VITE_AUTH_SERVER_URL', runtime: 'AUTH_SERVER_URL', required: true, url: true },
   authClientId: { env: 'VITE_AUTH_CLIENT_ID', runtime: 'CLIENT_ID', required: false, url: false, fallback: 'portfolio' },
+  /** Comma-separated Auth.js provider ids offered on /signin; the auth server's callbacks exist for these two. */
+  authProviders: { env: 'VITE_AUTH_PROVIDERS', runtime: 'AUTH_PROVIDERS', required: false, url: false, fallback: 'github,google' },
   /** Analytics is off when unset. */
   analyticsApiUrl: { env: 'VITE_ANALYTICS_API_URL', runtime: 'ANALYTICS_API_URL', required: false, url: true },
 } as const satisfies Record<string, ConfigKey>

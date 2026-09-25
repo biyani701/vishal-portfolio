@@ -7,6 +7,9 @@ import type { PlaceholderHandle } from './routes/placeholder.tsx'
 const blank = () => null
 const placeholder = () => import('./routes/placeholder.tsx')
 
+// /auth-callback.html is a static file in public/ that forwards here.
+const authCallbackPaths = ['/auth-callback', '/callback', '/auth-success', '/api/auth/callback/github', '/api/auth/callback/google']
+
 // Sections not built yet; each phase swaps its entries for the real route module.
 const placeholders: [path: string, handle: PlaceholderHandle][] = [
   ['/work', { title: 'Work', phase: 'P8' }],
@@ -21,8 +24,6 @@ const placeholders: [path: string, handle: PlaceholderHandle][] = [
   ['/knowledge/:domain/:topic', { title: 'Knowledge topic', phase: 'P9' }],
   ['/ask', { title: 'Ask', phase: 'P11' }],
   ['/contact', { title: 'Contact', phase: 'P10' }],
-  ['/signin', { title: 'Sign in', phase: 'P5' }],
-  ['/account', { title: 'Account', phase: 'P5' }],
   ['/colophon', { title: 'Colophon', phase: 'P5' }],
   ['/legal/privacy', { title: 'Privacy policy', phase: 'P5' }],
   ['/legal/terms', { title: 'Terms of use', phase: 'P5' }],
@@ -35,6 +36,12 @@ export const routes: RouteObject[] = [
     children: [
       { index: true, lazy: () => import('./routes/home.tsx'), HydrateFallback: blank },
       ...placeholders.map(([path, handle]) => ({ path, handle, lazy: placeholder, HydrateFallback: blank })),
+      { path: '/signin', lazy: () => import('./routes/signin.tsx'), HydrateFallback: blank },
+      { path: '/account', lazy: () => import('./routes/account.tsx'), HydrateFallback: blank },
+      // The auth server's contract paths (specs/auth-integration): every callback reads the session the same way.
+      ...authCallbackPaths.map((path) => ({ path, lazy: () => import('./routes/auth-callback.tsx'), HydrateFallback: blank })),
+      { path: '/auth-error', lazy: () => import('./routes/auth-status.tsx').then((m) => ({ Component: m.AuthError })), HydrateFallback: blank },
+      { path: '/logout', lazy: () => import('./routes/auth-status.tsx').then((m) => ({ Component: m.Logout })), HydrateFallback: blank },
       ...redirectRoutes,
       // Unknown paths, including /_dev in production builds (specs/site-navigation "Developer routes").
       { path: '*', lazy: () => import('./routes/not-found.tsx'), HydrateFallback: blank },

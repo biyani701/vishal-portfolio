@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { playwright } from '@vitest/browser-playwright'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
+import { contentPlugin } from './scripts/content/plugin.ts'
 import { envCheck } from './scripts/env-check.ts'
 
 // Pre-bundle everything the browser tests import, so Vite never re-optimises mid-run (which reloads the page
@@ -18,9 +19,12 @@ const baseUiEntries = [
 ]
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), envCheck()],
+  plugins: [react(), tailwindcss(), envCheck(), contentPlugin()],
   resolve: {
-    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@content': fileURLToPath(new URL('./content', import.meta.url)),
+    },
   },
   test: {
     projects: [
@@ -30,7 +34,7 @@ export default defineConfig({
           name: 'unit',
           environment: 'jsdom',
           setupFiles: ['./src/test/setup.ts'],
-          include: ['src/**/*.test.{ts,tsx}', 'eslint/**/*.test.ts', 'scripts/**/*.test.ts'],
+          include: ['src/**/*.test.{ts,tsx}', 'eslint/**/*.test.ts', 'scripts/**/*.test.ts', 'content/**/*.test.ts'],
           exclude: ['src/**/*.contract.test.tsx'],
         },
       },

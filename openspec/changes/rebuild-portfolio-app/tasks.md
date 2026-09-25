@@ -26,23 +26,23 @@
 
 ## 4. P4 — Content layer
 
-- [ ] 4.1 Zod schemas and loaders for profile, roles, milestones, skills, credentials, projects, writing, knowledge and glossary; verify an invalid fixture fails the build with the file and field named
-- [ ] 4.2 Migrate the real content from `apps/portfolio` (Experience, CareerTimeline, Skills, Works, Certifications, Education, Recognition, sampleBlogData, domainKnowledgeData, glossaryData), removing the placeholder `resumeData`; verify record counts (5 projects, 5 engagements, 68 terms, 3 articles, 3 domains)
-- [ ] 4.3 Markdown pipeline (remark/rehype + sanitise + Shiki); verify a fixture article renders headings, a code block and a table
-- [ ] 4.4 Build `search-index.json` and `ai-context.json`; verify both are generated, deterministic, and contain only published fields
+- [x] 4.1 Zod schemas and loaders for profile, roles, milestones, skills, credentials, projects, writing, knowledge and glossary; verify an invalid fixture fails the build with the file and field named
+- [x] 4.2 Migrate the real content from `apps/portfolio` (Experience, CareerTimeline, Skills, Works, Certifications, Education, Recognition, sampleBlogData, domainKnowledgeData, glossaryData), removing the placeholder `resumeData`; verify record counts (5 projects, 5 engagements, 68 terms, 3 articles, 3 domains)
+- [x] 4.3 Markdown pipeline (remark/rehype + sanitise + Shiki); verify a fixture article renders headings, a code block and a table
+- [x] 4.4 Build `search-index.json` and `ai-context.json`; verify both are generated, deterministic, and contain only published fields
 
 ## 5. P5 — Navigation shell and auth
 
-- [ ] 5.1 Navigation in three compositions (desktop NavigationMenu; Drawer for tablet/mobile; 44px compact bar) with current-section indication; verify the Playwright nav flows in each mode
-- [ ] 5.2 Command palette (Dialog + Autocomplete) over the search index, with the "Ask: …" option stubbed until P11; verify ⌘K opens it, results are grouped, and the keyboard works
+- [x] 5.1 Navigation in three compositions (desktop NavigationMenu; Drawer for tablet/mobile; 44px compact bar) with current-section indication; verify the Playwright nav flows in each mode
+- [x] 5.2 Command palette (Dialog + Autocomplete) over the search index, with the "Ask: …" option stubbed until P11; verify ⌘K opens it, results are grouped, and the keyboard works
 - [ ] 5.3 AuthProvider using the existing Auth.js endpoints; SignInPanel; AccountMenu; `/account`; callback routes at their existing paths; verify a GitHub sign-in round trip against the auth server on a preview
-- [ ] 5.4 Footer and legal links; verify links resolve and the footer stays static in all modes
+- [x] 5.4 Footer and legal links; verify links resolve and the footer stays static in all modes
 
 ## 6. P6 — Home and Programme Line
 
-- [ ] 6.1 `buildProgramme` pure function (segments, label-inside rule, 12px milestone clustering, axis); verify unit tests at 288/343/358/500/1100 px
-- [ ] 6.2 ProgrammeLine forms (lanes, compact strip, span rows, table) with `aria-label` and "View as table"; verify Playwright at 320×568, 375×667, 390×844 and 844×390: no overflow, rows ≥ 56px
-- [ ] 6.3 Home sections (hero with portrait, Programme Line, proof ledger, selected work, Ask input, writing/knowledge, contact band) in all four modes; verify against the Programme canvas artboards and that Playwright is green
+- [x] 6.1 `buildProgramme` pure function (segments, label-inside rule, 12px milestone clustering, axis); verify unit tests at 288/343/358/500/1100 px
+- [x] 6.2 ProgrammeLine forms (lanes, compact strip, span rows, table) with `aria-label` and "View as table"; verify Playwright at 320×568, 375×667, 390×844 and 844×390: no overflow, rows ≥ 56px
+- [x] 6.3 Home sections (hero with portrait, Programme Line, proof ledger, selected work, Ask input, writing/knowledge, contact band) in all four modes; verify against the Programme canvas artboards and that Playwright is green
 
 ## 7. P7 — Experience and About
 

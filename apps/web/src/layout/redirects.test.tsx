@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
 import { describe, expect, it } from 'vitest'
@@ -64,7 +64,7 @@ describe('legacy redirects', () => {
 })
 
 describe('not found', () => {
-  it('renders inside the shell with Ask and the main sections', async () => {
+  it('renders inside the shell with search, Ask and the main sections', async () => {
     const router = open('/nope')
     expect(await screen.findByRole('heading', { level: 1, name: 'Page not found' })).toBeInTheDocument()
     expect(screen.getByRole('banner')).toBeInTheDocument()
@@ -73,11 +73,11 @@ describe('not found', () => {
 
     const sections = screen.getByRole('navigation', { name: 'Main sections' })
     for (const name of ['Home', 'Work', 'Experience', 'Writing', 'Knowledge', 'About', 'Ask', 'Contact']) {
-      expect(sections).toContainElement(screen.getByRole('link', { name }))
+      expect(within(sections).getByRole('link', { name })).toBeInTheDocument()
     }
 
     await userEvent.type(screen.getByLabelText('What were you looking for?'), 'fixed price')
-    await userEvent.click(screen.getByRole('button', { name: 'Ask' }))
+    await userEvent.click(within(screen.getByRole('search')).getByRole('button', { name: 'Ask' }))
     await waitFor(() => expect(router.state.location.pathname).toBe('/ask'))
     expect(router.state.location.search).toBe('?q=fixed+price')
   })

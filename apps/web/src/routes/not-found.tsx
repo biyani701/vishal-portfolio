@@ -1,20 +1,27 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
+import { usePalette } from '@/features/search/context.ts'
 import { PageShell } from '@/layout/PageShell.tsx'
 import { sections } from '@/layout/sections.ts'
 import { Button } from '@/ui/button.tsx'
 import { Input } from '@/ui/input.tsx'
 import { Label } from '@/ui/label.tsx'
 
-// specs/site-navigation "Not found": inside the shell, with Ask and links to the main sections. The field
-// hands the question to Ask; P5.2 adds site search over the build-time index through the command palette.
+// specs/site-navigation "Not found": inside the shell, offering search (the ⌘K palette, pre-filled), Ask and
+// links to the main sections.
 export function Component() {
   const { pathname } = useLocation()
   const navigate = useNavigate()
+  const { openPalette } = usePalette()
   const [question, setQuestion] = useState('')
 
-  function ask(event: FormEvent) {
+  // Enter searches; the Ask button hands the question to Ask instead.
+  function search(event: FormEvent) {
     event.preventDefault()
+    openPalette(question.trim())
+  }
+
+  function ask() {
     const q = question.trim()
     navigate(q ? `/ask?${new URLSearchParams({ q })}` : '/ask')
   }
@@ -29,7 +36,7 @@ export function Component() {
         </p>
       </div>
 
-      <form role="search" aria-label="Ask about this site" onSubmit={ask} className="flex max-w-xl flex-col gap-2">
+      <form role="search" aria-label="Search this site" onSubmit={search} className="flex max-w-xl flex-col gap-2">
         <Label htmlFor="not-found-question">What were you looking for?</Label>
         <div className="flex gap-2">
           <Input
@@ -39,7 +46,10 @@ export function Component() {
             onChange={(event) => setQuestion(event.target.value)}
             autoComplete="off"
           />
-          <Button type="submit">Ask</Button>
+          <Button type="submit">Search</Button>
+          <Button type="button" variant="outline" onClick={ask}>
+            Ask
+          </Button>
         </div>
       </form>
 

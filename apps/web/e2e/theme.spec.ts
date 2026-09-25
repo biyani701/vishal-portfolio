@@ -56,26 +56,33 @@ test.describe('OS in light mode', () => {
   })
 })
 
-// Theme control (task 3.4): the choice survives a reload, and "system" tracks the OS live.
+// Theme control (task 3.4): the choice survives a reload, and "system" tracks the OS live. On desktop it is
+// the header's theme menu.
+async function chooseTheme(page: Page, name: 'Light' | 'Dark' | 'System') {
+  await page.getByRole('button', { name: /^Theme: / }).click()
+  await page.getByRole('menuitemradio', { name: `${name} theme` }).click()
+  await expect(page.getByRole('menu')).toBeHidden()
+}
+
 test.describe('theme control', () => {
   test.use({ colorScheme: 'light' })
 
   test('a chosen theme persists across reloads', async ({ page, context }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: 'Dark theme' }).click()
+    await chooseTheme(page, 'Dark')
     await expectTheme(page, 'dark')
 
     await page.reload()
     await expectTheme(page, 'dark')
-    await expect(page.getByRole('button', { name: 'Dark theme' })).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByRole('button', { name: 'Theme: Dark' })).toBeVisible()
     expect(await page.evaluate(() => localStorage.getItem('themeMode'))).toBe('dark')
     expect((await context.cookies()).find((cookie) => cookie.name === 'themeMode')?.value).toBe('dark')
   })
 
   test('"system" follows the OS, including a change while the page is open', async ({ page }) => {
     await page.goto('/')
-    await page.getByRole('button', { name: 'Dark theme' }).click()
-    await page.getByRole('button', { name: 'Match system theme' }).click()
+    await chooseTheme(page, 'Dark')
+    await chooseTheme(page, 'System')
     await expectTheme(page, 'light')
 
     await page.emulateMedia({ colorScheme: 'dark' })
@@ -83,6 +90,6 @@ test.describe('theme control', () => {
 
     await page.reload()
     await expectTheme(page, 'dark')
-    await expect(page.getByRole('button', { name: 'Match system theme' })).toHaveAttribute('aria-pressed', 'true')
+    await expect(page.getByRole('button', { name: 'Theme: System' })).toBeVisible()
   })
 })
