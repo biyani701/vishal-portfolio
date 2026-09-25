@@ -29,9 +29,14 @@ export function useTrack(fallbackWidth: number) {
     }
     const observer = new ResizeObserver(update)
     observer.observe(el)
-    // Labels are measured in the web font, which may land after the first layout.
+    // Labels are measured in the web font, which may land after the first layout. `ready` alone isn't enough:
+    // it can resolve before the lane fonts start loading, leaving labels measured in the (wider) fallback.
     void document.fonts?.ready.then(update)
-    return () => observer.disconnect()
+    document.fonts?.addEventListener('loadingdone', update)
+    return () => {
+      observer.disconnect()
+      document.fonts?.removeEventListener('loadingdone', update)
+    }
   }, [])
 
   return [ref, track] as const
