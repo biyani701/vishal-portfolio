@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test'
 import { viewportName, viewports } from './e2e/viewports.ts'
 
 const port = 4173
+const siteWide = /(theme|fonts)\.spec\.ts/
 
 // Runs against the production build (`vite preview`), one project per matrix viewport.
 export default defineConfig({
@@ -17,7 +18,7 @@ export default defineConfig({
   projects: [
     ...viewports.map((viewport) => ({
       name: viewportName(viewport),
-      testIgnore: /theme\.spec\.ts/,
+      testIgnore: siteWide,
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: viewport.width, height: viewport.height },
@@ -25,8 +26,8 @@ export default defineConfig({
         hasTouch: viewport.touch,
       },
     })),
-    // Viewport-independent checks run once.
-    { name: 'theme', testMatch: /theme\.spec\.ts/, use: { ...devices['Desktop Chrome'] } },
+    // Viewport-independent checks (theme, fonts) run once.
+    { name: 'site-wide', testMatch: siteWide, use: { ...devices['Desktop Chrome'] } },
   ],
   webServer: {
     command: `pnpm preview --port ${port} --strictPort`,
