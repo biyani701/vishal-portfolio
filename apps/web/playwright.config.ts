@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test'
 import { viewportName, viewports } from './e2e/viewports.ts'
 
 const port = 4173
-const siteWide = /(theme|fonts|dev-routes)\.spec\.ts/
+const siteWide = /(theme|fonts|dev-routes|redirects)\.spec\.ts/
 
 // Runs against the production build (`vite preview`), one project per matrix viewport.
 export default defineConfig({
@@ -19,6 +19,8 @@ export default defineConfig({
     ...viewports.map((viewport) => ({
       name: viewportName(viewport),
       testIgnore: siteWide,
+      // Expected layout mode, for the shell checks in layout.spec.ts.
+      metadata: { mode: viewport.mode },
       use: {
         ...devices['Desktop Chrome'],
         viewport: { width: viewport.width, height: viewport.height },
