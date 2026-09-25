@@ -68,6 +68,10 @@ const textPairs: [string, string][] = [
   ['code-comment', 'code-bg'],
 ]
 const uiPairs: [string, string][] = [
+  // Form-control outlines must be identifiable against every surface they sit on (WCAG 1.4.11).
+  ['border-control', 'bg'],
+  ['border-control', 'surface'],
+  ['border-control', 'sunken'],
   ['border-strong', 'surface'],
   ['accent', 'surface'],
   ['flight-dot', 'surface'],

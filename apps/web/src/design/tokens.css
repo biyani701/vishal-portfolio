@@ -40,6 +40,8 @@
   --color-sunken: #eceff3;
   --color-border: #d7dce3;
   --color-border-strong: #0e131b;
+  /* Form-control outlines: 3:1 against bg, surface and sunken (WCAG 1.4.11); not part of the §4.1 table. */
+  --color-border-control: #818894;
   --color-ink: #0e131b;
   --color-ink-2: #232a35;
   --color-muted: #4a5361;
@@ -215,6 +217,7 @@
     --color-sunken: #10141a;
     --color-border: #2a323d;
     --color-border-strong: #c5ccd6;
+    --color-border-control: #5f6874;
     --color-ink: #e8ecf1;
     --color-ink-2: #c5ccd6;
     --color-muted: #9aa4b2;
