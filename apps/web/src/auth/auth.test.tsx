@@ -89,7 +89,9 @@ describe('/signin (specs/auth-integration "Sign-in page")', () => {
   })
 
   it('shows a recoverable error when the auth server URL is missing', async () => {
-    open() // no VITE_* configuration in the test environment
+    // Blank rather than unset: CI exports VITE_AUTH_SERVER_URL for the whole workflow, and Vite inlines it.
+    vi.stubEnv('VITE_AUTH_SERVER_URL', '')
+    open()
     await userEvent.click(await screen.findByRole('button', { name: 'Continue with GitHub' }))
     expect(screen.getByRole('alert')).toHaveTextContent("Sign-in isn't available right now")
     expect(screen.getByRole('button', { name: 'Continue with GitHub' })).toBeEnabled()
