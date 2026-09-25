@@ -13,6 +13,6 @@
     "noEmit": true,
     "strict": true
   },
-  "include": ["vite.config.ts", "eslint/**/*.ts"],
+  "include": ["vite.config.ts", "eslint/**/*.ts", "scripts/**/*.ts", "src/config/schema.ts"],
   "exclude": ["eslint/fixtures"]
 }
