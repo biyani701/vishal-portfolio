@@ -25,3 +25,10 @@ apps/auth-server/out
 .beads-credential-key
 .beads/proxieddb/
 *.gate.lock*
+
+# apps/web + apps/api build and test output (rebuild-portfolio-app)
+apps/*/dist
+.vercel
+playwright-report/
+test-results/
+blob-report/
