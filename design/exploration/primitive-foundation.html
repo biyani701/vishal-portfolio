@@ -1,0 +1,173 @@
+<title>Primitive Layer Decision</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+:root{
+  --bg:#F7F8FA;--surface:#FFFFFF;--sunken:#EEF1F5;--border:#D9DEE6;
+  --text:#10151C;--muted:#4A5566;--primary:#0B7A6E;--warn:#9A5B00;--bad:#B42318;--good:#1E7A3A;
+  --rx:#5B6B84;--bu:#0B7A6E;--ra:#7A5AC8;--track:#E3E7ED;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;--bg:#0B0E13;--surface:#121821;--sunken:#0F141C;--border:#263241;
+  --text:#E7EDF4;--muted:#95A3B5;--primary:#3DD6C1;--warn:#FB923C;--bad:#F87171;--good:#4ADE80;
+  --rx:#8C9BB3;--bu:#3DD6C1;--ra:#B39CF0;--track:#1E2733;}}
+:root[data-theme="dark"]{
+  color-scheme:dark;--bg:#0B0E13;--surface:#121821;--sunken:#0F141C;--border:#263241;
+  --text:#E7EDF4;--muted:#95A3B5;--primary:#3DD6C1;--warn:#FB923C;--bad:#F87171;--good:#4ADE80;
+  --rx:#8C9BB3;--bu:#3DD6C1;--ra:#B39CF0;--track:#1E2733;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font:16px/1.55 Geist,system-ui,-apple-system,"Segoe UI",sans-serif;padding-inline:16px}
+.wrap{max-width:980px;margin:0 auto;padding-block:48px 80px;display:flex;flex-direction:column;gap:52px}
+a{color:var(--primary);text-underline-offset:3px}
+.mono{font-family:"Geist Mono",ui-monospace,Menlo,monospace}
+.kicker{font:500 12px/1.4 "Geist Mono",ui-monospace,monospace;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:clamp(32px,5vw,48px);line-height:1.05;letter-spacing:-.03em;font-weight:600;margin:8px 0 0;text-wrap:balance}
+h2{font-size:24px;letter-spacing:-.02em;font-weight:600;margin:0;text-wrap:balance}
+h3{font-size:17px;font-weight:600;margin:0}
+.lede{font:400 19px/1.6 "Source Serif 4",Georgia,serif;color:var(--muted);max-width:66ch;margin:14px 0 0}
+section{display:flex;flex-direction:column;gap:16px}
+section > p{margin:0;max-width:72ch}
+.verdict{background:var(--surface);border:2px solid var(--primary);border-radius:14px;padding:22px 24px;display:flex;flex-direction:column;gap:10px}
+.verdict .big{font-size:22px;font-weight:600}
+.verdict p{margin:0;color:var(--muted)}
+.tbl{overflow-x:auto;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:720px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+thead th{font:500 12px/1.4 "Geist Mono",monospace;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);background:var(--sunken)}
+tbody th{font-weight:600;width:190px}
+tr:last-child td,tr:last-child th{border-bottom:0}
+.y{color:var(--good);font-weight:600}.n{color:var(--bad);font-weight:600}.w{color:var(--warn);font-weight:600}
+.num{text-align:center;font-variant-numeric:tabular-nums;font-family:"Geist Mono",monospace}
+.hi{font-weight:600;color:var(--primary)}
+tfoot td,tfoot th{background:var(--sunken);font-weight:600;border-bottom:0}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.totals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.tot{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.tot .n2{font-size:34px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tot.win{border:2px solid var(--primary)}
+.tot small{color:var(--muted);font-size:13px}
+.meter{height:8px;border-radius:4px;background:var(--track);overflow:hidden}
+.meter span{display:block;height:100%;border-radius:4px}
+.points{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px}
+.pt{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:8px}
+.pt p{margin:0;color:var(--muted);font-size:14.5px}
+code{font-family:"Geist Mono",monospace;font-size:.88em;background:var(--sunken);padding:1px 5px;border-radius:4px}
+ol.steps{margin:0;padding-left:22px;display:grid;gap:8px;max-width:74ch}
+footer{color:var(--muted);font-size:14px;border-top:1px solid var(--border);padding-top:18px}
+@media (max-width:620px){.totals{grid-template-columns:1fr}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="kicker">Portfolio rewrite · decision UF-3 · UF-1 and UF-2 accepted</div>
+  <h1>Primitive layer: Radix, Base UI or React Aria</h1>
+  <p class="lede">Which headless library supplies behaviour, accessibility and focus management underneath our shadcn/ui components? The shadcn CLI supports all three via <code>--base radix | base | aria</code>. Facts were checked on npm and in package contents today.</p>
+</header>
+
+<div class="verdict">
+  <span class="kicker">Recommendation</span>
+  <span class="big">Base UI, plus React Aria's live announcer for AI answers</span>
+  <p>Base UI and React Aria come out close on the scorecard. The tie is broken by what we have to build: the mobile nav, the Ask sheet and ⌘K need a drawer and an autocomplete. Base UI ships both. React Aria has no drawer, and Radix relies on two libraries that haven't had a release in over a year. This reverses my earlier lean towards Radix; the reason is explained below.</p>
+</div>
+
+<section aria-labelledby="snap-h">
+  <h2 id="snap-h">Snapshot</h2>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th>Radix</th><th>Base UI</th><th>React Aria</th></tr></thead>
+    <tbody>
+      <tr><th>Package · latest</th><td class="mono">radix-ui 1.6.7</td><td class="mono">@base-ui/react 1.8.0</td><td class="mono">react-aria-components 1.21.1</td></tr>
+      <tr><th>Stable since</th><td>Dec 2022</td><td>Dec 2025 (renamed from <code>@base-ui-components/react</code>)</td><td>Dec 2023; hooks since 2020</td></tr>
+      <tr><th>Releases, last 12 months</th><td>9, patch and minor</td><td>10, feature minors</td><td>11</td></tr>
+      <tr><th>Steward</th><td>WorkOS</td><td>MUI team, with the authors of Radix and Floating UI</td><td>Adobe (React Spectrum)</td></tr>
+      <tr><th>React 19</th><td class="y">Supported</td><td class="y">Supported</td><td class="y">Supported</td></tr>
+      <tr><th>Composition</th><td><code>asChild</code></td><td><code>render</code> prop</td><td>Render props, <code>data-*</code> states</td></tr>
+      <tr><th>Drawer</th><td class="n">None; shadcn uses vaul, last release Dec 2024</td><td class="y">Native Drawer</td><td class="n">None; Modal only</td></tr>
+      <tr><th>Command / autocomplete</th><td class="n">None; shadcn uses cmdk, last release Mar 2025</td><td class="y">Autocomplete, Combobox</td><td class="y">Autocomplete + Menu</td></tr>
+      <tr><th>Toast</th><td class="y">Stable</td><td class="y">Stable</td><td class="w">UNSTABLE_ prefix</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section aria-labelledby="crit-h">
+  <h2 id="crit-h">Your criteria</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Criterion</th><th>Radix</th><th>Base UI</th><th>React Aria</th></tr></thead>
+    <tbody>
+      <tr><th>Accessibility</th><td>Good ARIA patterns; known edge cases with modal layering</td><td>Strong; built with the lessons from Radix</td><td class="hi">Best in class: tested across screen readers and mobile assistive tech, RTL, <code>announce()</code></td></tr>
+      <tr><th>React 19</th><td colspan="3">All three support it; not a differentiator.</td></tr>
+      <tr><th>Keyboard interaction</th><td>Roving focus, typeahead</td><td>Roving focus, typeahead, composite navigation</td><td class="hi">Most thorough: focus rings only for keyboard, consistent press handling across mouse, touch and keyboard</td></tr>
+      <tr><th>Dialogs</th><td>Solid</td><td class="hi">Solid; initial and final focus props, nested dialogs</td><td>Solid; precise dismissal</td></tr>
+      <tr><th>Popovers</th><td>Floating UI underneath</td><td class="hi">Floating UI from its own authors; best anchoring</td><td>Own positioning; good</td></tr>
+      <tr><th>Menus</th><td>Complete</td><td class="hi">Complete, including Menubar and context menu</td><td class="hi">Complete, with long-press on touch</td></tr>
+      <tr><th>Command interfaces</th><td class="n">Depends on cmdk (stale)</td><td class="hi">Autocomplete inside Dialog</td><td class="hi">Autocomplete + Menu, the intended pattern</td></tr>
+      <tr><th>Focus management</th><td>FocusScope, auto-focus hooks</td><td>Trap and restore via props</td><td class="hi">Most granular, including virtual focus</td></tr>
+      <tr><th>Mobile drawers</th><td class="n">Depends on vaul (stale)</td><td class="hi">Native Drawer</td><td class="n">Build it yourself: gestures, snap points, iOS scroll lock</td></tr>
+      <tr><th>AI components</th><td>Collapsible, ToggleGroup, Toast; weak forms</td><td class="hi">Field and Form validation, stable Toast</td><td class="hi">Best forms, live announcements; Toast unstable</td></tr>
+      <tr><th>Long-term maintenance</th><td>Maintained, but no new primitives</td><td class="hi">Most active</td><td class="hi">Most proven</td></tr>
+      <tr><th>Claude Code support</th><td class="hi">Best: years of examples in training data</td><td class="w">Weakest: new 1.x API and a package rename</td><td>Good, but a large API</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section aria-labelledby="score-h">
+  <h2 id="score-h">Scorecard</h2>
+  <p style="color:var(--muted)">Scores out of 5 are judgement calls. React 19 is a pass/fail gate that all three pass, so it carries no weight.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Criterion</th><th class="num">Weight</th><th class="num">Radix</th><th class="num">Base UI</th><th class="num">React Aria</th></tr></thead>
+    <tbody>
+      <tr><th>Accessibility</th><td class="num">15</td><td class="num">4</td><td class="num">4</td><td class="num hi">5</td></tr>
+      <tr><th>Keyboard interaction</th><td class="num">10</td><td class="num">4</td><td class="num">4</td><td class="num hi">5</td></tr>
+      <tr><th>Focus management</th><td class="num">10</td><td class="num">4</td><td class="num">4</td><td class="num hi">5</td></tr>
+      <tr><th>Dialogs</th><td class="num">5</td><td class="num">4</td><td class="num hi">5</td><td class="num">4</td></tr>
+      <tr><th>Popovers</th><td class="num">5</td><td class="num">4</td><td class="num hi">5</td><td class="num">4</td></tr>
+      <tr><th>Menus</th><td class="num">5</td><td class="num">4</td><td class="num hi">5</td><td class="num hi">5</td></tr>
+      <tr><th>Command interfaces</th><td class="num">10</td><td class="num">2</td><td class="num hi">4</td><td class="num hi">4</td></tr>
+      <tr><th>Mobile drawers</th><td class="num">10</td><td class="num">2</td><td class="num hi">4</td><td class="num">2</td></tr>
+      <tr><th>AI interaction components</th><td class="num">10</td><td class="num">3</td><td class="num hi">4</td><td class="num hi">4</td></tr>
+      <tr><th>Long-term maintenance</th><td class="num">10</td><td class="num">3</td><td class="num hi">5</td><td class="num hi">5</td></tr>
+      <tr><th>Claude Code support</th><td class="num">5</td><td class="num hi">5</td><td class="num">3</td><td class="num">4</td></tr>
+      <tr><th>Fit with shadcn + Tailwind</th><td class="num">5</td><td class="num hi">5</td><td class="num">4</td><td class="num">3</td></tr>
+    </tbody>
+    <tfoot><tr><th>Weighted total</th><td class="num">100</td><td class="num">70</td><td class="num">84</td><td class="num">85</td></tr></tfoot>
+  </table></div>
+  <div class="totals" aria-hidden="true">
+    <div class="tot"><small>Radix</small><span class="n2">70</span><div class="meter"><span style="width:70%;background:var(--rx)"></span></div></div>
+    <div class="tot win"><small>Base UI · recommended</small><span class="n2">84</span><div class="meter"><span style="width:84%;background:var(--bu)"></span></div></div>
+    <div class="tot"><small>React Aria</small><span class="n2">85</span><div class="meter"><span style="width:85%;background:var(--ra)"></span></div></div>
+  </div>
+  <p>A one-point gap is within the noise of the weighting. The deciding factor is what each option leaves us to build.</p>
+</section>
+
+<section aria-labelledby="why-h">
+  <h2 id="why-h">Why Base UI</h2>
+  <div class="points">
+    <div class="pt"><h3>The drawer is on our critical path</h3><p>The mobile nav, the Ask sheet and the compact-landscape drawer are exactly where the current site breaks. Base UI ships a drawer. With React Aria we'd build gestures and iOS scroll lock ourselves, and with Radix we'd rely on vaul, unreleased since Dec 2024.</p></div>
+    <div class="pt"><h3>⌘K without cmdk</h3><p>Search and Ask share one command bar. Base UI's Autocomplete inside a Dialog covers it natively, while cmdk has had no release since March 2025.</p></div>
+    <div class="pt"><h3>The most active trajectory</h3><p>Base UI went from 1.0 to 1.8 in nine months, and it's built by the people behind Radix and Floating UI.</p></div>
+    <div class="pt"><h3>Closing the accessibility gap</h3><p>Use <code>@react-aria/live-announcer</code> (3.5.1) to announce streamed AI answers and tool status. That's the one area where React Aria is clearly ahead.</p></div>
+    <div class="pt"><h3>Why not Radix any more</h3><p>My earlier lean rested on matching CopilotKit's stack. We use its headless hooks, so matching buys little, and CopilotKit's own Radix dependencies ship either way without conflict.</p></div>
+    <div class="pt"><h3>When React Aria is the better call</h3><p>If a formal accessibility audit matters more than build effort, and you're willing to build and own the drawer yourself.</p></div>
+  </div>
+</section>
+
+<section aria-labelledby="claude-h">
+  <h2 id="claude-h">Making Base UI work well with Claude Code</h2>
+  <ol class="steps">
+    <li><b>Source in the repo.</b> shadcn copies each component into <code>src/ui/</code>, so Claude edits current code instead of recalling APIs.</li>
+    <li><b>CLAUDE.md rules.</b> Import from <code>@base-ui/react</code> 1.x, compose with <code>render</code> and never <code>asChild</code>, add primitives with <code>shadcn add</code>, and link the Base UI docs.</li>
+    <li><b>Lint guards.</b> Ban the old <code>@base-ui-components/react</code> name, plus <code>@radix-ui/*</code>, <code>vaul</code> and <code>cmdk</code>, in app code, and flag any <code>asChild</code> prop.</li>
+    <li><b>Contract tests.</b> Keyboard and focus tests for Dialog, Drawer, Menu, Autocomplete and Popover live in <code>ui/</code> and run on every upgrade.</li>
+  </ol>
+</section>
+
+<section aria-labelledby="dec-h">
+  <h2 id="dec-h">Decision requested</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>ID</th><th>Decision</th><th>Recommendation</th></tr></thead>
+    <tbody><tr><th class="mono">UF-3</th><td>Primitive layer</td><td><b>Base UI</b> (<code>shadcn init --base base</code>) + <code>@react-aria/live-announcer</code></td></tr></tbody>
+  </table></div>
+</section>
+
+<footer>Full report: <span class="mono">design/exploration/09-primitive-foundation.md</span>. Previous decision: <a href="https://claude.ai/artifact/SZDqrbaPUMo9bpgG1P8CKE">UI foundation (UF-1, UF-2 accepted)</a>.</footer>
+</div>

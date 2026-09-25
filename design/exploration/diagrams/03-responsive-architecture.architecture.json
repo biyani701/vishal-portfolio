@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Responsive architecture — Tailwind mode variants",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "modes",
+      "type": "frontend",
+      "label": "tokens.css",
+      "sublabel": "@custom-variant × 4",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        170,
+        64
+      ],
+      "tag": "single source"
+    },
+    {
+      "id": "css",
+      "type": "frontend",
+      "label": "Mode variants",
+      "sublabel": "compact-landscape: …",
+      "pos": [
+        320,
+        180
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "hook",
+      "type": "frontend",
+      "label": "useLayoutMode()",
+      "sublabel": "DOM differs only",
+      "pos": [
+        320,
+        420
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "measure",
+      "type": "frontend",
+      "label": "Shell measure",
+      "sublabel": "ResizeObserver → vars",
+      "pos": [
+        320,
+        40
+      ],
+      "size": [
+        180,
+        64
+      ]
+    },
+    {
+      "id": "pageshell",
+      "type": "frontend",
+      "label": "PageShell",
+      "sublabel": "padding + safe areas",
+      "pos": [
+        640,
+        40
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "grid",
+      "type": "frontend",
+      "label": "Sections",
+      "sublabel": "columns per mode",
+      "pos": [
+        640,
+        150
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "hero",
+      "type": "frontend",
+      "label": "ProgrammeLine",
+      "sublabel": "lanes · strip · span rows",
+      "pos": [
+        640,
+        260
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "nav",
+      "type": "frontend",
+      "label": "Navigation",
+      "sublabel": "bar · Drawer · 44px bar",
+      "pos": [
+        640,
+        400
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "ask",
+      "type": "frontend",
+      "label": "Ask surface",
+      "sublabel": "page · bottom · right Drawer",
+      "pos": [
+        640,
+        510
+      ],
+      "size": [
+        170,
+        60
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "m-css",
+      "from": "modes",
+      "to": "css",
+      "label": "CSS first",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m-hook",
+      "from": "modes",
+      "to": "hook",
+      "label": "same strings"
+    },
+    {
+      "id": "measure-ps",
+      "from": "measure",
+      "to": "pageshell",
+      "label": "--app-*-h"
+    },
+    {
+      "id": "css-grid",
+      "from": "css",
+      "to": "grid"
+    },
+    {
+      "id": "css-hero",
+      "from": "css",
+      "to": "hero",
+      "variant": "emphasis"
+    },
+    {
+      "id": "hook-nav",
+      "from": "hook",
+      "to": "nav"
+    },
+    {
+      "id": "hook-ask",
+      "from": "hook",
+      "to": "ask"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Defined once",
+      "items": [
+        "compact-landscape: landscape and height ≤ 500",
+        "mobile / tablet / desktop exclude compact-landscape by definition"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "CSS first",
+      "items": [
+        "Components use variant classes, never raw media queries",
+        "Rule order can no longer override the landscape layout"
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "JS only when the DOM differs",
+      "items": [
+        "Navigation composition and Ask surface type",
+        "Lint blocks @media and arbitrary values outside src/design"
+      ]
+    }
+  ]
+}

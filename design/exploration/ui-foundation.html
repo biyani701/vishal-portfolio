@@ -1,0 +1,171 @@
+<title>UI Foundation Decision</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap">
+<style>
+:root{
+  --bg:#F7F8FA;--surface:#FFFFFF;--sunken:#EEF1F5;--border:#D9DEE6;
+  --text:#10151C;--muted:#4A5566;--primary:#0B7A6E;--on-primary:#FFFFFF;--warn:#9A5B00;
+  --mui:#5B6B84;--shad:#0B7A6E;--man:#7A5AC8;--track:#E3E7ED;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  color-scheme:dark;--bg:#0B0E13;--surface:#121821;--sunken:#0F141C;--border:#263241;
+  --text:#E7EDF4;--muted:#95A3B5;--primary:#3DD6C1;--on-primary:#042A25;--warn:#FB923C;
+  --mui:#8C9BB3;--shad:#3DD6C1;--man:#B39CF0;--track:#1E2733;}}
+:root[data-theme="dark"]{
+  color-scheme:dark;--bg:#0B0E13;--surface:#121821;--sunken:#0F141C;--border:#263241;
+  --text:#E7EDF4;--muted:#95A3B5;--primary:#3DD6C1;--on-primary:#042A25;--warn:#FB923C;
+  --mui:#8C9BB3;--shad:#3DD6C1;--man:#B39CF0;--track:#1E2733;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font:16px/1.55 Geist,system-ui,-apple-system,"Segoe UI",sans-serif;padding-inline:16px}
+.wrap{max-width:960px;margin:0 auto;padding-block:48px 80px;display:flex;flex-direction:column;gap:52px}
+a{color:var(--primary);text-underline-offset:3px}
+.mono{font-family:"Geist Mono",ui-monospace,Menlo,monospace}
+.kicker{font:500 12px/1.4 "Geist Mono",ui-monospace,monospace;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:clamp(32px,5vw,48px);line-height:1.05;letter-spacing:-.03em;font-weight:600;margin:8px 0 0;text-wrap:balance}
+h2{font-size:24px;letter-spacing:-.02em;font-weight:600;margin:0;text-wrap:balance}
+h3{font-size:17px;font-weight:600;margin:0}
+.lede{font:400 19px/1.6 "Source Serif 4",Georgia,serif;color:var(--muted);max-width:66ch;margin:14px 0 0}
+section{display:flex;flex-direction:column;gap:16px}
+section > p{margin:0;max-width:70ch}
+.verdict{background:var(--surface);border:2px solid var(--primary);border-radius:14px;padding:22px 24px;display:flex;flex-direction:column;gap:10px}
+.verdict .big{font-size:22px;font-weight:600;letter-spacing:-.01em}
+.verdict p{margin:0;color:var(--muted)}
+.tbl{overflow-x:auto;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:680px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+thead th{font:500 12px/1.4 "Geist Mono",monospace;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);background:var(--sunken)}
+tbody th{font-weight:600;color:var(--text);width:170px}
+tr:last-child td,tr:last-child th{border-bottom:0}
+.num{font-variant-numeric:tabular-nums;text-align:center}
+.score{display:grid;gap:22px}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:8px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.crit{display:grid;grid-template-columns:minmax(0,240px) minmax(0,1fr);gap:8px 20px;align-items:center}
+.crit .name{font-size:15px;font-weight:500}
+.crit .name small{display:block;color:var(--muted);font-weight:400;font-size:12.5px}
+.bars{display:grid;gap:4px}
+.bar{display:grid;grid-template-columns:minmax(0,1fr) 22px;gap:8px;align-items:center}
+.bar .t{height:9px;border-radius:5px;background:var(--track);overflow:hidden}
+.bar .f{height:100%;border-radius:5px}
+.bar .v{font:500 12px "Geist Mono",monospace;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
+.totals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.tot{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;gap:2px}
+.tot .n{font-size:36px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.tot.win{border:2px solid var(--primary)}
+.tot small{color:var(--muted);font-size:13px}
+.points{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px}
+.pt{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:8px}
+.pt p{margin:0;color:var(--muted);font-size:14.5px}
+code{font-family:"Geist Mono",monospace;font-size:.88em;background:var(--sunken);padding:1px 5px;border-radius:4px}
+pre{margin:0;font:13.5px/1.65 "Geist Mono",monospace;background:var(--sunken);border-radius:12px;padding:16px;overflow-x:auto}
+ol.steps{margin:0;padding-left:22px;display:grid;gap:8px;max-width:72ch}
+.warn{color:var(--warn);font-weight:600}
+footer{color:var(--muted);font-size:14px;border-top:1px solid var(--border);padding-top:18px}
+@media (max-width:620px){.crit{grid-template-columns:1fr}.totals{grid-template-columns:1fr}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="kicker">Portfolio rewrite · architecture decision UF-1 · 25 Sep 2026</div>
+  <h1>UI foundation: MUI 9, shadcn/ui + Tailwind, or Mantine</h1>
+  <p class="lede">Which component and styling foundation should the rewritten portfolio be built on? Migration effort doesn't count, because the app is being rebuilt. Versions were checked on npm today.</p>
+</header>
+
+<div class="verdict">
+  <span class="kicker">Recommendation</span>
+  <span class="big">shadcn/ui + Tailwind CSS v4, on Radix primitives</span>
+  <p>It is the only option where the three hard requirements are native rather than worked around: a bespoke visual identity, four mutually exclusive layout modes, and an AI surface that shares CopilotKit v2's own stack. <b>Mantine 9</b> is a solid runner-up if you'd rather not own component code. <b>MUI 9</b> is not recommended for the new app.</p>
+</div>
+
+<section aria-labelledby="facts-h">
+  <h2 id="facts-h">The options as they are today</h2>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th>MUI 9</th><th>shadcn/ui + Tailwind</th><th>Mantine 9</th></tr></thead>
+    <tbody>
+      <tr><th>Latest</th><td class="mono">@mui/material 9.4.0</td><td class="mono">shadcn 4.21.0 · tailwindcss 4.3.3</td><td class="mono">@mantine/core 9.6.2</td></tr>
+      <tr><th>What you install</th><td>A component library</td><td>A CLI that copies component source into your repo</td><td>A component library + optional packages</td></tr>
+      <tr><th>Behaviour / a11y</th><td>MUI's own</td><td>Your choice: Radix, Base UI or React Aria (<code>--base</code>)</td><td>Mantine's own + Floating UI</td></tr>
+      <tr><th>Styling</th><td><span class="warn">Emotion, runtime CSS-in-JS</span>; Pigment still 0.0.31</td><td>Static CSS; tokens in <code>@theme</code></td><td>CSS Modules, static CSS + variables</td></tr>
+      <tr><th>React peer</th><td>^17 – ^19</td><td>^16.8 – ^19 (Radix, Base UI)</td><td>^19.2 only</td></tr>
+      <tr><th>Default look</th><td>Material Design</td><td>None; your tokens</td><td>Neutral Mantine style</td></tr>
+      <tr><th>Breaking majors</th><td>7 → 8 → 9 in about 18 months; Grid API broke twice</td><td>None for your copied code; primitives on semver 1.x</td><td>v7 Sep 2023 · v8 May 2025 · v9 Mar 2026</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section aria-labelledby="score-h">
+  <h2 id="score-h">Scorecard</h2>
+  <p style="color:var(--muted)">Weights reflect this project. Scores out of 5 are judgement calls from the evidence below, not measurements.</p>
+  <div class="legend" aria-hidden="true"><span><i style="background:var(--mui)"></i>MUI 9</span><span><i style="background:var(--shad)"></i>shadcn + Tailwind</span><span><i style="background:var(--man)"></i>Mantine 9</span></div>
+  <div class="score" role="img" aria-label="Scores out of 5. Bespoke identity: MUI 2, shadcn 5, Mantine 3. Layout-mode fit: 2, 5, 3. Accessibility: 4, 5, 4. Component coverage: 3, 4, 5. CopilotKit alignment: 2, 5, 3. Performance: 2, 5, 4. Upgrade risk: 2, 4, 3. Productivity: 4, 4, 4.">
+    <div class="crit"><div class="name">Bespoke identity<small>weight 20</small></div><div class="bars"><div class="bar"><div class="t"><div class="f" style="width:40%;background:var(--mui)"></div></div><span class="v">2</span></div><div class="bar"><div class="t"><div class="f" style="width:100%;background:var(--shad)"></div></div><span class="v">5</span></div><div class="bar"><div class="t"><div class="f" style="width:60%;background:var(--man)"></div></div><span class="v">3</span></div></div></div>
+    <div class="crit"><div class="name">Layout-mode responsive fit<small>weight 15</small></div><div class="bars"><div class="bar"><div class="t"><div class="f" style="width:40%;background:var(--mui)"></div></div><span class="v">2</span></div><div class="bar"><div class="t"><div class="f" style="width:100%;background:var(--shad)"></div></div><span class="v">5</span></div><div class="bar"><div class="t"><div class="f" style="width:60%;background:var(--man)"></div></div><span class="v">3</span></div></div></div>
+    <div class="crit"><div class="name">Accessibility primitives<small>weight 15</small></div><div class="bars"><div class="bar"><div class="t"><div class="f" style="width:80%;background:var(--mui)"></div></div><span class="v">4</span></div><div class="bar"><div class="t"><div class="f" style="width:100%;background:var(--shad)"></div></div><span class="v">5</span></div><div class="bar"><div class="t"><div class="f" style="width:80%;background:var(--man)"></div></div><span class="v">4</span></div></div></div>
+    <div class="crit"><div class="name">Component coverage<small>weight 10</small></div><div class="bars"><div class="bar"><div class="t"><div class="f" style="width:60%;background:var(--mui)"></div></div><span class="v">3</span></div><div class="bar"><div class="t"><div class="f" style="width:80%;background:var(--shad)"></div></div><span class="v">4</span></div><div class="bar"><div class="t"><div class="f" style="width:100%;background:var(--man)"></div></div><span class="v">5</span></div></div></div>
+    <div class="crit"><div class="name">CopilotKit v2 alignment<small>weight 10</small></div><div class="bars"><div class="bar"><div class="t"><div class="f" style="width:40%;background:var(--mui)"></div></div><span class="v">2</span></div><div class="bar"><div class="t"><div class="f" style="width:100%;background:var(--shad)"></div></div><span class="v">5</span></div><div class="bar"><div class="t"><div class="f" style="width:60%;background:var(--man)"></div></div><span class="v">3</span></div></div></div>
+    <div class="crit"><div class="name">Runtime performance<small>weight 10</small></div><div class="bars"><div class="bar"><div class="t"><div class="f" style="width:40%;background:var(--mui)"></div></div><span class="v">2</span></div><div class="bar"><div class="t"><div class="f" style="width:100%;background:var(--shad)"></div></div><span class="v">5</span></div><div class="bar"><div class="t"><div class="f" style="width:80%;background:var(--man)"></div></div><span class="v">4</span></div></div></div>
+    <div class="crit"><div class="name">Ownership / upgrade risk<small>weight 10</small></div><div class="bars"><div class="bar"><div class="t"><div class="f" style="width:40%;background:var(--mui)"></div></div><span class="v">2</span></div><div class="bar"><div class="t"><div class="f" style="width:80%;background:var(--shad)"></div></div><span class="v">4</span></div><div class="bar"><div class="t"><div class="f" style="width:60%;background:var(--man)"></div></div><span class="v">3</span></div></div></div>
+    <div class="crit"><div class="name">Productivity (you + AI agents)<small>weight 10</small></div><div class="bars"><div class="bar"><div class="t"><div class="f" style="width:80%;background:var(--mui)"></div></div><span class="v">4</span></div><div class="bar"><div class="t"><div class="f" style="width:80%;background:var(--shad)"></div></div><span class="v">4</span></div><div class="bar"><div class="t"><div class="f" style="width:80%;background:var(--man)"></div></div><span class="v">4</span></div></div></div>
+  </div>
+  <div class="totals">
+    <div class="tot"><small>MUI 9</small><span class="n">52</span><small>weighted / 100</small></div>
+    <div class="tot win"><small>shadcn + Tailwind</small><span class="n">94</span><small>weighted / 100</small></div>
+    <div class="tot"><small>Mantine 9</small><span class="n">71</span><small>weighted / 100</small></div>
+  </div>
+</section>
+
+<section aria-labelledby="why-h">
+  <h2 id="why-h">What decides it</h2>
+  <div class="points">
+    <div class="pt"><h3>Layout modes become part of the styling language</h3><p>A Tailwind v4 custom variant turns the landscape rule into a class that can't be overridden by rule order, the root cause of today's bug. Mantine's and MUI's responsive props are width-only.</p></div>
+    <div class="pt"><h3>Same stack as CopilotKit v2</h3><p>CopilotKit 1.73's v2 UI is built on Tailwind v4, Radix, <code>cva</code>, <code>tailwind-merge</code> and Lucide. We use its headless hooks either way, but can adapt its tool-call and suggestion components directly and share one token set.</p></div>
+    <div class="pt"><h3>No house style to fight</h3><p>All three design directions are custom. With MUI, nearly every Material default gets overridden. With shadcn, the look is written once, in tokens and variants.</p></div>
+    <div class="pt"><h3>Zero-runtime CSS</h3><p>Static CSS with no style injection at render supports the Lighthouse ≥ 90 mobile target. MUI 9 still requires Emotion at runtime.</p></div>
+    <div class="pt"><h3>Where Mantine wins</h3><p>Coverage: Spotlight (⌘K), Timeline, charts, code highlighting and Carousel are ready-made. With shadcn, Timeline and CodeBlock are custom, but our designs need custom versions of both anyway.</p></div>
+    <div class="pt"><h3>The cost of shadcn</h3><p>You own around 30 component files and their upgrades, and class strings can sprawl without discipline. Both are manageable with the guardrails below.</p></div>
+  </div>
+<pre>@custom-variant compact-landscape (@media (orientation: landscape) and (max-height: 500px));
+@custom-variant tablet  (@media (min-width: 600px) and (max-width: 899.98px) and not ((orientation: landscape) and (max-height: 500px)));
+@custom-variant desktop (@media (min-width: 900px) and not ((orientation: landscape) and (max-height: 500px)));
+
+&lt;div class="grid grid-cols-1 compact-landscape:grid-cols-2 tablet:grid-cols-2 desktop:grid-cols-3"&gt;</pre>
+</section>
+
+<section aria-labelledby="guard-h">
+  <h2 id="guard-h">Guardrails that make shadcn safe</h2>
+  <ol class="steps">
+    <li><b>Tokens only.</b> <code>tokens.css</code> holds <code>@theme</code> plus the light and dark variable sets. Lint forbids arbitrary values like <code>[#hex]</code> or <code>[13px]</code> outside <code>ui/</code>.</li>
+    <li><b>Variants, not class soup.</b> Every reusable component defines its states with <code>cva</code>. Pages compose components; they don't style primitives.</li>
+    <li><b>Own the upgrade path.</b> Record the registry version in <code>ui/README.md</code> and review <code>shadcn diff</code> quarterly.</li>
+    <li><b>Browser floor.</b> Tailwind v4 targets Safari 16.4+, Chrome 111+ and Firefox 128+. Confirm that's acceptable (UF-2).</li>
+  </ol>
+</section>
+
+<section aria-labelledby="knock-h">
+  <h2 id="knock-h">If approved, these change</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Artefact</th><th>Change</th></tr></thead>
+    <tbody>
+      <tr><th>Design system (04)</th><td>Tokens move to <code>tokens.css</code> with <code>@theme</code>, same values. Remove the MUI theme layer.</td></tr>
+      <tr><th>Components (05)</th><td>The <code>ui/</code> layer becomes shadcn components (Dialog, Sheet, DropdownMenu, Tabs, Command, Tooltip, Sonner, Form) plus custom Timeline, CodeBlock, CapabilityMap and ArchitectureFigure.</td></tr>
+      <tr><th>Roadmap phase 3</th><td>Don't upgrade the old app to MUI 9. Build the new app on a fresh Vite + React 19 + Tailwind v4 scaffold, and keep the old app live until cut-over.</td></tr>
+      <tr><th>Out of scope</th><td><code>apps/auth-server</code> (MUI 7 + Toolpad) is unaffected.</td></tr>
+      <tr><th>OpenSpec</th><td>The existing change assumes MUI 9 and gets revised when the rewrite change is written.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section aria-labelledby="dec-h">
+  <h2 id="dec-h">Decisions requested</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>ID</th><th>Decision</th><th>Recommendation</th></tr></thead>
+    <tbody>
+      <tr><th class="mono">UF-1</th><td>UI foundation</td><td>shadcn/ui + Tailwind v4</td></tr>
+      <tr><th class="mono">UF-2</th><td>Browser floor: Safari 16.4+, Chrome 111+, Firefox 128+</td><td>Accept</td></tr>
+      <tr><th class="mono">UF-3</th><td>Primitive layer</td><td>Radix (alternative: Base UI)</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<footer>Full report in the repo: <span class="mono">design/exploration/08-ui-foundation.md</span>. Part of the <a href="https://claude.ai/artifact/HCqVN7T6LQvVhaYDDDFVjb">portfolio rewrite review</a>.</footer>
+</div>

@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Portfolio information architecture",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "visitor",
+      "type": "external",
+      "label": "Visitor",
+      "sublabel": "hiring · peer · learner",
+      "pos": [
+        40,
+        330
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "home",
+      "type": "frontend",
+      "label": "Home",
+      "sublabel": "curated argument",
+      "pos": [
+        340,
+        330
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "about",
+      "type": "frontend",
+      "label": "About",
+      "sublabel": "story · principles",
+      "pos": [
+        620,
+        40
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "experience",
+      "type": "frontend",
+      "label": "Experience",
+      "sublabel": "timeline · skills",
+      "pos": [
+        620,
+        150
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "work",
+      "type": "frontend",
+      "label": "Work",
+      "sublabel": "index + case studies",
+      "pos": [
+        620,
+        260
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "writing",
+      "type": "frontend",
+      "label": "Writing",
+      "sublabel": "articles",
+      "pos": [
+        620,
+        370
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "knowledge",
+      "type": "frontend",
+      "label": "Knowledge",
+      "sublabel": "domains · glossary",
+      "pos": [
+        620,
+        480
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "ask",
+      "type": "frontend",
+      "label": "Ask",
+      "sublabel": "AI exploration /ask",
+      "pos": [
+        340,
+        560
+      ],
+      "size": [
+        150,
+        64
+      ],
+      "tag": "AG-UI"
+    },
+    {
+      "id": "contact",
+      "type": "external",
+      "label": "Contact",
+      "sublabel": "Tally form",
+      "pos": [
+        40,
+        560
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "content",
+      "type": "database",
+      "label": "Content layer",
+      "sublabel": "typed records + index",
+      "pos": [
+        920,
+        260
+      ],
+      "size": [
+        180,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Proof sections",
+      "wraps": [
+        "about",
+        "experience",
+        "work",
+        "writing",
+        "knowledge"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "arrive",
+      "from": "visitor",
+      "to": "home",
+      "label": "lands",
+      "variant": "emphasis"
+    },
+    {
+      "id": "home-about",
+      "from": "home",
+      "to": "about"
+    },
+    {
+      "id": "home-exp",
+      "from": "home",
+      "to": "experience"
+    },
+    {
+      "id": "home-work",
+      "from": "home",
+      "to": "work",
+      "variant": "emphasis"
+    },
+    {
+      "id": "home-writing",
+      "from": "home",
+      "to": "writing"
+    },
+    {
+      "id": "home-knowledge",
+      "from": "home",
+      "to": "knowledge"
+    },
+    {
+      "id": "home-ask",
+      "from": "home",
+      "to": "ask",
+      "label": "ask entry",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "labelDy": 24
+    },
+    {
+      "id": "ask-contact",
+      "from": "ask",
+      "to": "contact",
+      "label": "confirmed hand-off",
+      "variant": "dashed"
+    },
+    {
+      "id": "work-content",
+      "from": "work",
+      "to": "content",
+      "label": "same records"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Home argues, sections prove",
+      "items": [
+        "Home is curated: hero, proof strip, 3 projects, capabilities, writing",
+        "Detail lives one click away in five proof sections"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Ask is a peer section",
+      "items": [
+        "/ask is deep-linkable; every page also offers contextual Ask",
+        "Contact hand-off only after the visitor confirms"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "One fact, one source",
+      "items": [
+        "Pages, ⌘K search and agent tools read one content layer",
+        "Replaces three duplicated career representations"
+      ]
+    }
+  ]
+}

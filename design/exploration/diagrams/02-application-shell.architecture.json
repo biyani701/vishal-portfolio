@@ -1,0 +1,260 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Application shell — Programme",
+    "quality_profile": "showcase"
+  },
+  "components": [
+    {
+      "id": "browser",
+      "type": "external",
+      "label": "Browser",
+      "sublabel": "GitHub Pages SPA",
+      "pos": [
+        40,
+        300
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "shell",
+      "type": "frontend",
+      "label": "AppShell",
+      "sublabel": "providers + layout",
+      "pos": [
+        300,
+        300
+      ],
+      "size": [
+        160,
+        64
+      ],
+      "tag": "measures bars"
+    },
+    {
+      "id": "nav",
+      "type": "frontend",
+      "label": "Navigation",
+      "sublabel": "NavigationMenu · Drawer",
+      "pos": [
+        600,
+        60
+      ],
+      "size": [
+        170,
+        60
+      ],
+      "tag": "Base UI"
+    },
+    {
+      "id": "page",
+      "type": "frontend",
+      "label": "PageShell",
+      "sublabel": "modes · safe areas",
+      "pos": [
+        600,
+        180
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "asksurface",
+      "type": "frontend",
+      "label": "Ask surface",
+      "sublabel": "/ask · bottom/right Drawer",
+      "pos": [
+        600,
+        300
+      ],
+      "size": [
+        170,
+        60
+      ],
+      "tag": "Programme"
+    },
+    {
+      "id": "footer",
+      "type": "frontend",
+      "label": "Footer",
+      "sublabel": "static · no overlay",
+      "pos": [
+        600,
+        420
+      ],
+      "size": [
+        170,
+        60
+      ]
+    },
+    {
+      "id": "authprov",
+      "type": "security",
+      "label": "AuthProvider",
+      "sublabel": "session context",
+      "pos": [
+        300,
+        520
+      ],
+      "size": [
+        160,
+        64
+      ]
+    },
+    {
+      "id": "ckprov",
+      "type": "frontend",
+      "label": "CopilotKitProvider",
+      "sublabel": "v2 headless hooks",
+      "pos": [
+        880,
+        300
+      ],
+      "size": [
+        190,
+        64
+      ]
+    },
+    {
+      "id": "runtime",
+      "type": "backend",
+      "label": "Copilot runtime",
+      "sublabel": "/api/copilotkit",
+      "pos": [
+        880,
+        520
+      ],
+      "size": [
+        190,
+        64
+      ],
+      "tag": "decision D-9"
+    },
+    {
+      "id": "authjs",
+      "type": "security",
+      "label": "Auth.js server",
+      "sublabel": "apps/auth-server",
+      "pos": [
+        600,
+        620
+      ],
+      "size": [
+        170,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Shell regions",
+      "wraps": [
+        "nav",
+        "page",
+        "asksurface",
+        "footer"
+      ]
+    },
+    {
+      "kind": "region",
+      "label": "Vercel",
+      "wraps": [
+        "runtime",
+        "authjs"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "load",
+      "from": "browser",
+      "to": "shell",
+      "label": "loads",
+      "variant": "emphasis"
+    },
+    {
+      "id": "shell-nav",
+      "from": "shell",
+      "to": "nav"
+    },
+    {
+      "id": "shell-page",
+      "from": "shell",
+      "to": "page",
+      "variant": "emphasis"
+    },
+    {
+      "id": "shell-ask",
+      "from": "shell",
+      "to": "asksurface"
+    },
+    {
+      "id": "shell-footer",
+      "from": "shell",
+      "to": "footer"
+    },
+    {
+      "id": "shell-auth",
+      "from": "shell",
+      "to": "authprov",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "ask-ck",
+      "from": "asksurface",
+      "to": "ckprov",
+      "label": "hooks"
+    },
+    {
+      "id": "ck-runtime",
+      "from": "ckprov",
+      "to": "runtime",
+      "label": "AG-UI SSE",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "variant": "emphasis",
+      "labelDy": 24
+    },
+    {
+      "id": "auth-server",
+      "from": "authprov",
+      "to": "authjs",
+      "label": "session cookie",
+      "variant": "security"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "One shell, four modes",
+      "items": [
+        "Desktop NavigationMenu; Base UI Drawer on tablet, mobile, compact landscape",
+        "Header measured into --app-header-h; footer static, no floating buttons"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Ask is part of the product",
+      "items": [
+        "/ask page on desktop/tablet; Drawer bottom (mobile) or right 60% (landscape)",
+        "Same components, chips and serif prose as content pages"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Backend contracts unchanged",
+      "items": [
+        "Auth.js paths and OAuth flow preserved",
+        "Copilot runtime host still decision D-9"
+      ]
+    }
+  ]
+}
