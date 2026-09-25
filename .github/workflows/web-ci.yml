@@ -1,0 +1,142 @@
+name: Web CI
+
+# Quality gates for apps/web (specs/web-platform "Quality gates") plus a Vercel preview per PR.
+# Production stays on apps/portfolio (deploy-portfolio.yml) until the P14 cut-over.
+on:
+  pull_request:
+    branches: [main]
+    paths: &web-paths
+      - "apps/web/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - ".github/workflows/web-ci.yml"
+  push:
+    branches: [main]
+    paths: *web-paths
+
+concurrency:
+  group: web-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  # Public build configuration (never secrets). Override with repository variables.
+  VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL || 'https://api.vishal.biyani.xyz' }}
+  VITE_AUTH_SERVER_URL: ${{ vars.VITE_AUTH_SERVER_URL || 'https://my-oauth-proxy.vercel.app' }}
+
+jobs:
+  checks:
+    name: Lint, typecheck, test, build, e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+
+      # Version comes from "packageManager" in the root package.json.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install apps/web dependencies
+        working-directory: .
+        run: pnpm install --frozen-lockfile --filter web
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Playwright viewport matrix
+        run: pnpm e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            apps/web/playwright-report
+            apps/web/test-results
+          retention-days: 7
+
+      - name: Upload build
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: apps/web/dist
+          retention-days: 7
+
+  preview:
+    name: Vercel preview
+    needs: checks
+    # Forks don't get the Vercel secrets.
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - name: Check Vercel secrets
+        id: secrets
+        run: |
+          if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
+            echo "::warning title=Vercel preview skipped::Set the VERCEL_TOKEN, VERCEL_ORG_ID and VERCEL_PROJECT_ID repository secrets to enable previews."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Download build
+        if: steps.secrets.outputs.ready == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: .vercel/output/static
+
+      # Deploy the tested build as-is (Build Output API v3), with an SPA fallback so deep links work.
+      - name: Deploy to Vercel
+        if: steps.secrets.outputs.ready == 'true'
+        id: deploy
+        run: |
+          cat > .vercel/output/config.json <<'JSON'
+          { "version": 3, "routes": [{ "handle": "filesystem" }, { "src": "/.*", "dest": "/index.html" }] }
+          JSON
+          url=$(npx --yes vercel@latest deploy --prebuilt --token "$VERCEL_TOKEN")
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "### Vercel preview: $url" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment preview URL on the PR
+        if: steps.secrets.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          URL: ${{ steps.deploy.outputs.url }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          gh pr comment "${{ github.event.pull_request.number }}" --repo "$GITHUB_REPOSITORY" \
+            --edit-last --create-if-none \
+            --body "**apps/web preview:** $URL (built from $SHA)"
