@@ -73,6 +73,26 @@ describe('Drawer contract', () => {
     await expect.element(drawer).not.toBeInTheDocument()
   })
 
+  // specs/design-system "Reduced motion": with prefers-reduced-motion the drawer appears without sliding.
+  it('slides in, or appears instantly under reduced motion', async () => {
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+    await render(<Fixture />)
+    await page.getByRole('button', { name: 'Open menu' }).click()
+    const popup = page.getByRole('dialog', { name: 'Navigation' }).element()
+    const moving = () =>
+      document.getAnimations().filter((a) => {
+        const target = (a.effect as KeyframeEffect | null)?.target
+        return a.playState === 'running' && target instanceof Element && popup.contains(target)
+      })
+    // Sample the next frames: the slide transition starts right after data-starting-style is removed.
+    let sawMotion = false
+    for (let frame = 0; frame < 6 && !sawMotion; frame++) {
+      await new Promise((resolve) => requestAnimationFrame(resolve))
+      sawMotion = moving().some((a) => (a.effect?.getComputedTiming().duration as number) > 0)
+    }
+    expect(sawMotion).toBe(!reduced)
+  })
+
   it('gives the trigger and close button 44px targets', async () => {
     await render(<Fixture />)
     expectTarget(page.getByRole('button', { name: 'Open menu' }).element())

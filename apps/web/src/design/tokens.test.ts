@@ -61,6 +61,7 @@ const textPairs: [string, string][] = [
   ['flight-fg', 'flight-bg'],
   ['error', 'error-bg'],
   ['error', 'surface'],
+  ['ink', 'error-border'], // destructive button hover
   ['success', 'surface'],
   ['code-keyword', 'code-bg'],
   ['code-string', 'code-bg'],

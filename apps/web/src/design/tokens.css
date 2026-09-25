@@ -143,6 +143,37 @@
   }
 }
 
+/* §4.5 durations as utilities: duration-colour (150ms), duration-reveal (220ms), duration-overlay (320ms). */
+@utility duration-colour {
+  transition-duration: var(--duration-colour);
+  animation-duration: var(--duration-colour);
+}
+@utility duration-reveal {
+  transition-duration: var(--duration-reveal);
+  animation-duration: var(--duration-reveal);
+}
+@utility duration-overlay {
+  transition-duration: var(--duration-overlay);
+  animation-duration: var(--duration-overlay);
+}
+
+/*
+ * Reduced-motion gate (§4.5, specs/design-system "Motion"): every transition and animation is instant, so a
+ * drawer appears without sliding. JS-driven motion checks useReducedMotion() (src/components/motion).
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 @layer base {
   :root {
     color-scheme: light;

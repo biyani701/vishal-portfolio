@@ -23,6 +23,7 @@ function AutocompleteInput({
         <InputGroupAddon align="inline-end">
           <AutocompletePrimitive.Clear
             data-slot="autocomplete-clear"
+            aria-label="Clear"
             render={<InputGroupButton variant="ghost" size="icon-xs" />}
             disabled={disabled}
           >

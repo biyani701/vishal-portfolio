@@ -15,7 +15,7 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-sunken hover:text-ink aria-expanded:bg-sunken aria-expanded:text-ink",
         destructive:
-          "border-error-border bg-error-bg text-error hover:bg-error hover:text-on-accent",
+          "border-error-border bg-error-bg text-error hover:bg-error-border hover:text-ink",
         link: "text-accent underline-offset-4 hover:underline",
       },
       size: {

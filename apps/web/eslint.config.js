@@ -17,6 +17,25 @@ const baseUi = {
   group: ['@base-ui/react', '@base-ui/react/*'],
   message: 'Only src/ui may import @base-ui/react; import the src/ui component instead.',
 }
+// DD-4: the portrait appears in the Home hero only.
+const portrait = {
+  group: ['@/components/Portrait', '@/components/Portrait.tsx', '**/components/Portrait', '**/components/Portrait.tsx', './Portrait', './Portrait.tsx'],
+  message: 'DD-4: the portrait is Home-hero only (src/routes/home.tsx, src/components/home).',
+}
+// §4.4: there is no AI icon; Ask is the word "Ask".
+const aiIconNames = ['Bot', 'BotMessageSquare', 'BotOff', 'Brain', 'BrainCircuit', 'BrainCog', 'Sparkle', 'Sparkles', 'Wand', 'WandSparkles']
+const aiIcons = {
+  name: 'lucide-react',
+  importNames: aiIconNames.flatMap((name) => [name, `${name}Icon`, `Lucide${name}`]),
+  message: '§4.4: no AI icon; Ask is the word "Ask".',
+}
+const restrictImports = ({ allowBaseUi = false, allowPortrait = false } = {}) => [
+  'error',
+  {
+    paths: [aiIcons],
+    patterns: [...forbiddenPackages, ...(allowBaseUi ? [] : [baseUi]), ...(allowPortrait ? [] : [portrait])],
+  },
+]
 
 export default defineConfig([
   globalIgnores(['dist', 'eslint/fixtures']),
@@ -31,7 +50,7 @@ export default defineConfig([
     languageOptions: { globals: globals.browser },
     plugins: { portfolio },
     rules: {
-      'no-restricted-imports': ['error', { patterns: [...forbiddenPackages, baseUi] }],
+      'no-restricted-imports': restrictImports(),
       'portfolio/no-as-child': 'error',
       'portfolio/no-arbitrary-tailwind': 'error',
     },
@@ -39,9 +58,15 @@ export default defineConfig([
   {
     files: ['src/ui/**/*.{ts,tsx}'],
     rules: {
-      'no-restricted-imports': ['error', { patterns: forbiddenPackages }],
+      'no-restricted-imports': restrictImports({ allowBaseUi: true }),
       // shadcn components export their cva variants and hooks next to the components.
       'react-refresh/only-export-components': 'off',
+    },
+  },
+  {
+    files: ['src/routes/home.tsx', 'src/components/home/**/*.{ts,tsx}', 'src/components/Portrait.test.tsx'],
+    rules: {
+      'no-restricted-imports': restrictImports({ allowPortrait: true }),
     },
   },
   {

@@ -47,12 +47,13 @@ export default defineConfig({
             'lucide-react',
             'cn/config',
             'class-variance-authority',
+            'axe-core',
             ...baseUiEntries,
           ],
         },
         test: {
           name: 'ui-contract',
-          include: ['src/ui/**/*.contract.test.tsx'],
+          include: ['src/**/*.contract.test.tsx'],
           setupFiles: ['./src/test/browser-setup.ts'],
           browser: {
             enabled: true,
@@ -62,9 +63,10 @@ export default defineConfig({
               { browser: 'chromium', name: 'desktop', viewport: { width: 1280, height: 800 } },
               {
                 browser: 'chromium',
-                name: 'touch',
+                // Touch pointer + reduced motion: every contract also runs with animations off (§4.5).
+                name: 'touch-reduced-motion',
                 viewport: { width: 390, height: 844 },
-                provider: playwright({ contextOptions: { hasTouch: true, isMobile: true } }),
+                provider: playwright({ contextOptions: { hasTouch: true, isMobile: true, reducedMotion: 'reduce' } }),
               },
             ],
             provider: playwright(),

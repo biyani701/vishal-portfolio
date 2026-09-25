@@ -77,6 +77,24 @@ describe('Autocomplete contract', () => {
     await expect.element(input()).toHaveFocus()
   })
 
+  it('hides the page from assistive tech only while open, and Tab closes the list first', async () => {
+    await render(
+      <>
+        <Fixture />
+        <a href="#next">Next link</a>
+      </>,
+    )
+    const link = page.getByText('Next link').element()
+    await input().click()
+    await userEvent.keyboard('w')
+    await expect.element(input()).toHaveAttribute('aria-expanded', 'true')
+    expect(link.closest('[aria-hidden="true"]'), 'page hidden while the list is open').not.toBeNull()
+
+    await userEvent.keyboard('{Tab}')
+    await expect.element(input()).toHaveAttribute('aria-expanded', 'false')
+    expect(link.closest('[aria-hidden="true"]'), 'page exposed again once focus moves on').toBeNull()
+  })
+
   it('closes on an outside click', async () => {
     await type('w')
     await clickOutside('bottom-right')

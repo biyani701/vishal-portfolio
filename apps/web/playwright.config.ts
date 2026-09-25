@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test'
 import { viewportName, viewports } from './e2e/viewports.ts'
 
 const port = 4173
-const siteWide = /(theme|fonts)\.spec\.ts/
+const siteWide = /(theme|fonts|dev-routes)\.spec\.ts/
 
 // Runs against the production build (`vite preview`), one project per matrix viewport.
 export default defineConfig({
