@@ -1,5 +1,5 @@
 // jsdom has no media queries. This stand-in evaluates the subset of Media Queries 4 used by src/design
-// (comma lists, `and`, orientation, width/height ranges in px, prefers-color-scheme) against a fake viewport,
+// (comma lists, `and`, orientation, width/height ranges in px, prefers-color-scheme, prefers-reduced-motion) against a fake viewport,
 // so tests exercise the real query strings. Anything outside that subset throws rather than guessing.
 import { vi } from 'vitest'
 
@@ -7,6 +7,7 @@ export interface FakeScreen {
   width: number
   height: number
   colorScheme?: 'light' | 'dark'
+  reducedMotion?: boolean
 }
 
 const RANGE = /^(?:(\d+)px\s*(<=|<)\s*)?(width|height)\s*(?:(<=|<|>=|>)\s*(\d+)px)?$/
@@ -22,6 +23,7 @@ function feature(text: string, screen: FakeScreen): boolean {
   const [name, value] = text.split(':').map((part) => part.trim())
   if (name === 'orientation') return (screen.width > screen.height ? 'landscape' : 'portrait') === value
   if (name === 'prefers-color-scheme') return (screen.colorScheme ?? 'light') === value
+  if (name === 'prefers-reduced-motion') return (screen.reducedMotion ? 'reduce' : 'no-preference') === value
   const range = RANGE.exec(text)
   if (!range || value !== undefined) throw new Error(`Unsupported media feature: (${text})`)
   const [, min, minOp, axis, maxOp, max] = range

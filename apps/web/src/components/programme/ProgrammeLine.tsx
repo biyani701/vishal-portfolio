@@ -14,9 +14,9 @@ import {
   type MilestoneCluster,
   type Programme,
   type Segment,
-  type SegmentTone,
   type Tick,
 } from './buildProgramme.ts'
+import { segmentTone, spanTone } from './tones.ts'
 import { useTrack } from './useTrack.ts'
 
 // The Programme Line (design package §6; task 6.2). The layout mode picks the form in CSS, so every form is
@@ -174,12 +174,6 @@ function MilestoneList({ milestones }: { milestones: readonly Milestone[] }) {
 
 /* ── Swimlanes (desktop, tablet) and labelled lanes (compact landscape) ── */
 
-const segmentTone: Record<SegmentTone, string> = {
-  current: 'border-flight-border bg-flight-bg font-semibold text-flight-fg',
-  delivered: 'border-accent-soft-border bg-accent-soft text-ink',
-  past: 'border-border bg-past-track text-ink',
-}
-
 /** Free track on each side of a segment, up to its neighbours in the lane. */
 interface Room {
   left: number
@@ -333,12 +327,6 @@ function LaneSegment({ segment, room, width, measure, compact }: LaneSegmentProp
 }
 
 /* ── Span rows (mobile) ── */
-
-const spanTone: Record<SegmentTone, string> = {
-  current: 'bg-flight-dot',
-  delivered: 'bg-accent-fill',
-  past: 'bg-past',
-}
 
 function SpanRows({ data, summary }: { data: ProgrammeData; summary: string }) {
   const [ref, programme] = useProgramme(data, 343)
