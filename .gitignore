@@ -32,3 +32,4 @@ apps/*/dist
 playwright-report/
 test-results/
 blob-report/
+.env*.local
