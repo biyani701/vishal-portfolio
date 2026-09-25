@@ -26,10 +26,10 @@
 
 ## 4. P4 — Content layer
 
-- [ ] 4.1 Zod schemas and loaders for profile, roles, milestones, skills, credentials, projects, writing, knowledge and glossary; verify an invalid fixture fails the build with the file and field named
-- [ ] 4.2 Migrate the real content from `apps/portfolio` (Experience, CareerTimeline, Skills, Works, Certifications, Education, Recognition, sampleBlogData, domainKnowledgeData, glossaryData), removing the placeholder `resumeData`; verify record counts (5 projects, 5 engagements, 68 terms, 3 articles, 3 domains)
-- [ ] 4.3 Markdown pipeline (remark/rehype + sanitise + Shiki); verify a fixture article renders headings, a code block and a table
-- [ ] 4.4 Build `search-index.json` and `ai-context.json`; verify both are generated, deterministic, and contain only published fields
+- [x] 4.1 Zod schemas and loaders for profile, roles, milestones, skills, credentials, projects, writing, knowledge and glossary; verify an invalid fixture fails the build with the file and field named
+- [x] 4.2 Migrate the real content from `apps/portfolio` (Experience, CareerTimeline, Skills, Works, Certifications, Education, Recognition, sampleBlogData, domainKnowledgeData, glossaryData), removing the placeholder `resumeData`; verify record counts (5 projects, 5 engagements, 68 terms, 3 articles, 3 domains)
+- [x] 4.3 Markdown pipeline (remark/rehype + sanitise + Shiki); verify a fixture article renders headings, a code block and a table
+- [x] 4.4 Build `search-index.json` and `ai-context.json`; verify both are generated, deterministic, and contain only published fields
 
 ## 5. P5 — Navigation shell and auth
 

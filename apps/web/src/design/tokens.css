@@ -62,6 +62,8 @@
   --color-past: #8e99aa;
   --color-past-track: #e3e7ed;
   --color-code-bg: #121823;
+  /* Code sits on the dark code surface in both themes, so its text colour is the same in both. */
+  --color-code-fg: #e8ecf1;
   --color-code-header: #1b2230;
   --color-code-keyword: #8fa6ff;
   --color-code-string: #f2c27a;
@@ -256,12 +258,28 @@
     --color-past: #39424f;
     --color-past-track: #1e242d;
     --color-code-bg: #0a0d12;
+    --color-code-fg: #e8ecf1;
     --color-code-header: #151a21;
     --color-code-keyword: #8fa6ff;
     --color-code-string: #f2c27a;
     --color-code-comment: #7d8796;
     --color-scrim: rgb(0 0 0 / 0.55);
     --shadow-overlay: 0 12px 32px -12px rgb(0 0 0 / 0.6);
+  }
+
+  /* Shiki's css-variables theme (scripts/content/markdown.ts) colours highlighted code through these. */
+  :root {
+    --code-foreground: var(--color-code-fg);
+    --code-background: var(--color-code-bg);
+    --code-token-keyword: var(--color-code-keyword);
+    --code-token-constant: var(--color-code-keyword);
+    --code-token-string: var(--color-code-string);
+    --code-token-string-expression: var(--color-code-string);
+    --code-token-link: var(--color-code-string);
+    --code-token-comment: var(--color-code-comment);
+    --code-token-function: var(--color-code-fg);
+    --code-token-parameter: var(--color-code-fg);
+    --code-token-punctuation: var(--color-code-fg);
   }
 
   html {
