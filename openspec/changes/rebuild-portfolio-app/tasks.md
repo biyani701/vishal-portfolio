@@ -15,7 +15,7 @@
 - [x] 2.4 Contract tests for Dialog, Drawer, Menu, Autocomplete, Popover, Tabs and Toast (focus trap/restore, Escape, outside click, keyboard navigation, 44px targets); verify all pass
 - [x] 2.5 StatusChip, Portrait (DD-4 guard), Lucide icon wrapper and motion helpers (`Reveal`, reduced-motion gate); verify unit tests, including reduced motion
 - [x] 2.6 `/_dev/ui` gallery (dev only) showing every component in light and dark; verify axe finds no violations there
-- [ ] 2.7 Add the UI rule block to `CLAUDE.md` and `AGENTS.md` (Base UI 1.x, `render` not `asChild`, `shadcn add`, tokens only); verify both files contain it
+- [x] 2.7 Add the UI rule block to `CLAUDE.md` and `AGENTS.md` (Base UI 1.x, `render` not `asChild`, `shadcn add`, tokens only); verify both files contain it
 
 ## 3. P3 — Layout foundation
 

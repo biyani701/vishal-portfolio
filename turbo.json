@@ -13,7 +13,9 @@
     },
     "lint": {},
     "typecheck": {},
-    "test": {},
+    "test": {
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/CLAUDE.md", "$TURBO_ROOT$/AGENTS.md"]
+    },
     "e2e": {
       "dependsOn": ["build"]
     }
