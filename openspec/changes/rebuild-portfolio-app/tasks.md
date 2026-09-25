@@ -2,7 +2,7 @@
 
 - [x] 1.1 Create `apps/web` (Vite, React 19, TypeScript, React Router) in the pnpm workspace and Turborepo pipelines; verify `pnpm --filter web dev` serves a placeholder page and `build` emits `dist/`
 - [x] 1.2 Add Vitest + Testing Library + jsdom with one smoke test; verify `pnpm --filter web test` passes
-- [ ] 1.3 Add ESLint 9 flat config with the UF-3 guards (forbidden imports, `@base-ui/react` only in `src/ui`, no `asChild`, no arbitrary Tailwind values outside `src/design`/`src/ui`); verify fixture files violating each rule fail lint
+- [x] 1.3 Add ESLint 9 flat config with the UF-3 guards (forbidden imports, `@base-ui/react` only in `src/ui`, no `asChild`, no arbitrary Tailwind values outside `src/design`/`src/ui`); verify fixture files violating each rule fail lint
 - [ ] 1.4 Add the Playwright harness with the 9-viewport matrix and a route list fixture (no-overflow and header-overlap assertions); verify it runs green against the placeholder
 - [ ] 1.5 Configuration: `VITE_*` variables, `runtime-config.js` loader, and a required-variable check at build; verify that a missing `VITE_API_BASE_URL` fails the build with its name
 - [ ] 1.6 CI workflow for `apps/web` (Node 22, pnpm: lint, typecheck, test, build, e2e) plus a Vercel preview per PR; verify a PR shows all checks and a preview URL; production Pages deploy stays on `apps/portfolio`

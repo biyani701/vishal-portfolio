@@ -5,6 +5,8 @@ export const routes: RouteObject[] = [
   {
     path: '/',
     lazy: () => import('./routes/home.tsx'),
+    // Rendered while the lazy module loads on first visit; the AppShell (P3) takes this over.
+    HydrateFallback: () => null,
   },
 ]
 
