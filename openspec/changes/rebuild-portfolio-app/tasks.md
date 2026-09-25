@@ -40,7 +40,7 @@
 
 ## 6. P6 — Home and Programme Line
 
-- [ ] 6.1 `buildProgramme` pure function (segments, label-inside rule, 12px milestone clustering, axis); verify unit tests at 288/343/358/500/1100 px
+- [x] 6.1 `buildProgramme` pure function (segments, label-inside rule, 12px milestone clustering, axis); verify unit tests at 288/343/358/500/1100 px
 - [ ] 6.2 ProgrammeLine forms (lanes, compact strip, span rows, table) with `aria-label` and "View as table"; verify Playwright at 320×568, 375×667, 390×844 and 844×390: no overflow, rows ≥ 56px
 - [ ] 6.3 Home sections (hero with portrait, Programme Line, proof ledger, selected work, Ask input, writing/knowledge, contact band) in all four modes; verify against the Programme canvas artboards and that Playwright is green
 
