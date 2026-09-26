@@ -3,16 +3,12 @@ import { requiredEnvNames, resolveConfig } from './schema.ts'
 
 const env = {
   VITE_API_BASE_URL: 'https://api.example.test/',
-  VITE_AUTH_SERVER_URL: 'https://auth.example.test',
 }
 
 describe('resolveConfig', () => {
-  it('reads VITE_* variables, trims trailing slashes and applies fallbacks', () => {
+  it('reads VITE_* variables and trims trailing slashes', () => {
     expect(resolveConfig(env)).toEqual({
       apiBaseUrl: 'https://api.example.test',
-      authServerUrl: 'https://auth.example.test',
-      authClientId: 'portfolio',
-      authProviders: 'github,google',
       analyticsApiUrl: undefined,
     })
   })
@@ -28,16 +24,14 @@ describe('resolveConfig', () => {
   })
 
   it('names a missing required variable', () => {
-    expect(() => resolveConfig({ VITE_AUTH_SERVER_URL: 'https://auth.example.test' })).toThrow(
-      'VITE_API_BASE_URL is required',
-    )
+    expect(() => resolveConfig({ VITE_ANALYTICS_API_URL: 'https://a.test/api' })).toThrow('VITE_API_BASE_URL is required')
   })
 
   it('rejects a non-URL, naming where it came from', () => {
-    expect(() => resolveConfig(env, { AUTH_SERVER_URL: 'auth.example.test' })).toThrow('runtimeConfig.AUTH_SERVER_URL')
+    expect(() => resolveConfig(env, { ANALYTICS_API_URL: 'a.test/api' })).toThrow('runtimeConfig.ANALYTICS_API_URL')
   })
 
-  it('requires the API and auth server URLs', () => {
-    expect(requiredEnvNames).toEqual(['VITE_API_BASE_URL', 'VITE_AUTH_SERVER_URL'])
+  it('requires only the API URL', () => {
+    expect(requiredEnvNames).toEqual(['VITE_API_BASE_URL'])
   })
 })
