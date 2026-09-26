@@ -7,7 +7,7 @@ const complete = {
   RESEND_API_KEY: 'test-resend-key',
   CONTACT_FROM_EMAIL: 'contact@example.test',
   CONTACT_TO_EMAIL: 'owner@example.test',
-  ANTHROPIC_API_KEY: 'test-anthropic-key',
+  AI_API_KEY: 'test-ai-key',
   DATABASE_URL: 'postgres://user:pass@db.example.test/portfolio',
   KV_REST_API_URL: 'https://kv.example.test',
   KV_REST_API_TOKEN: 'test-kv-token',
@@ -26,8 +26,9 @@ describe('loadConfig', () => {
       AI_RATE_LIMIT_PER_IP_PER_HOUR: 30,
       AI_MAX_OUTPUT_TOKENS: 1200,
       AI_DAILY_BUDGET_USD: 2,
-      AI_MODEL: 'claude-sonnet-5',
-      AI_SUGGESTION_MODEL: 'claude-haiku-4-5-20251001',
+      AI_BASE_URL: 'https://integrate.api.nvidia.com/v1',
+      AI_MODEL: 'meta/llama-3.3-70b-instruct',
+      AI_SUGGESTION_MODEL: 'meta/llama-3.1-8b-instruct',
     })
   })
 
@@ -42,10 +43,16 @@ describe('loadConfig', () => {
   })
 
   it('names every missing or invalid variable at once, and treats empty values as unset', () => {
-    const run = () => loadConfig({ ...complete, DATABASE_URL: '', ANTHROPIC_API_KEY: undefined, CONTACT_RETENTION_DAYS: 'a year', CONTACT_TO_EMAIL: 'owner' })
+    const run = () => loadConfig({ ...complete, DATABASE_URL: '', AI_API_KEY: undefined, CONTACT_RETENTION_DAYS: 'a year', CONTACT_TO_EMAIL: 'owner' })
     expect(run).toThrow(
-      'apps/api configuration: CONTACT_RETENTION_DAYS must be a whole number; CONTACT_TO_EMAIL must be an email address; ANTHROPIC_API_KEY is required; DATABASE_URL is required',
+      'apps/api configuration: CONTACT_RETENTION_DAYS must be a whole number; CONTACT_TO_EMAIL must be an email address; AI_API_KEY is required; DATABASE_URL is required',
     )
+  })
+
+  it('switches LLM provider through configuration alone', () => {
+    const config = loadConfig({ ...complete, AI_BASE_URL: 'https://llm.example.test/v1', AI_MODEL: 'some/model' })
+    expect(config).toMatchObject({ AI_BASE_URL: 'https://llm.example.test/v1', AI_MODEL: 'some/model' })
+    expect(() => loadConfig({ ...complete, AI_BASE_URL: 'http://llm.example.test' })).toThrow('AI_BASE_URL must be an https:// URL')
   })
 
   it('rejects non-postgres database URLs and non-https KV URLs', () => {

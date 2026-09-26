@@ -16,8 +16,11 @@ export const configSchema = z.object({
   AI_RATE_LIMIT_PER_IP_PER_HOUR: whole(30),
   AI_MAX_OUTPUT_TOKENS: whole(1200),
   AI_DAILY_BUDGET_USD: z.coerce.number({ error: 'must be a number' }).positive('must be above 0').default(2),
-  AI_MODEL: z.string().trim().min(1).default('claude-sonnet-5'),
-  AI_SUGGESTION_MODEL: z.string().trim().min(1).default('claude-haiku-4-5-20251001'),
+  // The LLM is any OpenAI-compatible chat-completions API (design.md A5): NVIDIA's API catalog by default.
+  // Changing provider is AI_BASE_URL + AI_API_KEY + the model ids, with no code change.
+  AI_BASE_URL: z.url({ protocol: /^https$/, error: 'must be an https:// URL' }).default('https://integrate.api.nvidia.com/v1'),
+  AI_MODEL: z.string().trim().min(1).default('meta/llama-3.3-70b-instruct'),
+  AI_SUGGESTION_MODEL: z.string().trim().min(1).default('meta/llama-3.1-8b-instruct'),
 
   // Email (design.md A10): a verified sender on biyani.xyz, and where notifications go.
   RESEND_API_KEY: required(),
@@ -25,7 +28,7 @@ export const configSchema = z.object({
   CONTACT_TO_EMAIL: required().pipe(z.email('must be an email address')),
 
   // Provider credentials, injected by the Vercel Marketplace integrations (Neon, Upstash) or set by the owner.
-  ANTHROPIC_API_KEY: required(),
+  AI_API_KEY: required(),
   DATABASE_URL: required().pipe(z.url({ protocol: /^postgres(ql)?$/, error: 'must be a postgres:// URL' })),
   KV_REST_API_URL: required().pipe(z.url({ protocol: /^https$/, error: 'must be an https:// URL' })),
   KV_REST_API_TOKEN: required(),

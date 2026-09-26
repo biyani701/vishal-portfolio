@@ -68,7 +68,7 @@
       "id": "llm",
       "type": "external",
       "label": "LLM provider",
-      "sublabel": "Anthropic Claude",
+      "sublabel": "NVIDIA API catalog",
       "pos": [
         960,
         140

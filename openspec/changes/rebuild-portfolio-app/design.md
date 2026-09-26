@@ -31,7 +31,7 @@ Browser ──► GitHub Pages: apps/web (static SPA, Vite build)
    │            ├─ /search-index.json, /ai-context.json (build artefacts)
    │            └─ runtime-config.js (API URL)
    └──────► apps/api (Vercel, NEW)  api.vishal.biyani.xyz
-                ├─ AG-UI runtime  ──► LLM provider (Anthropic)
+                ├─ AG-UI runtime  ──► LLM provider (NVIDIA API catalog, OpenAI-compatible)
                 │     └─ tools read https://vishal.biyani.xyz/ai-context.json (cached)
                 ├─ POST /contact  ──► Postgres (store) ──► email provider (notify)
                 └─ cron: retry undelivered emails; purge past retention
@@ -82,10 +82,19 @@ apps/web/
   - `useAgentContext` passes page context.
   - `useThreads` keeps browser-local history.
   - The live region uses `@react-aria/live-announcer`.
-- **Runtime (apps/api):** `@copilotkit/runtime` with an Anthropic model.
-  - The default model is Claude Sonnet 5, set by environment variable. Haiku 4.5 generates suggestions.
+- **Runtime (apps/api):** `@copilotkit/runtime` with an OpenAI-compatible chat-completions model.
+  - **Provider (amended 2026-09-26, owner decision):** NVIDIA's API catalog (`https://integrate.api.nvidia.com/v1`), chosen for its free,
+    rate-limited tier. The endpoint, key and model ids are configuration (`AI_BASE_URL`, `AI_API_KEY`,
+    `AI_MODEL`, `AI_SUGGESTION_MODEL`), so moving to another OpenAI-compatible provider needs no code change.
+    Replaces the earlier Anthropic choice.
+  - The default model is `meta/llama-3.3-70b-instruct` (it must support tool calling; S1 confirms it). `meta/llama-3.1-8b-instruct`
+    generates suggestions.
+  - Provider rate-limit responses (429) degrade the same way as the daily budget: Ask says answers are unavailable
+    for now and offers search and Contact. On a free tier `AI_DAILY_BUDGET_USD` rarely binds; it stays for paid
+    providers.
+  - The privacy policy (task 10.5) names the provider that processes questions.
   - Tools are implemented over `ai-context.json`, which is fetched from the site and cached by ETag. The corpus is small (tens of records), so in-memory keyword/BM25 search is enough; no vector database.
-- **Spike S1 (Phase 11 entry):** confirm the runtime's supported server adapter for a Vercel Node function, and that its Anthropic adapter supports tool calls and streaming with the v2 client. If an adapter is missing, run the runtime in a Next.js route handler inside `apps/api`. That is an implementation detail and changes no decision.
+- **Spike S1 (Phase 11 entry):** confirm the runtime's supported server adapter for a Vercel Node function, and that its OpenAI-compatible adapter, pointed at `AI_BASE_URL`, supports tool calls and streaming with the v2 client for the default model. If that model's tool calling isn't reliable, pick another tool-capable model from the catalog (configuration only). If an adapter is missing, run the runtime in a Next.js route handler inside `apps/api`. That is an implementation detail and changes no decision.
 
 ### A6. apps/api
 - A Vercel project using Node functions.
@@ -161,11 +170,12 @@ Retention and AI limits are **configuration, not code**. They are read from envi
 | `AI_RATE_LIMIT_PER_IP_PER_HOUR` | Ask requests per IP per hour | `30` |
 | `AI_MAX_OUTPUT_TOKENS` | Cap per answer | `1200` |
 | `CONTACT_RATE_LIMIT_PER_IP_PER_HOUR` | Contact submissions per IP per hour | `5` |
-| `AI_MODEL` / `AI_SUGGESTION_MODEL` | Model IDs | Claude Sonnet 5 / Claude Haiku 4.5 |
+| `AI_BASE_URL` | OpenAI-compatible LLM endpoint | `https://integrate.api.nvidia.com/v1` (NVIDIA API catalog) |
+| `AI_MODEL` / `AI_SUGGESTION_MODEL` | Model IDs | `meta/llama-3.3-70b-instruct` / `meta/llama-3.1-8b-instruct` |
 | `RESEND_API_KEY` | Email provider key (**secret**) | none (required) |
 | `CONTACT_FROM_EMAIL` | Verified sender on the owner's domain (e.g. `contact@biyani.xyz`) | none (required) |
 | `CONTACT_TO_EMAIL` | Destination for notifications | none (required) |
-| `ANTHROPIC_API_KEY`, `DATABASE_URL`, `KV_*` | Provider credentials (**secrets**) | none (required) |
+| `AI_API_KEY`, `DATABASE_URL`, `KV_*` | Provider credentials (**secrets**) | none (required) |
 | `ALLOWED_ORIGINS` | CORS allow-list | production site origin |
 
 The service validates required variables at start-up and fails fast with the variable name. The privacy policy states retention from `CONTACT_RETENTION_DAYS`, so the policy text and the config must be changed together.
