@@ -87,14 +87,20 @@ apps/web/
     rate-limited tier. The endpoint, key and model ids are configuration (`AI_BASE_URL`, `AI_API_KEY`,
     `AI_MODEL`, `AI_SUGGESTION_MODEL`), so moving to another OpenAI-compatible provider needs no code change.
     Replaces the earlier Anthropic choice.
-  - The default model is `meta/llama-3.3-70b-instruct` (it must support tool calling; S1 confirms it). `meta/llama-3.1-8b-instruct`
-    generates suggestions.
+  - **Models are discovered, not configured (amended 2026-09-26, owner request):** the free catalog rotates, so
+    `apps/api/src/ai/` lists `{AI_BASE_URL}/models`, ranks chat candidates by generic signals from the id (no model
+    names: excludes embedding, safety, vision and similar; prefers instruct models of a suitable size, not
+    code-specialised, newer generations first), and probes the first few (`AI_MODEL_PROBE_LIMIT`, default 6). The
+    agent model must make a tool call and the suggestion model must answer. The selection is shared through the KV
+    store, refreshed daily by Vercel Cron (`GET /cron/ai-models`, bearer `CRON_SECRET`) or when stale
+    (`AI_MODEL_REFRESH_HOURS`, default 24), kept as a fallback while the catalog is unreachable, and replaced when a
+    model answers 404/410/403/402. `AI_MODEL` / `AI_SUGGESTION_MODEL` pin a model; `AI_MODEL_PREFER` reorders.
   - Provider rate-limit responses (429) degrade the same way as the daily budget: Ask says answers are unavailable
     for now and offers search and Contact. On a free tier `AI_DAILY_BUDGET_USD` rarely binds; it stays for paid
     providers.
   - The privacy policy (task 10.5) names the provider that processes questions.
   - Tools are implemented over `ai-context.json`, which is fetched from the site and cached by ETag. The corpus is small (tens of records), so in-memory keyword/BM25 search is enough; no vector database.
-- **Spike S1 (Phase 11 entry):** confirm the runtime's supported server adapter for a Vercel Node function, and that its OpenAI-compatible adapter, pointed at `AI_BASE_URL`, supports tool calls and streaming with the v2 client for the default model. If that model's tool calling isn't reliable, pick another tool-capable model from the catalog (configuration only). If an adapter is missing, run the runtime in a Next.js route handler inside `apps/api`. That is an implementation detail and changes no decision.
+- **Spike S1 (Phase 11 entry):** confirm the runtime's supported server adapter for a Vercel Node function, and that its OpenAI-compatible adapter, pointed at `AI_BASE_URL`, supports tool calls and streaming with the v2 client for the discovered agent model. If discovery's tool probe proves too weak a check, tighten the probe (for example, a streamed tool call) rather than pinning a model. If an adapter is missing, run the runtime in a Next.js route handler inside `apps/api`. That is an implementation detail and changes no decision.
 
 ### A6. apps/api
 - A Vercel project using Node functions.
@@ -171,7 +177,10 @@ Retention and AI limits are **configuration, not code**. They are read from envi
 | `AI_MAX_OUTPUT_TOKENS` | Cap per answer | `1200` |
 | `CONTACT_RATE_LIMIT_PER_IP_PER_HOUR` | Contact submissions per IP per hour | `5` |
 | `AI_BASE_URL` | OpenAI-compatible LLM endpoint | `https://integrate.api.nvidia.com/v1` (NVIDIA API catalog) |
-| `AI_MODEL` / `AI_SUGGESTION_MODEL` | Model IDs | `meta/llama-3.3-70b-instruct` / `meta/llama-3.1-8b-instruct` |
+| `AI_MODEL` / `AI_SUGGESTION_MODEL` | Pin a model instead of discovering it | unset (discovered) |
+| `AI_MODEL_PREFER` | Patterns discovery tries first, e.g. `*nemotron*` | unset |
+| `AI_MODEL_REFRESH_HOURS` / `AI_MODEL_PROBE_LIMIT` | How often discovery re-checks, and how many models it probes per role | `24` / `6` |
+| `CRON_SECRET` | Bearer token Vercel Cron sends to `/cron/*` (**secret**) | none (required) |
 | `RESEND_API_KEY` | Email provider key (**secret**) | none (required) |
 | `CONTACT_FROM_EMAIL` | Verified sender on the owner's domain (e.g. `contact@biyani.xyz`) | none (required) |
 | `CONTACT_TO_EMAIL` | Destination for notifications | none (required) |

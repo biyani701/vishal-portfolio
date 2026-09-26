@@ -89,6 +89,7 @@ the value again). For each row, tick the environments shown.
 | `AI_API_KEY` | A new NVIDIA API key (below) | ✓ | ✓ | ✓ |
 | `CONTACT_FROM_EMAIL` | `contact@biyani.xyz` (or another address on the domain you verify in Resend, task 10.2b) | ✓ | ✓ | ✓ |
 | `CONTACT_TO_EMAIL` | The inbox that should receive contact messages | ✓ | ✓ | ✓ |
+| `CRON_SECRET` | A random string (below); Vercel Cron sends it to `/cron/*` | ✓ | ✓ | ✓ |
 | `ALLOWED_ORIGINS` | `https://vishal.biyani.xyz,https://vishal-portfolio-*-vishals-projects-d59fa5fe.vercel.app` | – | ✓ | – |
 
 Notes:
@@ -109,16 +110,29 @@ Notes:
 **NVIDIA API key** (the LLM for Ask; task 11 uses it)
 
 1. Sign in at [build.nvidia.com](https://build.nvidia.com) with the NVIDIA account you want to use.
-2. Open any model page (for example `meta/llama-3.3-70b-instruct`) → **Get API Key** → **Generate Key**. Keys start with `nvapi-`.
+2. Open any model page in the catalog → **Get API Key** → **Generate Key**. Keys start with `nvapi-`.
 3. Copy it straight into Vercel as `AI_API_KEY`.
 4. Check the free tier's current terms and limits on your account page. They cap requests per minute, and free
    access may be meant for evaluation rather than a public site. When the limit is hit, Ask shows that answers are
    unavailable and offers search and Contact (specs/api-service "Cost and abuse limits"); the rest of the site is
    unaffected.
 
-The endpoint (`AI_BASE_URL`, default `https://integrate.api.nvidia.com/v1`) and the models (`AI_MODEL`, default `meta/llama-3.3-70b-instruct`;
-`AI_SUGGESTION_MODEL`, default `meta/llama-3.1-8b-instruct`) have defaults, so you don't need to set them. To switch provider
-later, set `AI_BASE_URL`, `AI_API_KEY` and the model ids for any OpenAI-compatible API; no code changes.
+**Models are chosen automatically.** NVIDIA rotates its free models, so the API doesn't hard-code any. It lists
+the catalog, ranks the chat models, and probes the first few with a tiny real request: the Ask model must make a
+tool call, and the suggestion model only has to answer. The choice is cached in Upstash and re-checked daily by a
+cron job; if a chosen model disappears, the next one is picked. You don't need to set a model. Optional overrides:
+
+- `AI_MODEL` / `AI_SUGGESTION_MODEL` pin a model (skipping discovery for that role).
+- `AI_MODEL_PREFER` lists patterns tried first, e.g. `*nemotron*,*llama*instruct`.
+- `AI_MODEL_REFRESH_HOURS` (24) and `AI_MODEL_PROBE_LIMIT` (6) tune how often and how widely it checks.
+
+To switch provider later, set `AI_BASE_URL` and `AI_API_KEY` for any OpenAI-compatible API; no code changes.
+
+**Cron secret**
+
+Generate a random value, e.g. `openssl rand -hex 32` (or any password manager's 32+ character generator), and save
+it as `CRON_SECRET`, marked Sensitive. Vercel Cron then sends it as `Authorization: Bearer …` to the job in
+`apps/api/vercel.json` (`/cron/ai-models`, daily at 03:00 UTC); requests without it get 401.
 
 **Then redeploy:** **Deployments** → the latest deployment → **⋯ → Redeploy**. Environment changes apply only to
 new deployments.
@@ -173,6 +187,16 @@ curl -si -H "Origin: https://vishal.biyani.xyz" https://api.vishal.biyani.xyz/he
 - **Browser:** while logged in to Vercel, open `https://<preview-url>/health`. It shows `{"status":"ok",…}`.
 - **Vercel CLI:** `npm i -g vercel`, `vercel login`, then `vercel curl https://<preview-url>/health` and
   `vercel curl https://<preview-url>/health -- -X POST -H "Origin: https://evil.example"`, which should return 403.
+
+**Model discovery** (after step 4): run the daily job by hand. It takes up to a minute while it probes.
+
+```bash
+curl -s -H "Authorization: Bearer <CRON_SECRET>" https://api.vishal.biyani.xyz/cron/ai-models
+# {"agent":"<model id>","suggestions":"<model id>","source":{…},"candidates":82,"probes":[{"model":…,"ok":true,"ms":…},…]}
+```
+
+A `503 {"error":"no_model_available"}` means no probed model could make a tool call. Check the key, or widen the
+search with `AI_MODEL_PROBE_LIMIT`. **Settings → Cron Jobs** in Vercel shows the schedule and its runs.
 
 **Logs:** **Deployments → a deployment → Logs** shows one JSON line per request, like
 `{"level":"warn","msg":"request","method":"POST","route":"/*","status":403,"reason":"origin_not_allowed"}`.
