@@ -73,6 +73,8 @@ export function buildAiContext(content: Content) {
       skills: role.skills,
       url: `/experience#${role.id}`,
     })),
+    // Placeholder copy is not a fact about the owner, so Ask doesn't see About until it's supplied.
+    about: content.about.draft ? null : { story: content.about.story, principles: content.about.principles },
     milestones: milestonesOf(content.credentials).map((m) => ({ ...m, when: periodLabel(m.date) })),
     skills: content.skills,
     education: content.credentials.education,

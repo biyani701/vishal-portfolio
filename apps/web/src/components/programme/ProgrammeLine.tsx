@@ -16,13 +16,18 @@ import {
   type Segment,
   type Tick,
 } from './buildProgramme.ts'
-import { segmentTone, spanTone } from './tones.ts'
+import { segmentTone, selectedRow, selectedSegment, spanTone } from './tones.ts'
 import { useTrack } from './useTrack.ts'
 
 // The Programme Line (design package §6; task 6.2). The layout mode picks the form in CSS, so every form is
 // in the DOM and the others are display:none: swimlanes on desktop and tablet (scrolling on tablet when the
 // track would be under 600px), labelled 28px lanes on compact landscape where the whole figure links to
 // Experience, and span rows on mobile. Each form measures its own track and builds its own geometry.
+//
+// On Experience (task 7.1) the line is interactive: `selected` names the role shown in the role panel. Every
+// form then marks it with the Selected style and aria-current, links select a role without resetting the
+// scroll (the page brings the panel into view itself), and the compact-landscape figure gets per-segment links
+// instead of linking to the page it's on.
 
 interface ProgrammeData {
   organisations: readonly Organisation[]
@@ -31,7 +36,26 @@ interface ProgrammeData {
   now: number
 }
 
-export type ProgrammeLineProps = Partial<ProgrammeData> & { className?: string }
+export type ProgrammeLineProps = Partial<ProgrammeData> & {
+  /** On Experience: the selected role's id. Omitted elsewhere, where every segment links to Experience. */
+  selected?: string
+  className?: string
+}
+
+/** How segment links behave: plain links to Experience, or in-page selection on Experience. */
+interface Selection {
+  interactive: boolean
+  selected?: string
+}
+
+/** Link props for a role: selection on Experience keeps the scroll position and replaces the history entry. */
+function roleLink(role: Role, { interactive, selected }: Selection) {
+  return {
+    to: experienceLink(role),
+    ...(interactive && { preventScrollReset: true, replace: true }),
+    'aria-current': selected === role.id ? ('true' as const) : undefined,
+  }
+}
 
 const pct = (x: number, width: number) => `${(x / width) * 100}%`
 const experienceLink = (role: Role) => `/experience#${role.id}`
@@ -53,12 +77,14 @@ export function ProgrammeLine({
   roles = allRoles,
   milestones = allMilestones,
   now = fractionalYear(new Date()),
+  selected,
   className,
 }: ProgrammeLineProps) {
   const headingId = useId()
   const [asTable, setAsTable] = useState(false)
   const data = { organisations, roles, milestones, now }
   const summary = describeProgramme(organisations, roles, milestones)
+  const selection: Selection = { interactive: selected !== undefined, selected }
 
   return (
     <section
@@ -90,12 +116,12 @@ export function ProgrammeLine({
 
       <div className="flex min-w-0 flex-col gap-3 compact-landscape:col-span-3">
         {asTable ? (
-          <ProgrammeTable roles={roles} />
+          <ProgrammeTable roles={roles} selection={selection} />
         ) : (
           <>
-            <Lanes data={data} summary={summary} />
-            <CompactLanes data={data} summary={summary} />
-            <SpanRows data={data} summary={summary} />
+            <Lanes data={data} summary={summary} selection={selection} />
+            <CompactLanes data={data} summary={summary} selection={selection} />
+            <SpanRows data={data} summary={summary} selection={selection} />
           </>
         )}
         <MilestoneList milestones={milestones} />
@@ -194,13 +220,19 @@ function outsideLabel(segment: Segment, room: Room, width: number, measure: Meas
   return undefined
 }
 
-function Lanes({ data, summary }: { data: ProgrammeData; summary: string }) {
+interface FormProps {
+  data: ProgrammeData
+  summary: string
+  selection: Selection
+}
+
+function Lanes({ data, summary, selection }: FormProps) {
   const [ref, programme, measure] = useProgramme(data, 900)
   return (
     <figure aria-label={summary} data-form="lanes" className="hidden rounded-lg border border-border bg-surface tablet:block desktop:block">
       <ScrollArea>
         <div className="flex flex-col gap-2.5 px-5 pt-4 pb-3 text-label font-medium">
-          <LaneRows programme={programme} measure={measure} compact={false} />
+          <LaneRows programme={programme} measure={measure} compact={false} selection={selection} />
           <div className="flex">
             <span className="w-36 shrink-0" />
             {/* Under 600px of track, the lanes scroll rather than squeeze (§6.2, tablet). */}
@@ -215,8 +247,28 @@ function Lanes({ data, summary }: { data: ProgrammeData; summary: string }) {
   )
 }
 
-function CompactLanes({ data, summary }: { data: ProgrammeData; summary: string }) {
+function CompactLanes({ data, summary, selection }: FormProps) {
   const [ref, programme, measure] = useProgramme(data, 620)
+  const figure = (
+    <figure aria-label={selection.interactive ? summary : undefined} className="flex flex-col gap-2 text-label font-medium">
+      <LaneRows programme={programme} measure={measure} compact selection={selection} />
+      <div className="flex">
+        <span className="w-20 shrink-0" />
+        <div ref={ref} className="min-w-0 flex-1 border-t border-border pt-1">
+          <Axis ticks={programme.ticks} width={programme.width} />
+        </div>
+      </div>
+      {!selection.interactive && <figcaption className="text-label font-semibold text-accent">Open Experience →</figcaption>}
+    </figure>
+  )
+  const frame = 'hidden rounded-lg border border-border bg-surface px-3 pt-3 pb-2 text-ink compact-landscape:block'
+  if (selection.interactive) {
+    return (
+      <div data-form="compact" className={frame}>
+        {figure}
+      </div>
+    )
+  }
   // A summary figure: one link to Experience, no per-segment targets (§6.2). Its padding and the pane gap are
   // tight so "IFC" fits inside its ~38px segment at 844px (§6.3), with room for Linux's whole-pixel text metrics.
   return (
@@ -224,23 +276,21 @@ function CompactLanes({ data, summary }: { data: ProgrammeData; summary: string 
       to="/experience"
       aria-label={`${summary} Open Experience.`}
       data-form="compact"
-      className="hidden rounded-lg border border-border bg-surface px-3 pt-3 pb-2 text-ink hover:border-border-strong compact-landscape:block"
+      className={cn(frame, 'hover:border-border-strong')}
     >
-      <figure className="flex flex-col gap-2 text-label font-medium">
-        <LaneRows programme={programme} measure={measure} compact />
-        <div className="flex">
-          <span className="w-20 shrink-0" />
-          <div ref={ref} className="min-w-0 flex-1 border-t border-border pt-1">
-            <Axis ticks={programme.ticks} width={programme.width} />
-          </div>
-        </div>
-        <figcaption className="text-label font-semibold text-accent">Open Experience →</figcaption>
-      </figure>
+      {figure}
     </Link>
   )
 }
 
-function LaneRows({ programme, measure, compact }: { programme: Programme; measure: Measure; compact: boolean }) {
+interface LaneRowsProps {
+  programme: Programme
+  measure: Measure
+  compact: boolean
+  selection: Selection
+}
+
+function LaneRows({ programme, measure, compact, selection }: LaneRowsProps) {
   const { width, lanes, clusters } = programme
   const header = cn('shrink-0 font-normal text-muted', compact ? 'w-20' : 'w-36')
   return (
@@ -255,7 +305,17 @@ function LaneRows({ programme, measure, compact }: { programme: Programme; measu
                 left: segment.x - (prev ? prev.x + prev.width : 0),
                 right: (next ? next.x : width) - (segment.x + segment.width),
               }
-              return <LaneSegment key={segment.role.id} segment={segment} room={room} width={width} measure={measure} compact={compact} />
+              return (
+                <LaneSegment
+                  key={segment.role.id}
+                  segment={segment}
+                  room={room}
+                  width={width}
+                  measure={measure}
+                  compact={compact}
+                  selection={selection}
+                />
+              )
             })}
           </div>
         </div>
@@ -278,11 +338,17 @@ interface LaneSegmentProps {
   width: number
   measure: Measure
   compact: boolean
+  selection: Selection
 }
 
-function LaneSegment({ segment, room, width, measure, compact }: LaneSegmentProps) {
+function LaneSegment({ segment, room, width, measure, compact, selection }: LaneSegmentProps) {
   const { role } = segment
-  const box = cn('absolute top-0 flex items-center gap-1.5 rounded-sm border px-2 whitespace-nowrap', compact ? 'h-7' : 'h-7.5', segmentTone[segment.tone])
+  const box = cn(
+    'absolute top-0 flex items-center gap-1.5 rounded-sm border px-2 whitespace-nowrap',
+    compact ? 'h-7' : 'h-7.5',
+    segmentTone[segment.tone],
+    selection.selected === role.id && selectedSegment,
+  )
   const style = { left: pct(segment.x, width), width: pct(segment.width, width) }
   const outside = segment.labelInside ? undefined : outsideLabel(segment, room, width, measure)
   const content = segment.labelInside && (
@@ -297,6 +363,25 @@ function LaneSegment({ segment, room, width, measure, compact }: LaneSegmentProp
     </span>
   )
 
+  const name = `${engagement(role)}, ${roleDates(role)}, ${statusText(segment)}`
+  const linkProps = {
+    ...roleLink(role, selection),
+    'aria-label': name,
+    'data-role': role.id,
+    className: cn(box, 'hit-target hover:border-border-strong'),
+    style,
+  }
+
+  if (compact && selection.interactive) {
+    // Compact lanes have no tooltips; the aria-label and the role panel name the engagement.
+    return (
+      <>
+        <Link {...linkProps}>{content}</Link>
+        {outsideText}
+      </>
+    )
+  }
+
   if (compact) {
     return (
       <>
@@ -308,13 +393,10 @@ function LaneSegment({ segment, room, width, measure, compact }: LaneSegmentProp
     )
   }
 
-  const name = `${engagement(role)}, ${roleDates(role)}, ${statusText(segment)}`
   return (
     <>
       <Tooltip>
-        <TooltipTrigger
-          render={<Link to={experienceLink(role)} aria-label={name} data-role={role.id} className={cn(box, 'hit-target hover:border-border-strong')} style={style} />}
-        >
+        <TooltipTrigger render={<Link {...linkProps} />}>
           {content}
         </TooltipTrigger>
         {/* Desktop only, and never the only source: the same facts are in the table and the aria-label (§6.6). */}
@@ -329,12 +411,13 @@ function LaneSegment({ segment, room, width, measure, compact }: LaneSegmentProp
 
 /* ── Span rows (mobile) ── */
 
-function SpanRows({ data, summary }: { data: ProgrammeData; summary: string }) {
+function SpanRows({ data, summary, selection }: FormProps) {
   const [ref, programme] = useProgramme(data, 343)
   const { width, segments, clusters, ticks } = programme
   // Full month ranges fit from a 343px track (375px viewports); the 288px track uses years.
   const dates = width >= 320 ? roleDates : roleYears
-  const row = 'flex min-h-14 flex-col justify-center gap-1.5 border-t border-border py-2 text-ink'
+  // On Experience rows carry a left rule, coloured on the selected row with the Selected fill (§5).
+  const row = cn('flex min-h-14 flex-col justify-center gap-1.5 border-t border-border py-2 text-ink', selection.interactive && 'border-l-2 border-l-transparent pl-2')
   const meta = 'flex items-center justify-between gap-2 font-mono text-mono-s text-muted tabular-nums'
 
   return (
@@ -345,7 +428,7 @@ function SpanRows({ data, summary }: { data: ProgrammeData; summary: string }) {
       <ul className="mt-1">
         {segments.map((segment) => (
           <li key={segment.role.id}>
-            <Link to={experienceLink(segment.role)} className={row} data-role={segment.role.id}>
+            <Link {...roleLink(segment.role, selection)} data-role={segment.role.id} className={cn(row, selection.selected === segment.role.id && selectedRow)}>
               <span className={meta}>
                 <span>{dates(segment.role)}</span>
                 {segment.status === 'in-flight' ? <StatusChip status="in-flight" /> : <span>Delivered</span>}
@@ -361,7 +444,7 @@ function SpanRows({ data, summary }: { data: ProgrammeData; summary: string }) {
           </li>
         ))}
         <li>
-          <Link to="/experience#milestones" className={row} data-role="milestones">
+          <Link to="/experience#credentials" className={row} data-role="milestones">
             <span className={meta}>
               <span>Milestones</span>
               <span>{data.milestones.length}</span>
@@ -380,7 +463,7 @@ function SpanRows({ data, summary }: { data: ProgrammeData; summary: string }) {
 
 /* ── Table alternative (every form, §6.6) ── */
 
-function ProgrammeTable({ roles }: { roles: readonly Role[] }) {
+function ProgrammeTable({ roles, selection }: { roles: readonly Role[]; selection: Selection }) {
   const cell = 'border-t border-border py-2 pr-3 align-top'
   return (
     <table className="w-full text-left text-label">
@@ -403,7 +486,7 @@ function ProgrammeTable({ roles }: { roles: readonly Role[] }) {
           <tr key={role.id}>
             <td className={cn(cell, 'font-mono tabular-nums text-muted')}>{roleDates(role)}</td>
             <th scope="row" className={cn(cell, 'font-medium')}>
-              <Link to={experienceLink(role)} className="text-ink underline-offset-4 hover:text-accent hover:underline">
+              <Link {...roleLink(role, selection)} className="text-ink underline-offset-4 hover:text-accent hover:underline aria-current:font-semibold aria-current:text-accent">
                 {engagement(role)}
               </Link>
             </th>

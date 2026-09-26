@@ -15,3 +15,7 @@ export const spanTone: Record<SegmentTone, string> = {
   delivered: 'bg-accent-fill',
   past: 'bg-past',
 }
+
+/** The Selected style (§6.5) on Experience: accent fill with an ink outline; rows get the soft fill and an ink rule. */
+export const selectedSegment = 'z-1 border-accent-fill bg-accent-fill text-on-accent ring-2 ring-border-strong'
+export const selectedRow = 'border-l-border-strong bg-accent-soft'

@@ -33,6 +33,13 @@ export const profileSchema = z.object({
   portrait: z.object({ src: z.string().startsWith('/'), alt: text }),
 })
 
+/** The About page's words (design package §12.1). `draft` marks placeholder copy until the owner supplies it. */
+export const aboutSchema = z.object({
+  draft: z.boolean(),
+  story: z.array(text).min(1),
+  principles: z.array(z.object({ title: text, text })).min(1),
+})
+
 export const organisationSchema = z.object({ id: slug, name: text, short: text })
 
 export const roleSchema = z.object({
@@ -104,6 +111,7 @@ export const projectMetaSchema = z.object({
 })
 
 export type Profile = z.infer<typeof profileSchema>
+export type About = z.infer<typeof aboutSchema>
 export type Organisation = z.infer<typeof organisationSchema>
 export type Role = z.infer<typeof roleSchema>
 export type Skill = z.infer<typeof skillSchema>

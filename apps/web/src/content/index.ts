@@ -1,3 +1,4 @@
+import { about } from '@content/about.ts'
 import { credentials } from '@content/credentials.ts'
 import { milestonesOf } from '@content/derive.ts'
 import { profile } from '@content/profile.ts'
@@ -10,7 +11,7 @@ import { skills } from '@content/skills.ts'
 // Markdown file's `meta`, so case-study bodies stay out of the pages that list them; loadProject fetches a
 // body on demand.
 
-export { credentials, organisations, profile, projectDomains, roles, skills }
+export { about, credentials, organisations, profile, projectDomains, roles, skills }
 export const milestones = milestonesOf(credentials)
 
 const byKey = <T>(modules: Record<string, T>) => Object.values(modules)
