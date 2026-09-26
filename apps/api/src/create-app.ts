@@ -5,7 +5,8 @@ import { NoModelAvailableError, type ModelResolver } from './ai/models.js'
 import { consoleLogger, requestLog, type AppEnv, type Logger } from './log.js'
 import type { OriginPolicy } from './origins.js'
 
-// apps/api (design.md A6; specs/api-service). Built by a factory so tests can pass their own origins and logger;
+// apps/api (design.md A6; specs/api-service). Not named app.ts: Vercel's Hono preset treats src/app.* as the entry
+// and requires a default export there. Built by a factory so tests can pass their own origins and logger;
 // src/index.ts is the Vercel entry. Routes arrive in later tasks: POST /contact (10.3) and the Ask runtime (11.2).
 
 export interface AppOptions {

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createApp } from './app.js'
+import { createApp } from './create-app.js'
 import type { Logger } from './log.js'
 import { originPolicy, PRODUCTION_ORIGIN } from './origins.js'
 
