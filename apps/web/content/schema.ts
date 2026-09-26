@@ -89,6 +89,11 @@ export const projectMetaSchema = z.object({
     .object({ github: url, docs: url, demo: url, pypi: url, bitbucket: url })
     .partial()
     .strict(),
+  /**
+   * Where a separately hosted project lives, e.g. kb.biyani.xyz (specs/content-pages "Work"). `live` stays false
+   * until the site is public; the case study then says it's in progress instead of linking to it.
+   */
+  site: z.object({ url, live: z.boolean() }).strict().optional(),
   /** Boxes left to right for the typographic architecture thumbnail, used when there's no screenshot. */
   architecture: z.array(text).min(2).max(4),
   screenshot: z.string().startsWith('/').optional(),

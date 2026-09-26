@@ -89,6 +89,38 @@ describe('/work/:slug', () => {
     expect(within(related).queryByRole('link', { name: /^Fast-JiraQL/ })).toBeNull()
   })
 
+  describe('separately hosted projects (task 8.3)', () => {
+    it('specs/content-pages scenario: /work/knowledge-base states it is in progress and does not link to kb.biyani.xyz yet', async () => {
+      stubMatchMedia({ width: 1440, height: 900 })
+      renderCaseStudy('knowledge-base')
+      expect(await screen.findByRole('heading', { level: 1, name: 'Knowledge Base' })).toBeInTheDocument()
+      expect(screen.getByText(/In progress and not live yet\. It will be at/)).toHaveTextContent('kb.biyani.xyz')
+      expect(document.querySelector('a[href^="https://kb.biyani.xyz"]')).toBeNull()
+      expect(document.querySelector('[data-status]')).toHaveAttribute('data-status', 'in-flight')
+    })
+
+    it('links to the site once it is live, in the header and the facts', async () => {
+      stubMatchMedia({ width: 1440, height: 900 })
+      const live = async () => {
+        const project = (await loadProject('knowledge-base'))!
+        return { ...project, meta: { ...project.meta, site: { url: 'https://kb.biyani.xyz', live: true } } }
+      }
+      const router = createMemoryRouter([{ path: '/work/:slug', loader: live, Component: CaseStudy }], {
+        initialEntries: ['/work/knowledge-base'],
+      })
+      render(<RouterProvider router={router} />)
+      expect(await screen.findByRole('link', { name: 'Visit kb.biyani.xyz ↗' })).toHaveAttribute('href', 'https://kb.biyani.xyz')
+      expect(screen.getByRole('link', { name: 'kb.biyani.xyz ↗' })).toHaveAttribute('href', 'https://kb.biyani.xyz')
+      expect(screen.queryByText(/not live yet/)).toBeNull()
+    })
+
+    it('links the auth POC to its repository', async () => {
+      stubMatchMedia({ width: 1440, height: 900 })
+      renderCaseStudy('auth-poc')
+      expect(await screen.findByRole('link', { name: 'GitHub ↗' })).toHaveAttribute('href', 'https://github.com/biyani701/vishal-lab')
+    })
+  })
+
   it('renders the 404 page, inside the shell, for an unknown project', async () => {
     const router = createMemoryRouter(routes, { initialEntries: ['/work/no-such-project'] })
     render(<RouterProvider router={router} />)

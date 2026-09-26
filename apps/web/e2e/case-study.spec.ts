@@ -48,3 +48,10 @@ test('Copy on a code block confirms with a toast', async ({ page, context, brows
   await expect(page.getByText('Copied to clipboard')).toBeVisible()
   expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('pip install get-confluence-space-pages-details')
 })
+
+test('specs/content-pages "Separately hosted project": the knowledge base says it is in progress', async ({ page }) => {
+  await page.goto('/work/knowledge-base')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Knowledge Base')
+  await expect(page.getByText('In progress and not live yet. It will be at kb.biyani.xyz.')).toBeVisible()
+  await expect(page.locator('a[href^="https://kb.biyani.xyz"]')).toHaveCount(0)
+})

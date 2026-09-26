@@ -10,6 +10,7 @@ import { stackSlug } from '@/features/work/filters.ts'
 import { relatedProjects, rolesForProject } from '@/features/work/related.ts'
 import { PageShell } from '@/layout/PageShell.tsx'
 import { cn } from '@/lib/utils'
+import { buttonVariants } from '@/ui/button.tsx'
 import { Component as NotFound } from './not-found.tsx'
 
 // /work/:slug (specs/content-pages "Work"; task 8.2): header with status, facts, then ToC · reading · aside on
@@ -66,12 +67,36 @@ function LinkList({ items }: { items: { to: string; label: string; external?: bo
   )
 }
 
+const hostOf = (url: string) => new URL(url).host
+
+/**
+ * A separately hosted project's site: a link once it's live, otherwise a plain statement that it's in progress
+ * and where it will be (specs/content-pages "Separately hosted project").
+ */
+function SiteNotice({ site }: { site: NonNullable<ProjectMeta['site']> }) {
+  if (site.live) {
+    return (
+      <a href={site.url} className={cn(buttonVariants({ size: 'lg' }), 'self-start')}>
+        Visit {hostOf(site.url)} ↗
+      </a>
+    )
+  }
+  return (
+    <p className="text-body text-ink-2">
+      In progress and not live yet. It will be at <span className="font-mono text-label text-ink">{hostOf(site.url)}</span>.
+    </p>
+  )
+}
+
 function Facts({ meta }: { meta: ProjectMeta }) {
-  const links = (Object.entries(meta.links) as [keyof ProjectMeta['links'], string][]).map(([key, href]) => ({
-    to: href,
-    label: LINK_LABELS[key],
-    external: true,
-  }))
+  const links = [
+    ...(meta.site?.live ? [{ to: meta.site.url, label: hostOf(meta.site.url), external: true }] : []),
+    ...(Object.entries(meta.links) as [keyof ProjectMeta['links'], string][]).map(([key, href]) => ({
+      to: href,
+      label: LINK_LABELS[key],
+      external: true,
+    })),
+  ]
   return (
     <dl className={cn(ledger, 'grid grid-cols-2 gap-x-6 gap-y-4 tablet:grid-cols-4 desktop:grid-cols-4 compact-landscape:grid-cols-4')}>
       <Fact label="Year">{meta.year}</Fact>
@@ -177,6 +202,7 @@ export function Component() {
         <div className="flex flex-wrap items-center gap-2">
           {meta.status === 'in-flight' ? <StatusChip status="in-flight" /> : <StatusChip status="delivered" period={String(meta.year)} />}
         </div>
+        {meta.site && <SiteNotice site={meta.site} />}
       </header>
 
       <Facts meta={meta} />
