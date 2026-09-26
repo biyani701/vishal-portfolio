@@ -56,8 +56,10 @@ Then, in the new project:
 4. **Database name:** `portfolio`.
 5. **Connect to project:** `portfolio-api`, for **all three environments** (Development, Preview, Production).
 6. Leave the **environment variable prefix** empty, so that the main variable is called `DATABASE_URL`.
-7. Optional but recommended: in the Neon integration settings, turn on **preview branches**, so each preview
-   deployment gets its own copy of the database. Task 10.2 verifies its migration on such a preview database.
+7. In the Neon integration settings, turn on **preview branches**, so each preview deployment gets its own copy
+   of the database. Every Vercel build runs the schema migrations against its `DATABASE_URL` (see
+   [Database migrations](#database-migrations)); without preview branches, previews migrate the production
+   database.
 
 Check: **Settings → Environment Variables** now lists `DATABASE_URL` (plus Neon extras such as
 `DATABASE_URL_UNPOOLED` and `PGHOST`; those are fine).
@@ -197,6 +199,18 @@ curl -s -H "Authorization: Bearer <CRON_SECRET>" https://api.vishal.biyani.xyz/c
 
 A `503 {"error":"no_model_available"}` means no probed model could make a tool call. Check the key, or widen the
 search with `AI_MODEL_PROBE_LIMIT`. **Settings → Cron Jobs** in Vercel shows the schedule and its runs.
+
+### Database migrations
+
+The build command in `apps/api/vercel.json` is `pnpm run build && pnpm run migrate`. It applies any schema
+migration (`src/db/migrations.ts`) that the deployment's database hasn't had yet, so a preview migrates its own
+Neon branch and a production build migrates production, before the new code serves requests. If a migration
+fails, the build fails, the previous deployment keeps serving, and nothing partial is left behind.
+
+To check a deployment: **Deployments → the deployment → Building** log. Near the end it shows
+`{"level":"info","msg":"migration applied","id":"0001_contact_messages"}` the first time, then
+`{"level":"info","msg":"migrations up to date","applied":0,"total":1}` on later builds. In the Neon console, the
+preview's branch (`preview/<git branch>`) has the `contact_messages` and `schema_migrations` tables.
 
 **Logs:** **Deployments → a deployment → Logs** shows one JSON line per request, like
 `{"level":"warn","msg":"request","method":"POST","route":"/*","status":403,"reason":"origin_not_allowed"}`.
