@@ -48,7 +48,11 @@ export function ProjectCard({ project, thumbClassName, className }: ProjectCardP
       <div className="flex flex-col gap-2.5 p-5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="font-sans text-h3 font-semibold">{project.title}</h3>
-          <StatusChip status="delivered" period={String(project.year)} />
+          {project.status === 'in-flight' ? (
+            <StatusChip status="in-flight" />
+          ) : (
+            <StatusChip status="delivered" period={String(project.year)} />
+          )}
         </div>
         <p className="font-serif text-body text-ink-2">{project.summary}</p>
         <ul aria-label="Stack" className="flex flex-wrap gap-1.5">

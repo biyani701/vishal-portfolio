@@ -17,7 +17,7 @@ const collections = { profile, organisations, roles, skills, credentials, domain
 describe('content records (task 4.2)', () => {
   it('migrates every record from apps/portfolio', async () => {
     const content = await loadContent()
-    expect(content.projects).toHaveLength(5)
+    expect(content.projects).toHaveLength(8) // 5 migrated + blog platform, knowledge base, auth POC
     expect(content.roles).toHaveLength(5) // engagements
     expect(content.glossary).toHaveLength(68)
     expect(content.writing).toHaveLength(3)
@@ -103,7 +103,7 @@ describe('build artefacts (task 4.4)', () => {
     expect(new Set(entries.map((e) => e.id)).size).toBe(entries.length)
     const count = (group: string) => entries.filter((e) => e.group === group).length
     expect(count('role')).toBe(5)
-    expect(count('project')).toBe(5)
+    expect(count('project')).toBe(8)
     expect(count('article')).toBe(3)
     expect(count('term')).toBe(68)
     expect(count('topic')).toBe(3 + content.topics.length)
@@ -122,7 +122,7 @@ describe('build artefacts (task 4.4)', () => {
     expect(Object.keys(context.profile).sort()).toEqual(
       ['currentRole', 'links', 'location', 'name', 'positioning', 'proof', 'summary'].sort(),
     )
-    expect(context.projects.map((p) => p.slug)).toHaveLength(5)
+    expect(context.projects.map((p) => p.slug)).toHaveLength(8)
     expect(context.roles.find((r) => r.id === 'corecard')).toMatchObject({ status: 'in-flight', end: null })
     expect(context.milestones.map((m) => m.when)).toEqual(['Q4 2009', '2013', 'Sep 2020', 'Q3 2021'])
   })

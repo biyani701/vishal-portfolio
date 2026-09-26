@@ -78,6 +78,8 @@ export const projectMetaSchema = z.object({
   title: text,
   year: z.number().int().min(2000).max(2100),
   type: z.enum(['personal', 'open-source', 'work']),
+  /** "in-flight" while still being built (amber is reserved for In flight); delivered when omitted. */
+  status: z.enum(['delivered', 'in-flight']).default('delivered'),
   /** One line for cards and search. */
   summary: text,
   domains: z.array(slug).min(1),

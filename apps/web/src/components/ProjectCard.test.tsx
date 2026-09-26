@@ -21,6 +21,16 @@ describe('ProjectCard', () => {
     expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toEqual(fastJiraql.stack.slice(0, 3))
   })
 
+  it('shows In flight instead of a delivery year for a project still being built', () => {
+    render(
+      <MemoryRouter>
+        <ProjectCard project={{ ...fastJiraql, status: 'in-flight' }} />
+      </MemoryRouter>,
+    )
+    expect(screen.getByText('In flight')).toBeVisible()
+    expect(screen.queryByText(/Delivered/)).toBeNull()
+  })
+
   it('draws the typographic architecture thumbnail when there is no screenshot, hidden from assistive tech', () => {
     const { container } = render(
       <MemoryRouter>
