@@ -200,6 +200,33 @@ curl -s -H "Authorization: Bearer <CRON_SECRET>" https://api.vishal.biyani.xyz/c
 A `503 {"error":"no_model_available"}` means no probed model could make a tool call. Check the key, or widen the
 search with `AI_MODEL_PROBE_LIMIT`. **Settings → Cron Jobs** in Vercel shows the schedule and its runs.
 
+**Contact** (after the Resend domain is verified): send yourself a real message. Use an address you can read,
+since it becomes the Reply-To.
+
+```bash
+curl -i -X POST https://api.vishal.biyani.xyz/contact -H "Content-Type: application/json" \
+  -d '{"intent":"other","name":"Setup test","email":"<your address>","message":"Testing the contact endpoint."}'
+# HTTP/2 201 … {"status":"received"}
+```
+
+The notification arrives at `CONTACT_TO_EMAIL` from `Portfolio contact <CONTACT_FROM_EMAIL>`. In Gmail, **⋮ → Show
+original** should say `SPF: PASS` and `DKIM: PASS` with domain `biyani.xyz` (task 10.2b). Six messages in an
+hour from one IP get `429 {"error":"rate_limited","retryAfterSeconds":…}` with a `Retry-After` header.
+
+Messages are stored in Neon (`contact_messages`) before the email is sent. If Resend fails, the visitor still
+sees success and the message stays `pending_email`. It's retried after the next successful submission and by
+the daily job, `/cron/contact` (03:30 UTC; the Hobby plan runs cron jobs at most daily). The daily job also flags
+anything still undelivered after 24 hours, which logs `contact messages flagged` at error level, and deletes
+messages older than `CONTACT_RETENTION_DAYS`. To run it by hand:
+
+```bash
+curl -s -H "Authorization: Bearer <CRON_SECRET>" https://api.vishal.biyani.xyz/cron/contact
+# {"retried":0,"sent":0,"flagged":0,"purged":0}
+```
+
+To see flagged messages, use the Neon console's SQL editor:
+`select id, created_at, name, email, message from contact_messages where status = 'flagged';`
+
 ### Database migrations
 
 The build command in `apps/api/vercel.json` is `pnpm run build && pnpm run migrate`. It applies any schema
