@@ -43,6 +43,7 @@
 - [x] 6.1 `buildProgramme` pure function (segments, label-inside rule, 12px milestone clustering, axis); verify unit tests at 288/343/358/500/1100 px
 - [x] 6.2 ProgrammeLine forms (lanes, compact strip, span rows, table) with `aria-label` and "View as table"; verify Playwright at 320×568, 375×667, 390×844 and 844×390: no overflow, rows ≥ 56px
 - [x] 6.3 Home sections (hero with portrait, Programme Line, proof ledger, selected work, Ask input, writing/knowledge, contact band) in all four modes; verify against the Programme canvas artboards and that Playwright is green
+- [ ] 6.4 Replace Home's writing and knowledge sections with highlighted projects linking to their case studies; verify Home has no `/writing` or `/knowledge` links in any mode
 
 ## 7. P7 — Experience and About
 
@@ -52,14 +53,13 @@
 ## 8. P8 — Work
 
 - [ ] 8.1 `/work` with URL-synced filters and ProjectCard (screenshot or ArchitectureThumb); verify the `?stack=python` scenario
-- [ ] 8.2 `/work/:slug` case-study layout (facts, ToC, prose, ArchitectureFigure, CodeBlock, aside with "Ask about this" and related); verify all 5 projects render and the ToC collapses on mobile
+- [ ] 8.2 `/work/:slug` case-study layout (facts, ToC, prose, ArchitectureFigure, CodeBlock, aside with "Ask about this" and related); verify all projects render and the ToC collapses on mobile
+- [ ] 8.3 Case studies for the separately hosted projects (blog platform, knowledge base, auth POC), linking to their live sites and repos when they exist; verify the separately-hosted-project scenario
 
-## 9. P9 — Writing and Knowledge
+## 9. P9 — Move Writing and Knowledge out
 
-- [ ] 9.1 `/writing` and `/writing/:slug` (article layout, ToC, CodeBlock copy with toast, glossary-term popovers); verify the code-copy scenario
-- [ ] 9.2 `/knowledge` and `/knowledge/:domain/:topic`; verify all migrated topics render
-- [ ] 9.3 `/knowledge/glossary` (Autocomplete, category counts, A–Z, detail panel, Drawer on mobile); verify the "auth" search scenario
-- [ ] 9.4 The 3-D Secure StepFlow (desktop sequence + mobile vertical steps, Prev/Next, "Step n of 5" announcements); verify the keyboard stepping scenario
+- [ ] 9.1 Preserve the articles, knowledge topics, glossary and their schemas in `vishal-lab/holding` (seed content for the blog and knowledge base repos); verify all 3 articles, 10 topics and 68 terms are there
+- [ ] 9.2 Remove writing, knowledge and glossary from `apps/web` (content, loaders, search index, `ai-context.json`, navigation, routes) and redirect `/blogs/*` to `/work/blog-platform` and `/knowledge/*` to `/work/knowledge-base`, updating the route map; verify the redirect scenario and that no page links to `/writing` or `/knowledge`
 
 ## 10. P10 — apps/api and Contact
 
@@ -89,7 +89,7 @@
 
 - [ ] 13.1 axe on every route in both themes; verify zero violations
 - [ ] 13.2 Prerender static routes, meta/OG tags, sitemap, robots; verify prerendered HTML contains page content
-- [ ] 13.3 Performance budgets (lazy Ask bundle, font preload, image sizes); verify mobile Lighthouse ≥ 90 on Home, Work and an article
+- [ ] 13.3 Performance budgets (lazy Ask bundle, font preload, image sizes); verify mobile Lighthouse ≥ 90 on Home, Work and a case study
 - [ ] 13.4 Analytics kept consent-gated through Klaro; verify no analytics requests before consent
 
 ## 14. P14 — Cut-over
