@@ -65,7 +65,7 @@
 
 - [ ] 10.1 Scaffold `apps/api` on Vercel (Node functions; Hono), with `GET /health`, CORS limited to site origins, and structured logging without PII; verify a health check on the preview deploy and a CORS rejection test
 - [ ] 10.2 Postgres `contact_messages` table + migrations; rate-limit store (KV); verify the migration applies on a preview database
-- [x] 10.2a Environment configuration: a typed env loader with defaults (design A9), a committed `apps/api/.env.example` without values, `.env` git-ignored, and secrets set only in the Vercel project env (the owner enters `RESEND_API_KEY`, `ANTHROPIC_API_KEY` and `DATABASE_URL`); verify a missing required variable fails start-up naming it, and that `git grep` finds no secret values
+- [x] 10.2a Environment configuration: a typed env loader with defaults (design A9), a committed `apps/api/.env.example` without values, `.env` git-ignored, and secrets set only in the Vercel project env (the owner enters `RESEND_API_KEY`, `AI_API_KEY` and `DATABASE_URL`); verify a missing required variable fails start-up naming it, and that `git grep` finds no secret values
 - [ ] 10.2b Resend sender domain: add `biyani.xyz` (or a sending subdomain) in Resend and create its SPF/DKIM/return-path (and optional DMARC) records in Namecheap DNS (owner action); verify Resend shows the domain as verified and a test email passes SPF and DKIM
 - [ ] 10.3 `POST /contact`: validation, honeypot, per-IP rate limit (`CONTACT_RATE_LIMIT_PER_IP_PER_HOUR`), store-then-email via Resend from `CONTACT_FROM_EMAIL` to `CONTACT_TO_EMAIL`, `pending_email` retry cron, and a retention purge driven by `CONTACT_RETENTION_DAYS`; verify tests for success, email outage (stored + retried), rate limit, and purge at a changed retention value
 - [ ] 10.4 `/contact` page (intent picker, fields, selectable email + Copy, success, failure alert, rate-limit message); verify the Playwright success and failure flows against a mocked endpoint
@@ -73,8 +73,8 @@
 
 ## 11. P11 — Ask
 
-- [ ] 11.1 Spike S1: CopilotKit runtime adapter on a Vercel Node function + Anthropic tool-calling with the v2 client; verify an end-to-end tool call streams to a test page, and record the outcome in design.md
-- [ ] 11.2 Runtime + agent in `apps/api` with the read-only tools over cached `ai-context.json`, the human-in-the-loop `draft_contact_request`, and the env-configured limits (`AI_RATE_LIMIT_PER_IP_PER_HOUR`, `AI_MAX_OUTPUT_TOKENS`, `AI_DAILY_BUDGET_USD`, `AI_MODEL`); verify tool unit tests, a prompt-injection fixture, and a budget-exhausted response
+- [ ] 11.1 Spike S1: CopilotKit runtime adapter on a Vercel Node function + OpenAI-compatible tool-calling against the NVIDIA API catalog (`AI_BASE_URL`, `AI_MODEL`) with the v2 client; verify an end-to-end tool call streams to a test page, and record the outcome in design.md
+- [ ] 11.2 Runtime + agent in `apps/api` with the read-only tools over cached `ai-context.json`, the human-in-the-loop `draft_contact_request`, and the env-configured limits (`AI_RATE_LIMIT_PER_IP_PER_HOUR`, `AI_MAX_OUTPUT_TOKENS`, `AI_DAILY_BUDGET_USD`, `AI_MODEL`); verify tool unit tests, a prompt-injection fixture, and budget-exhausted and provider-rate-limited (429) responses
 - [ ] 11.3 Ask front end (AskProvider, entry points, `/ask` page, bottom/right Drawer surfaces, AskTurn, AskActivity with Details, AskResult renderers, grouped AskSources, AskSuggestions, AskComposer with Stop, JumpToLatest); verify component tests against a mocked AG-UI event stream
 - [ ] 11.4 Confirmation and failure states (AskConfirm with failed-step notice, send-failure alert via `/contact`, interrupted stream); verify the scenarios from the ask-experience spec
 - [ ] 11.5 Accessibility: live announcer (polite/assertive), `aria-busy`, focus return, keyboard-only walkthrough; verify with a screen-reader smoke test and axe

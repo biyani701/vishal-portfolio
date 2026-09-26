@@ -8,7 +8,7 @@ When you're done, the checks in [Verify](#6-verify) pass, and tasks 10.1 (previe
 a preview database) can be finished.
 
 **You'll need:** admin access to the Vercel team `vishals-projects-d59fa5fe` (the same team as the apps/web
-previews), your Resend and Anthropic accounts, and Namecheap access to `biyani.xyz`.
+previews), your Resend and NVIDIA (build.nvidia.com) accounts, and Namecheap access to `biyani.xyz`.
 
 **Order matters:** the service refuses to start until every required variable is set (it names any that are
 missing). So the first deployment in step 1 is expected to fail; it goes green after step 4.
@@ -86,7 +86,7 @@ the value again). For each row, tick the environments shown.
 | Key | Value | Production | Preview | Development |
 |---|---|:-:|:-:|:-:|
 | `RESEND_API_KEY` | A new Resend key (below) | ✓ | ✓ | ✓ |
-| `ANTHROPIC_API_KEY` | A new Anthropic key (below) | ✓ | ✓ | ✓ |
+| `AI_API_KEY` | A new NVIDIA API key (below) | ✓ | ✓ | ✓ |
 | `CONTACT_FROM_EMAIL` | `contact@biyani.xyz` (or another address on the domain you verify in Resend, task 10.2b) | ✓ | ✓ | ✓ |
 | `CONTACT_TO_EMAIL` | The inbox that should receive contact messages | ✓ | ✓ | ✓ |
 | `ALLOWED_ORIGINS` | `https://vishal.biyani.xyz,https://vishal-portfolio-*-vishals-projects-d59fa5fe.vercel.app` | – | ✓ | – |
@@ -106,13 +106,19 @@ Notes:
    until then.
 3. Copy the key (starts with `re_`) straight into Vercel. Don't paste it anywhere else.
 
-**Anthropic API key**
+**NVIDIA API key** (the LLM for Ask; task 11 uses it)
 
-1. [console.anthropic.com](https://console.anthropic.com) → **Settings → API Keys** → **Create Key**.
-2. Name: `portfolio-api`. If you use workspaces, put it in a dedicated `portfolio` workspace.
-3. Copy it (starts with `sk-ant-`) straight into Vercel.
-4. Recommended: **Settings → Limits** → set a monthly spend limit on that workspace. It's a backstop to the
-   service's own daily cap (`AI_DAILY_BUDGET_USD`, default $2).
+1. Sign in at [build.nvidia.com](https://build.nvidia.com) with the NVIDIA account you want to use.
+2. Open any model page (for example `meta/llama-3.3-70b-instruct`) → **Get API Key** → **Generate Key**. Keys start with `nvapi-`.
+3. Copy it straight into Vercel as `AI_API_KEY`.
+4. Check the free tier's current terms and limits on your account page. They cap requests per minute, and free
+   access may be meant for evaluation rather than a public site. When the limit is hit, Ask shows that answers are
+   unavailable and offers search and Contact (specs/api-service "Cost and abuse limits"); the rest of the site is
+   unaffected.
+
+The endpoint (`AI_BASE_URL`, default `https://integrate.api.nvidia.com/v1`) and the models (`AI_MODEL`, default `meta/llama-3.3-70b-instruct`;
+`AI_SUGGESTION_MODEL`, default `meta/llama-3.1-8b-instruct`) have defaults, so you don't need to set them. To switch provider
+later, set `AI_BASE_URL`, `AI_API_KEY` and the model ids for any OpenAI-compatible API; no code changes.
 
 **Then redeploy:** **Deployments** → the latest deployment → **⋯ → Redeploy**. Environment changes apply only to
 new deployments.
