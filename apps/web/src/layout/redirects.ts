@@ -2,10 +2,9 @@ import { useEffect } from 'react'
 import { generatePath, replace, useLocation, useNavigate, type RouteObject } from 'react-router'
 
 // Route migration map (design/exploration/02-information-architecture.md; specs/site-navigation "Redirects
-// for legacy URLs"). Old paths whose route is unchanged, and the auth callback paths, need no entry.
+// for legacy URLs"). Old paths whose route is unchanged need no entry.
 // `to` reuses the param names of `from`, so each param carries across (a blog id is the article slug).
 export const legacyRedirects = [
-  { from: '/profile', to: '/account' },
   { from: '/works', to: '/work' },
   { from: '/blogs', to: '/writing' },
   { from: '/blogs/:blogId', to: '/writing/:blogId' },
@@ -15,10 +14,20 @@ export const legacyRedirects = [
   { from: '/credits', to: '/colophon' },
   { from: '/privacy', to: '/legal/privacy' },
   { from: '/terms', to: '/legal/terms' },
-  // D-4: one sign-in page.
-  { from: '/signin-legacy', to: '/signin' },
-  { from: '/login', to: '/signin' },
-  { from: '/signin-toolpad', to: '/signin' },
+  // The site has no sign-in (design.md A7): old sign-in, account and auth-server callback URLs go home.
+  { from: '/signin', to: '/' },
+  { from: '/signin-legacy', to: '/' },
+  { from: '/login', to: '/' },
+  { from: '/signin-toolpad', to: '/' },
+  { from: '/logout', to: '/' },
+  { from: '/profile', to: '/' },
+  { from: '/account', to: '/' },
+  { from: '/auth-callback', to: '/' },
+  { from: '/auth-callback.html', to: '/' },
+  { from: '/auth-success', to: '/' },
+  { from: '/auth-error', to: '/' },
+  { from: '/callback', to: '/' },
+  { from: '/api/auth/callback/*', to: '/' },
 ] as const
 
 /** Home-page anchors of the old single-page layout, now sections of their own pages. */
