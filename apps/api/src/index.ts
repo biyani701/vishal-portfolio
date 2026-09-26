@@ -1,8 +1,10 @@
+// Vercel's Hono preset only accepts an entry that imports hono itself (a value import, not `import type`).
+import { Hono } from 'hono'
 import { openAiCatalog } from './ai/catalog.js'
 import { modelResolver } from './ai/models.js'
 import { createApp } from './create-app.js'
 import { loadConfig } from './config.js'
-import { consoleLogger } from './log.js'
+import { consoleLogger, type AppEnv } from './log.js'
 import { allowedOrigins, originPolicy } from './origins.js'
 import { upstashStore } from './store.js'
 
@@ -22,7 +24,7 @@ const models = modelResolver({
   probeLimit: config.AI_MODEL_PROBE_LIMIT,
 })
 
-const app = createApp({
+const app: Hono<AppEnv> = createApp({
   origins: originPolicy(allowedOrigins({ ALLOWED_ORIGINS: config.ALLOWED_ORIGINS, VERCEL_ENV: process.env.VERCEL_ENV })),
   version: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7),
   cronSecret: config.CRON_SECRET,
