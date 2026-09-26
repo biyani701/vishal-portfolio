@@ -30,7 +30,7 @@ The production build SHALL support Safari 16.4+, Chrome 111+ and Firefox 128+ an
 - **THEN** the case study renders without a visible redirect loop
 
 ### Requirement: Configuration
-Client configuration SHALL come from `VITE_*` build variables, overridable at runtime by `runtime-config.js`. The configuration covers the auth server URL, the API base URL and the analytics settings. The build SHALL fail if a required variable is missing. No secret may be embedded in the bundle.
+Client configuration SHALL come from `VITE_*` build variables, overridable at runtime by `runtime-config.js`. The configuration covers the API base URL and the analytics settings. The build SHALL fail if a required variable is missing. No secret may be embedded in the bundle.
 
 #### Scenario: Missing variable
 - **WHEN** a production build runs without `VITE_API_BASE_URL`

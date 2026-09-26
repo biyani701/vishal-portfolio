@@ -78,7 +78,7 @@ test('footer links resolve and the footer is static', async ({ page }) => {
   await page.goto('/')
   const footer = page.getByRole('contentinfo')
   await expect(footer).toHaveCSS('position', 'static')
-  for (const name of ['Colophon', 'Privacy', 'Terms', 'Sign in']) {
+  for (const name of ['Colophon', 'Privacy', 'Terms']) {
     await page.goto('/')
     await page.getByRole('contentinfo').getByRole('link', { name }).click()
     await expect(page.getByRole('heading', { level: 1 })).not.toHaveText('Page not found')

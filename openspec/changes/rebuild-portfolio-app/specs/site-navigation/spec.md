@@ -7,7 +7,7 @@ Defines how visitors move through the site: primary navigation in each layout mo
 ### Requirement: Primary navigation
 Navigation SHALL offer Work, Experience, Writing, Knowledge, About, Ask, search and Contact.
 - **Desktop:** an inline bar.
-- **Tablet, mobile and compact landscape:** a menu button opening a Drawer, which also contains the theme control and sign-in.
+- **Tablet, mobile and compact landscape:** a menu button opening a Drawer, which also contains the theme control.
 
 The current section SHALL be indicated.
 
@@ -23,11 +23,17 @@ The current section SHALL be indicated.
 - **THEN** Ask opens with "fixed price" as the question
 
 ### Requirement: Redirects for legacy URLs
-Every route from the current site SHALL either keep its path or redirect (client-side `replace`) to its new route, per the route migration map in `design/exploration/02-information-architecture.md`. Examples: `/works` → `/work`, `/blogs/:id` → `/writing/:slug`, `/credits` → `/colophon`, `/privacy` → `/legal/privacy`, `/signin-legacy` and `/login` → `/signin`. Auth callback paths SHALL be unchanged.
+Every route from the current site SHALL either keep its path or redirect (client-side `replace`) to its new route, per the route migration map in `design/exploration/02-information-architecture.md`. Examples: `/works` → `/work`, `/blogs/:id` → `/writing/:slug`, `/credits` → `/colophon`, `/privacy` → `/legal/privacy`.
+
+The site has no sign-in, so the old sign-in, account and auth callback URLs SHALL redirect to `/`, overriding their rows in the route map. These are `/signin`, `/signin-legacy`, `/signin-toolpad`, `/login`, `/logout`, `/profile`, `/account`, `/auth-callback`, `/auth-callback.html`, `/auth-success`, `/auth-error`, `/callback` and `/api/auth/callback/*`.
 
 #### Scenario: Old link
 - **WHEN** a visitor opens `/blogs/ai-agents`
 - **THEN** they land on `/writing/ai-agents`, and the back button does not return to the old URL
+
+#### Scenario: Old sign-in link
+- **WHEN** a visitor opens `/signin?from=/work` or `/profile`
+- **THEN** they land on `/`, and no sign-in or account control appears in the header, drawer or footer
 
 ### Requirement: Not found
 Unknown routes SHALL render a 404 page within the shell, offering search, Ask and links to the main sections.

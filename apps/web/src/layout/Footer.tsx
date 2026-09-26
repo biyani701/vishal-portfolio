@@ -1,5 +1,4 @@
-import { Link, useLocation } from 'react-router'
-import { useAuth } from '@/auth/context.ts'
+import { Link } from 'react-router'
 import { profile } from '@/content/index.ts'
 
 // Static footer (specs/site-navigation, task 5.4): social and legal links. Cookie preferences join when the
@@ -7,8 +6,6 @@ import { profile } from '@/content/index.ts'
 const linkClass = 'inline-flex min-h-target items-center text-accent underline-offset-4 hover:underline'
 
 export function Footer() {
-  const { status } = useAuth()
-  const { pathname } = useLocation()
   return (
     <footer className="border-t border-border pb-safe">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-2 px-page py-4 text-label text-muted tablet:flex-row tablet:items-center tablet:justify-between desktop:flex-row desktop:items-center desktop:justify-between">
@@ -41,17 +38,6 @@ export function Footer() {
               <Link to="/legal/terms" className={linkClass}>
                 Terms
               </Link>
-            </li>
-            <li>
-              {status === 'signed-in' ? (
-                <Link to="/account" className={linkClass}>
-                  Account
-                </Link>
-              ) : (
-                <Link to={`/signin?from=${encodeURIComponent(pathname)}`} className={linkClass}>
-                  Sign in
-                </Link>
-              )}
             </li>
           </ul>
         </nav>

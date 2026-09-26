@@ -27,8 +27,6 @@
 /contact                Contact
 /colophon               How this site is built + credits (replaces /credits)
 /legal/privacy  /legal/terms
-/signin  /logout  /account        (account = former /profile)
-/auth-callback …         unchanged auth contract paths
 /_dev                   dev-only diagnostics
 ```
 
@@ -54,7 +52,6 @@ Primary navigation (5 items + Ask + ⌘K): **Work · Experience · Writing · Kn
 |---|---|---|
 | `/` | `/` | – |
 | `/about` (protected) | `/about` (public) | – |
-| `/profile` | `/account` | 301-style client redirect |
 | `/works` | `/work` | redirect |
 | — (home anchors `#experience`, `#skills`, `#timeline`, `#certifications`) | `/experience` (+ `#skills`, `#certifications`) | anchors on `/` redirect to the new sections |
 | `#education`, `#recognition`, `#summary` | `/about#education` etc. | redirect |
@@ -69,9 +66,7 @@ Primary navigation (5 items + Ask + ⌘K): **Work · Experience · Writing · Kn
 | `/contact` | `/contact` | – |
 | `/credits` | `/colophon` | redirect |
 | `/privacy`, `/terms` | `/legal/privacy`, `/legal/terms` | redirect |
-| `/signin` | `/signin` | – |
-| `/signin-legacy`, `/login`, `/signin-toolpad` | `/signin` | redirect (D-4) |
-| `/logout`, `/auth-callback`, `/auth-callback.html`, `/auth-success`, `/auth-error`, `/api/auth/callback/*`, `/callback` | unchanged | **contract with auth-server; must not move** |
+| `/signin`, `/signin-legacy`, `/login`, `/signin-toolpad`, `/logout`, `/profile`, `/account`, `/auth-callback`, `/auth-callback.html`, `/auth-success`, `/auth-error`, `/callback`, `/api/auth/callback/*` | `/` | redirect (amended 2026-09-26: the site has no sign-in; replaces D-4 and the auth-server contract rows) |
 | `/auth-debug*`, `/auth-test`, `/config-test`, `/click-test`, `/viewport-demo` | `/_dev` (dev builds only) | – |
 | — | `/ask`, `/ask?q=…`, `/experience`, `/work/:slug`, `/colophon` | new |
 

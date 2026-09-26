@@ -1,20 +1,18 @@
 import { ArrowRight, Menu, Search, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router'
-import { useAuth } from '@/auth/context.ts'
 import { Icon } from '@/components/Icon.tsx'
 import { shortcutLabel, usePalette } from '@/features/search/context.ts'
 import { cn } from '@/lib/utils'
 import { Button } from '@/ui/button.tsx'
 import { Drawer, DrawerClose, DrawerContent, DrawerTitle, DrawerTrigger } from '@/ui/drawer.tsx'
 import { NavigationMenu, NavigationMenuItem, NavigationMenuLink, NavigationMenuList } from '@/ui/navigation-menu.tsx'
-import { AccountMenu } from './AccountMenu.tsx'
 import { sections } from './sections.ts'
 import { ThemeControl, ThemeMenu } from './ThemeControl.tsx'
 import { useLayoutMode } from './useLayoutMode.ts'
 
 // Primary navigation in three compositions (design package §7; specs/site-navigation "Primary navigation"):
-// - desktop: inline bar · ⌘K search field · Ask · theme · account · Contact
+// - desktop: inline bar · ⌘K search field · Ask · theme · Contact
 // - tablet and mobile: Ask and a menu button opening a Drawer
 // - compact landscape: the same in the 44px bar, plus a search button
 // The current section is marked with aria-current and an accent underline.
@@ -48,7 +46,6 @@ function SearchField({ className, onOpen }: { className?: string; onOpen?: () =>
 }
 
 function DesktopNavigation() {
-  const { status } = useAuth()
   return (
     <div className="flex min-w-0 flex-1 items-center gap-2">
       <NavigationMenu aria-label="Primary" className="max-w-none flex-none">
@@ -71,7 +68,6 @@ function DesktopNavigation() {
         Ask
       </NavLink>
       <ThemeMenu />
-      {status === 'signed-in' && <AccountMenu />}
       <Button render={<Link to="/contact" />}>Contact</Button>
     </div>
   )
@@ -121,7 +117,6 @@ function CompactNavigation() {
 }
 
 function NavigationDrawer({ onSearch }: { onSearch: () => void }) {
-  const { status, session, signOut } = useAuth()
   const { pathname } = useLocation()
   return (
     <nav aria-label="Menu" className="flex h-full flex-col gap-3 overflow-y-auto px-4 pt-safe pb-6">
@@ -165,20 +160,6 @@ function NavigationDrawer({ onSearch }: { onSearch: () => void }) {
         Contact
       </Button>
       <div className="flex flex-wrap items-center justify-center gap-x-5 text-label">
-        {status === 'signed-in' && session ? (
-          <>
-            <Link to="/account" className="inline-flex min-h-target items-center text-accent">
-              Account ({session.user.name})
-            </Link>
-            <button type="button" onClick={signOut} className="inline-flex min-h-target items-center text-accent">
-              Sign out
-            </button>
-          </>
-        ) : (
-          <Link to={`/signin?from=${encodeURIComponent(pathname)}`} className="inline-flex min-h-target items-center text-accent">
-            Sign in
-          </Link>
-        )}
         <Link to="/legal/privacy" className="inline-flex min-h-target items-center text-accent">
           Privacy
         </Link>

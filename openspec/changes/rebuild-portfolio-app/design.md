@@ -8,19 +8,19 @@
   - The monorepo uses pnpm workspaces + Turborepo.
   - CI (`deploy-portfolio.yml`) builds with npm on Node 20.10.
 - **Fixed decisions:** UF-1…UF-3, DD-1…DD-4, D-1…D-9, C-1, C-2.
+- **Amendment (2026-09-26):** `apps/web` has no sign-in (A7). This overrides the auth rows of the route map in `design/exploration/02-information-architecture.md` and decision D-4.
 
 ## Goals / Non-Goals
 
 **Goals:**
 - Build `apps/web` alongside the current app, and cut over only when the whole site passes its gates.
-- Keep auth working without touching `apps/auth-server`.
 - Every phase is independently buildable, reviewable, and ends with green gates.
 
 **Non-Goals:**
 - SSR frameworks.
 - A CMS.
 - Server-side conversation storage.
-- Changing Auth.js.
+- Sign-in, accounts or any use of `apps/auth-server` from `apps/web`.
 - Writing new content (placeholders ship until supplied).
 
 ## System architecture
@@ -28,8 +28,7 @@
 ```
 Browser ──► GitHub Pages: apps/web (static SPA, Vite build)
    │            ├─ /search-index.json, /ai-context.json (build artefacts)
-   │            └─ runtime-config.js (API + auth URLs)
-   ├──────► apps/auth-server (Vercel, unchanged)   Auth.js sessions, OAuth
+   │            └─ runtime-config.js (API URL)
    └──────► apps/api (Vercel, NEW)  api.vishal.biyani.xyz
                 ├─ AG-UI runtime  ──► LLM provider (Anthropic)
                 │     └─ tools read https://vishal.biyani.xyz/ai-context.json (cached)
@@ -102,7 +101,9 @@ apps/web/
 - *Alternatives considered:* Postmark instead of Resend (equivalent), and storing messages in Vercel KV instead of Postgres (Postgres is simpler for querying and retention).
 
 ### A7. Auth
-`AuthProvider` talks to the existing Auth.js endpoints through `runtime-config.js` URLs. Callback routes stay at the same paths. `SignInPanel` and `AccountMenu` are Programme compositions. `apps/auth-server` does not change.
+None. The site has nothing to sign in for, so `apps/web` ships no `AuthProvider`, sign-in page, account menu or callback routes, and needs no auth configuration. The legacy URLs `/signin`, `/signin-legacy`, `/signin-toolpad`, `/login`, `/logout`, `/profile`, `/account`, `/auth-callback`, `/auth-callback.html`, `/auth-success`, `/auth-error`, `/callback` and `/api/auth/callback/*` redirect to `/`.
+- `apps/auth-server` keeps serving `apps/portfolio` until cut-over. Retiring the portfolio's client registration there happens after P14.4, outside this change.
+- *Alternative considered:* keeping sign-in as built in P5. It was dropped (owner decision, 2026-09-26) because it added a required build variable, header and footer states and a round-trip dependency on another service without giving visitors anything. The client and server code are preserved in the separate `vishal-lab` project.
 
 ### A8. Deployment and CI
 - The pnpm workspace gains `apps/web` and `apps/api`; Turborepo pipelines are `lint`, `typecheck`, `test`, `build`, `e2e`.
@@ -118,7 +119,7 @@ apps/web/
 | P2 | Design system: tokens, fonts, themes, `src/ui` via shadcn `--base base`, contract tests, `/_dev/ui` gallery, CLAUDE.md UI rules | P1 |
 | P3 | Layout foundation: modes, AppShell/PageShell, header measurement, safe areas, redirects, 404 | P2 |
 | P4 | Content layer: schemas, migrate real content, `search-index.json`, `ai-context.json` | P1 |
-| P5 | Navigation shell: nav (3 compositions), command palette (search only), footer, theme control, auth integration (sign-in, account, callbacks) | P3, P4 |
+| P5 | Navigation shell: nav (3 compositions), command palette (search only), footer, theme control | P3, P4 |
 | P6 | Home + ProgrammeLine (all forms + table) | P5 |
 | P7 | Experience + About | P6 |
 | P8 | Work + case studies | P5 |

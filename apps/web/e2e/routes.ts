@@ -18,7 +18,6 @@ export const routes: MatrixRoute[] = [
   { path: '/knowledge/credit-cards-payments/3ds-flow', name: 'knowledge topic' },
   { path: '/ask', name: 'ask' },
   { path: '/contact', name: 'contact' },
-  { path: '/signin', name: 'sign in' },
   { path: '/colophon', name: 'colophon' },
   { path: '/legal/privacy', name: 'privacy' },
   { path: '/this/page/does-not-exist-anywhere-on-the-site', name: 'not found' },

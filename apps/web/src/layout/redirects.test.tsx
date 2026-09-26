@@ -61,6 +61,15 @@ describe('legacy redirects', () => {
     const router = open('/blogs/ai-agents')
     await expectReplacedWith(router, '/writing/ai-agents')
   })
+
+  it('specs/site-navigation example: an old sign-in link lands on / with no sign-in or account control', async () => {
+    const router = open('/signin?from=/work')
+    await waitFor(() => expect(router.state.location.pathname).toBe('/'))
+    expect(router.state.historyAction).toBe('REPLACE')
+    expect(await screen.findByRole('heading', { level: 1 })).not.toHaveTextContent('Page not found')
+    expect(screen.queryByRole('link', { name: /sign in|account/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /sign out|account/i })).not.toBeInTheDocument()
+  })
 })
 
 describe('not found', () => {

@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react'
 import { Link, Outlet, ScrollRestoration, useLocation } from 'react-router'
-import { AuthProvider } from '@/auth/AuthProvider.tsx'
 import { SearchProvider } from '@/features/search/CommandPalette.tsx'
 import { Footer } from './Footer.tsx'
 import { Navigation } from './Navigation.tsx'
@@ -16,11 +15,9 @@ import { useLayoutMode } from './useLayoutMode.ts'
  */
 export function AppShell() {
   return (
-    <AuthProvider>
-      <SearchProvider>
-        <Frame />
-      </SearchProvider>
-    </AuthProvider>
+    <SearchProvider>
+      <Frame />
+    </SearchProvider>
   )
 }
 
