@@ -67,7 +67,8 @@ describe('loadConfig', () => {
 
 describe('.env.example', () => {
   const example = readFileSync(new URL('../.env.example', import.meta.url), 'utf8')
-  const lines = example.split('\n').filter((line) => /^[A-Z_]+=/.test(line))
+  // Any line ending: Windows checkouts get CRLF (core.autocrlf).
+  const lines = example.split(/\r?\n/).filter((line) => /^[A-Z_]+=/.test(line))
 
   it('lists every configuration key', () => {
     expect(lines.map((line) => line.split('=')[0]).sort()).toEqual(Object.keys(configSchema.shape).sort())

@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "target": "ES2023",
-    "lib": ["ES2023"],
+    // DOM supplies the WHATWG fetch types (Request, Response, Headers) that Hono uses, independent of how
+    // @types/node resolves in the build environment; Node 24 implements them at runtime.
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "types": ["node"],
