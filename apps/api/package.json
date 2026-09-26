@@ -7,16 +7,19 @@
     "dev": "tsx watch --env-file-if-exists=.env src/dev.ts",
     "build": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
+    "migrate": "tsx --env-file-if-exists=.env src/db/migrate-cli.ts",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.1.0",
     "@upstash/redis": "^1.39.0",
     "hono": "^4.13.9",
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
     "@eslint/js": "^9",
     "@hono/node-server": "^2.1.1",
     "@types/node": "^24",
