@@ -1,0 +1,57 @@
+name: API CI
+
+# Quality gates for apps/api. Deployment is Vercel's Git integration (design.md A8): previews per PR and
+# production from main, with secrets only in the Vercel project environment.
+on:
+  pull_request:
+    branches: [main]
+    paths: &api-paths
+      - "apps/api/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - ".github/workflows/api-ci.yml"
+  push:
+    branches: [main]
+    paths: *api-paths
+
+concurrency:
+  group: api-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Lint, typecheck, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v4
+
+      # Version comes from "packageManager" in the root package.json.
+      - uses: pnpm/action-setup@v4
+
+      # Node 24 LTS, matching the Vercel runtime (apps/api "engines").
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install apps/api dependencies
+        working-directory: .
+        run: pnpm install --frozen-lockfile --filter api
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
