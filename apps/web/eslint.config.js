@@ -53,6 +53,8 @@ export default defineConfig([
       'no-restricted-imports': restrictImports(),
       'portfolio/no-as-child': 'error',
       'portfolio/no-arbitrary-tailwind': 'error',
+      // Lazy route modules export React Router's `loader` beside `Component`.
+      'react-refresh/only-export-components': ['error', { allowConstantExport: true, allowExportNames: ['loader'] }],
     },
   },
   {

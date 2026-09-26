@@ -6,7 +6,7 @@ test('an old article link lands on the blog platform case study, and Back skips 
   await page.goto('/')
   await page.goto('/blogs/ai-agents')
   await expect(page).toHaveURL('/work/blog-platform')
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Case study')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Blog Platform')
 
   await page.goBack()
   await expect(page).toHaveURL('/')

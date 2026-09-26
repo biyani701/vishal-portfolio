@@ -9,6 +9,7 @@ export const routes: MatrixRoute[] = [
   { path: '/', name: 'home' },
   { path: '/work', name: 'work' },
   { path: '/work/fast-jiraql', name: 'case study' },
+  { path: '/work/confluence-pages-details', name: 'case study with code' },
   { path: '/experience', name: 'experience' },
   { path: '/about', name: 'about' },
   { path: '/ask', name: 'ask' },

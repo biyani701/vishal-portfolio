@@ -52,8 +52,8 @@
 
 ## 8. P8 — Work
 
-- [ ] 8.1 `/work` with URL-synced filters and ProjectCard (screenshot or ArchitectureThumb); verify the `?stack=python` scenario
-- [ ] 8.2 `/work/:slug` case-study layout (facts, ToC, prose, ArchitectureFigure, CodeBlock, aside with "Ask about this" and related); verify all projects render and the ToC collapses on mobile
+- [x] 8.1 `/work` with URL-synced filters and ProjectCard (screenshot or ArchitectureThumb); verify the `?stack=python` scenario
+- [x] 8.2 `/work/:slug` case-study layout (facts, ToC, prose, ArchitectureFigure, CodeBlock, aside with "Ask about this" and related); verify all projects render and the ToC collapses on mobile
 - [ ] 8.3 Case studies for the separately hosted projects (blog platform, knowledge base, auth POC), linking to their live sites and repos when they exist; verify the separately-hosted-project scenario
 
 ## 9. P9 — Move Writing and Knowledge out

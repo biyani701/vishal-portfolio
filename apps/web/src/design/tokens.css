@@ -164,6 +164,11 @@
 @utility pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
 }
+/* A side column that stays in view while the page scrolls, clear of the sticky header (case-study ToC). */
+@utility sticky-below-header {
+  position: sticky;
+  top: calc(var(--shell-header) + 1.5rem);
+}
 
 /* §4.5 durations as utilities: duration-colour (150ms), duration-reveal (220ms), duration-overlay (320ms). */
 @utility duration-colour {
