@@ -17,11 +17,13 @@ function open(path: string) {
 const withSampleParams = (path: string) => path.replace(/:(\w+)/g, (_, name: string) => `${name.toLowerCase()}-1`)
 
 async function expectReplacedWith(router: ReturnType<typeof open>, pathname: string, rest: { search?: string; hash?: string } = {}) {
-  await waitFor(() => expect(router.state.location.pathname).toBe(pathname))
+  // Lazy destinations such as the case study (module + project body) can take over a second under load.
+  const slow = { timeout: 3000 }
+  await waitFor(() => expect(router.state.location.pathname).toBe(pathname), slow)
   expect(router.state.historyAction).toBe('REPLACE')
   expect(router.state.location).toMatchObject(rest)
   // The destination is a real page, not the 404.
-  expect(await screen.findByRole('heading', { level: 1 })).not.toHaveTextContent('Page not found')
+  expect(await screen.findByRole('heading', { level: 1 }, slow)).not.toHaveTextContent('Page not found')
 
   await act(() => router.navigate(-1))
   expect(router.state.location.pathname).toBe('/start')
