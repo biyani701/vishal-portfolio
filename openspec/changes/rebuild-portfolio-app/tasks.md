@@ -73,7 +73,8 @@
 
 ## 11. P11 — Ask
 
-- [ ] 11.1 Spike S1: CopilotKit runtime adapter on a Vercel Node function + OpenAI-compatible tool-calling against the NVIDIA API catalog (`AI_BASE_URL`, `AI_MODEL`) with the v2 client; verify an end-to-end tool call streams to a test page, and record the outcome in design.md
+- [ ] 11.0 AI model discovery in `apps/api/src/ai/` (beads `vishal-portfolio-9cm.11.7`): list the catalog, rank chat candidates generically, probe tool calling, share the selection in KV, refresh daily via `/cron/ai-models`, fail over on retired models; verify the unit tests and a manual run against the live catalog
+- [ ] 11.1 Spike S1: CopilotKit runtime adapter on a Vercel Node function + OpenAI-compatible tool-calling against the NVIDIA API catalog (`AI_BASE_URL`, the discovered agent model) with the v2 client; verify an end-to-end tool call streams to a test page, and record the outcome in design.md
 - [ ] 11.2 Runtime + agent in `apps/api` with the read-only tools over cached `ai-context.json`, the human-in-the-loop `draft_contact_request`, and the env-configured limits (`AI_RATE_LIMIT_PER_IP_PER_HOUR`, `AI_MAX_OUTPUT_TOKENS`, `AI_DAILY_BUDGET_USD`, `AI_MODEL`); verify tool unit tests, a prompt-injection fixture, and budget-exhausted and provider-rate-limited (429) responses
 - [ ] 11.3 Ask front end (AskProvider, entry points, `/ask` page, bottom/right Drawer surfaces, AskTurn, AskActivity with Details, AskResult renderers, grouped AskSources, AskSuggestions, AskComposer with Stop, JumpToLatest); verify component tests against a mocked AG-UI event stream
 - [ ] 11.4 Confirmation and failure states (AskConfirm with failed-step notice, send-failure alert via `/contact`, interrupted stream); verify the scenarios from the ask-experience spec

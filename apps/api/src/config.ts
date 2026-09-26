@@ -17,10 +17,17 @@ export const configSchema = z.object({
   AI_MAX_OUTPUT_TOKENS: whole(1200),
   AI_DAILY_BUDGET_USD: z.coerce.number({ error: 'must be a number' }).positive('must be above 0').default(2),
   // The LLM is any OpenAI-compatible chat-completions API (design.md A5): NVIDIA's API catalog by default.
-  // Changing provider is AI_BASE_URL + AI_API_KEY + the model ids, with no code change.
   AI_BASE_URL: z.url({ protocol: /^https$/, error: 'must be an https:// URL' }).default('https://integrate.api.nvidia.com/v1'),
-  AI_MODEL: z.string().trim().min(1).default('meta/llama-3.3-70b-instruct'),
-  AI_SUGGESTION_MODEL: z.string().trim().min(1).default('meta/llama-3.1-8b-instruct'),
+  // Models are discovered from the catalog (src/ai/models.ts), because the free catalog rotates. These pin a
+  // model instead; AI_MODEL_PREFER ("*nemotron*,*llama*instruct") only reorders what discovery tries first.
+  AI_MODEL: z.string().trim().min(1).optional(),
+  AI_SUGGESTION_MODEL: z.string().trim().min(1).optional(),
+  AI_MODEL_PREFER: z
+    .string()
+    .optional()
+    .transform((value) => (value ?? '').split(',').map((pattern) => pattern.trim()).filter(Boolean)),
+  AI_MODEL_REFRESH_HOURS: whole(24),
+  AI_MODEL_PROBE_LIMIT: whole(6),
 
   // Email (design.md A10): a verified sender on biyani.xyz, and where notifications go.
   RESEND_API_KEY: required(),
@@ -32,6 +39,9 @@ export const configSchema = z.object({
   DATABASE_URL: required().pipe(z.url({ protocol: /^postgres(ql)?$/, error: 'must be a postgres:// URL' })),
   KV_REST_API_URL: required().pipe(z.url({ protocol: /^https$/, error: 'must be an https:// URL' })),
   KV_REST_API_TOKEN: required(),
+
+  // Vercel Cron sends it as a bearer token to /cron/* (src/app.ts); nothing else can trigger those jobs.
+  CRON_SECRET: required().pipe(z.string().min(16, 'must be at least 16 characters')),
 
   // CORS allow-list (src/origins.ts); defaults to the production site.
   ALLOWED_ORIGINS: z.string().optional(),

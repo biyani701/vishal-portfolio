@@ -12,6 +12,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@upstash/redis": "^1.39.0",
     "hono": "^4.13.9",
     "zod": "^4.6.5"
   },
