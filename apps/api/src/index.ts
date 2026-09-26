@@ -1,6 +1,6 @@
 import { openAiCatalog } from './ai/catalog.js'
 import { modelResolver } from './ai/models.js'
-import { createApp } from './app.js'
+import { createApp } from './create-app.js'
 import { loadConfig } from './config.js'
 import { consoleLogger } from './log.js'
 import { allowedOrigins, originPolicy } from './origins.js'

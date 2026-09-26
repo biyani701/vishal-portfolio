@@ -40,7 +40,7 @@ export const configSchema = z.object({
   KV_REST_API_URL: required().pipe(z.url({ protocol: /^https$/, error: 'must be an https:// URL' })),
   KV_REST_API_TOKEN: required(),
 
-  // Vercel Cron sends it as a bearer token to /cron/* (src/app.ts); nothing else can trigger those jobs.
+  // Vercel Cron sends it as a bearer token to /cron/* (src/create-app.ts); nothing else can trigger those jobs.
   CRON_SECRET: required().pipe(z.string().min(16, 'must be at least 16 characters')),
 
   // CORS allow-list (src/origins.ts); defaults to the production site.
