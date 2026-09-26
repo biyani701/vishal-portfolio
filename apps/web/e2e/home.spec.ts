@@ -18,7 +18,7 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('shows every Home section', async ({ page }) => {
-  const sections = ['Programme line', 'Selected work', 'Ask the portfolio', 'Writing', 'Knowledge', /Let's talk/]
+  const sections = ['Programme line', 'Selected work', 'Ask the portfolio', 'Independent projects', /Let's talk/]
   for (const name of sections) {
     const section = page.getByRole('region', { name })
     await section.scrollIntoViewIfNeeded()

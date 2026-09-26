@@ -3,6 +3,7 @@ slug: "auth-poc"
 title: "Multi-client OAuth Server"
 year: 2025
 type: "personal"
+highlighted: 3
 summary: "One Auth.js server that several front ends sign in through, each with its own GitHub and Google OAuth apps."
 domains: ["web", "apis"]
 stack: ["Next.js", "Auth.js", "Prisma", "PostgreSQL", "TypeScript", "Vercel"]

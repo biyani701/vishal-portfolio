@@ -95,6 +95,8 @@ export const projectMetaSchema = z.object({
   screenshot: z.string().startsWith('/').optional(),
   /** Position among Home's selected work (1–3); omitted otherwise. */
   featured: z.number().int().min(1).max(3).optional(),
+  /** Position among Home's highlighted, separately hosted projects (1–3); omitted otherwise. */
+  highlighted: z.number().int().min(1).max(3).optional(),
 })
 
 export const articleMetaSchema = z.object({

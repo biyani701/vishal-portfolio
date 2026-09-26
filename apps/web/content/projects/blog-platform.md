@@ -3,6 +3,7 @@ slug: "blog-platform"
 title: "Blog Platform"
 year: 2026
 type: "personal"
+highlighted: 2
 status: "in-flight"
 summary: "A standalone blogging tool with an editor, drafts and publishing, replacing the blog that used to live inside this site."
 domains: ["web", "publishing"]

@@ -22,6 +22,10 @@ export const projects: ProjectMeta[] = byKey(
 
 /** Home's selected work, in order. */
 export const featuredProjects = projects.filter((project) => project.featured)
+/** Home's highlighted projects: the separately hosted ones, in their `highlighted` order. */
+export const highlightedProjects = projects
+  .filter((project) => project.highlighted)
+  .sort((a, b) => (a.highlighted ?? 0) - (b.highlighted ?? 0))
 
 export const articles: ArticleMeta[] = byKey(
   import.meta.glob<ArticleMeta>('/content/writing/*.md', { eager: true, import: 'meta' }),

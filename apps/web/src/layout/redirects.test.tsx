@@ -67,8 +67,8 @@ describe('legacy redirects', () => {
     await waitFor(() => expect(router.state.location.pathname).toBe('/'))
     expect(router.state.historyAction).toBe('REPLACE')
     expect(await screen.findByRole('heading', { level: 1 })).not.toHaveTextContent('Page not found')
-    expect(screen.queryByRole('link', { name: /sign in|account/i })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /sign out|account/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /^(sign in|account)\b/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^(sign out|account)\b/i })).not.toBeInTheDocument()
   })
 })
 

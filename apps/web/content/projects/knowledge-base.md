@@ -3,6 +3,7 @@ slug: "knowledge-base"
 title: "Knowledge Base"
 year: 2026
 type: "personal"
+highlighted: 1
 status: "in-flight"
 summary: "A payments and capital-markets knowledge base, with a searchable glossary, moving from static files to Neon Postgres."
 domains: ["knowledge-management", "payments"]
