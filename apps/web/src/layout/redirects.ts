@@ -6,11 +6,14 @@ import { generatePath, replace, useLocation, useNavigate, type RouteObject } fro
 // `to` reuses the param names of `from`, so each param carries across (a blog id is the article slug).
 export const legacyRedirects = [
   { from: '/works', to: '/work' },
-  { from: '/blogs', to: '/writing' },
-  { from: '/blogs/:blogId', to: '/writing/:blogId' },
-  { from: '/knowledge/domain/:categoryId', to: '/knowledge/:categoryId' },
-  { from: '/knowledge/domain/:categoryId/:topicId', to: '/knowledge/:categoryId/:topicId' },
-  { from: '/knowledge/ThreeDSFlowStepper', to: '/knowledge/credit-cards-payments/3ds-flow' },
+  // Writing and knowledge are separate projects now (design.md amendment): old links go to their case studies.
+  { from: '/blogs', to: '/work/blog-platform' },
+  { from: '/blogs/:blogId', to: '/work/blog-platform' },
+  { from: '/knowledge', to: '/work/knowledge-base' },
+  { from: '/knowledge/glossary', to: '/work/knowledge-base' },
+  { from: '/knowledge/domain/:categoryId', to: '/work/knowledge-base' },
+  { from: '/knowledge/domain/:categoryId/:topicId', to: '/work/knowledge-base' },
+  { from: '/knowledge/ThreeDSFlowStepper', to: '/work/knowledge-base' },
   { from: '/credits', to: '/colophon' },
   { from: '/privacy', to: '/legal/privacy' },
   { from: '/terms', to: '/legal/terms' },

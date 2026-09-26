@@ -10,9 +10,6 @@ const PAGES: [path: string, title: string, summary: string][] = [
   ['/', 'Home', 'Who Vishal is, the Programme Line and selected work'],
   ['/work', 'Work', 'All projects, filterable by domain and stack'],
   ['/experience', 'Experience', 'Roles, engagements, skills over time and credentials'],
-  ['/writing', 'Writing', 'Articles'],
-  ['/knowledge', 'Knowledge', 'Domain knowledge: payments, reference data, capital markets'],
-  ['/knowledge/glossary', 'Glossary', 'Payments and financial-services terms'],
   ['/about', 'About', 'Story, principles and credentials'],
   ['/ask', 'Ask', 'Ask a question about this portfolio'],
   ['/contact', 'Contact', 'Send a message'],
@@ -42,38 +39,6 @@ export function buildSearchIndex(content: Content): SearchIndex {
       summary: meta.summary,
       url: `/work/${meta.slug}`,
       keywords: words(meta.title, ...meta.stack, ...meta.domains),
-    })),
-    ...content.writing.map(({ meta }) => ({
-      id: `article:${meta.slug}`,
-      group: 'article' as const,
-      title: meta.title,
-      summary: meta.summary,
-      url: `/writing/${meta.slug}`,
-      keywords: words(meta.title, ...meta.topics),
-    })),
-    ...content.domains.map((domain) => ({
-      id: `topic:${domain.id}`,
-      group: 'topic' as const,
-      title: domain.name,
-      summary: domain.summary,
-      url: `/knowledge/${domain.id}`,
-      keywords: words(domain.name),
-    })),
-    ...content.topics.map(({ meta }) => ({
-      id: `topic:${meta.domain}/${meta.slug}`,
-      group: 'topic' as const,
-      title: meta.title,
-      summary: meta.summary,
-      url: `/knowledge/${meta.domain}/${meta.slug}`,
-      keywords: words(meta.title),
-    })),
-    ...content.glossary.map((term) => ({
-      id: `term:${term.id}`,
-      group: 'term' as const,
-      title: term.term,
-      summary: term.fullForm,
-      url: `/knowledge/glossary#${term.id}`,
-      keywords: words(term.term, term.fullForm, term.category),
     })),
   ]
   return { version: 1, entries }
@@ -112,15 +77,6 @@ export function buildAiContext(content: Content) {
     skills: content.skills,
     education: content.credentials.education,
     projects: content.projects.map(({ meta, body }) => ({ ...meta, url: `/work/${meta.slug}`, body })),
-    articles: content.writing.map(({ meta, body }) => ({ ...meta, url: `/writing/${meta.slug}`, body })),
-    knowledge: content.domains.map((domain) => ({
-      ...domain,
-      url: `/knowledge/${domain.id}`,
-      topics: content.topics
-        .filter((topic) => topic.meta.domain === domain.id)
-        .map(({ meta, body }) => ({ ...meta, url: `/knowledge/${meta.domain}/${meta.slug}`, body })),
-    })),
-    glossary: content.glossary.map((term) => ({ ...term, url: `/knowledge/glossary#${term.id}` })),
   }
 }
 
