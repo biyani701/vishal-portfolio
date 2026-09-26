@@ -16,7 +16,7 @@ A complete rewrite and redesign has been decided, and the design is frozen in `d
 - The **Programme** visual system: tokens, light/dark themes, typography, status language, motion.
 - Four mutually exclusive layout modes: compact-landscape, mobile, tablet, desktop.
 - The **Programme Line** as a signature component in four forms (lanes, strip, span rows, table).
-- A new information architecture: Home, Experience, Work, Writing, Knowledge (domains, glossary, 3-D Secure flow), About, Ask, Contact, Colophon, Legal, Account, plus redirects for every old URL.
+- A new information architecture: Home, Experience, Work, Writing, Knowledge (domains, glossary, 3-D Secure flow), About, Ask, Contact, Colophon, Legal, plus redirects for every old URL.
 - A typed **content layer** (Markdown/TS) that feeds pages, ⌘K search and the AI agent. The in-browser blog editor is removed (D-3).
 - **Ask:** CopilotKit v2 headless + AG-UI, following the accepted Ask interaction model (questions as headings, serif answers, activity lines, grouped sources, confirmation cards, live announcements).
 - An **application-owned Contact form**. The Tally embed is retired (C-1).
@@ -26,8 +26,9 @@ A complete rewrite and redesign has been decided, and the design is frozen in `d
 - Exposes `POST /contact` (external URL `https://api.vishal.biyani.xyz/contact`): validates, rate-limits, **stores a copy**, and emails the owner.
 
 **Unchanged:**
-- `apps/auth-server` and every Auth.js contract path (`/api/auth/*`, `/auth-callback*`, `/callback`, sign-out).
 - GitHub Pages hosting for the site. Runtime configuration via `runtime-config.js`.
+
+**No sign-in (amended 2026-09-26):** `apps/web` has no authentication, account page or Auth.js callback routes. Old sign-in, account and callback URLs redirect to `/`. `apps/auth-server` is not changed by this change and keeps serving `apps/portfolio` until cut-over. The auth proof of concept continues as a separate project (`vishal-lab`).
 
 **Removed at cut-over:**
 - `apps/portfolio` (CRA/MUI app).
@@ -44,7 +45,6 @@ A complete rewrite and redesign has been decided, and the design is frozen in `d
 - `content-pages`: the content layer and every content route (Home, Experience, Work, Writing, Knowledge, Glossary, 3-D Secure, About, Colophon, Legal).
 - `ask-experience`: the AI surfaces, activity/states, sources, confirmation and accessibility behaviour.
 - `contact`: the application-owned contact form and its submission behaviour.
-- `auth-integration`: sign-in, account and preservation of the Auth.js contract.
 - `api-service`: the `apps/api` Vercel service (AG-UI runtime, agent tools, contact endpoint, security limits).
 
 ### Modified Capabilities

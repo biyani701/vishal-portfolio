@@ -31,11 +31,11 @@
 - [x] 4.3 Markdown pipeline (remark/rehype + sanitise + Shiki); verify a fixture article renders headings, a code block and a table
 - [x] 4.4 Build `search-index.json` and `ai-context.json`; verify both are generated, deterministic, and contain only published fields
 
-## 5. P5 — Navigation shell and auth
+## 5. P5 — Navigation shell
 
 - [x] 5.1 Navigation in three compositions (desktop NavigationMenu; Drawer for tablet/mobile; 44px compact bar) with current-section indication; verify the Playwright nav flows in each mode
 - [x] 5.2 Command palette (Dialog + Autocomplete) over the search index, with the "Ask: …" option stubbed until P11; verify ⌘K opens it, results are grouped, and the keyboard works
-- [ ] 5.3 AuthProvider using the existing Auth.js endpoints; SignInPanel; AccountMenu; `/account`; callback routes at their existing paths; verify a GitHub sign-in round trip against the auth server on a preview
+- [ ] 5.3 Remove sign-in from `apps/web` (design.md A7): shell, auth routes, `src/auth`, and the auth config, env and CI variables; legacy auth URLs redirect to `/`; verify each legacy auth URL lands on `/` and the build needs only `VITE_API_BASE_URL`
 - [x] 5.4 Footer and legal links; verify links resolve and the footer stays static in all modes
 
 ## 6. P6 — Home and Programme Line
@@ -95,6 +95,6 @@
 ## 14. P14 — Cut-over
 
 - [ ] 14.1 Namecheap DNS: `CNAME api.vishal.biyani.xyz → cname.vercel-dns.com` (owner action; existing Pages records untouched), production env values in Vercel, and runtime-config values; verify TLS, health, CORS and a real contact email on production
-- [ ] 14.2 Switch the Pages workflow to `apps/web/dist` (keeping CNAME and `404.html`), then run the production smoke test (routes, redirects, sign-in, contact, Ask); verify the checklist passes
+- [ ] 14.2 Switch the Pages workflow to `apps/web/dist` (keeping CNAME and `404.html`), then run the production smoke test (routes, redirects, contact, Ask); verify the checklist passes
 - [ ] 14.3 Document and test the rollback (republish `apps/portfolio`); verify the rollback runs on a preview
 - [ ] 14.4 After two stable weeks, remove `apps/portfolio`, its workflow and its dependencies; verify the workspace builds and CI is green
