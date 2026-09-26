@@ -47,8 +47,8 @@
 
 ## 7. P7 — Experience and About
 
-- [ ] 7.1 `/experience`: interactive Programme Line + role panel with deep links (`#role-id`), prev/next, skills over time, credentials; verify the deep-link test and keyboard selection
-- [ ] 7.2 `/about` (story, principles, credentials, no portrait) with placeholder copy clearly marked; verify that no portrait renders and there's no overflow in any mode
+- [x] 7.1 `/experience`: interactive Programme Line + role panel with deep links (`#role-id`), prev/next, skills over time, credentials; verify the deep-link test and keyboard selection
+- [x] 7.2 `/about` (story, principles, credentials, no portrait) with placeholder copy clearly marked; verify that no portrait renders and there's no overflow in any mode
 
 ## 8. P8 — Work
 

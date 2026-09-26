@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
+import { about } from '../../content/about.ts'
 import { credentials } from '../../content/credentials.ts'
 import { profile } from '../../content/profile.ts'
 import { organisations, roles } from '../../content/roles.ts'
@@ -10,7 +11,7 @@ import { loadContent, loadMarkdown, validateCollections } from './load.ts'
 import { renderMarkdown } from './markdown.ts'
 
 const fixture = (name: string) => readFileSync(new URL(`./fixtures/${name}`, import.meta.url), 'utf8')
-const collections = { profile, organisations, roles, skills, credentials }
+const collections = { profile, about, organisations, roles, skills, credentials }
 
 describe('content records (task 4.2)', () => {
   it('migrates every record from apps/portfolio', async () => {
@@ -115,5 +116,11 @@ describe('build artefacts (task 4.4)', () => {
     expect(Object.keys(context).filter((key) => ['articles', 'knowledge', 'glossary'].includes(key))).toEqual([])
     expect(context.roles.find((r) => r.id === 'corecard')).toMatchObject({ status: 'in-flight', end: null })
     expect(context.milestones.map((m) => m.when)).toEqual(['Q4 2009', '2013', 'Sep 2020', 'Q3 2021'])
+  })
+
+  it('keep draft About copy out of Ask, and include it once supplied', async () => {
+    expect(buildAiContext(await loadContent()).about).toBeNull()
+    const supplied = await loadContent({ ...collections, about: { ...about, draft: false } })
+    expect(buildAiContext(supplied).about).toEqual({ story: about.story, principles: about.principles })
   })
 })
