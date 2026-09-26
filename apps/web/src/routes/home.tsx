@@ -5,7 +5,7 @@ import { ProgrammeLine } from '@/components/programme/ProgrammeLine.tsx'
 import { PageShell } from '@/layout/PageShell.tsx'
 
 // Home (specs/content-pages "Home"; task 6.3): hero, Programme Line under the hero (§6.7), proof ledger,
-// three selected projects, the Ask question input, writing and knowledge teasers, and the contact band.
+// three selected projects, the Ask question input, the independent projects, and the contact band.
 // Sections below the fold rise in once as they scroll into view (§4.5).
 export function Component() {
   return (

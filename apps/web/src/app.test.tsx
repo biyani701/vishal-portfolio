@@ -21,7 +21,8 @@ describe('app smoke test', () => {
 describe('AppShell', () => {
   it('frames every page with a header, a skip link to the main landmark and a footer', async () => {
     renderApp('/work')
-    expect(await screen.findByRole('heading', { level: 1, name: 'Work' })).toBeInTheDocument()
+    // Like Home, the lazy /work module (with the stack Combobox) can take over a second to load under load.
+    expect(await screen.findByRole('heading', { level: 1, name: 'Work' }, { timeout: 3000 })).toBeInTheDocument()
 
     const main = screen.getByRole('main')
     expect(main).toHaveAttribute('id', 'main')

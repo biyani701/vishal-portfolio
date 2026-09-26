@@ -5,6 +5,7 @@ import { parse as parseYaml } from 'yaml'
 import type { z } from 'zod'
 import { credentials } from '../../content/credentials.ts'
 import { profile } from '../../content/profile.ts'
+import { projectDomains } from '../../content/project-domains.ts'
 import { organisations, roles } from '../../content/roles.ts'
 import {
   credentialsSchema,
@@ -158,6 +159,11 @@ export function checkReferences(content: Content) {
     }
     if (role.end && role.end < role.start) throw new ContentError(`content/roles.ts: [${i}].end: before start`)
   })
+  for (const project of content.projects) {
+    for (const domain of project.meta.domains) {
+      if (!(domain in projectDomains)) throw new ContentError(`${project.file}: domains: no label for "${domain}" in content/project-domains.ts`)
+    }
+  }
   for (const field of ['featured', 'highlighted'] as const) {
     const positions = content.projects.flatMap((project) => (project.meta[field] ? [project.meta[field]] : []))
     unique('content/projects', field, positions.map(String))

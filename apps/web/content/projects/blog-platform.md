@@ -10,6 +10,7 @@ domains: ["web", "publishing"]
 stack: ["Markdown"]
 outcomes: []
 links: {}
+site: {"url": "https://blog.biyani.xyz", "live": false}
 architecture: ["Editor", "Drafts · publish", "blog.biyani.xyz"]
 ---
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Link, Outlet, ScrollRestoration, useLocation } from 'react-router'
 import { SearchProvider } from '@/features/search/CommandPalette.tsx'
+import { Toaster } from '@/ui/toast.tsx'
 import { Footer } from './Footer.tsx'
 import { Navigation } from './Navigation.tsx'
 import { useLegacyAnchorRedirect } from './redirects.ts'
@@ -16,7 +17,10 @@ import { useLayoutMode } from './useLayoutMode.ts'
 export function AppShell() {
   return (
     <SearchProvider>
-      <Frame />
+      {/* Short confirmations, such as CodeBlock's "Copied to clipboard", from the shared `toast` manager. */}
+      <Toaster>
+        <Frame />
+      </Toaster>
     </SearchProvider>
   )
 }
