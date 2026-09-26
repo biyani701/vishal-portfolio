@@ -9,8 +9,13 @@ Defines `apps/api`, a new Vercel service that hosts the AG-UI runtime and portfo
 - the CopilotKit/AG-UI runtime endpoint
 - `POST /contact`
 - `GET /health`
+- scheduled job endpoints under `/cron/` (AI model discovery; contact email retry and retention purge), which run only when called with the `CRON_SECRET` bearer token
 
 It SHALL accept browser requests only from the production site origin, and from preview origins in non-production environments. All secrets SHALL live only in its Vercel environment.
+
+#### Scenario: Unauthorised job call
+- **WHEN** `/cron/ai-models` is called without the `CRON_SECRET` bearer token
+- **THEN** it answers 401 and does nothing
 
 #### Scenario: Foreign origin
 - **WHEN** a request to the runtime arrives with an origin other than the site

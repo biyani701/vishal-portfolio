@@ -11,6 +11,7 @@ const complete = {
   DATABASE_URL: 'postgres://user:pass@db.example.test/portfolio',
   KV_REST_API_URL: 'https://kv.example.test',
   KV_REST_API_TOKEN: 'test-kv-token',
+  CRON_SECRET: 'test-cron-secret-0123456789',
 }
 
 afterEach(() => {
@@ -27,8 +28,9 @@ describe('loadConfig', () => {
       AI_MAX_OUTPUT_TOKENS: 1200,
       AI_DAILY_BUDGET_USD: 2,
       AI_BASE_URL: 'https://integrate.api.nvidia.com/v1',
-      AI_MODEL: 'meta/llama-3.3-70b-instruct',
-      AI_SUGGESTION_MODEL: 'meta/llama-3.1-8b-instruct',
+      AI_MODEL_PREFER: [],
+      AI_MODEL_REFRESH_HOURS: 24,
+      AI_MODEL_PROBE_LIMIT: 6,
     })
   })
 
@@ -47,6 +49,18 @@ describe('loadConfig', () => {
     expect(run).toThrow(
       'apps/api configuration: CONTACT_RETENTION_DAYS must be a whole number; CONTACT_TO_EMAIL must be an email address; AI_API_KEY is required; DATABASE_URL is required',
     )
+  })
+
+  it('discovers models unless pinned, and reads preference patterns as a list', () => {
+    const config = loadConfig(complete)
+    expect(config.AI_MODEL).toBeUndefined()
+    expect(config.AI_SUGGESTION_MODEL).toBeUndefined()
+    expect(loadConfig({ ...complete, AI_MODEL_PREFER: ' *nemotron* , *llama*instruct ' }).AI_MODEL_PREFER).toEqual(['*nemotron*', '*llama*instruct'])
+  })
+
+  it('requires a CRON_SECRET of at least 16 characters', () => {
+    expect(() => loadConfig({ ...complete, CRON_SECRET: undefined })).toThrow('CRON_SECRET is required')
+    expect(() => loadConfig({ ...complete, CRON_SECRET: 'short' })).toThrow('CRON_SECRET must be at least 16 characters')
   })
 
   it('switches LLM provider through configuration alone', () => {

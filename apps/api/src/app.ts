@@ -1,5 +1,7 @@
-import { Hono } from 'hono'
+import { createHash, timingSafeEqual } from 'node:crypto'
+import { Hono, type MiddlewareHandler } from 'hono'
 import { cors } from 'hono/cors'
+import { NoModelAvailableError, type ModelResolver } from './ai/models.js'
 import { consoleLogger, requestLog, type AppEnv, type Logger } from './log.js'
 import type { OriginPolicy } from './origins.js'
 
@@ -11,9 +13,26 @@ export interface AppOptions {
   log?: Logger
   /** The deployed commit, for /health. */
   version?: string
+  /** Bearer token Vercel Cron sends to /cron/* (CRON_SECRET). Without it, cron routes answer 404. */
+  cronSecret?: string
+  /** Automatic AI model selection (src/ai/models.ts). */
+  models?: ModelResolver
 }
 
-export function createApp({ origins, log = consoleLogger, version }: AppOptions) {
+/** Constant-time comparison of the Authorization header with `Bearer <secret>`. */
+function cronAuth(secret: string): MiddlewareHandler<AppEnv> {
+  const expected = createHash('sha256').update(`Bearer ${secret}`).digest()
+  return async (c, next) => {
+    const given = createHash('sha256').update(c.req.header('Authorization') ?? '').digest()
+    if (!timingSafeEqual(given, expected)) {
+      c.set('reason', 'cron_unauthorized')
+      return c.json({ error: 'unauthorized' }, 401)
+    }
+    await next()
+  }
+}
+
+export function createApp({ origins, log = consoleLogger, version, cronSecret, models }: AppOptions) {
   const app = new Hono<AppEnv>()
 
   app.use(requestLog(log))
@@ -40,6 +59,32 @@ export function createApp({ origins, log = consoleLogger, version }: AppOptions)
   )
 
   app.get('/health', (c) => c.json({ status: 'ok', ...(version && { version }) }))
+
+  // Scheduled jobs (vercel.json "crons"), callable only with CRON_SECRET. Contact retry and purge join in 10.3.
+  if (cronSecret) {
+    app.use('/cron/*', cronAuth(cronSecret))
+
+    if (models) {
+      // Daily: re-discover the AI models, since the provider's free catalog rotates (vishal-portfolio-9cm.11.7).
+      app.get('/cron/ai-models', async (c) => {
+        try {
+          const report = await models.refresh()
+          return c.json({
+            agent: report.agent,
+            suggestions: report.suggestions,
+            source: report.source,
+            checkedAt: report.checkedAt,
+            candidates: report.candidates,
+            probes: report.probes,
+          })
+        } catch (error) {
+          if (!(error instanceof NoModelAvailableError)) throw error
+          c.set('reason', 'no_model_available')
+          return c.json({ error: 'no_model_available' }, 503)
+        }
+      })
+    }
+  }
 
   app.notFound((c) => c.json({ error: 'not_found' }, 404))
   app.onError((error, c) => {

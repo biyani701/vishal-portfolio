@@ -98,3 +98,43 @@ describe('request log', () => {
     expect(await res.json()).toEqual({ error: 'not_found' })
   })
 })
+
+describe('cron routes', () => {
+  const secret = 'test-cron-secret-0123456789'
+  const selection = { agent: 'v/agent', suggestions: 'v/small', source: { agent: 'discovered' as const, suggestions: 'discovered' as const }, checkedAt: '2026-09-26T03:00:00.000Z' }
+
+  function cronApp(refresh = vi.fn(async () => ({ ...selection, candidates: 12, probes: [{ model: 'v/agent', ok: true, ms: 800 }] }))) {
+    const models = { refresh, current: vi.fn(), reportFailure: vi.fn() }
+    return { app: createApp({ origins: originPolicy([PRODUCTION_ORIGIN]), log: { info() {}, warn() {}, error() {} }, cronSecret: secret, models }), refresh }
+  }
+
+  it('refuses /cron/* without the bearer secret, before doing any work', async () => {
+    const { app, refresh } = cronApp()
+    const attempts: Record<string, string>[] = [{}, { Authorization: 'Bearer wrong' }, { Authorization: secret }]
+    for (const headers of attempts) {
+      expect((await app.request('/cron/ai-models', { headers })).status).toBe(401)
+    }
+    expect(refresh).not.toHaveBeenCalled()
+  })
+
+  it('re-discovers the AI models and reports the selection with its probes', async () => {
+    const { app, refresh } = cronApp()
+    const res = await app.request('/cron/ai-models', { headers: { Authorization: `Bearer ${secret}` } })
+    expect(res.status).toBe(200)
+    expect(await res.json()).toMatchObject({ agent: 'v/agent', suggestions: 'v/small', candidates: 12, probes: [{ model: 'v/agent', ok: true }] })
+    expect(refresh).toHaveBeenCalledOnce()
+  })
+
+  it('answers 503 when no model passes', async () => {
+    const { NoModelAvailableError } = await import('./ai/models.js')
+    const { app } = cronApp(vi.fn(async () => Promise.reject(new NoModelAvailableError('none'))))
+    const res = await app.request('/cron/ai-models', { headers: { Authorization: `Bearer ${secret}` } })
+    expect(res.status).toBe(503)
+    expect(await res.json()).toEqual({ error: 'no_model_available' })
+  })
+
+  it('has no cron routes without a secret', async () => {
+    const app = createApp({ origins: originPolicy([PRODUCTION_ORIGIN]), log: { info() {}, warn() {}, error() {} } })
+    expect((await app.request('/cron/ai-models', { headers: { Authorization: 'Bearer anything' } })).status).toBe(404)
+  })
+})
