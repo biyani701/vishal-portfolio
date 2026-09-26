@@ -4,29 +4,21 @@ import { fileURLToPath } from 'node:url'
 import { parse as parseYaml } from 'yaml'
 import type { z } from 'zod'
 import { credentials } from '../../content/credentials.ts'
-import { glossary } from '../../content/glossary.ts'
-import { domains } from '../../content/knowledge/domains.ts'
 import { profile } from '../../content/profile.ts'
 import { organisations, roles } from '../../content/roles.ts'
 import {
   credentialsSchema,
-  domainSchema,
-  glossaryTermSchema,
   markdownCollections,
   organisationSchema,
   profileSchema,
   roleSchema,
   skillSchema,
-  type ArticleMeta,
   type Credentials,
-  type Domain,
-  type GlossaryTerm,
   type Organisation,
   type Profile,
   type ProjectMeta,
   type Role,
   type Skill,
-  type TopicMeta,
 } from '../../content/schema.ts'
 import { skills } from '../../content/skills.ts'
 import { renderMarkdown, type RenderedMarkdown } from './markdown.ts'
@@ -86,7 +78,7 @@ function splitFrontmatter(file: string, source: string) {
 
 /**
  * Validates and renders one Markdown file. `file` is its path from the app root (content/projects/x.md); the
- * slug must match the file name, and a knowledge topic's domain must match its folder.
+ * slug must match the file name.
  */
 export async function loadMarkdown<C extends Collection>(file: string, source: string): Promise<LoadedMarkdown<MetaOf<C>>> {
   file = posix(file)
@@ -97,11 +89,6 @@ export async function loadMarkdown<C extends Collection>(file: string, source: s
   const meta = validate(file, markdownCollections[collection], data) as MetaOf<C>
   const name = basename(file, '.md')
   if (meta.slug !== name) throw new ContentError(`${file}: slug: "${meta.slug}" must match the file name "${name}"`)
-  if (collection === 'knowledge') {
-    const folder = file.split('/')[2]
-    const { domain } = meta as TopicMeta
-    if (domain !== folder) throw new ContentError(`${file}: domain: "${domain}" must match the folder "${folder}"`)
-  }
   return { meta, file, body, ...(await renderMarkdown(body)) }
 }
 
@@ -128,10 +115,6 @@ export interface Content {
   skills: Skill[]
   credentials: Credentials
   projects: LoadedMarkdown<ProjectMeta>[]
-  writing: LoadedMarkdown<ArticleMeta>[]
-  domains: Domain[]
-  topics: LoadedMarkdown<TopicMeta>[]
-  glossary: GlossaryTerm[]
 }
 
 export interface Collections {
@@ -140,8 +123,6 @@ export interface Collections {
   roles: unknown
   skills: unknown
   credentials: unknown
-  domains: unknown
-  glossary: unknown
 }
 
 /** Validates the TypeScript collections, naming the file and field of each problem. */
@@ -153,8 +134,6 @@ export function validateCollections(input: Collections) {
     roles: validate('content/roles.ts', list(roleSchema), input.roles),
     skills: validate('content/skills.ts', list(skillSchema), input.skills),
     credentials: validate('content/credentials.ts', credentialsSchema, input.credentials),
-    domains: validate('content/knowledge/domains.ts', list(domainSchema), input.domains),
-    glossary: validate('content/glossary.ts', list(glossaryTermSchema), input.glossary),
   }
 }
 
@@ -170,7 +149,6 @@ function unique(file: string, field: string, values: string[]) {
 export function checkReferences(content: Content) {
   const orgs = new Set(content.organisations.map((org) => org.id))
   const projects = new Set(content.projects.map((project) => project.meta.slug))
-  const domainIds = new Set(content.domains.map((domain) => domain.id))
 
   unique('content/roles.ts', 'id', content.roles.map((role) => role.id))
   content.roles.forEach((role, i) => {
@@ -180,33 +158,21 @@ export function checkReferences(content: Content) {
     }
     if (role.end && role.end < role.start) throw new ContentError(`content/roles.ts: [${i}].end: before start`)
   })
-  unique('content/glossary.ts', 'id', content.glossary.map((term) => term.id))
-  unique('content/writing', 'aliases', content.writing.flatMap((article) => article.meta.aliases))
-  for (const topic of content.topics) {
-    if (!domainIds.has(topic.meta.domain)) throw new ContentError(`${topic.file}: domain: no domain "${topic.meta.domain}"`)
+  for (const field of ['featured', 'highlighted'] as const) {
+    const positions = content.projects.flatMap((project) => (project.meta[field] ? [project.meta[field]] : []))
+    unique('content/projects', field, positions.map(String))
   }
-  const featured = content.projects.flatMap((project) => (project.meta.featured ? [project.meta.featured] : []))
-  unique('content/projects', 'featured', featured.map(String))
 }
 
 /** Loads, validates and cross-checks all content, in a stable order. */
-export async function loadContent(collections: Collections = { profile, organisations, roles, skills, credentials, domains, glossary }): Promise<Content> {
+export async function loadContent(collections: Collections = { profile, organisations, roles, skills, credentials }): Promise<Content> {
   const validated = validateCollections(collections)
-  const [projects, writing, topics] = await Promise.all([
-    loadCollection('projects'),
-    loadCollection('writing'),
-    loadCollection('knowledge'),
-  ])
-  const domainOrder = validated.domains.map((domain) => domain.id)
+  const projects = await loadCollection('projects')
   const content: Content = {
     ...validated,
     projects: projects.sort(
       (a, b) =>
         (a.meta.featured ?? 99) - (b.meta.featured ?? 99) || b.meta.year - a.meta.year || a.meta.slug.localeCompare(b.meta.slug),
-    ),
-    writing: writing.sort((a, b) => b.meta.date.localeCompare(a.meta.date) || a.meta.slug.localeCompare(b.meta.slug)),
-    topics: topics.sort(
-      (a, b) => domainOrder.indexOf(a.meta.domain) - domainOrder.indexOf(b.meta.domain) || a.meta.order - b.meta.order,
     ),
   }
   checkReferences(content)

@@ -12,7 +12,6 @@ const url = z.url({ protocol: /^https$/ })
 export const yearMonth = z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, 'use YYYY-MM')
 /** A year, a quarter or a month: `2013`, `2009-Q4` or `2020-09`. Only as precise as the source. */
 export const period = z.string().regex(/^\d{4}(?:-Q[1-4]|-(?:0[1-9]|1[0-2]))?$/, 'use YYYY, YYYY-Qn or YYYY-MM')
-const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'use YYYY-MM-DD')
 
 export const profileSchema = z.object({
   name: text,
@@ -78,6 +77,8 @@ export const projectMetaSchema = z.object({
   title: text,
   year: z.number().int().min(2000).max(2100),
   type: z.enum(['personal', 'open-source', 'work']),
+  /** "in-flight" while still being built (amber is reserved for In flight); delivered when omitted. */
+  status: z.enum(['delivered', 'in-flight']).default('delivered'),
   /** One line for cards and search. */
   summary: text,
   domains: z.array(slug).min(1),
@@ -93,37 +94,8 @@ export const projectMetaSchema = z.object({
   screenshot: z.string().startsWith('/').optional(),
   /** Position among Home's selected work (1–3); omitted otherwise. */
   featured: z.number().int().min(1).max(3).optional(),
-})
-
-export const articleMetaSchema = z.object({
-  slug,
-  title: text,
-  date: isoDate,
-  topics: z.array(text).min(1),
-  summary: text,
-  /** Old /blogs/:id identifiers that redirect here. */
-  aliases: z.array(z.string()).default([]),
-})
-
-export const domainSchema = z.object({ id: slug, name: text, short: text, summary: text })
-
-export const topicMetaSchema = z.object({
-  slug,
-  domain: slug,
-  title: text,
-  summary: text,
-  order: z.number().int(),
-  /** Interactive step sequence (the 3-D Secure flow). */
-  steps: z.array(z.object({ title: text, detail: text })).optional(),
-})
-
-export const glossaryTermSchema = z.object({
-  id: slug,
-  term: text,
-  fullForm: text,
-  category: z.enum(['General', 'Finance', 'Payments', 'Technology', 'Business']),
-  /** Markdown. */
-  details: text,
+  /** Position among Home's highlighted, separately hosted projects (1–3); omitted otherwise. */
+  highlighted: z.number().int().min(1).max(3).optional(),
 })
 
 export type Profile = z.infer<typeof profileSchema>
@@ -132,10 +104,6 @@ export type Role = z.infer<typeof roleSchema>
 export type Skill = z.infer<typeof skillSchema>
 export type Credentials = z.infer<typeof credentialsSchema>
 export type ProjectMeta = z.infer<typeof projectMetaSchema>
-export type ArticleMeta = z.infer<typeof articleMetaSchema>
-export type Domain = z.infer<typeof domainSchema>
-export type TopicMeta = z.infer<typeof topicMetaSchema>
-export type GlossaryTerm = z.infer<typeof glossaryTermSchema>
 
 /** A heading in a rendered Markdown body, for tables of contents. */
 export interface Heading {
@@ -156,18 +124,16 @@ export interface MarkdownModule<Meta> {
 /** Which schema validates the frontmatter of each Markdown collection, by folder under content/. */
 export const markdownCollections = {
   projects: projectMetaSchema,
-  writing: articleMetaSchema,
-  knowledge: topicMetaSchema,
 } as const
 
 /** /search-index.json, built by scripts/content/indexes.ts for the ⌘K palette. */
-export type SearchGroup = 'page' | 'role' | 'project' | 'article' | 'topic' | 'term'
+export type SearchGroup = 'page' | 'role' | 'project'
 
 export interface SearchEntry {
   id: string
   group: SearchGroup
   title: string
-  /** Secondary line, e.g. a term's full form or a project's summary. */
+  /** Secondary line, e.g. a role's dates or a project's summary. */
   summary: string
   url: string
   keywords: string[]

@@ -13,19 +13,17 @@ const entry = (group: SearchEntry['group'], title: string, keywords: string[] = 
 
 const entries = [
   entry('page', 'Work'),
-  entry('page', 'Writing'),
+  entry('page', 'Experience'),
   entry('project', 'Fast-JiraQL', ['python', 'fastapi', 'graphql']),
   entry('project', 'JIRA Delivery Dashboard', ['python', 'dash']),
-  entry('article', 'The rise of AI agents', ['ai']),
-  entry('term', 'CAVV', ['cardholder', 'authentication'], 'Cardholder Authentication Verification Value'),
-  entry('term', 'OTP', ['one', 'time', 'password'], 'One Time Password'),
+  entry('role', 'IFC · Programme lead', ['ifc', 'delivery'], 'World Bank Group'),
 ]
 
 const titles = (query: string) => searchEntries(entries, query).map((group) => [group.value, group.items.map((i) => i.title)])
 
 describe('searchEntries', () => {
   it('lists the pages before anything is typed, with no Ask option', () => {
-    expect(titles('')).toEqual([['page', ['Work', 'Writing']]])
+    expect(titles('')).toEqual([['page', ['Work', 'Experience']]])
   })
 
   it('groups matches by kind, in palette order, and always ends with "Ask: {query}"', () => {
@@ -46,8 +44,9 @@ describe('searchEntries', () => {
     ])
   })
 
-  it('finds glossary terms by full form', () => {
-    expect(titles('auth')[0]).toEqual(['term', ['CAVV']])
+  it('finds roles by keyword and by summary', () => {
+    expect(titles('ifc')[0]).toEqual(['role', ['IFC · Programme lead']])
+    expect(titles('world bank')[0]).toEqual(['role', ['IFC · Programme lead']])
   })
 
   it('offers only Ask when nothing matches', () => {

@@ -14,22 +14,22 @@ test('primary navigation reaches a section, marks it current and focuses its hea
   await page.goto('/')
   if (mode() === 'desktop') {
     const primary = page.getByRole('navigation', { name: 'Primary' })
-    await primary.getByRole('link', { name: 'Writing' }).click()
-    await expect(page).toHaveURL('/writing')
-    await expect(primary.getByRole('link', { name: 'Writing' })).toHaveAttribute('aria-current', 'page')
-    await expectHeadingFocused(page, 'Writing')
+    await primary.getByRole('link', { name: 'About' }).click()
+    await expect(page).toHaveURL('/about')
+    await expect(primary.getByRole('link', { name: 'About' })).toHaveAttribute('aria-current', 'page')
+    await expectHeadingFocused(page, 'About')
   } else {
     // Mobile, tablet and compact landscape: the menu button opens a drawer (specs "Mobile menu" scenario).
     await page.getByRole('button', { name: 'Open menu' }).click()
     const drawer = page.getByRole('navigation', { name: 'Menu' })
     await expect(drawer).toBeVisible()
-    await drawer.getByRole('link', { name: 'Writing' }).click()
-    await expect(page).toHaveURL('/writing')
+    await drawer.getByRole('link', { name: 'About' }).click()
+    await expect(page).toHaveURL('/about')
     await expect(drawer).toBeHidden()
-    await expectHeadingFocused(page, 'Writing')
+    await expectHeadingFocused(page, 'About')
 
     await page.getByRole('button', { name: 'Open menu' }).click()
-    await expect(page.getByRole('navigation', { name: 'Menu' }).getByRole('link', { name: /^Writing/ })).toHaveAttribute('aria-current', 'page')
+    await expect(page.getByRole('navigation', { name: 'Menu' }).getByRole('link', { name: /^About/ })).toHaveAttribute('aria-current', 'page')
     // Closing without navigating returns focus to the menu button.
     await page.keyboard.press('Escape')
     await expect(page.getByRole('button', { name: 'Open menu' })).toBeFocused()

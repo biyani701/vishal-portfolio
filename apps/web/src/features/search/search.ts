@@ -24,9 +24,6 @@ export const GROUPS: { group: SearchGroup; label: string }[] = [
   { group: 'page', label: 'Pages' },
   { group: 'role', label: 'Experience' },
   { group: 'project', label: 'Work' },
-  { group: 'article', label: 'Writing' },
-  { group: 'topic', label: 'Knowledge' },
-  { group: 'term', label: 'Glossary' },
 ]
 
 const PER_GROUP = 5

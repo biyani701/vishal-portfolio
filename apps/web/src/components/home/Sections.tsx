@@ -1,8 +1,8 @@
 import { useId, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { periodLabel } from '@content/derive.ts'
 import { ProjectCard } from '@/components/ProjectCard.tsx'
-import { articles, domains, featuredProjects, glossary, profile, projects, topics } from '@/content/index.ts'
+import { StatusChip } from '@/components/StatusChip.tsx'
+import { featuredProjects, highlightedProjects, profile, projects } from '@/content/index.ts'
 import { cn } from '@/lib/utils'
 import { Button } from '@/ui/button.tsx'
 import { Input } from '@/ui/input.tsx'
@@ -68,7 +68,7 @@ export function SelectedWork() {
 }
 
 // Starters shown under the question input; each opens Ask with the question filled in.
-const suggestions = ['Compare his engineering projects', 'What did he run at the IFC?', 'Explain 3-D Secure simply']
+const suggestions = ['Compare his engineering projects', 'What did he run at the IFC?', 'What is he building now?']
 
 const askUrl = (question: string) => (question ? `/ask?${new URLSearchParams({ q: question })}` : '/ask')
 
@@ -125,54 +125,33 @@ export function AskPrompt() {
   )
 }
 
-export function WritingAndKnowledge() {
-  const row = 'flex min-h-target border-b border-border py-3.5 text-ink hover:text-accent'
+/** The separately hosted projects (specs/content-pages "Home"), as rows so they don't repeat the cards above. */
+export function HighlightedProjects() {
   return (
-    <div className="grid gap-section desktop:grid-cols-12 desktop:gap-x-6">
-      <section aria-labelledby="writing-heading" className="flex flex-col gap-2.5 desktop:col-span-7">
-        <SectionHeading id="writing-heading">Writing</SectionHeading>
-        <ul>
-          {articles.slice(0, 3).map((article) => (
-            <li key={article.slug}>
-              <Link
-                to={`/writing/${article.slug}`}
-                className={cn(row, 'flex-col gap-1 tablet:flex-row tablet:items-baseline tablet:justify-between tablet:gap-6 desktop:flex-row desktop:items-baseline desktop:justify-between desktop:gap-6')}
-              >
-                <span className="font-serif text-lede">{article.title}</span>
-                <span className="font-mono text-mono-s whitespace-nowrap text-muted uppercase">
-                  {article.topics[0]} · {periodLabel(article.date.slice(0, 7))}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-      <section aria-labelledby="knowledge-heading" className="flex flex-col gap-2.5 desktop:col-span-4 desktop:col-start-9">
-        <SectionHeading id="knowledge-heading">Knowledge</SectionHeading>
-        <ul>
-          {domains.map((domain) => (
-            <li key={domain.id}>
-              <Link to={`/knowledge/${domain.id}`} className={cn(row, 'items-center justify-between text-body font-medium')}>
-                {domain.short}{' '}
-                <span className="font-mono text-mono-s text-muted">
-                  {topics.filter((topic) => topic.domain === domain.id).length}
-                  <span className="sr-only"> topics</span>
-                </span>
-              </Link>
-            </li>
-          ))}
-          <li>
+    <section aria-labelledby="highlighted-heading" className="flex flex-col gap-2.5">
+      <SectionHeading id="highlighted-heading">Independent projects</SectionHeading>
+      <p className="font-serif text-lede text-ink-2">Separate sites and repositories, each with its own architecture.</p>
+      <ul>
+        {highlightedProjects.map((project) => (
+          <li key={project.slug}>
             <Link
-              to="/knowledge/glossary"
-              className={cn(row, 'items-center justify-between border-b-0 text-body font-semibold text-accent')}
+              to={`/work/${project.slug}`}
+              className="flex min-h-target flex-col gap-2 border-b border-border py-3.5 text-ink hover:text-accent tablet:flex-row tablet:items-baseline tablet:justify-between tablet:gap-6 desktop:flex-row desktop:items-baseline desktop:justify-between desktop:gap-6"
             >
-              Glossary{' '}
-              <span className="font-mono text-mono-s">{glossary.length} terms →</span>
+              <span className="flex flex-col gap-1">
+                <h3 className="font-sans text-h3 font-semibold">{project.title}</h3>
+                <span className="font-serif text-body text-ink-2">{project.summary}</span>
+              </span>
+              {project.status === 'in-flight' ? (
+                <StatusChip status="in-flight" className="self-start" />
+              ) : (
+                <StatusChip status="delivered" period={String(project.year)} className="self-start" />
+              )}
             </Link>
           </li>
-        </ul>
-      </section>
-    </div>
+        ))}
+      </ul>
+    </section>
   )
 }
 

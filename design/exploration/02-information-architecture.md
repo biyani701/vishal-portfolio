@@ -17,12 +17,6 @@
 /experience             Experience — career timeline, roles, outcomes, capability map
 /work                   Work — project index (filter by domain / tech / type)
 /work/:slug             Project case study
-/writing                Writing — articles (filter by topic)
-/writing/:slug          Article
-/knowledge              Knowledge — domain map (Payments, Reference Data, Capital Markets)
-/knowledge/:domain      Domain overview
-/knowledge/:domain/:topic   Topic explainer (incl. interactive 3DS flow)
-/knowledge/glossary     Glossary (+ /knowledge/glossary/:term anchors)
 /ask                    Ask — AI exploration of everything above
 /contact                Contact
 /colophon               How this site is built + credits (replaces /credits)
@@ -55,14 +49,9 @@ Primary navigation (5 items + Ask + ⌘K): **Work · Experience · Writing · Kn
 | `/works` | `/work` | redirect |
 | — (home anchors `#experience`, `#skills`, `#timeline`, `#certifications`) | `/experience` (+ `#skills`, `#certifications`) | anchors on `/` redirect to the new sections |
 | `#education`, `#recognition`, `#summary` | `/about#education` etc. | redirect |
-| `/blogs` | `/writing` | redirect |
-| `/blogs/:blogId` | `/writing/:slug` (slug = existing id) | redirect |
+| `/blogs`, `/blogs/:blogId` | `/work/blog-platform` | redirect (amended 2026-09-26: writing is a separate project) |
 | `/blog/new`, `/blog/edit/:id` | `/studio/writing[/…]` owner-only, **or removed** (D-3) | – |
-| `/knowledge` | `/knowledge` | – |
-| `/knowledge/glossary` | `/knowledge/glossary` | – |
-| `/knowledge/domain/:categoryId` | `/knowledge/:domain` | redirect |
-| `/knowledge/domain/:categoryId/:topicId` | `/knowledge/:domain/:topic` | redirect |
-| `/knowledge/ThreeDSFlowStepper` | `/knowledge/credit-cards-payments/3ds-flow` | redirect |
+| `/knowledge`, `/knowledge/glossary`, `/knowledge/domain/:categoryId`, `/knowledge/domain/:categoryId/:topicId`, `/knowledge/ThreeDSFlowStepper` | `/work/knowledge-base` | redirect (amended 2026-09-26: knowledge and glossary are a separate project) |
 | `/contact` | `/contact` | – |
 | `/credits` | `/colophon` | redirect |
 | `/privacy`, `/terms` | `/legal/privacy`, `/legal/terms` | redirect |

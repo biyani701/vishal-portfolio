@@ -2,7 +2,7 @@ import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider, useLocation } from 'react-router'
 import { describe, expect, it } from 'vitest'
-import { articles, domains, featuredProjects, glossary, profile, projects } from '@/content/index.ts'
+import { featuredProjects, highlightedProjects, profile, projects } from '@/content/index.ts'
 import { Component as Home } from './home.tsx'
 
 // Task 6.3: every Home section from specs/content-pages "Home", drawn from the content records.
@@ -40,8 +40,7 @@ describe('Home', () => {
       'Proof',
       'Selected work',
       'Ask the portfolio',
-      'Writing',
-      'Knowledge',
+      'Independent projects',
       "Running a programme that has to land? Let's talk.",
     ])
   })
@@ -64,17 +63,25 @@ describe('Home', () => {
     expect(within(work).getByRole('link', { name: `All ${projects.length} projects →` })).toHaveAttribute('href', '/work')
   })
 
-  it('teases writing and knowledge from the records', () => {
+  it('highlights the separately hosted projects with their status, linking to their case studies', () => {
     renderHome()
-    const writing = screen.getByRole('region', { name: 'Writing' })
-    expect(within(writing).getAllByRole('link')).toHaveLength(Math.min(3, articles.length))
-    expect(within(writing).getByRole('link', { name: /AI agents/i })).toHaveAttribute('href', '/writing/ai-agents')
-    const knowledge = screen.getByRole('region', { name: 'Knowledge' })
-    expect(within(knowledge).getAllByRole('link')).toHaveLength(domains.length + 1)
-    expect(within(knowledge).getByRole('link', { name: `Glossary ${glossary.length} terms →` })).toHaveAttribute(
-      'href',
-      '/knowledge/glossary',
+    const section = screen.getByRole('region', { name: 'Independent projects' })
+    expect(within(section).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual([
+      'Knowledge Base',
+      'Blog Platform',
+      'Multi-client OAuth Server',
+    ])
+    expect(within(section).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual(
+      highlightedProjects.map((p) => `/work/${p.slug}`),
     )
+    expect(within(section).getAllByText('In flight')).toHaveLength(2)
+    expect(within(section).getByText('Delivered · 2025')).toBeVisible()
+  })
+
+  it('has no links to the removed Writing and Knowledge sections', () => {
+    const { container } = renderHome()
+    const hrefs = [...container.querySelectorAll('a')].map((a) => a.getAttribute('href') ?? '')
+    expect(hrefs.filter((href) => /^\/(writing|knowledge)(\/|$)/.test(href))).toEqual([])
   })
 
   it('ends with the contact band', () => {

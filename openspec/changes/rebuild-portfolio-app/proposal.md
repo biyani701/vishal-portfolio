@@ -16,7 +16,7 @@ A complete rewrite and redesign has been decided, and the design is frozen in `d
 - The **Programme** visual system: tokens, light/dark themes, typography, status language, motion.
 - Four mutually exclusive layout modes: compact-landscape, mobile, tablet, desktop.
 - The **Programme Line** as a signature component in four forms (lanes, strip, span rows, table).
-- A new information architecture: Home, Experience, Work, Writing, Knowledge (domains, glossary, 3-D Secure flow), About, Ask, Contact, Colophon, Legal, plus redirects for every old URL.
+- A new information architecture: Home, Experience, Work, About, Ask, Contact, Colophon, Legal, plus redirects for every old URL.
 - A typed **content layer** (Markdown/TS) that feeds pages, ⌘K search and the AI agent. The in-browser blog editor is removed (D-3).
 - **Ask:** CopilotKit v2 headless + AG-UI, following the accepted Ask interaction model (questions as headings, serif answers, activity lines, grouped sources, confirmation cards, live announcements).
 - An **application-owned Contact form**. The Tally embed is retired (C-1).
@@ -30,6 +30,8 @@ A complete rewrite and redesign has been decided, and the design is frozen in `d
 
 **No sign-in (amended 2026-09-26):** `apps/web` has no authentication, account page or Auth.js callback routes. Old sign-in, account and callback URLs redirect to `/`. `apps/auth-server` is not changed by this change and keeps serving `apps/portfolio` until cut-over. The auth proof of concept continues as a separate project (`vishal-lab`).
 
+**Writing and knowledge move out (amended 2026-09-26):** the articles become a blog platform (`blog.biyani.xyz`) and the knowledge topics and glossary a knowledge base on Neon Postgres (`kb.biyani.xyz`), each its own repo and architecture. The portfolio presents them, and the auth POC, as case studies in Work. Old `/blogs/*` and `/knowledge/*` URLs redirect to those case studies, so cut-over does not wait for the new sites.
+
 **Removed at cut-over:**
 - `apps/portfolio` (CRA/MUI app).
 - The Tally embed, AOS, Bootstrap, FontAwesome, react-icons, Toolpad, the palette picker, and the debug routes (moved to a dev-only `/_dev`).
@@ -42,7 +44,7 @@ A complete rewrite and redesign has been decided, and the design is frozen in `d
 - `responsive-layout`: the four layout modes, application shell, safe areas, overflow and touch-target guarantees.
 - `programme-line`: the career timeline component, its responsive forms, clustering and accessible alternatives.
 - `site-navigation`: primary navigation, command palette, footer, theme control, redirects and 404.
-- `content-pages`: the content layer and every content route (Home, Experience, Work, Writing, Knowledge, Glossary, 3-D Secure, About, Colophon, Legal).
+- `content-pages`: the content layer and every content route (Home, Experience, Work, About, Colophon, Legal).
 - `ask-experience`: the AI surfaces, activity/states, sources, confirmation and accessibility behaviour.
 - `contact`: the application-owned contact form and its submission behaviour.
 - `api-service`: the `apps/api` Vercel service (AG-UI runtime, agent tools, contact endpoint, security limits).

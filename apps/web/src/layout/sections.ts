@@ -3,8 +3,6 @@
 export const sections = [
   { path: '/work', label: 'Work' },
   { path: '/experience', label: 'Experience' },
-  { path: '/writing', label: 'Writing' },
-  { path: '/knowledge', label: 'Knowledge' },
   { path: '/about', label: 'About' },
   { path: '/ask', label: 'Ask' },
   { path: '/contact', label: 'Contact' },

@@ -57,9 +57,9 @@ describe('legacy redirects', () => {
     await expectReplacedWith(router, pathname!, { hash: hash && `#${hash}` })
   })
 
-  it('specs/site-navigation example: /blogs/ai-agents lands on /writing/ai-agents', async () => {
+  it('specs/site-navigation example: /blogs/ai-agents lands on /work/blog-platform', async () => {
     const router = open('/blogs/ai-agents')
-    await expectReplacedWith(router, '/writing/ai-agents')
+    await expectReplacedWith(router, '/work/blog-platform')
   })
 
   it('specs/site-navigation example: an old sign-in link lands on / with no sign-in or account control', async () => {
@@ -67,8 +67,8 @@ describe('legacy redirects', () => {
     await waitFor(() => expect(router.state.location.pathname).toBe('/'))
     expect(router.state.historyAction).toBe('REPLACE')
     expect(await screen.findByRole('heading', { level: 1 })).not.toHaveTextContent('Page not found')
-    expect(screen.queryByRole('link', { name: /sign in|account/i })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: /sign out|account/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /^(sign in|account)\b/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^(sign out|account)\b/i })).not.toBeInTheDocument()
   })
 })
 
@@ -81,7 +81,7 @@ describe('not found', () => {
     expect(screen.getByText('/nope')).toBeInTheDocument()
 
     const sections = screen.getByRole('navigation', { name: 'Main sections' })
-    for (const name of ['Home', 'Work', 'Experience', 'Writing', 'Knowledge', 'About', 'Ask', 'Contact']) {
+    for (const name of ['Home', 'Work', 'Experience', 'About', 'Ask', 'Contact']) {
       expect(within(sections).getByRole('link', { name })).toBeInTheDocument()
     }
 

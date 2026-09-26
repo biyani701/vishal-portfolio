@@ -1,5 +1,5 @@
 import { Hero } from '@/components/home/Hero.tsx'
-import { AskPrompt, ContactBand, ProofLedger, SelectedWork, WritingAndKnowledge } from '@/components/home/Sections.tsx'
+import { AskPrompt, ContactBand, HighlightedProjects, ProofLedger, SelectedWork } from '@/components/home/Sections.tsx'
 import { Reveal } from '@/components/motion/Reveal.tsx'
 import { ProgrammeLine } from '@/components/programme/ProgrammeLine.tsx'
 import { PageShell } from '@/layout/PageShell.tsx'
@@ -20,7 +20,7 @@ export function Component() {
         <AskPrompt />
       </Reveal>
       <Reveal>
-        <WritingAndKnowledge />
+        <HighlightedProjects />
       </Reveal>
       <Reveal>
         <ContactBand />

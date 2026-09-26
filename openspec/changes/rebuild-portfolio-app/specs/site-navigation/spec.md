@@ -5,31 +5,33 @@ Defines how visitors move through the site: primary navigation in each layout mo
 ## ADDED Requirements
 
 ### Requirement: Primary navigation
-Navigation SHALL offer Work, Experience, Writing, Knowledge, About, Ask, search and Contact.
+Navigation SHALL offer Work, Experience, About, Ask, search and Contact.
 - **Desktop:** an inline bar.
 - **Tablet, mobile and compact landscape:** a menu button opening a Drawer, which also contains the theme control.
 
 The current section SHALL be indicated.
 
 #### Scenario: Mobile menu
-- **WHEN** a visitor on a 390px phone opens the menu and selects Writing
-- **THEN** the drawer closes, `/writing` loads, and focus moves to the page heading
+- **WHEN** a visitor on a 390px phone opens the menu and selects Work
+- **THEN** the drawer closes, `/work` loads, and focus moves to the page heading
 
 ### Requirement: Command palette
-⌘K / Ctrl+K and the search field SHALL open a palette. It searches pages, projects, articles and glossary terms from the build-time index, and always offers "Ask: {query}" as the last option.
+⌘K / Ctrl+K and the search field SHALL open a palette. It searches pages and projects from the build-time index, and always offers "Ask: {query}" as the last option.
 
 #### Scenario: Search to Ask
 - **WHEN** a visitor types "fixed price" and chooses the Ask option
 - **THEN** Ask opens with "fixed price" as the question
 
 ### Requirement: Redirects for legacy URLs
-Every route from the current site SHALL either keep its path or redirect (client-side `replace`) to its new route, per the route migration map in `design/exploration/02-information-architecture.md`. Examples: `/works` → `/work`, `/blogs/:id` → `/writing/:slug`, `/credits` → `/colophon`, `/privacy` → `/legal/privacy`.
+Every route from the current site SHALL either keep its path or redirect (client-side `replace`) to its new route, per the route migration map in `design/exploration/02-information-architecture.md`. Examples: `/works` → `/work`, `/credits` → `/colophon`, `/privacy` → `/legal/privacy`.
+
+Writing and knowledge moved to their own projects, so the old blog URLs (`/blogs`, `/blogs/:id`) SHALL redirect to `/work/blog-platform`, and the old knowledge URLs (`/knowledge`, `/knowledge/glossary`, `/knowledge/domain/**`, `/knowledge/ThreeDSFlowStepper`) to `/work/knowledge-base`, overriding their rows in the route map.
 
 The site has no sign-in, so the old sign-in, account and auth callback URLs SHALL redirect to `/`, overriding their rows in the route map. These are `/signin`, `/signin-legacy`, `/signin-toolpad`, `/login`, `/logout`, `/profile`, `/account`, `/auth-callback`, `/auth-callback.html`, `/auth-success`, `/auth-error`, `/callback` and `/api/auth/callback/*`.
 
 #### Scenario: Old link
 - **WHEN** a visitor opens `/blogs/ai-agents`
-- **THEN** they land on `/writing/ai-agents`, and the back button does not return to the old URL
+- **THEN** they land on `/work/blog-platform`, and the back button does not return to the old URL
 
 #### Scenario: Old sign-in link
 - **WHEN** a visitor opens `/signin?from=/work` or `/profile`

@@ -27,7 +27,7 @@ The conversation state SHALL persist across surfaces within a session.
 ### Requirement: Answer structure
 - Each question SHALL render as a heading, and each answer as serif prose.
 - Answers over about 150 words SHALL begin with a one-sentence summary, then use sub-headings.
-- Tool results SHALL render with site components (project, role, Programme Line excerpt, glossary term).
+- Tool results SHALL render with site components (project, role, Programme Line excerpt).
 - There SHALL be no avatar, persona or chat bubbles.
 
 #### Scenario: Engineering projects question

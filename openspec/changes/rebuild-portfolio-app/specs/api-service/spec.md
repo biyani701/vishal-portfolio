@@ -18,7 +18,7 @@ It SHALL accept browser requests only from the production site origin, and from 
 
 ### Requirement: Grounded agent
 The portfolio agent SHALL use only read-only tools over the published `ai-context.json`:
-- search_content, get_project, compare_projects, search_experience, get_skill_history, lookup_glossary, explain_topic
+- search_content, get_project, compare_projects, search_experience, get_skill_history
 - `draft_contact_request` as a human-in-the-loop step that never sends by itself
 
 Retrieved content SHALL be treated as data, never as instructions.

@@ -9,6 +9,7 @@
   - CI (`deploy-portfolio.yml`) builds with npm on Node 20.10.
 - **Fixed decisions:** UF-1…UF-3, DD-1…DD-4, D-1…D-9, C-1, C-2.
 - **Amendment (2026-09-26):** `apps/web` has no sign-in (A7). This overrides the auth rows of the route map in `design/exploration/02-information-architecture.md` and decision D-4.
+- **Amendment (2026-09-26):** Writing, Knowledge, the Glossary and the 3-D Secure flow are not built in `apps/web`. They become separately hosted projects (a blog platform and a Neon-backed knowledge base) shown as case studies in Work; P9 now only moves the content out. This overrides the Writing and Knowledge parts of the design package and the route map; the route map is updated with the redirects (task 9.2).
 
 ## Goals / Non-Goals
 
@@ -55,11 +56,11 @@ apps/web/
   src/features/ask/  CopilotKit v2 headless integration + Ask compositions
   src/layout/      AppShell, PageShell, useLayoutMode, redirects.ts
   src/routes/      thin route modules (React Router, lazy-loaded per section)
-  content/         profile.ts, roles.ts, skills.ts, credentials.ts, projects/*.md, writing/*.md, knowledge/**, glossary.ts
+  content/         profile.ts, roles.ts, skills.ts, credentials.ts, projects/*.md
   scripts/         build-search-index.ts, build-ai-context.ts
 ```
 - **Routing:** React Router in data mode, with lazy route modules per section, so Ask and CopilotKit load only when Ask opens.
-- **Content:** loaded at build time via `import.meta.glob` and validated with zod. Markdown goes through unified/remark/rehype with sanitisation. Code blocks are highlighted by Shiki at build time.
+- **Content:** loaded at build time via `import.meta.glob` and validated with zod. Markdown (case studies) goes through unified/remark/rehype with sanitisation. Code blocks are highlighted by Shiki at build time.
 
 ### A3. Styling and components
 - Tailwind v4 `@theme` holds the tokens from §4.
@@ -123,14 +124,14 @@ None. The site has nothing to sign in for, so `apps/web` ships no `AuthProvider`
 | P6 | Home + ProgrammeLine (all forms + table) | P5 |
 | P7 | Experience + About | P6 |
 | P8 | Work + case studies | P5 |
-| P9 | Writing + Knowledge + Glossary + 3-D Secure flow | P5 |
+| P9 | Move Writing and Knowledge out: preserve the content, remove it from `apps/web`, redirect old URLs to case studies | P6, P8 |
 | P10 | `apps/api` scaffold + `/contact` (DB, email, rate limit, cron) + Contact page + legal/privacy/colophon | P1 (API), P5 (page) |
 | P11 | Ask: spike S1, runtime + agent tools, Ask UI (all surfaces and states), Ask → contact | P4, P5, P10 |
 | P12 | Cross-app verification: Playwright matrix × routes × themes, real devices | P6–P11 |
 | P13 | Accessibility, performance and SEO: axe on all routes, prerender of static routes, meta/OG, sitemap, consented analytics | P12 |
 | P14 | Cut-over: DNS for `api.`, Pages source switch, smoke tests, rollback runbook; then remove `apps/portfolio` | P13 |
 
-- **Can run in parallel:** P4 alongside P2/P3; P8, P9 and P10 alongside P6/P7.
+- **Can run in parallel:** P4 alongside P2/P3; P8 and P10 alongside P6/P7.
 - **Critical path:** P1 → P2 → P3 → P5 → P6 → P7 → P12 → P13 → P14, with P11 joining before P12.
 
 ## Risks / Trade-offs

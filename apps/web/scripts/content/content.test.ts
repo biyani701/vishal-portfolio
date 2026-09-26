@@ -2,8 +2,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { credentials } from '../../content/credentials.ts'
-import { glossary } from '../../content/glossary.ts'
-import { domains } from '../../content/knowledge/domains.ts'
 import { profile } from '../../content/profile.ts'
 import { organisations, roles } from '../../content/roles.ts'
 import { skills } from '../../content/skills.ts'
@@ -12,16 +10,13 @@ import { loadContent, loadMarkdown, validateCollections } from './load.ts'
 import { renderMarkdown } from './markdown.ts'
 
 const fixture = (name: string) => readFileSync(new URL(`./fixtures/${name}`, import.meta.url), 'utf8')
-const collections = { profile, organisations, roles, skills, credentials, domains, glossary }
+const collections = { profile, organisations, roles, skills, credentials }
 
 describe('content records (task 4.2)', () => {
   it('migrates every record from apps/portfolio', async () => {
     const content = await loadContent()
-    expect(content.projects).toHaveLength(5)
+    expect(content.projects).toHaveLength(8) // 5 migrated + blog platform, knowledge base, auth POC
     expect(content.roles).toHaveLength(5) // engagements
-    expect(content.glossary).toHaveLength(68)
-    expect(content.writing).toHaveLength(3)
-    expect(content.domains).toHaveLength(3)
     expect(content.projects.filter((p) => p.meta.featured)).toHaveLength(3)
   })
 
@@ -46,8 +41,8 @@ describe('validation fails naming the file and field (task 4.1)', () => {
   })
 
   it('a file without frontmatter', async () => {
-    await expect(loadMarkdown('content/writing/bare.md', '# Just a body')).rejects.toThrow(
-      'content/writing/bare.md: frontmatter: missing',
+    await expect(loadMarkdown('content/projects/bare.md', '# Just a body')).rejects.toThrow(
+      'content/projects/bare.md: frontmatter: missing',
     )
   })
 
@@ -97,21 +92,15 @@ describe('build artefacts (task 4.4)', () => {
     expect(JSON.stringify(buildAiContext(a))).toBe(JSON.stringify(buildAiContext(b)))
   })
 
-  it('index every page, role, project, article, topic and term once', async () => {
+  it('index every page, role and project once', async () => {
     const content = await loadContent()
     const { entries } = buildSearchIndex(content)
     expect(new Set(entries.map((e) => e.id)).size).toBe(entries.length)
     const count = (group: string) => entries.filter((e) => e.group === group).length
     expect(count('role')).toBe(5)
-    expect(count('project')).toBe(5)
-    expect(count('article')).toBe(3)
-    expect(count('term')).toBe(68)
-    expect(count('topic')).toBe(3 + content.topics.length)
-    expect(entries.find((e) => e.id === 'term:cavv')).toMatchObject({
-      title: 'CAVV',
-      summary: 'Cardholder Authentication Verification Value',
-      url: '/knowledge/glossary#cavv',
-    })
+    expect(count('project')).toBe(8)
+    expect(entries.map((e) => e.group).filter((g) => !['page', 'role', 'project'].includes(g))).toEqual([])
+    expect(entries.filter((e) => /^\/(writing|knowledge)(\/|$)/.test(e.url))).toEqual([])
   })
 
   it('contain only published fields: no contact details and nothing unrendered', async () => {
@@ -122,7 +111,8 @@ describe('build artefacts (task 4.4)', () => {
     expect(Object.keys(context.profile).sort()).toEqual(
       ['currentRole', 'links', 'location', 'name', 'positioning', 'proof', 'summary'].sort(),
     )
-    expect(context.projects.map((p) => p.slug)).toHaveLength(5)
+    expect(context.projects.map((p) => p.slug)).toHaveLength(8)
+    expect(Object.keys(context).filter((key) => ['articles', 'knowledge', 'glossary'].includes(key))).toEqual([])
     expect(context.roles.find((r) => r.id === 'corecard')).toMatchObject({ status: 'in-flight', end: null })
     expect(context.milestones.map((m) => m.when)).toEqual(['Q4 2009', '2013', 'Sep 2020', 'Q3 2021'])
   })
