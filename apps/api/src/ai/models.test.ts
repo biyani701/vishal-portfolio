@@ -82,6 +82,28 @@ describe('modelResolver', () => {
     expect((await resolver.refresh()).agent).toBe('v/small-8b-instruct')
   })
 
+  it('skips models the catalog lists but does not serve on the next refresh, and logs every probe outcome', async () => {
+    let clock = Date.parse('2026-09-26T00:00:00Z')
+    const catalog = fakeCatalog(models, { tools: ['v/mid-49b-instruct'], chat: ['v/small-8b-instruct'] })
+    catalog.probeTools.mockImplementation(async (model: string) =>
+      model === 'v/big-70b-instruct' ? { model, ok: false, ms: 9, reason: 'http_404', status: 404 } : { model, ok: model === 'v/mid-49b-instruct', ms: 5, reason: 'no_tool_call' },
+    )
+    const info = vi.fn()
+    const resolver = modelResolver({ catalog, store: memoryStore(() => clock), log: { ...quietLog, info }, refreshHours: 24, probeLimit: 6, now: () => clock })
+
+    await resolver.refresh()
+    expect(info).toHaveBeenCalledWith('ai_models_selected', expect.objectContaining({ probeOutcomes: expect.stringContaining('v/big-70b-instruct=http_404@9ms') }))
+    // Skipped for one refresh window, then tried again in case it's served once more.
+    clock += 12 * 3600_000
+    catalog.probeTools.mockClear()
+    await resolver.refresh()
+    expect(catalog.probeTools.mock.calls.map(([id]) => id)).toEqual(['v/mid-49b-instruct'])
+    clock += 13 * 3600_000
+    catalog.probeTools.mockClear()
+    await resolver.refresh()
+    expect(catalog.probeTools.mock.calls.map(([id]) => id)).toEqual(['v/big-70b-instruct', 'v/mid-49b-instruct'])
+  })
+
   it('treats rate limits as transient, not as a gone model', () => {
     expect(isModelGone(429)).toBe(false)
     expect(isModelGone(500)).toBe(false)

@@ -32,7 +32,7 @@ describe('openAiCatalog', () => {
     })
     expect(await catalog.probeTools('good')).toMatchObject({ model: 'good', ok: true })
     expect(await catalog.probeTools('chatty')).toMatchObject({ ok: false, reason: 'no_tool_call' })
-    expect(await catalog.probeTools('gone')).toMatchObject({ ok: false, reason: 'http_404' })
+    expect(await catalog.probeTools('gone')).toMatchObject({ ok: false, reason: 'http_404', status: 404 })
     const sent = JSON.parse(String(fetch.mock.calls[0]![1]!.body))
     expect(sent).toMatchObject({ model: 'good', tools: [{ type: 'function', function: { name: 'ping' } }], stream: false })
   })
@@ -43,6 +43,13 @@ describe('openAiCatalog', () => {
     )
     expect(await catalog.probeChat('talks')).toMatchObject({ ok: true })
     expect(await catalog.probeChat('quiet')).toMatchObject({ ok: false, reason: 'empty_reply' })
+  })
+
+  it('gives reasoning models room to think, and names a reply cut off by the token budget', async () => {
+    const { catalog, fetch } = setup(() => json({ choices: [{ finish_reason: 'length', message: { content: null } }] }))
+    expect(await catalog.probeChat('thinker')).toMatchObject({ ok: false, reason: 'truncated' })
+    expect(await catalog.probeTools('thinker')).toMatchObject({ ok: false, reason: 'truncated' })
+    expect(JSON.parse(String(fetch.mock.calls[0]![1]!.body)).max_tokens).toBeGreaterThanOrEqual(512)
   })
 
   it('counts a slow model as failing', async () => {

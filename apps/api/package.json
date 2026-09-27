@@ -8,6 +8,7 @@
     "build": "tsc --noEmit",
     "typecheck": "tsc --noEmit",
     "migrate": "tsx --env-file-if-exists=.env src/db/migrate-cli.ts",
+    "models": "tsx --env-file-if-exists=.env src/ai/discover-cli.ts",
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest"

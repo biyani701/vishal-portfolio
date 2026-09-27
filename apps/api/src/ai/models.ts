@@ -95,6 +95,8 @@ export function modelResolver({ catalog, store, log, pinned = {}, prefer = [], r
         const result = role === 'agent' ? await catalog.probeTools(id) : await catalog.probeChat(id)
         probes.push(result)
         if (result.ok) return id
+        // Listed but not served to this key (the catalog lists more than it hosts): skip it until the next day.
+        if (result.status && isModelGone(result.status)) bad[id] = now() + refreshMs
       }
       return undefined
     }
@@ -106,6 +108,7 @@ export function modelResolver({ catalog, store, log, pinned = {}, prefer = [], r
     }
     const discoveredSuggestions = pinned.suggestions ? undefined : await firstPassing('suggestions', agent)
     const suggestions = pinned.suggestions ?? discoveredSuggestions ?? agent
+    if (probes.some((probe) => probe.status && isModelGone(probe.status))) await store.set(BAD_KEY, bad, refreshHours * 3600)
 
     return {
       agent,
@@ -134,6 +137,8 @@ export function modelResolver({ catalog, store, log, pinned = {}, prefer = [], r
           suggestionsSource: selection.source.suggestions,
           probes: report.probes.length,
           failedProbes: report.probes.filter((probe) => !probe.ok).length,
+          // Outcomes only, e.g. "vendor/model=http_404@120ms": enough to see why candidates were passed over.
+          probeOutcomes: report.probes.map((probe) => `${probe.model}=${probe.ok ? 'ok' : probe.reason}@${probe.ms}ms`).join(' '),
         })
         return report
       } finally {

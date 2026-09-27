@@ -8,8 +8,11 @@ export interface ProbeResult {
   model: string
   ok: boolean
   ms: number
-  /** Why a probe failed, e.g. "http_404", "timeout", "no_tool_call". */
+  /** Why a probe failed: "http_<status>", "timeout", "network", "no_tool_call", "empty_reply", or "truncated" (the
+   * token budget ran out first, typically a reasoning model thinking aloud). */
   reason?: string
+  /** The HTTP status when the provider refused the request. */
+  status?: number
 }
 
 export interface Catalog {
@@ -33,8 +36,11 @@ export class CatalogError extends Error {
 }
 
 interface ChatResponse {
-  choices?: { message?: { content?: string | null; tool_calls?: { function?: { name?: string } }[] } }[]
+  choices?: { finish_reason?: string | null; message?: { content?: string | null; tool_calls?: { function?: { name?: string } }[] } }[]
 }
+
+/** Probe replies are tiny, but reasoning models think before answering; too small a budget fails them wrongly. */
+const PROBE_MAX_TOKENS = 512
 
 export function openAiCatalog({ baseUrl, apiKey, probeTimeoutMs = 15_000, fetch: fetcher = globalThis.fetch }: CatalogOptions): Catalog {
   const root = baseUrl.replace(/\/+$/, '')
@@ -46,7 +52,7 @@ export function openAiCatalog({ baseUrl, apiKey, probeTimeoutMs = 15_000, fetch:
       const res = await fetcher(`${root}/chat/completions`, {
         method: 'POST',
         headers,
-        body: JSON.stringify({ model, temperature: 0, max_tokens: 64, stream: false, ...body }),
+        body: JSON.stringify({ model, temperature: 0, max_tokens: PROBE_MAX_TOKENS, stream: false, ...body }),
         signal: AbortSignal.timeout(probeTimeoutMs),
       })
       const ms = Math.round(performance.now() - started)
@@ -57,6 +63,12 @@ export function openAiCatalog({ baseUrl, apiKey, probeTimeoutMs = 15_000, fetch:
       const name = (error as Error).name
       return { ms, status: 0, reason: name === 'TimeoutError' || name === 'AbortError' ? 'timeout' : 'network' }
     }
+  }
+
+  /** A failed probe: refused, timed out, or ran out of tokens before doing what was asked. */
+  const failure = (model: string, ms: number, status: number, reason: string | undefined, json: ChatResponse | undefined, fallback: string): ProbeResult => {
+    if (reason) return { model, ok: false, ms, reason, ...(status > 0 && { status }) }
+    return { model, ok: false, ms, reason: json?.choices?.[0]?.finish_reason === 'length' ? 'truncated' : fallback }
   }
 
   return {
@@ -75,7 +87,7 @@ export function openAiCatalog({ baseUrl, apiKey, probeTimeoutMs = 15_000, fetch:
     },
 
     async probeTools(model) {
-      const { ms, json, reason } = await chat(model, {
+      const { ms, status, json, reason } = await chat(model, {
         messages: [{ role: 'user', content: 'Call the ping tool now. Do not reply with text.' }],
         tools: [
           {
@@ -85,16 +97,14 @@ export function openAiCatalog({ baseUrl, apiKey, probeTimeoutMs = 15_000, fetch:
         ],
         tool_choice: 'auto',
       })
-      if (reason) return { model, ok: false, ms, reason }
       const called = json?.choices?.[0]?.message?.tool_calls?.some((call) => call.function?.name === 'ping')
-      return called ? { model, ok: true, ms } : { model, ok: false, ms, reason: 'no_tool_call' }
+      return called ? { model, ok: true, ms } : failure(model, ms, status, reason, json, 'no_tool_call')
     },
 
     async probeChat(model) {
-      const { ms, json, reason } = await chat(model, { messages: [{ role: 'user', content: 'Reply with the single word: ok' }] })
-      if (reason) return { model, ok: false, ms, reason }
+      const { ms, status, json, reason } = await chat(model, { messages: [{ role: 'user', content: 'Reply with the single word: ok' }] })
       const text = json?.choices?.[0]?.message?.content
-      return typeof text === 'string' && text.trim() ? { model, ok: true, ms } : { model, ok: false, ms, reason: 'empty_reply' }
+      return !reason && typeof text === 'string' && text.trim() ? { model, ok: true, ms } : failure(model, ms, status, reason, json, 'empty_reply')
     },
   }
 }
