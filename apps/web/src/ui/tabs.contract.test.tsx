@@ -35,12 +35,19 @@ describe('Tabs contract', () => {
   })
 
   it('puts only the active tab in the Tab order', async () => {
-    await render(<Fixture />)
+    // Start from a known point rather than wherever the previous test left focus.
+    await render(
+      <>
+        <button type="button">Before</button>
+        <Fixture />
+      </>,
+    )
+    page.getByRole('button', { name: 'Before' }).element().focus()
     await userEvent.keyboard('{Tab}')
     await expect.element(tab('Overview')).toHaveFocus()
     await userEvent.keyboard('{Tab}')
     // The next stop is the panel, not the other tabs.
-    expect(document.activeElement?.getAttribute('role')).toBe('tabpanel')
+    await expect.element(page.getByRole('tabpanel', { name: 'Overview' })).toHaveFocus()
   })
 
   it('moves between tabs with the arrow keys, Home and End', async () => {
