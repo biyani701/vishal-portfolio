@@ -1,5 +1,6 @@
 import { createRequire } from 'node:module'
-import { expect, test, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import { expect, test } from './fixtures.ts'
 import { routes } from './routes.ts'
 
 // Task 13.1 (specs/design-system, specs/responsive-layout): axe finds no violations on any route, in either theme,

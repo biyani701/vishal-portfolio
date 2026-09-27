@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures.ts'
 
 // specs/site-navigation "Redirects for legacy URLs" in a real browser, from a cold deep link (the path the
 // GitHub Pages 404.html restore takes). Every table entry is covered by src/layout/redirects.test.tsx.

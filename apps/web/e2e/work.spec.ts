@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures.ts'
 
 // Task 8.1 in a real browser, at every viewport: the specs/content-pages "Filter link" scenario, and choosing
 // filters with the keyboard and pointer.

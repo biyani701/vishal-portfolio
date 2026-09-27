@@ -1,4 +1,5 @@
-import { expect, test, type Locator, type Page } from '@playwright/test'
+import type { Locator, Page } from '@playwright/test'
+import { expect, test } from './fixtures.ts'
 
 // Task 6.3 (specs/content-pages "Home"; design package §7 "Home hero"): the sections in every layout mode.
 type Mode = 'desktop' | 'tablet' | 'mobile' | 'compact-landscape'

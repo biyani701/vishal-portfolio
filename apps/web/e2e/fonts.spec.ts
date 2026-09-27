@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import { expect, test } from './fixtures.ts'
 
 // Design package §4.2 fonts, self-hosted from /fonts (src/design/fonts.css).
 const FACES = [

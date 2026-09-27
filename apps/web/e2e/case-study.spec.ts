@@ -1,5 +1,5 @@
 import { readdirSync } from 'node:fs'
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures.ts'
 
 // Task 8.2 in a real browser, at every viewport: every case study renders without horizontal scroll, and the
 // ToC is a closed disclosure on phones and an open side column elsewhere (design package §7).

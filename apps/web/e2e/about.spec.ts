@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures.ts'
 
 // Task 7.2 at every viewport: no portrait on About (DD-4), and draft copy is marked. layout.spec.ts checks
 // that /about doesn't scroll sideways.

@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import { expect, test } from './fixtures.ts'
 
 // Task 6.2 (design package §6): the Programme Line on Home picks its form by layout mode, never scrolls
 // the page sideways, and keeps mobile span rows at least 56px tall. Runs in every matrix viewport; the

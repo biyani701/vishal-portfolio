@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import { expect, test } from './fixtures.ts'
 import type { LayoutMode } from './viewports.ts'
 
 // specs/site-navigation: primary navigation in each layout mode, the ⌘K palette and the footer (tasks 5.1,
