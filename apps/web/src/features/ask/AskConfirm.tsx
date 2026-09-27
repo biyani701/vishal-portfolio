@@ -1,7 +1,8 @@
 import { useId, useState, type FormEvent } from 'react'
 import { Link } from 'react-router'
 import { Button } from '@/ui/button.tsx'
-import { Field, FieldLabel } from '@/ui/field.tsx'
+import { firstError, INTENTS, LIMITS, validate, type FieldErrors, type FieldName } from '@/features/contact/contact.ts'
+import { Field, FieldError, FieldLabel } from '@/ui/field.tsx'
 import { Input } from '@/ui/input.tsx'
 import { RadioGroup, RadioGroupItem } from '@/ui/radio-group.tsx'
 import { Textarea } from '@/ui/textarea.tsx'
@@ -13,14 +14,7 @@ import type { ContactPayload } from './store.ts'
 // design package §8). The agent only proposes; the visitor sees exactly what will be sent, can edit it, and must
 // choose "Send request". If an earlier lookup failed, a notice says what the draft leaves out, and the form stays
 // usable. If sending fails, the values stay and an inline alert offers Try again or the contact form; never a toast.
-
-const INTENTS: [Intent, string][] = [
-  ['role', 'A role'],
-  ['engagement', 'An engagement'],
-  ['other', 'Something else'],
-]
-
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+// Intents, validation and wording are the Contact page's (specs/contact "Shared with Ask").
 
 export function AskConfirm({
   draft,
@@ -38,7 +32,7 @@ export function AskConfirm({
   const [name, setName] = useState(draft.args.name ?? '')
   const [email, setEmail] = useState(draft.args.email ?? '')
   const [message, setMessage] = useState(draft.args.message)
-  const [invalid, setInvalid] = useState<Record<string, boolean>>({})
+  const [errors, setErrors] = useState<FieldErrors>({})
 
   if (draft.state === 'dismissed') return <p className="text-body text-muted">Contact request not sent.</p>
   if (draft.state === 'sent') {
@@ -49,16 +43,20 @@ export function AskConfirm({
     )
   }
 
+  const invalidProps = (field: FieldName) => (errors[field] ? { 'aria-invalid': true, 'aria-describedby': `${id}-${field}-error` } : {})
+  const fieldError = (field: FieldName) => errors[field] && <FieldError id={`${id}-${field}-error`}>{errors[field]}</FieldError>
+
   const omitted = [draft.args.omitted, ...new Set(failedSteps.map(leftOut))].filter(Boolean)
   const sending = draft.state === 'sending'
   const contactHref = `/contact?${new URLSearchParams({ intent, message })}`
 
   const submit = (event: FormEvent) => {
     event.preventDefault()
-    const errors = { name: !name.trim(), email: !EMAIL.test(email.trim()), message: !message.trim() }
-    setInvalid(errors)
-    if (Object.values(errors).some(Boolean)) {
-      document.getElementById(`${id}-${Object.entries(errors).find(([, bad]) => bad)![0]}`)?.focus()
+    const found = validate({ intent, name, email, message })
+    setErrors(found)
+    const first = firstError(found)
+    if (first) {
+      document.getElementById(`${id}-${first}`)?.focus()
       return
     }
     onSend({ intent, name: name.trim(), email: email.trim(), message: message.trim() })
@@ -95,18 +93,20 @@ export function AskConfirm({
       <div className="grid gap-4 tablet:grid-cols-2 desktop:grid-cols-2">
         <Field>
           <FieldLabel htmlFor={`${id}-name`}>Your name</FieldLabel>
-          <Input id={`${id}-name`} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" aria-invalid={invalid.name || undefined} required />
+          <Input id={`${id}-name`} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" maxLength={LIMITS.name} {...invalidProps('name')} required />
+          {fieldError('name')}
         </Field>
         <Field>
           <FieldLabel htmlFor={`${id}-email`}>Your email</FieldLabel>
-          <Input id={`${id}-email`} type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" aria-invalid={invalid.email || undefined} required />
+          <Input id={`${id}-email`} type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" maxLength={LIMITS.email} {...invalidProps('email')} required />
+          {fieldError('email')}
         </Field>
       </div>
       <Field>
         <FieldLabel htmlFor={`${id}-message`}>Note</FieldLabel>
-        <Textarea id={`${id}-message`} value={message} onChange={(e) => setMessage(e.target.value)} maxLength={5000} aria-invalid={invalid.message || undefined} required />
+        <Textarea id={`${id}-message`} value={message} onChange={(e) => setMessage(e.target.value)} maxLength={LIMITS.message} {...invalidProps('message')} required />
+        {fieldError('message')}
       </Field>
-      {Object.values(invalid).some(Boolean) && <p className="text-body text-error">Add your name, a valid email and a note.</p>}
 
       {draft.sendFailed && (
         <div role="alert" className="flex flex-col gap-2 rounded-md border border-error-border bg-error-bg px-3 py-2 text-body text-error">

@@ -220,7 +220,9 @@ describe('Ask surface', () => {
 
     // Nothing is sent without the visitor's details and confirmation.
     await user.click(within(form).getByRole('button', { name: 'Send request' }))
-    expect(within(form).getByText('Add your name, a valid email and a note.')).toBeInTheDocument()
+    // The Contact page's rules and wording (specs/contact "Shared with Ask").
+    expect(within(form).getByText('Enter your name')).toBeInTheDocument()
+    expect(within(form).getByLabelText('Your name')).toHaveFocus()
     expect(sendContact).not.toHaveBeenCalled()
 
     await user.type(within(form).getByLabelText('Your name'), 'Ada Lovelace')

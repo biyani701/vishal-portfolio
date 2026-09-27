@@ -5,6 +5,7 @@ exports[`Programme tokens > match the snapshot 1`] = `
   "dark": {
     "--color-accent": "#8fa6ff",
     "--color-accent-fill": "#3558e6",
+    "--color-accent-fill-hover": "#2447d9",
     "--color-accent-hover": "#a9baff",
     "--color-accent-soft": "#1b2340",
     "--color-accent-soft-border": "#3a4a8c",
@@ -39,6 +40,7 @@ exports[`Programme tokens > match the snapshot 1`] = `
   "light": {
     "--color-accent": "#2447d9",
     "--color-accent-fill": "#2447d9",
+    "--color-accent-fill-hover": "#1a36a8",
     "--color-accent-hover": "#1a36a8",
     "--color-accent-soft": "#e8edfd",
     "--color-accent-soft-border": "#b9c6f6",

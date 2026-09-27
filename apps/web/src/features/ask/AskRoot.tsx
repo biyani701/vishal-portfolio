@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router'
 import { config } from '@/config/index.ts'
+import { sendContact } from '@/features/contact/contact.ts'
 import { useLayoutMode } from '@/layout/useLayoutMode.ts'
 import { Drawer, DrawerContent, DrawerTitle } from '@/ui/drawer.tsx'
 import { AskSurface } from './AskSurface.tsx'
@@ -15,13 +16,9 @@ import { httpTransport } from './transport.ts'
 // Loaded when Ask first opens (entry.tsx). One store for the visit, so the page and both drawers show the same
 // conversation, including across a rotation mid-answer (specs/ask-experience "Surfaces by mode").
 
-async function sendContact(payload: ContactPayload) {
-  const res = await fetch(`${config.apiBaseUrl}/contact`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ ...payload, source: 'ask' }),
-  })
-  return res.status === 201
+/** A confirmed draft goes through the Contact page's endpoint and client (specs/contact "Shared with Ask"). */
+async function sendAskContact(payload: ContactPayload) {
+  return (await sendContact(payload, { source: 'ask' })).ok
 }
 
 const browserStorage = () => {
@@ -34,7 +31,7 @@ const browserStorage = () => {
 
 let shared: AskStore | undefined
 function sharedStore() {
-  shared ??= new AskStore({ transport: httpTransport(`${config.apiBaseUrl}/ask`), sendContact, announce, storage: browserStorage() })
+  shared ??= new AskStore({ transport: httpTransport(`${config.apiBaseUrl}/ask`), sendContact: sendAskContact, announce, storage: browserStorage() })
   return shared
 }
 
