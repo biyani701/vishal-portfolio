@@ -34,28 +34,31 @@ test('serves every face from our own origin', async ({ page, baseURL }) => {
   for (const url of fontRequests) expect(url.startsWith(`${baseURL}/fonts/`), url).toBe(true)
 })
 
-test('preloads the face the page renders with', async ({ page }) => {
+test('preloads the latin file of each face above the fold, and nothing the CSS would not use', async ({ page }) => {
   await page.goto('/')
-  const preload = page.locator('link[rel="preload"][as="font"]')
-  await expect(preload).toHaveCount(1)
-  const href = await preload.getAttribute('href')
+  const hrefs = await page.locator('link[rel="preload"][as="font"]').evaluateAll((links) => links.map((link) => link.getAttribute('href')!))
+  expect(hrefs).toHaveLength(3)
 
-  const response = await page.request.get(href!)
-  expect(response.status()).toBe(200)
-  expect(response.headers()['content-type']).toContain('font/woff2')
-
-  // The heading uses Bricolage, and the preloaded file is the src of its latin @font-face in the served CSS
-  // (otherwise the browser would fetch a second file and the preload would be wasted).
-  await expect(page.getByRole('heading', { level: 1 })).toHaveCSS('font-family', /^"Bricolage Grotesque"/)
   const faces = await page.evaluate(() =>
     [...document.styleSheets].flatMap((sheet) =>
       [...sheet.cssRules].filter((rule) => rule instanceof CSSFontFaceRule).map((rule) => rule.cssText),
     ),
   )
-  const preloaded = faces.filter((face) => face.includes(`url("${href}")`))
-  expect(preloaded).toHaveLength(1)
-  expect(preloaded[0]).toContain('font-family: "Bricolage Grotesque"')
-  expect(preloaded[0]).toMatch(/unicode-range: U\+0-FF|unicode-range: U\+0000-00FF/i)
+  const families = []
+  for (const href of hrefs) {
+    const response = await page.request.get(href)
+    expect(response.status()).toBe(200)
+    expect(response.headers()['content-type']).toContain('font/woff2')
+    // Each preloaded file is the src of a latin @font-face in the served CSS, or the browser would fetch a second
+    // file and the preload would be wasted.
+    const face = faces.filter((rule) => rule.includes(`url("${href}")`))
+    expect(face, href).toHaveLength(1)
+    expect(face[0]).toMatch(/unicode-range: U\+0-FF|unicode-range: U\+0000-00FF/i)
+    expect(face[0]).toContain('font-style: normal')
+    families.push(/font-family: "?([^";]+?)"?;/.exec(face[0]!)![1])
+  }
+  expect(families.sort()).toEqual(['Bricolage Grotesque', 'JetBrains Mono', 'Newsreader'])
+  await expect(page.getByRole('heading', { level: 1 })).toHaveCSS('font-family', /^"Bricolage Grotesque"/)
 })
 
 test.describe('with font files blocked', () => {
