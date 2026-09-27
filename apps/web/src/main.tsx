@@ -1,7 +1,8 @@
-import { StrictMode } from 'react'
+import { startTransition, StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router/dom'
 import './design/index.css'
+import { AppStarted } from './layout/AppStarted.tsx'
 import { router } from './router.tsx'
 
 const root = document.getElementById('root')
@@ -19,17 +20,17 @@ const routerReady = () =>
         })
       })
 
-// A prerendered page (scripts/prerender.mjs) stays on screen until the app can render the same page in one step.
-// Rendering earlier would replace it with the empty shell while the lazy route loads: a blank flash, and the footer
-// jumping up and back down (layout shift).
+// A prerendered page stays on screen until the app can render the same page in one step. Rendering earlier would
+// replace it with the empty shell while the lazy route loads: a blank flash, and the footer jumping up and back down
+// (layout shift). The render runs as a transition, in slices that yield to the browser rather than one long task.
 void routerReady().then(() => {
-  // The prerendered title and meta give way to the ones each page renders, or a later navigation would keep the
-  // first page's <title>.
-  document.head.querySelectorAll('[data-prerendered]').forEach((element) => element.remove())
-  root.removeAttribute('data-prerendered-root')
-  createRoot(root).render(
-    <StrictMode>
-      <RouterProvider router={router} />
-    </StrictMode>,
+  const app = createRoot(root)
+  startTransition(() =>
+    app.render(
+      <StrictMode>
+        <RouterProvider router={router} />
+        <AppStarted />
+      </StrictMode>,
+    ),
   )
 })
