@@ -1,8 +1,12 @@
+// Must stay the first import: it opts out of CopilotKit's telemetry before the runtime loads.
+import './no-telemetry.js'
 // Vercel's Hono preset only accepts an entry that imports hono itself (a value import, not `import type`).
 import { Hono } from 'hono'
 import { waitUntil } from '@vercel/functions'
+import { askHandler } from './ai/ask.js'
 import { openAiCatalog } from './ai/catalog.js'
 import { modelResolver } from './ai/models.js'
+import { SPIKE_PROMPT, spikeTools } from './ai/spike-agent.js'
 import { createApp } from './create-app.js'
 import { loadConfig } from './config.js'
 import { contactDelivery } from './contact/delivery.js'
@@ -33,8 +37,10 @@ const models = modelResolver({
 const messages = contactMessages(neonDb(config.DATABASE_URL))
 const mailer = resendMailer({ apiKey: config.RESEND_API_KEY, from: config.CONTACT_FROM_EMAIL, to: config.CONTACT_TO_EMAIL })
 
+const origins = originPolicy(allowedOrigins({ ALLOWED_ORIGINS: config.ALLOWED_ORIGINS, VERCEL_ENV: process.env.VERCEL_ENV }))
+
 const app: Hono<AppEnv> = createApp({
-  origins: originPolicy(allowedOrigins({ ALLOWED_ORIGINS: config.ALLOWED_ORIGINS, VERCEL_ENV: process.env.VERCEL_ENV })),
+  origins,
   version: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7),
   cronSecret: config.CRON_SECRET,
   models,
@@ -45,6 +51,15 @@ const app: Hono<AppEnv> = createApp({
     retentionDays: config.CONTACT_RETENTION_DAYS,
     defer: waitUntil,
   },
+  ask: askHandler({
+    models,
+    baseUrl: config.AI_BASE_URL,
+    apiKey: config.AI_API_KEY,
+    maxOutputTokens: config.AI_MAX_OUTPUT_TOKENS,
+    origins,
+    prompt: SPIKE_PROMPT,
+    tools: spikeTools,
+  }),
 })
 
 export default app

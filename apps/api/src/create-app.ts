@@ -2,6 +2,7 @@ import { createHash, timingSafeEqual } from 'node:crypto'
 import { Hono, type Context, type MiddlewareHandler } from 'hono'
 import { bodyLimit } from 'hono/body-limit'
 import { cors } from 'hono/cors'
+import type { askHandler } from './ai/ask.js'
 import { NoModelAvailableError, type ModelResolver } from './ai/models.js'
 import type { ContactDelivery } from './contact/delivery.js'
 import type { ContactMessages } from './contact/messages.js'
@@ -12,7 +13,7 @@ import type { RateLimiter } from './ratelimit.js'
 
 // apps/api (design.md A6; specs/api-service). Not named app.ts: Vercel's Hono preset treats src/app.* as the entry
 // and requires a default export there. Built by a factory so tests can pass their own origins and logger;
-// src/index.ts is the Vercel entry. The Ask runtime (11.2) joins later.
+// src/index.ts is the Vercel entry.
 
 export interface AppOptions {
   origins: OriginPolicy
@@ -25,6 +26,8 @@ export interface AppOptions {
   models?: ModelResolver
   /** POST /contact and its daily job (src/contact). */
   contact?: ContactOptions
+  /** The Ask runtime's AG-UI endpoints under /ask (src/ai/ask.ts). */
+  ask?: ReturnType<typeof askHandler>
 }
 
 export interface ContactOptions {
@@ -58,7 +61,7 @@ function cronAuth(secret: string): MiddlewareHandler<AppEnv> {
   }
 }
 
-export function createApp({ origins, log = consoleLogger, version, cronSecret, models, contact }: AppOptions) {
+export function createApp({ origins, log = consoleLogger, version, cronSecret, models, contact, ask }: AppOptions) {
   const app = new Hono<AppEnv>()
 
   app.use(requestLog(log))
@@ -135,6 +138,8 @@ export function createApp({ origins, log = consoleLogger, version, cronSecret, m
       return c.json({ status: 'received' }, 201)
     })
   }
+
+  if (ask) app.route('/', ask)
 
   // Scheduled jobs (vercel.json "crons"), callable only with CRON_SECRET.
   if (cronSecret) {
