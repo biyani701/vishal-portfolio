@@ -64,6 +64,10 @@ export default defineConfig({
         test: {
           name: 'ui-contract',
           include: ['src/**/*.contract.test.tsx'],
+          // One retry for browser-harness hiccups only: under a full parallel run the test iframe was twice torn down
+          // mid-test ("Frame was detached", vishal-portfolio-ct7). The tests themselves are deterministic, and a
+          // retried pass is still reported as flaky.
+          retry: 1,
           setupFiles: ['./src/test/browser-setup.ts'],
           browser: {
             enabled: true,
