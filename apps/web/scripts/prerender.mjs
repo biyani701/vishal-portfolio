@@ -47,11 +47,50 @@ const HEAD_SELECTOR = 'title, meta[name="description"], meta[name="robots"], met
 
 const escapeXml = (value) => value.replace(/[<>&'"]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', "'": '&apos;', '"': '&quot;' })[c])
 
+/**
+ * The template for prerendered pages. Their HTML is complete without JavaScript, so nothing should compete with the
+ * first paint on a slow connection:
+ * - the stylesheet is inlined, so styles arrive with the HTML rather than as a render-blocking request;
+ * - the app starts once the page has painted: the entry module and its preloads are added after the first frame,
+ *   instead of being fetched alongside the stylesheet and fonts.
+ * The app shell (app.html, 404.html) keeps Vite's tags: without prerendered content it has nothing to paint first.
+ */
+export function pageTemplate(shell, readAsset) {
+  const stylesheet = /<link rel="stylesheet" crossorigin href="(\/assets\/[^"]+\.css)">/.exec(shell)
+  const entry = /<script type="module" crossorigin src="(\/assets\/[^"]+\.js)"><\/script>/.exec(shell)
+  if (!stylesheet || !entry) throw new Error('dist/index.html: no stylesheet or entry module to rewrite')
+  const preloads = [...shell.matchAll(/\s*<link rel="modulepreload" crossorigin href="([^"]+)">/g)]
+  const modules = [...preloads.map((match) => match[1]), entry[1]]
+  const loader = `<script>
+      // Prerendered page: start the app after the first paint (scripts/prerender.mjs).
+      addEventListener('DOMContentLoaded', () =>
+        requestAnimationFrame(() =>
+          setTimeout(() => {
+            ${JSON.stringify(modules)}.forEach((src, i, all) => {
+              const tag = document.createElement(i === all.length - 1 ? 'script' : 'link')
+              if (i === all.length - 1) tag.type = 'module'
+              else tag.rel = 'modulepreload'
+              tag.crossOrigin = ''
+              tag[i === all.length - 1 ? 'src' : 'href'] = src
+              document.head.append(tag)
+            })
+          }),
+        ),
+      )
+    </script>`
+  const css = readAsset(stylesheet[1])
+  if (/<\/style/i.test(css)) throw new Error(`${stylesheet[1]}: can't inline CSS that contains "</style"`)
+  let page = shell.replace(stylesheet[0], () => `<style>${css}</style>`)
+  for (const match of preloads) page = page.replace(match[0], '')
+  return page.replace(entry[0], () => loader)
+}
+
 async function main() {
   const shell = readFileSync(join(dist, 'index.html'), 'utf8')
   if (!shell.includes('<div id="root"></div>')) throw new Error('dist/index.html is not the app shell (already prerendered?)')
   writeFileSync(join(dist, 'app.html'), shell)
   writeFileSync(join(dist, '404.html'), shell)
+  const template = pageTemplate(shell, (path) => readFileSync(join(dist, path), 'utf8'))
 
   const server = await preview({ root, preview: { port: 0, strictPort: false, open: false }, logLevel: 'warn' })
   const base = server.resolvedUrls.local[0].replace(/\/$/, '')
@@ -75,7 +114,7 @@ async function main() {
       }, HEAD_SELECTOR)
       if (!title || !body.includes('<h1')) throw new Error(`${path}: nothing rendered (title "${title}")`)
 
-      const html = shell.replace('</head>', `    ${head}\n  </head>`).replace('<div id="root"></div>', `<div id="root" data-prerendered-root>${body}</div>`)
+      const html = template.replace('</head>', `    ${head}\n  </head>`).replace('<div id="root"></div>', `<div id="root" data-prerendered-root>${body}</div>`)
       // /work → work.html, /work/fast-jiraql → work/fast-jiraql.html: served for the extensionless URL by GitHub
       // Pages and vite preview, without the /work → /work/ redirect a directory index would cause.
       const file = path === '/' ? join(dist, 'index.html') : join(dist, `${path.slice(1)}.html`)
