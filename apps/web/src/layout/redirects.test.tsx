@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { act, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createMemoryRouter, RouterProvider } from 'react-router'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { routes } from '@/router.tsx'
 import { legacyHomeAnchors, legacyRedirects } from './redirects.ts'
 
@@ -87,9 +87,13 @@ describe('not found', () => {
       expect(within(sections).getByRole('link', { name })).toBeInTheDocument()
     }
 
+    // Offline: the question is asked, but no request leaves the test.
+    vi.stubGlobal('fetch', vi.fn(async () => Promise.reject(new TypeError('offline'))))
     await userEvent.type(screen.getByLabelText('What were you looking for?'), 'fixed price')
     await userEvent.click(within(screen.getByRole('search')).getByRole('button', { name: 'Ask' }))
     await waitFor(() => expect(router.state.location.pathname).toBe('/ask'))
-    expect(router.state.location.search).toBe('?q=fixed+price')
+    // Ask takes the question from the URL, asks it, and tidies the URL.
+    expect(await screen.findByRole('heading', { level: 2, name: 'fixed price' })).toBeInTheDocument()
+    expect(router.state.location.search).toBe('')
   })
 })

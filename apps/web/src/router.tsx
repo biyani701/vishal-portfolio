@@ -9,7 +9,6 @@ const placeholder = () => import('./routes/placeholder.tsx')
 
 // Sections not built yet; each phase swaps its entries for the real route module.
 const placeholders: [path: string, handle: PlaceholderHandle][] = [
-  ['/ask', { title: 'Ask', phase: 'P11' }],
   ['/contact', { title: 'Contact', phase: 'P10' }],
   ['/colophon', { title: 'Colophon', phase: 'P5' }],
   ['/legal/privacy', { title: 'Privacy policy', phase: 'P5' }],
@@ -26,6 +25,7 @@ export const routes: RouteObject[] = [
       { path: '/experience', lazy: () => import('./routes/experience.tsx'), HydrateFallback: blank },
       { path: '/about', lazy: () => import('./routes/about.tsx'), HydrateFallback: blank },
       { path: '/work/:slug', lazy: () => import('./routes/case-study.tsx'), HydrateFallback: blank },
+      { path: '/ask', lazy: () => import('./routes/ask.tsx'), HydrateFallback: blank },
       ...placeholders.map(([path, handle]) => ({ path, handle, lazy: placeholder, HydrateFallback: blank })),
       ...redirectRoutes,
       // Unknown paths, including /_dev in production builds (specs/site-navigation "Developer routes").

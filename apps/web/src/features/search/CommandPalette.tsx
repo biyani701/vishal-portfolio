@@ -13,12 +13,12 @@ import {
   AutocompleteStatus,
 } from '@/ui/autocomplete.tsx'
 import { Dialog, DialogContent, DialogTitle } from '@/ui/dialog.tsx'
+import { useOpenAsk } from '@/features/ask/entry-context.ts'
 import { PaletteContext } from './context.ts'
 import { loadSearchIndex, searchEntries, type ResultGroup } from './search.ts'
 
 // The ⌘K palette (specs/site-navigation "Command palette"): Dialog + Autocomplete over the build-time index,
-// results grouped by kind, and "Ask: {query}" always last. Ask itself arrives in P11; until then the Ask
-// option opens /ask?q=….
+// results grouped by kind, and "Ask: {query}" always last, which asks the query (features/ask).
 
 export function SearchProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false)
@@ -58,6 +58,7 @@ type Status = 'loading' | 'ready' | 'failed'
 
 function Palette({ initialQuery, onDone }: { initialQuery: string; onDone: () => void }) {
   const navigate = useNavigate()
+  const openAsk = useOpenAsk()
   const [query, setQuery] = useState(initialQuery)
   const [entries, setEntries] = useState<SearchEntry[]>([])
   const [status, setStatus] = useState<Status>('loading')
@@ -79,7 +80,9 @@ function Palette({ initialQuery, onDone }: { initialQuery: string; onDone: () =>
   function go(entry: SearchEntry | undefined) {
     if (!entry) return
     onDone()
-    navigate(entry.url)
+    // "Ask: …" opens Ask where it lives on this viewport: the page, or the drawer over this page.
+    if (entry.id === 'ask') openAsk(entry.url)
+    else navigate(entry.url)
   }
 
   return (

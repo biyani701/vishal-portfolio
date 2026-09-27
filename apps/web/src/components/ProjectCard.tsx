@@ -27,10 +27,12 @@ interface ProjectCardProps {
   project: ProjectMeta
   /** Extra classes for the thumbnail, e.g. to drop it on phones. */
   thumbClassName?: string
+  /** Without the thumbnail, for results inside an answer (Ask). */
+  compact?: boolean
   className?: string
 }
 
-export function ProjectCard({ project, thumbClassName, className }: ProjectCardProps) {
+export function ProjectCard({ project, thumbClassName, compact = false, className }: ProjectCardProps) {
   const thumb = cn('h-37.5 border-b border-border bg-sunken', thumbClassName)
   return (
     <Link
@@ -40,12 +42,12 @@ export function ProjectCard({ project, thumbClassName, className }: ProjectCardP
         className,
       )}
     >
-      {project.screenshot ? (
+      {compact ? null : project.screenshot ? (
         <img src={project.screenshot} alt="" decoding="async" loading="lazy" className={cn(thumb, 'w-full object-cover')} />
       ) : (
         <ArchitectureThumb boxes={project.architecture} className={thumb} />
       )}
-      <div className="flex flex-col gap-2.5 p-5">
+      <div className={cn('flex flex-col gap-2.5', compact ? 'p-4' : 'p-5')}>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="font-sans text-h3 font-semibold">{project.title}</h3>
           {project.status === 'in-flight' ? (

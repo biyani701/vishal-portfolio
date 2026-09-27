@@ -59,6 +59,8 @@ const SELECTION_KEY = 'ai:models:selection'
 const BAD_KEY = 'ai:models:bad'
 /** Instances re-read the shared selection this often, so a failover elsewhere reaches them quickly. */
 const LOCAL_TTL_MS = 5 * 60_000
+/** Most listed-but-unserved models skipped per role in one refresh (they fail fast, but aren't free). */
+const MAX_UNSERVED = 30
 /** Keep the last selection long after it's stale, as a fallback when the catalog can't be reached. */
 const STALE_KEEP_SECONDS = 7 * 24 * 3600
 
@@ -88,13 +90,28 @@ export function modelResolver({ catalog, store, log, pinned = {}, prefer = [], r
     }
     const bad = await badModels()
     const probes: ProbeResult[] = []
+    // A model too slow for one role is too slow for the other; don't wait on it twice in one refresh.
+    const timedOut = new Set<string>()
 
     async function firstPassing(role: 'agent' | 'suggestions', skip?: string) {
-      const candidates = rankCandidates(models, role, matchers).filter((model) => !bad[model.id] && model.id !== skip)
-      for (const { id } of candidates.slice(0, probeLimit)) {
+      const candidates = rankCandidates(models, role, matchers).filter((model) => !bad[model.id] && !timedOut.has(model.id) && model.id !== skip)
+      // probeLimit counts real attempts only. The catalog lists many models it doesn't serve (a 404 in ~50ms), and
+      // those shouldn't use up the limit before a served model is tried; MAX_UNSERVED bounds how many are skipped.
+      let attempts = 0
+      let unserved = 0
+      for (const { id } of candidates) {
+        if (attempts >= probeLimit || unserved >= MAX_UNSERVED) break
         const result = role === 'agent' ? await catalog.probeTools(id) : await catalog.probeChat(id)
         probes.push(result)
         if (result.ok) return id
+        if (result.status && isModelGone(result.status)) {
+          // Listed but not served to this key: skip it until the next refresh window.
+          bad[id] = now() + refreshMs
+          unserved++
+        } else {
+          if (result.reason === 'timeout') timedOut.add(id)
+          attempts++
+        }
       }
       return undefined
     }
@@ -106,6 +123,7 @@ export function modelResolver({ catalog, store, log, pinned = {}, prefer = [], r
     }
     const discoveredSuggestions = pinned.suggestions ? undefined : await firstPassing('suggestions', agent)
     const suggestions = pinned.suggestions ?? discoveredSuggestions ?? agent
+    if (probes.some((probe) => probe.status && isModelGone(probe.status))) await store.set(BAD_KEY, bad, refreshHours * 3600)
 
     return {
       agent,
@@ -134,6 +152,8 @@ export function modelResolver({ catalog, store, log, pinned = {}, prefer = [], r
           suggestionsSource: selection.source.suggestions,
           probes: report.probes.length,
           failedProbes: report.probes.filter((probe) => !probe.ok).length,
+          // Outcomes only, e.g. "vendor/model=http_404@120ms": enough to see why candidates were passed over.
+          probeOutcomes: report.probes.map((probe) => `${probe.model}=${probe.ok ? 'ok' : probe.reason}@${probe.ms}ms`).join(' '),
         })
         return report
       } finally {

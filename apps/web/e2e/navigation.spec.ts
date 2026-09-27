@@ -67,11 +67,17 @@ test('the ⌘K palette searches the index, groups results and ends with Ask', as
 })
 
 test('choosing the Ask option opens Ask with the question', async ({ page }) => {
+  // Requests to the Ask runtime are blocked, so the test never reaches the live service.
+  await page.route('**/ask/**', (route) => route.abort())
   await page.goto('/')
   await page.keyboard.press('ControlOrMeta+k')
   await page.getByRole('combobox', { name: 'Search or ask' }).fill('fixed price')
   await page.getByRole('option', { name: /Ask: fixed price/ }).click()
-  await expect(page).toHaveURL('/ask?q=fixed+price')
+  // A drawer over this page on mobile and compact landscape; the /ask page elsewhere (specs/ask-experience).
+  const drawer = mode() === 'mobile' || mode() === 'compact-landscape'
+  const surface = drawer ? page.getByRole('dialog', { name: 'Ask' }) : page.getByRole('main')
+  await expect(surface.getByRole('heading', { level: 2, name: 'fixed price' })).toBeVisible()
+  await expect(page).toHaveURL(drawer ? '/' : '/ask')
 })
 
 test('footer links resolve and the footer is static', async ({ page }) => {

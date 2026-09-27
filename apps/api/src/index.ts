@@ -4,9 +4,12 @@ import './no-telemetry.js'
 import { Hono } from 'hono'
 import { waitUntil } from '@vercel/functions'
 import { askHandler } from './ai/ask.js'
+import { dailyBudget } from './ai/budget.js'
 import { openAiCatalog } from './ai/catalog.js'
+import { contextSource } from './ai/context.js'
 import { modelResolver } from './ai/models.js'
-import { SPIKE_PROMPT, spikeTools } from './ai/spike-agent.js'
+import { ASK_PROMPT } from './ai/prompt.js'
+import { askTools } from './ai/tools.js'
 import { createApp } from './create-app.js'
 import { loadConfig } from './config.js'
 import { contactDelivery } from './contact/delivery.js'
@@ -57,8 +60,12 @@ const app: Hono<AppEnv> = createApp({
     apiKey: config.AI_API_KEY,
     maxOutputTokens: config.AI_MAX_OUTPUT_TOKENS,
     origins,
-    prompt: SPIKE_PROMPT,
-    tools: spikeTools,
+    prompt: ASK_PROMPT,
+    tools: askTools(contextSource({ url: config.AI_CONTEXT_URL, log: consoleLogger })),
+    budget: dailyBudget({ store, dailyUsd: config.AI_DAILY_BUDGET_USD, usdPerMillionTokens: config.AI_USD_PER_MILLION_TOKENS }),
+    limiter: rateLimiter({ store, name: 'ask', limit: config.AI_RATE_LIMIT_PER_IP_PER_HOUR }),
+    suggestLimiter: rateLimiter({ store, name: 'ask-suggest', limit: config.AI_RATE_LIMIT_PER_IP_PER_HOUR * 2 }),
+    log: consoleLogger,
   }),
 })
 

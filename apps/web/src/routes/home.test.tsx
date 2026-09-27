@@ -105,11 +105,11 @@ describe('Home Ask input', () => {
     expect(screen.getByTestId('ask').textContent).toBe('/ask')
   })
 
-  it('offers starter questions as links into Ask', () => {
+  it('offers starter questions as links that fill in Ask', () => {
     renderHome()
     expect(screen.getByRole('link', { name: 'What did he run at the IFC? →' })).toHaveAttribute(
       'href',
-      '/ask?q=What+did+he+run+at+the+IFC%3F',
+      '/ask?prefill=What+did+he+run+at+the+IFC%3F',
     )
   })
 })
