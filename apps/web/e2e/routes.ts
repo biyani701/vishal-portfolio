@@ -16,5 +16,6 @@ export const routes: MatrixRoute[] = [
   { path: '/contact', name: 'contact' },
   { path: '/colophon', name: 'colophon' },
   { path: '/legal/privacy', name: 'privacy' },
+  { path: '/legal/terms', name: 'terms' },
   { path: '/this/page/does-not-exist-anywhere-on-the-site', name: 'not found' },
 ]

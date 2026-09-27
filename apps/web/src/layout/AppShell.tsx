@@ -65,7 +65,10 @@ function Frame() {
           <Link to="/" className="inline-flex min-h-target shrink-0 items-center font-sans text-body font-semibold text-ink">
             Vishal Biyani
           </Link>
-          <Navigation />
+          {/* Hidden in prerendered HTML until the app picks this viewport's composition (scripts/prerender.mjs). */}
+          <div data-nav-slot className="flex min-w-0 flex-1 justify-end">
+            <Navigation />
+          </div>
         </div>
       </header>
 

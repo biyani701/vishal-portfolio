@@ -172,6 +172,14 @@
   top: calc(var(--shell-header) + 1.5rem);
 }
 
+/*
+ * Prerendered pages (scripts/prerender.mjs) are snapshots taken at desktop width. The header navigation is the one
+ * part whose DOM differs by layout mode, so it stays hidden until the app has rendered this viewport's version.
+ */
+#root[data-prerendered-root] [data-nav-slot] {
+  visibility: hidden;
+}
+
 /* §4.5 durations as utilities: duration-colour (150ms), duration-reveal (220ms), duration-overlay (320ms). */
 @utility duration-colour {
   transition-duration: var(--duration-colour);

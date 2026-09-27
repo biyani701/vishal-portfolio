@@ -8,6 +8,7 @@ import { prefersReducedMotion } from '@/components/motion/useReducedMotion.ts'
 import { ProgrammeLine } from '@/components/programme/ProgrammeLine.tsx'
 import { RolePanel } from '@/components/RolePanel.tsx'
 import { organisations, profile, projects, roles as contentRoles } from '@/content/index.ts'
+import { PageMeta } from '@/layout/PageMeta.tsx'
 import { PageShell } from '@/layout/PageShell.tsx'
 
 // /experience (specs/content-pages "Experience"; task 7.1): the interactive Programme Line, the role panel,
@@ -59,6 +60,7 @@ export function Component() {
 
   return (
     <PageShell className="flex flex-col gap-section">
+      <PageMeta title="Experience" description="Roles, engagements, skills over time and credentials from 25 years in financial-services software." path="/experience" />
       <div className="flex max-w-195 flex-col gap-3">
         <h1 className="font-sans text-h1 font-semibold">Experience</h1>
         <p className="font-serif text-lede text-ink-2">{profile.summary}</p>

@@ -18,8 +18,11 @@
         document.documentElement.dataset.theme = dark ? 'dark' : 'light'
       })()
     </script>
-    <title>Vishal Biyani</title>
-    <script src="/runtime-config.js"></script>
+    <!-- No <title> or description here: each page renders its own (src/layout/PageMeta.tsx), which React hoists into
+         <head>, and the build prerenders them into each page's HTML. A static one would be duplicated. -->
+    <!-- Deferred so it doesn't block the first paint; deferred and module scripts run in document order, so it still
+         sets window.runtimeConfig before the app's module script below. -->
+    <script defer src="/runtime-config.js"></script>
   </head>
   <body>
     <div id="root"></div>

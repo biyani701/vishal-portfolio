@@ -10,6 +10,7 @@ import { stackSlug } from '@/features/work/filters.ts'
 import { relatedProjects, rolesForProject } from '@/features/work/related.ts'
 import { AskLink } from '@/features/ask/entry.tsx'
 import { askHref } from '@/features/ask/request.ts'
+import { PageMeta } from '@/layout/PageMeta.tsx'
 import { PageShell } from '@/layout/PageShell.tsx'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/ui/button.tsx'
@@ -193,6 +194,7 @@ export function Component() {
   return (
     // Keyed by slug so moving to a related case study starts with a fresh page (closed ToC, no stale state).
     <PageShell key={meta.slug} className="flex flex-col gap-section">
+      <PageMeta title={meta.title} description={meta.summary} path={`/work/${meta.slug}`} />
       <header className="flex max-w-195 flex-col gap-3">
         <nav aria-label="Breadcrumb">
           <Link to="/work" className={cn(kicker, 'inline-flex min-h-target items-center hover:text-accent')}>

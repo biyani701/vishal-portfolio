@@ -23,7 +23,8 @@ test.describe('OS in dark mode', () => {
 
   test('applies the dark theme before any app code runs', async ({ page }) => {
     await openWithoutApp(page)
-    await expect(page.locator('#root')).toBeEmpty()
+    // The app never started: the prerendered head tags it removes on start are still there.
+    await expect(page.locator('head [data-prerendered]').first()).toBeAttached()
     await expectTheme(page, 'dark')
   })
 

@@ -1,6 +1,7 @@
 import { useMatches } from 'react-router'
 import type { LegalPage } from '@content/schema.ts'
 import { legal } from '@/content/index.ts'
+import { PageMeta } from '@/layout/PageMeta.tsx'
 import { PageShell } from '@/layout/PageShell.tsx'
 
 // /legal/privacy, /legal/terms and /colophon (specs/content-pages "About, Colophon and Legal"; task 10.5), from
@@ -11,6 +12,8 @@ export interface LegalHandle {
   document: 'privacy' | 'terms' | 'colophon'
 }
 
+const PATHS: Record<LegalHandle['document'], string> = { privacy: '/legal/privacy', terms: '/legal/terms', colophon: '/colophon' }
+
 const kicker = 'font-mono text-mono-s text-muted uppercase'
 
 const updated = new Date(`${legal.updated}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' })
@@ -20,6 +23,7 @@ export function Component() {
   const page: LegalPage = legal[document]
   return (
     <PageShell className="flex flex-col gap-10">
+      <PageMeta title={page.title} description={page.summary} path={PATHS[document]} />
       <div className="flex max-w-195 flex-col gap-3">
         <h1 className="font-sans text-h1 font-semibold">{page.title}</h1>
         <p className="font-serif text-lede text-ink-2">{page.summary}</p>

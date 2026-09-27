@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useSearchParams } from 'react-router'
 import { useAskEntry } from '@/features/ask/entry-context.ts'
 import { parseAskHref } from '@/features/ask/request.ts'
+import { PageMeta } from '@/layout/PageMeta.tsx'
 import { PageShell } from '@/layout/PageShell.tsx'
 
 // /ask (specs/ask-experience "Surfaces by mode"): the page surface on every mode it's visited in; on desktop it
@@ -22,6 +23,7 @@ export function Component() {
 
   return (
     <PageShell>
+      <PageMeta title="Ask" description="Ask a question about Vishal Biyani’s work. Answers come only from this site and name their sources." path="/ask" />
       <div ref={setSlot} />
     </PageShell>
   )

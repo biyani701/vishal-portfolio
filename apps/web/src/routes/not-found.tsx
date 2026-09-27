@@ -1,6 +1,9 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router'
+import { Link, useLocation } from 'react-router'
 import { usePalette } from '@/features/search/context.ts'
+import { PageMeta } from '@/layout/PageMeta.tsx'
+import { useOpenAsk } from '@/features/ask/entry-context.ts'
+import { askHref } from '@/features/ask/request.ts'
 import { PageShell } from '@/layout/PageShell.tsx'
 import { sections } from '@/layout/sections.ts'
 import { Button } from '@/ui/button.tsx'
@@ -11,7 +14,7 @@ import { Label } from '@/ui/label.tsx'
 // links to the main sections.
 export function Component() {
   const { pathname } = useLocation()
-  const navigate = useNavigate()
+  const openAsk = useOpenAsk()
   const { openPalette } = usePalette()
   const [question, setQuestion] = useState('')
 
@@ -21,13 +24,14 @@ export function Component() {
     openPalette(question.trim())
   }
 
+  // Ask where it lives on this viewport: the page, or the drawer over this one.
   function ask() {
-    const q = question.trim()
-    navigate(q ? `/ask?${new URLSearchParams({ q })}` : '/ask')
+    openAsk(askHref({ q: question.trim() }))
   }
 
   return (
     <PageShell className="flex flex-col gap-8">
+      <PageMeta title="Page not found" description="There is no page at this address." path={pathname} noindex />
       <div className="flex flex-col gap-3">
         <p className="font-mono text-mono-s text-muted uppercase">404</p>
         <h1 className="font-sans text-h1 font-semibold">Page not found</h1>

@@ -11,6 +11,7 @@ import {
   type FilterOption,
   type WorkFilters,
 } from '@/features/work/filters.ts'
+import { PageMeta } from '@/layout/PageMeta.tsx'
 import { PageShell } from '@/layout/PageShell.tsx'
 import { Button } from '@/ui/button.tsx'
 import { Combobox, ComboboxContent, ComboboxEmpty, ComboboxInput, ComboboxItem, ComboboxList } from '@/ui/combobox'
@@ -39,6 +40,7 @@ export function Component() {
 
   return (
     <PageShell className="flex flex-col gap-section">
+      <PageMeta title="Work" description="Projects by Vishal Biyani: delivery tooling, APIs, dashboards and the sites he builds, filterable by domain and stack." path="/work" />
       <div className="flex max-w-195 flex-col gap-3">
         <h1 className="font-sans text-h1 font-semibold">Work</h1>
         <p className="font-serif text-lede text-ink-2">
