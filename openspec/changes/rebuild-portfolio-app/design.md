@@ -164,6 +164,19 @@ None. The site has nothing to sign in for, so `apps/web` ships no `AuthProvider`
 - `apps/auth-server` keeps serving `apps/portfolio` until cut-over. Retiring the portfolio's client registration there happens after P14.4, outside this change.
 - *Alternative considered:* keeping sign-in as built in P5. It was dropped (owner decision, 2026-09-26) because it added a required build variable, header and footer states and a round-trip dependency on another service without giving visitors anything. The client and server code are preserved in the separate `vishal-lab` project.
 
+### A7b. P13 outcome: accessibility, prerender and performance (2026-09-27)
+- **Accessibility:** `e2e/a11y.spec.ts` runs axe on every route in both themes at all 9 matrix viewports, with zero violations.
+- **Prerender:** `scripts/prerender.mjs` snapshots each static route in headless Chromium after `vite build`.
+  - Output is `dist/<route>.html`, carrying the page's content plus its title, description, canonical and social tags (`PageMeta`). It also writes `sitemap.xml` and `robots.txt`.
+  - The untouched app shell (`app.html`, `404.html`) is the fallback for other paths.
+  - Prerendered pages inline their CSS and start the app after first paint.
+  - The app renders once the router has loaded the page, in a transition, and `AppStarted` then clears the prerendered head tags.
+- **Analytics:** none; the site stays analytics-free (owner decision).
+- **Performance (task 13.3):** accepted on mobile Lighthouse with **applied (DevTools) throttling**: Home 93/97, Work 99/99, case study 99/100.
+  - The default simulated mode (82–87) is recorded only as a baseline. It models LCP after the app's scripts, while the real LCP is the prerendered paint.
+  - Configuration, raw results and the command to reproduce them are in `apps/web/PERFORMANCE.md`.
+  - Server rendering with hydration, to lift the simulated score, is a separate deferred item (`vishal-portfolio-9cm.13.6`) with its own acceptance criteria.
+
 ### A8. Deployment and CI
 - The pnpm workspace gains `apps/web` and `apps/api`; Turborepo pipelines are `lint`, `typecheck`, `test`, `build`, `e2e`.
 - **Web workflow:** Node 22, pnpm, all gates, then a Pages deploy from `main`, keeping the `404.html` step. A preview goes to Vercel on each PR.
