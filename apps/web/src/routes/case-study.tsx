@@ -8,6 +8,8 @@ import { TableOfContents } from '@/components/TableOfContents.tsx'
 import { loadProject, projectDomains, projects, roles } from '@/content/index.ts'
 import { stackSlug } from '@/features/work/filters.ts'
 import { relatedProjects, rolesForProject } from '@/features/work/related.ts'
+import { AskLink } from '@/features/ask/entry.tsx'
+import { askHref } from '@/features/ask/request.ts'
 import { PageShell } from '@/layout/PageShell.tsx'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/ui/button.tsx'
@@ -128,8 +130,8 @@ function Facts({ meta }: { meta: ProjectMeta }) {
 function Aside({ meta, className }: { meta: ProjectMeta; className?: string }) {
   const related = relatedProjects(meta, projects)
   const builtIn = rolesForProject(meta.slug, roles)
-  // Ask reads the page it was opened from (task 11.6 turns this into project context and a suggested question).
-  const askUrl = `/ask?${new URLSearchParams({ about: `/work/${meta.slug}` })}`
+  // Ask opens with this project as context and a suggested question (task 11.6).
+  const askUrl = askHref({ about: `/work/${meta.slug}` })
 
   return (
     <aside aria-label="About this project" className={cn('flex flex-col gap-8', className)}>
@@ -138,9 +140,9 @@ function Aside({ meta, className }: { meta: ProjectMeta; className?: string }) {
           Questions
         </h2>
         <p className="font-serif text-body text-ink-2">Ask about {meta.title}. Answers come only from this site.</p>
-        <Link to={askUrl} className="inline-flex min-h-target items-center font-semibold text-accent underline-offset-4 hover:underline">
+        <AskLink to={askUrl} className="inline-flex min-h-target items-center font-semibold text-accent underline-offset-4 hover:underline">
           Ask about this →
-        </Link>
+        </AskLink>
       </section>
 
       {builtIn.length > 0 && (

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Link, Outlet, ScrollRestoration, useLocation } from 'react-router'
+import { AskMount, AskProvider } from '@/features/ask/entry.tsx'
 import { SearchProvider } from '@/features/search/CommandPalette.tsx'
 import { Toaster } from '@/ui/toast.tsx'
 import { Footer } from './Footer.tsx'
@@ -16,12 +17,15 @@ import { useLayoutMode } from './useLayoutMode.ts'
  */
 export function AppShell() {
   return (
-    <SearchProvider>
-      {/* Short confirmations, such as CodeBlock's "Copied to clipboard", from the shared `toast` manager. */}
-      <Toaster>
-        <Frame />
-      </Toaster>
-    </SearchProvider>
+    // Ask wraps search: the palette's "Ask: …" option opens Ask, and Ask's "Search the site" opens the palette.
+    <AskProvider>
+      <SearchProvider>
+        {/* Short confirmations, such as CodeBlock's "Copied to clipboard", from the shared `toast` manager. */}
+        <Toaster>
+          <Frame />
+        </Toaster>
+      </SearchProvider>
+    </AskProvider>
   )
 }
 
@@ -68,6 +72,8 @@ function Frame() {
       <Outlet />
 
       <Footer />
+      {/* Ask's drawers and the /ask page's surface, once Ask has been opened (features/ask). */}
+      <AskMount />
       {/*
         A plain #anchor link (skip link, Markdown ToC) makes a history entry with no router key, so it shares
         the first entry's "default" key; key those by URL, or Back/forward restoration scrolls the jump to the top.

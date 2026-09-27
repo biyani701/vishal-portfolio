@@ -6,6 +6,7 @@ import { spanTone } from '@/components/programme/tones.ts'
 import { milestones, organisations, profile, roles } from '@/content/index.ts'
 import { cn } from '@/lib/utils'
 import { buttonVariants } from '@/ui/button.tsx'
+import { AskLink } from '@/features/ask/entry.tsx'
 
 // Home hero (design package §7): 12 columns on desktop (statement 8, portrait 3), 8 on tablet, stacked on
 // mobile with the 104px portrait beside the role line, and two panes on compact landscape (statement /
@@ -41,9 +42,9 @@ export function Hero() {
           <Link to="/work" className={cn(buttonVariants({ size: 'lg' }), 'compact-landscape:h-11')}>
             See the work
           </Link>
-          <Link to="/ask" className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'compact-landscape:h-11')}>
+          <AskLink to="/ask" className={cn(buttonVariants({ variant: 'outline', size: 'lg' }), 'compact-landscape:h-11')}>
             Ask about my experience
-          </Link>
+          </AskLink>
         </div>
       </div>
 

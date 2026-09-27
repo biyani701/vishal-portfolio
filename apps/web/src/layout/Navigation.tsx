@@ -2,6 +2,7 @@ import { ArrowRight, Menu, Search, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Link, NavLink, useLocation } from 'react-router'
 import { Icon } from '@/components/Icon.tsx'
+import { useAskClick } from '@/features/ask/entry-context.ts'
 import { shortcutLabel, usePalette } from '@/features/search/context.ts'
 import { cn } from '@/lib/utils'
 import { Button } from '@/ui/button.tsx'
@@ -75,6 +76,7 @@ function DesktopNavigation() {
 
 function CompactNavigation() {
   const { openPalette } = usePalette()
+  const askClick = useAskClick()
   const mode = useLayoutMode()
   const { pathname } = useLocation()
   // The drawer stays open only on the page it was opened from, so any navigation (a link in it, or Back)
@@ -95,7 +97,7 @@ function CompactNavigation() {
           <Icon icon={Search} />
         </Button>
       )}
-      <NavLink to="/ask" className="inline-flex h-11 items-center rounded-md px-2.5 font-semibold text-accent hover:bg-sunken">
+      <NavLink to="/ask" onClick={askClick('/ask')} className="inline-flex h-11 items-center rounded-md px-2.5 font-semibold text-accent hover:bg-sunken">
         Ask
       </NavLink>
       <Drawer
@@ -109,15 +111,17 @@ function CompactNavigation() {
         </DrawerTrigger>
         <DrawerContent finalFocus={returnFocus}>
           {/* Searching from the drawer closes it first, so the palette isn't stacked on another modal. */}
-          <NavigationDrawer onSearch={() => (setOpen(false), openPalette())} />
+          <NavigationDrawer onSearch={() => (setOpen(false), openPalette())} onCloseMenu={() => setOpen(false)} />
         </DrawerContent>
       </Drawer>
     </div>
   )
 }
 
-function NavigationDrawer({ onSearch }: { onSearch: () => void }) {
+function NavigationDrawer({ onSearch, onCloseMenu }: { onSearch: () => void; onCloseMenu: () => void }) {
   const { pathname } = useLocation()
+  // Ask from the menu closes it first, so Ask's drawer isn't stacked on the menu (mobile, compact landscape).
+  const askClick = useAskClick()
   return (
     <nav aria-label="Menu" className="flex h-full flex-col gap-3 overflow-y-auto px-4 pt-safe pb-6">
       <div className="flex h-14 shrink-0 items-center justify-between">
@@ -136,6 +140,7 @@ function NavigationDrawer({ onSearch }: { onSearch: () => void }) {
             <li key={section.path}>
               <NavLink
                 to={section.path}
+                onClick={section.path === '/ask' ? askClick('/ask', onCloseMenu) : undefined}
                 className={cn(
                   'flex h-14 items-center justify-between border-b border-border text-h3 font-semibold text-ink aria-[current=page]:text-accent',
                   section.path === '/ask' && 'text-accent',

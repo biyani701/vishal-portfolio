@@ -3,6 +3,8 @@ import { Link } from 'react-router'
 import { roleDates } from '@content/derive.ts'
 import type { Organisation, ProjectMeta, Role } from '@content/schema.ts'
 import { StatusChip } from '@/components/StatusChip.tsx'
+import { AskLink } from '@/features/ask/entry.tsx'
+import { askHref } from '@/features/ask/request.ts'
 import { cn } from '@/lib/utils'
 
 // The role panel on Experience (specs/content-pages "Experience"; design package §9 "RolePanel"): dates,
@@ -26,7 +28,7 @@ const textLink = 'inline-flex min-h-target items-center font-semibold text-accen
 const select = (role: Role) => ({ to: `/experience#${role.id}`, preventScrollReset: true, replace: true })
 
 export function RolePanel({ role, organisation, position, total, earlier, later, projects, ref }: RolePanelProps) {
-  const askUrl = `/ask?${new URLSearchParams({ about: `/experience#${role.id}` })}`
+  const askUrl = askHref({ about: `/experience#${role.id}` })
   const context = [organisation.name, role.client && `for ${role.client}`, role.note].filter(Boolean).join(' · ')
 
   return (
@@ -49,9 +51,9 @@ export function RolePanel({ role, organisation, position, total, earlier, later,
           {role.location && ` · ${role.location}`}
         </p>
         <div>{role.end ? <StatusChip status="delivered" period={role.end.slice(0, 4)} /> : <StatusChip status="in-flight" />}</div>
-        <Link to={askUrl} className={cn(textLink, 'self-start')}>
+        <AskLink to={askUrl} className={cn(textLink, 'self-start')}>
           Ask about this role →
-        </Link>
+        </AskLink>
       </div>
 
       <div className="flex flex-col gap-6 desktop:col-span-7">

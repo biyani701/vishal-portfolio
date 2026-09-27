@@ -27,6 +27,8 @@ export default defineConfig({
     },
   },
   test: {
+    // The one required build variable (src/config), pointed at a host that can't resolve: tests stub fetch.
+    env: { VITE_API_BASE_URL: 'https://api.test.invalid' },
     projects: [
       {
         extends: true,
@@ -52,6 +54,10 @@ export default defineConfig({
             'cn/config',
             'class-variance-authority',
             'axe-core',
+            // Ask's contract tests (src/features/ask).
+            '@ag-ui/client',
+            '@react-aria/live-announcer',
+            'react-router',
             ...baseUiEntries,
           ],
         },

@@ -1,8 +1,11 @@
 import { useId, useState, type FormEvent, type ReactNode } from 'react'
-import { Link, useNavigate } from 'react-router'
+import { Link } from 'react-router'
 import { ProjectCard } from '@/components/ProjectCard.tsx'
 import { StatusChip } from '@/components/StatusChip.tsx'
 import { featuredProjects, highlightedProjects, profile, projects } from '@/content/index.ts'
+import { useOpenAsk } from '@/features/ask/entry-context.ts'
+import { AskLink } from '@/features/ask/entry.tsx'
+import { askHref } from '@/features/ask/request.ts'
 import { cn } from '@/lib/utils'
 import { Button } from '@/ui/button.tsx'
 import { Input } from '@/ui/input.tsx'
@@ -70,17 +73,16 @@ export function SelectedWork() {
 // Starters shown under the question input; each opens Ask with the question filled in.
 const suggestions = ['Compare his engineering projects', 'What did he run at the IFC?', 'What is he building now?']
 
-const askUrl = (question: string) => (question ? `/ask?${new URLSearchParams({ q: question })}` : '/ask')
-
 /** The Home question input: one of Ask's four entry points. It never opens Ask on its own. */
 export function AskPrompt() {
-  const navigate = useNavigate()
+  const open = useOpenAsk()
   const inputId = useId()
   const [question, setQuestion] = useState('')
 
+  // Asking is the visitor's action: the question is sent when they press Ask, never before.
   const submit = (event: FormEvent) => {
     event.preventDefault()
-    navigate(askUrl(question.trim()))
+    open(askHref({ q: question.trim() }))
   }
 
   return (
@@ -114,9 +116,9 @@ export function AskPrompt() {
         <ul className="flex flex-wrap gap-x-6">
           {suggestions.map((suggestion) => (
             <li key={suggestion}>
-              <Link to={askUrl(suggestion)} className={cn(arrowLink, 'font-normal')}>
+              <AskLink to={askHref({ prefill: suggestion })} className={cn(arrowLink, 'font-normal')}>
                 {suggestion} →
-              </Link>
+              </AskLink>
             </li>
           ))}
         </ul>
