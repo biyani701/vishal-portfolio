@@ -90,7 +90,7 @@
 
 - [x] 13.1 axe on every route in both themes; verify zero violations
 - [x] 13.2 Prerender static routes, meta/OG tags, sitemap, robots; verify prerendered HTML contains page content
-- [ ] 13.3 Performance budgets (lazy Ask bundle, font preload, image sizes); verify mobile Lighthouse ≥ 90 on Home, Work and a case study
+- [x] 13.3 Performance budgets (lazy Ask bundle, font preload, image sizes); verify mobile Lighthouse ≥ 90 on Home, Work and a case study. Accepted 2026-09-27 on applied (DevTools) throttling: Home 93/97, Work 99/99, case study 99/100; the default simulated mode (82–87) is a baseline only. See `apps/web/PERFORMANCE.md`
 - [x] 13.4 ~~Analytics kept consent-gated through Klaro~~ Not needed: the site stays analytics-free (owner decision 2026-09-27); the privacy policy says so
 
 ## 14. P14 — Cut-over
