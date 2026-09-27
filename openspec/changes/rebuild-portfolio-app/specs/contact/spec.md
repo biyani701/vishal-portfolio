@@ -5,7 +5,11 @@ Defines the application-owned Contact experience that replaces the Tally embed: 
 ## ADDED Requirements
 
 ### Requirement: Contact form
-`/contact` SHALL present an intent choice (A role; A programme or engagement; Something else), then name, email and message fields. The form uses Programme Field components with labels above and errors below. The owner's email SHALL also be shown as selectable text with a Copy button. No third-party form embed SHALL be used.
+`/contact` SHALL present an intent choice (A role; A programme or engagement; Something else), then name, email and message fields. The form uses Programme Field components with labels above and errors below. The site SHALL NOT publish the owner's email address or other direct contact details; every message goes through the form (owner decision 2026-09-27, replacing the earlier "selectable email with Copy"). No third-party form embed SHALL be used.
+
+#### Scenario: No published address
+- **WHEN** a visitor opens `/contact`
+- **THEN** the page offers the form and shows no email address
 
 #### Scenario: Validation
 - **WHEN** a visitor submits without an email address
