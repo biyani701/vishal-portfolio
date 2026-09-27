@@ -40,6 +40,21 @@ export const aboutSchema = z.object({
   principles: z.array(z.object({ title: text, text })).min(1),
 })
 
+/**
+ * Privacy, terms and colophon (specs/content-pages "About, Colophon and Legal"; task 10.5). `draft` marks text the
+ * owner hasn't reviewed yet; the pages say so until it's cleared.
+ */
+const legalSectionSchema = z.object({ title: text, paragraphs: z.array(text).min(1), items: z.array(text).optional() })
+const legalPageSchema = z.object({ title: text, summary: text, sections: z.array(legalSectionSchema).min(1) })
+export const legalSchema = z.object({
+  draft: z.boolean(),
+  /** ISO date the text last changed. */
+  updated: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  privacy: legalPageSchema,
+  terms: legalPageSchema,
+  colophon: legalPageSchema,
+})
+
 export const organisationSchema = z.object({ id: slug, name: text, short: text })
 
 export const roleSchema = z.object({
@@ -112,6 +127,8 @@ export const projectMetaSchema = z.object({
 
 export type Profile = z.infer<typeof profileSchema>
 export type About = z.infer<typeof aboutSchema>
+export type Legal = z.infer<typeof legalSchema>
+export type LegalPage = Legal['privacy']
 export type Organisation = z.infer<typeof organisationSchema>
 export type Role = z.infer<typeof roleSchema>
 export type Skill = z.infer<typeof skillSchema>

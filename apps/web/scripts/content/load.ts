@@ -5,12 +5,14 @@ import { parse as parseYaml } from 'yaml'
 import type { z } from 'zod'
 import { about } from '../../content/about.ts'
 import { credentials } from '../../content/credentials.ts'
+import { legal } from '../../content/legal.ts'
 import { profile } from '../../content/profile.ts'
 import { projectDomains } from '../../content/project-domains.ts'
 import { organisations, roles } from '../../content/roles.ts'
 import {
   aboutSchema,
   credentialsSchema,
+  legalSchema,
   markdownCollections,
   organisationSchema,
   profileSchema,
@@ -18,6 +20,7 @@ import {
   skillSchema,
   type About,
   type Credentials,
+  type Legal,
   type Organisation,
   type Profile,
   type ProjectMeta,
@@ -115,6 +118,7 @@ async function loadCollection<C extends Collection>(collection: C) {
 export interface Content {
   profile: Profile
   about: About
+  legal: Legal
   organisations: Organisation[]
   roles: Role[]
   skills: Skill[]
@@ -125,6 +129,7 @@ export interface Content {
 export interface Collections {
   profile: unknown
   about: unknown
+  legal: unknown
   organisations: unknown
   roles: unknown
   skills: unknown
@@ -137,6 +142,7 @@ export function validateCollections(input: Collections) {
   return {
     profile: validate('content/profile.ts', profileSchema, input.profile),
     about: validate('content/about.ts', aboutSchema, input.about),
+    legal: validate('content/legal.ts', legalSchema, input.legal),
     organisations: validate('content/roles.ts', list(organisationSchema), input.organisations),
     roles: validate('content/roles.ts', list(roleSchema), input.roles),
     skills: validate('content/skills.ts', list(skillSchema), input.skills),
@@ -177,7 +183,7 @@ export function checkReferences(content: Content) {
 }
 
 /** Loads, validates and cross-checks all content, in a stable order. */
-export async function loadContent(collections: Collections = { profile, about, organisations, roles, skills, credentials }): Promise<Content> {
+export async function loadContent(collections: Collections = { profile, about, legal, organisations, roles, skills, credentials }): Promise<Content> {
   const validated = validateCollections(collections)
   const projects = await loadCollection('projects')
   const content: Content = {

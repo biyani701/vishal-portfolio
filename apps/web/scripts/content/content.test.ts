@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { about } from '../../content/about.ts'
 import { credentials } from '../../content/credentials.ts'
+import { legal } from '../../content/legal.ts'
 import { profile } from '../../content/profile.ts'
 import { organisations, roles } from '../../content/roles.ts'
 import { skills } from '../../content/skills.ts'
@@ -11,7 +12,7 @@ import { loadContent, loadMarkdown, validateCollections } from './load.ts'
 import { renderMarkdown } from './markdown.ts'
 
 const fixture = (name: string) => readFileSync(new URL(`./fixtures/${name}`, import.meta.url), 'utf8')
-const collections = { profile, about, organisations, roles, skills, credentials }
+const collections = { profile, about, legal, organisations, roles, skills, credentials }
 
 describe('content records (task 4.2)', () => {
   it('migrates every record from apps/portfolio', async () => {
