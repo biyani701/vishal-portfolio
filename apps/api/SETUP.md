@@ -234,6 +234,17 @@ migration (`src/db/migrations.ts`) that the deployment's database hasn't had yet
 Neon branch and a production build migrates production, before the new code serves requests. If a migration
 fails, the build fails, the previous deployment keeps serving, and nothing partial is left behind.
 
+**Preview builds only when the API changes.** `ignoreCommand` in `apps/api/vercel.json` skips a push that changes
+nothing under `apps/api` or the workspace's root package files (`package.json`, `pnpm-lock.yaml`,
+`pnpm-workspace.yaml`), so a web-only branch creates no API preview and no Neon branch. If the comparison can't run,
+the build goes ahead.
+
+**Neon branch limit.** Every API preview gets its own Neon branch, and the free plan allows only a few. When they
+run out, preview builds fail with *"Branch limit reached. Upgrade your plan or delete unused branches."* To clear
+it, delete the `preview/…` branches of merged git branches in the Neon console (**Branches**). To stop them
+building up, turn on automatic deletion of obsolete preview branches in the Neon integration's settings in
+Vercel (**Integrations → Neon → Manage**), if your plan offers it.
+
 To check a deployment: **Deployments → the deployment → Building** log. Near the end it shows
 `{"level":"info","msg":"migration applied","id":"0001_contact_messages"}` the first time, then
 `{"level":"info","msg":"migrations up to date","applied":0,"total":1}` on later builds. In the Neon console, the
