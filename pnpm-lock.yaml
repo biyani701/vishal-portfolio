@@ -29,6 +29,9 @@ importers:
       '@vercel/functions':
         specifier: ^3.9.9
         version: 3.9.9(ws@8.21.3)
+      ai:
+        specifier: 6.0.293
+        version: 6.0.293(zod@4.6.5)
       hono:
         specifier: ^4.13.9
         version: 4.13.9
@@ -11871,6 +11874,13 @@ snapshots:
       '@vercel/oidc': 3.2.0
       zod: 3.25.76
 
+  '@ai-sdk/gateway@3.0.203(zod@4.6.5)':
+    dependencies:
+      '@ai-sdk/provider': 3.0.18
+      '@ai-sdk/provider-utils': 4.0.55(zod@4.6.5)
+      '@vercel/oidc': 3.2.0
+      zod: 4.6.5
+
   '@ai-sdk/google-vertex@3.0.178(zod@3.25.76)':
     dependencies:
       '@ai-sdk/anthropic': 2.0.106(zod@3.25.76)
@@ -16594,6 +16604,14 @@ snapshots:
       '@ai-sdk/provider-utils': 4.0.55(zod@3.25.76)
       '@opentelemetry/api': 1.9.1
       zod: 3.25.76
+
+  ai@6.0.293(zod@4.6.5):
+    dependencies:
+      '@ai-sdk/gateway': 3.0.203(zod@4.6.5)
+      '@ai-sdk/provider': 3.0.18
+      '@ai-sdk/provider-utils': 4.0.55(zod@4.6.5)
+      '@opentelemetry/api': 1.9.1
+      zod: 4.6.5
 
   ajv-formats@2.1.1(ajv@8.20.0):
     optionalDependencies:

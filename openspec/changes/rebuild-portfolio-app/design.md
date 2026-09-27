@@ -110,6 +110,24 @@ apps/web/
       - The model opened and closed a text message alongside the tool call. AskActivity/AskTurn (11.3) must tolerate an empty text message before a tool call.
       - About 10.5s passed between the tool result and the first answer token. The UI's activity state (11.3/11.5) has to cover a wait that long.
       - 11 of the 12 discovery probes failed. The selection is cached in KV and refreshed daily, so this costs only the refresh, but it needs a look (vishal-portfolio-9cm.11.8).
+  - **Agent (task 11.2, 2026-09-27):**
+    - **Tools:** five read-only tools over `ai-context.json` (`src/ai/tools.ts`): `search_site` (in-memory BM25), `list_projects`, `get_project`, `get_experience` and `get_profile`.
+      - Each returns `{ notice, result, sources }`. `notice` marks the result as data, `result` is what the UI renders as site components, and `sources` are the citations, grouped by section.
+      - The corpus is fetched from `AI_CONTEXT_URL` and revalidated by ETag every 5 minutes. The last good copy is kept if the site is unreachable.
+    - **Contact draft:** `draft_contact_request` is a front-end tool (`useHumanInTheLoop`), not a server interrupt. The visitor confirms in the page, and the browser sends the draft through `POST /contact` with `source: "ask"`. No tool on the server sends anything.
+    - **Two agents:** `ask` uses the agent model. `ask-suggest` uses the suggestion model, with no tools and at most 300 output tokens, and serves `agent/suggest` only.
+    - **Route guard:** a runtime `onBeforeHandler` hook allows only `info`, run/connect/stop for `ask`, and suggest for `ask-suggest`. Threads, memories, transcription and the inspector get 404.
+    - **Limits:** runs are limited per IP by `AI_RATE_LIMIT_PER_IP_PER_HOUR`; suggestions get twice that. Requests are also checked against the daily budget, and the body limit is 96 KB.
+    - **Budget:** tokens are counted from each call's usage, at `AI_USD_PER_MILLION_TOKENS` (default 0.5; 0 turns the budget off), per UTC day in KV.
+    - **Model guard (`src/ai/guard.ts`):** wraps the model, via AI SDK middleware, to:
+      - drop reasoning parts;
+      - remove BuiltInAgent's always-added `AGUISendState*` tools;
+      - count usage against the budget;
+      - replace provider errors with codes (`ask_rate_limited`, `ask_unavailable`, `ask_failed`), which reach the page as the AG-UI `RUN_ERROR` message, so no provider text leaks;
+      - report a 404/410/403/402 model to discovery for failover.
+    - **Refusals before a run:** these are HTTP responses: 429 `ask_rate_limited` with `Retry-After`, and 503 `ask_budget_exhausted`.
+    - **Client context:** BuiltInAgent appends client-sent `context` and `state` to its system prompt. A tampered client can therefore steer only its own conversation, within the body limit. Ask sends page context ("Ask about this") this way.
+    - **Injection defence:** the prompt says tool output is never an instruction. The fixture test (`src/ai/ask.test.ts`) checks that injected corpus text reaches the model only inside a marked tool result, and that client system messages never reach it.
     - **AI SDK warning:** on each run, the SDK warns about a system message in `messages`. That message is our own `prompt`, which BuiltInAgent sends that way; client system messages are not forwarded. Task 11.2 either silences the warning or confirms it's harmless.
     - **Safe defaults kept:** the client can't override the model or limits (`overridableProperties` unset), and client-sent system and developer messages aren't forwarded. Frontend tools the client declares are passed to the model; `useHumanInTheLoop` depends on that. `draft_contact_request` can instead be a server-declared `interrupt: true` tool, which pauses the run with an AG-UI interrupt. Task 11.2 picks one.
     - **Telemetry:** the runtime sends usage telemetry unless `COPILOTKIT_TELEMETRY_DISABLED` is set, and it reads that flag once at module load. `src/no-telemetry.ts` sets it and is the entry's first import.

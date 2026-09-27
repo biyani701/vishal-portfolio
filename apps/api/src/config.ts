@@ -16,6 +16,10 @@ export const configSchema = z.object({
   AI_RATE_LIMIT_PER_IP_PER_HOUR: whole(30),
   AI_MAX_OUTPUT_TOKENS: whole(1200),
   AI_DAILY_BUDGET_USD: z.coerce.number({ error: 'must be a number' }).positive('must be above 0').default(2),
+  // The price the budget assumes, in USD per million tokens (input and output alike): an estimate, not a bill.
+  AI_USD_PER_MILLION_TOKENS: z.coerce.number({ error: 'must be a number' }).min(0, 'must be 0 or above').default(0.5),
+  // Ask's corpus, built by apps/web from the published content (src/ai/context.ts).
+  AI_CONTEXT_URL: z.url({ protocol: /^https?$/, error: 'must be an http(s):// URL' }).default('https://vishal.biyani.xyz/ai-context.json'),
   // The LLM is any OpenAI-compatible chat-completions API (design.md A5): NVIDIA's API catalog by default.
   AI_BASE_URL: z.url({ protocol: /^https$/, error: 'must be an https:// URL' }).default('https://integrate.api.nvidia.com/v1'),
   // Models are discovered from the catalog (src/ai/models.ts), because the free catalog rotates. These pin a

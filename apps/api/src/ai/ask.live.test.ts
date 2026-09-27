@@ -11,10 +11,13 @@ import { memoryStore } from '../store.js'
 import { ASK_AGENT_ID, ASK_BASE_PATH, askHandler } from './ask.js'
 import { openAiCatalog } from './catalog.js'
 import { modelResolver } from './models.js'
-import { SPIKE_PROMPT, spikeTools } from './spike-agent.js'
+import { fixtureContext } from './fixtures/context.js'
+import { ASK_PROMPT } from './prompt.js'
+import { askTools } from './tools.js'
+import { rateLimiter } from '../ratelimit.js'
 
-// Spike S1 against the real provider: discovery picks the agent model, then the v2 client asks a question the
-// model should answer with a tool call. Skipped without a key. Run it with:
+// Against the real provider: discovery picks the agent model, then the v2 client asks a question the model should
+// answer with a tool call over the fixture corpus. Skipped without a key. Run it with:
 //   AI_API_KEY=nvapi-… pnpm --filter api exec vitest run src/ai/ask.live.test.ts
 // (AI_BASE_URL defaults to NVIDIA's API catalog; AI_MODEL pins a model instead of discovering one.)
 
@@ -40,7 +43,19 @@ describe.runIf(apiKey)('Ask runtime against the live provider (spike S1)', () =>
     const origins = originPolicy([PRODUCTION_ORIGIN])
     const app = createApp({
       origins,
-      ask: askHandler({ models, baseUrl, apiKey: apiKey!, maxOutputTokens: 400, origins, prompt: SPIKE_PROMPT, tools: spikeTools }),
+      ask: askHandler({
+        models,
+        baseUrl,
+        apiKey: apiKey!,
+        maxOutputTokens: 600,
+        origins,
+        prompt: ASK_PROMPT,
+        tools: askTools({ get: async () => fixtureContext() }),
+        budget: { exhausted: async () => false, record: async () => {} },
+        limiter: rateLimiter({ store: memoryStore(), name: 'ask', limit: 100 }),
+        suggestLimiter: rateLimiter({ store: memoryStore(), name: 'ask-suggest', limit: 100 }),
+        log,
+      }),
     })
     const port = await new Promise<number>((resolve) => {
       server = serve({ fetch: app.fetch, port: 0 }, (info: AddressInfo) => resolve(info.port))
@@ -59,7 +74,7 @@ describe.runIf(apiKey)('Ask runtime against the live provider (spike S1)', () =>
         seenAt.push(Date.now() - t0)
       },
     })
-    agent.addMessage({ id: 'u1', role: 'user', content: 'Which sections of the site mention work? Look it up with your tool.' })
+    agent.addMessage({ id: 'u1', role: 'user', content: 'Which projects use Python?' })
     await core.runAgent({ agent })
 
     const summary = events.map((e, i) => `${seenAt[i]}ms ${e.type}${e.toolCallName ? ` ${String(e.toolCallName)}` : ''}`)
@@ -67,7 +82,7 @@ describe.runIf(apiKey)('Ask runtime against the live provider (spike S1)', () =>
     log.info('spike: answer', { answer: String(agent.messages.at(-1)?.content) })
 
     expect(events.find((e) => e.type === 'RUN_ERROR')).toBeUndefined()
-    expect(events.find((e) => e.type === 'TOOL_CALL_START')).toMatchObject({ toolCallName: 'list_site_sections' })
+    expect(events.find((e) => e.type === 'TOOL_CALL_START')).toHaveProperty('toolCallName')
     expect(events.some((e) => e.type === 'TOOL_CALL_RESULT')).toBe(true)
     expect(events.filter((e) => e.type === 'TEXT_MESSAGE_CONTENT').length).toBeGreaterThan(0)
     expect(events.at(-1)?.type).toBe('RUN_FINISHED')

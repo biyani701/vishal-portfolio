@@ -1,8 +1,9 @@
 import { createHash, timingSafeEqual } from 'node:crypto'
-import { Hono, type Context, type MiddlewareHandler } from 'hono'
+import { Hono, type MiddlewareHandler } from 'hono'
 import { bodyLimit } from 'hono/body-limit'
 import { cors } from 'hono/cors'
 import type { askHandler } from './ai/ask.js'
+import { clientIp } from './client-ip.js'
 import { NoModelAvailableError, type ModelResolver } from './ai/models.js'
 import type { ContactDelivery } from './contact/delivery.js'
 import type { ContactMessages } from './contact/messages.js'
@@ -41,9 +42,6 @@ export interface ContactOptions {
   defer?: (work: Promise<unknown>) => void
   now?: () => Date
 }
-
-/** The visitor's IP. Vercel sets both headers itself, overwriting anything the client sent. */
-const clientIp = (c: Context) => c.req.header('x-real-ip') ?? c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
 
 /** The error's name only: messages can echo input. */
 const errorName = (error: unknown) => (error instanceof Error ? error.name : 'unknown')
@@ -107,7 +105,7 @@ export function createApp({ origins, log = consoleLogger, version, cronSecret, m
       }
 
       // If the store is down, let the message through: losing a visitor's message is worse than a burst.
-      const limit = await limiter.hit(clientIp(c)).catch((error: unknown) => {
+      const limit = await limiter.hit(clientIp(c.req.raw.headers)).catch((error: unknown) => {
         log.warn('contact rate limit unavailable', { error: errorName(error) })
         return undefined
       })

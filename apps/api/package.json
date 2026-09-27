@@ -19,6 +19,7 @@
     "@neondatabase/serverless": "^1.1.0",
     "@upstash/redis": "^1.39.0",
     "@vercel/functions": "^3.9.9",
+    "ai": "6.0.293",
     "hono": "^4.13.9",
     "zod": "^4.6.5"
   },
