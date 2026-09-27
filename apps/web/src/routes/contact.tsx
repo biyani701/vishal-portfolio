@@ -1,6 +1,7 @@
 import { useSearchParams } from 'react-router'
 import { ContactForm } from '@/features/contact/ContactForm.tsx'
 import { INTENTS, LIMITS, type ContactFields } from '@/features/contact/contact.ts'
+import { PageMeta } from '@/layout/PageMeta.tsx'
 import { PageShell } from '@/layout/PageShell.tsx'
 
 // /contact (specs/contact; task 10.4): the application-owned form that replaced the Tally embed. No contact
@@ -20,6 +21,7 @@ export function Component() {
   const [params] = useSearchParams()
   return (
     <PageShell className="flex flex-col gap-8">
+      <PageMeta title="Contact" description="Send Vishal Biyani a message about a role, a programme or engagement, or something else." path="/contact" />
       <div className="flex max-w-195 flex-col gap-3">
         <h1 className="font-sans text-h1 font-semibold">Contact</h1>
         <p className="font-serif text-lede text-ink-2">

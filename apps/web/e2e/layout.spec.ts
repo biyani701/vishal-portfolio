@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test } from './fixtures.ts'
 import { routes } from './routes.ts'
 
 for (const route of routes) {

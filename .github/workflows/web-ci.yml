@@ -118,13 +118,14 @@ jobs:
           name: web-dist
           path: .vercel/output/static
 
-      # Deploy the tested build as-is (Build Output API v3), with an SPA fallback so deep links work.
+      # Deploy the tested build as-is (Build Output API v3). /work is served from the prerendered work.html (as GitHub
+      # Pages does); everything else falls back to the untouched app shell (app.html), not to the prerendered Home.
       - name: Deploy to Vercel
         if: steps.secrets.outputs.ready == 'true'
         id: deploy
         run: |
           cat > .vercel/output/config.json <<'JSON'
-          { "version": 3, "routes": [{ "handle": "filesystem" }, { "src": "/.*", "dest": "/index.html" }] }
+          { "version": 3, "routes": [{ "handle": "filesystem" }, { "src": "^/(.*[^/])$", "dest": "/$1.html", "check": true }, { "src": "/.*", "dest": "/app.html" }] }
           JSON
           url=$(npx --yes vercel@latest deploy --prebuilt --token "$VERCEL_TOKEN")
           echo "url=$url" >> "$GITHUB_OUTPUT"

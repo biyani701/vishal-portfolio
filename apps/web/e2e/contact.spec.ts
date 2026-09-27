@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import { expect, test } from './fixtures.ts'
 
 // Task 10.4 (specs/contact): the success and failure flows in every layout mode, against a mocked POST /contact.
 

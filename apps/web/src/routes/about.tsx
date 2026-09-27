@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import { CredentialsLedger } from '@/components/CredentialsLedger.tsx'
 import { about, profile } from '@/content/index.ts'
+import { PageMeta } from '@/layout/PageMeta.tsx'
 import { PageShell } from '@/layout/PageShell.tsx'
 
 // /about (specs/content-pages "About, Colophon and Legal"; task 7.2): story, working principles and credentials,
@@ -37,6 +38,7 @@ function Section({ id, title, draft = false, children }: { id: string; title: st
 export function Component() {
   return (
     <PageShell className="flex flex-col gap-section">
+      <PageMeta title="About" description="The story, working principles and credentials behind the work." path="/about" />
       <div className="flex max-w-195 flex-col gap-3">
         <h1 className="font-sans text-h1 font-semibold">About</h1>
         <p className="font-serif text-lede text-ink-2">{profile.lede}</p>

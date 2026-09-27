@@ -1,4 +1,5 @@
-import { expect, test, type Page } from '@playwright/test'
+import type { Page } from '@playwright/test'
+import { expect, test } from './fixtures.ts'
 
 // Task 7.1 in a real browser, at every viewport: the specs/content-pages "Deep link to a role" scenario and
 // keyboard selection on whichever Programme Line form the layout mode shows.

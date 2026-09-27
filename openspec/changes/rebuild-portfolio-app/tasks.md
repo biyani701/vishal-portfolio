@@ -88,10 +88,10 @@
 
 ## 13. P13 — Accessibility, performance, SEO
 
-- [ ] 13.1 axe on every route in both themes; verify zero violations
-- [ ] 13.2 Prerender static routes, meta/OG tags, sitemap, robots; verify prerendered HTML contains page content
+- [x] 13.1 axe on every route in both themes; verify zero violations
+- [x] 13.2 Prerender static routes, meta/OG tags, sitemap, robots; verify prerendered HTML contains page content
 - [ ] 13.3 Performance budgets (lazy Ask bundle, font preload, image sizes); verify mobile Lighthouse ≥ 90 on Home, Work and a case study
-- [ ] 13.4 Analytics kept consent-gated through Klaro; verify no analytics requests before consent
+- [x] 13.4 ~~Analytics kept consent-gated through Klaro~~ Not needed: the site stays analytics-free (owner decision 2026-09-27); the privacy policy says so
 
 ## 14. P14 — Cut-over
 
