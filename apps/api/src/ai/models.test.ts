@@ -114,6 +114,18 @@ describe('modelResolver', () => {
     expect(await resolver.current()).toMatchObject({ suggestions: 'v/tiny-3b-instruct', source: { suggestions: 'discovered' } })
   })
 
+  it('does not probe a model that timed out for the agent again for suggestions in the same refresh', async () => {
+    const catalog = fakeCatalog(models, { tools: ['v/mid-49b-instruct'], chat: ['v/tiny-3b-instruct'] })
+    const slow = async (model: string) => (model === 'v/small-8b-instruct' ? { model, ok: false, ms: 15000, reason: 'timeout' } : { model, ok: false, ms: 5, reason: 'no_tool_call' })
+    catalog.probeTools.mockImplementation(async (model: string) => (model === 'v/mid-49b-instruct' ? { model, ok: true, ms: 5 } : slow(model)))
+    catalog.probeChat.mockImplementation(async (model: string) => (model === 'v/tiny-3b-instruct' ? { model, ok: true, ms: 5 } : slow(model)))
+    // Rank order puts small-8b first for suggestions; make the agent probe it first too by preferring it.
+    const resolver = modelResolver({ catalog, store: memoryStore(), log: quietLog, prefer: ['*small-8b*'], refreshHours: 24, probeLimit: 6 })
+    await resolver.refresh()
+    expect(catalog.probeTools.mock.calls.map(([id]) => id)[0]).toBe('v/small-8b-instruct')
+    expect(catalog.probeChat.mock.calls.map(([id]) => id)).not.toContain('v/small-8b-instruct')
+  })
+
   it('stops after probeLimit real failures (timeouts, no tool call)', async () => {
     const { resolver, catalog } = setup({ works: { tools: ['v/tiny-3b-instruct'], chat: [] }, probeLimit: 2 })
     await expect(resolver.current()).rejects.toThrow(NoModelAvailableError)

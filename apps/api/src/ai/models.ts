@@ -90,9 +90,11 @@ export function modelResolver({ catalog, store, log, pinned = {}, prefer = [], r
     }
     const bad = await badModels()
     const probes: ProbeResult[] = []
+    // A model too slow for one role is too slow for the other; don't wait on it twice in one refresh.
+    const timedOut = new Set<string>()
 
     async function firstPassing(role: 'agent' | 'suggestions', skip?: string) {
-      const candidates = rankCandidates(models, role, matchers).filter((model) => !bad[model.id] && model.id !== skip)
+      const candidates = rankCandidates(models, role, matchers).filter((model) => !bad[model.id] && !timedOut.has(model.id) && model.id !== skip)
       // probeLimit counts real attempts only. The catalog lists many models it doesn't serve (a 404 in ~50ms), and
       // those shouldn't use up the limit before a served model is tried; MAX_UNSERVED bounds how many are skipped.
       let attempts = 0
@@ -106,7 +108,10 @@ export function modelResolver({ catalog, store, log, pinned = {}, prefer = [], r
           // Listed but not served to this key: skip it until the next refresh window.
           bad[id] = now() + refreshMs
           unserved++
-        } else attempts++
+        } else {
+          if (result.reason === 'timeout') timedOut.add(id)
+          attempts++
+        }
       }
       return undefined
     }

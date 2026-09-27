@@ -45,8 +45,12 @@ export function AskSurface({ variant, rail = false, onClose }: { variant: 'page'
   useEffect(() => {
     following.current = latestInView
   }, [latestInView])
+  // Only content that arrives after the surface opens moves the page; opening it never scrolls.
   const growth = `${turns.length}:${last?.text.length ?? 0}:${last?.steps.length ?? 0}:${last?.status}`
+  const seen = useRef(growth)
   useEffect(() => {
+    if (seen.current === growth) return
+    seen.current = growth
     if (following.current) sentinel?.scrollIntoView?.({ block: 'end' })
   }, [growth, sentinel])
 

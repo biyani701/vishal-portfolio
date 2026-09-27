@@ -64,10 +64,24 @@ test('compact landscape moves the proof figures into the hero', async ({ page })
   }
 })
 
+/**
+ * Ask opened with a question (specs/ask-experience "Surfaces by mode"): a drawer over this page on mobile and
+ * compact landscape, the /ask page elsewhere. Either way the question is asked and shown as a heading. Requests to
+ * the Ask runtime are blocked, so the test never reaches the live service.
+ */
+async function expectAskAsked(page: Page, question: string, from: string, mode: string) {
+  const drawer = mode === 'mobile' || mode === 'compact-landscape'
+  const surface = drawer ? page.getByRole('dialog', { name: 'Ask' }) : page.getByRole('main')
+  await expect(surface.getByRole('heading', { level: 2, name: question })).toBeVisible()
+  if (drawer) await expect(page).toHaveURL(from)
+  else await expect(page).toHaveURL('/ask')
+}
+
 test('the question input opens Ask with the question', async ({ page }) => {
+  await page.route('**/ask/**', (route) => route.abort())
   const input = page.getByRole('textbox', { name: 'Your question' })
   await input.scrollIntoViewIfNeeded()
   await input.fill('Fixed price at scale?')
   await input.press('Enter')
-  await expect(page).toHaveURL(/\/ask\?q=Fixed\+price\+at\+scale%3F$/)
+  await expectAskAsked(page, 'Fixed price at scale?', '/', mode())
 })
