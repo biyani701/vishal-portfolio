@@ -39,7 +39,7 @@ export const ASK_MAX_BODY_BYTES = 96 * 1024
 export const defineAskTool = <P extends ToolDefinition['parameters']>(tool: ToolDefinition<P>) => tool
 
 export const SUGGEST_PROMPT =
-  'Suggest short follow-up questions a visitor might ask next about the portfolio, based on the conversation so far. Each is under ten words, answerable from a portfolio site (roles, projects, skills, credentials), and never about salary, availability or personal matters.'
+  'Suggest short follow-up questions a visitor might ask next about the portfolio, based on the conversation so far. Each is under ten words, answerable from a portfolio site (roles, projects, skills, credentials), and never about salary, availability or personal matters. Call the suggest_questions tool with three of them; do not answer in text.'
 
 export interface AskOptions {
   models: ModelResolver

@@ -77,7 +77,7 @@ let server: ServerType | undefined
 afterEach(() => new Promise<void>((resolve) => (server ? server.close(() => resolve()) : resolve())))
 
 function setup(options: { script?: (() => Response)[]; budget?: Budget; limit?: number } = {}) {
-  const provider = fakeProvider(options.script ?? [sse(toolCall('get_project', '{"slug":"fast-jiraql"}')), sse(answer('Fast-JiraQL is ', 'an API over Jira [1].'))])
+  const provider = fakeProvider(options.script ?? [sse(toolCall('get_project', '{"slug":"fast-jiraql"}')), sse(answer('Fast-JiraQL is ', 'an API over Jira [/work/fast-jiraql].'))])
   const models: ModelResolver = {
     current: async () => ({ agent: MODEL, suggestions: MODEL, source: { agent: 'discovered', suggestions: 'agent' }, checkedAt: '2026-09-27T00:00:00Z' }),
     refresh: async () => {
@@ -150,8 +150,8 @@ describe('Ask runtime', () => {
 
     const result = JSON.parse(String(events.find((e) => e.type === 'TOOL_CALL_RESULT')?.content))
     expect(result).toMatchObject({ notice: DATA_NOTICE, result: { found: true, project: { slug: 'fast-jiraql' } }, sources: [{ section: 'Work', url: '/work/fast-jiraql' }] })
-    expect(events.filter((e) => e.type === 'TEXT_MESSAGE_CONTENT').map((e) => e.delta)).toEqual(['Fast-JiraQL is ', 'an API over Jira [1].'])
-    expect(agent.messages.at(-1)).toMatchObject({ role: 'assistant', content: 'Fast-JiraQL is an API over Jira [1].' })
+    expect(events.filter((e) => e.type === 'TEXT_MESSAGE_CONTENT').map((e) => e.delta)).toEqual(['Fast-JiraQL is ', 'an API over Jira [/work/fast-jiraql].'])
+    expect(agent.messages.at(-1)).toMatchObject({ role: 'assistant', content: 'Fast-JiraQL is an API over Jira [/work/fast-jiraql].' })
 
     for (const { body } of provider.calls) {
       expect(body).toMatchObject({ model: MODEL, stream: true, max_tokens: 1200 })
