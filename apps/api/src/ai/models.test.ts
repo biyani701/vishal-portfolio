@@ -104,6 +104,22 @@ describe('modelResolver', () => {
     expect(catalog.probeTools.mock.calls.map(([id]) => id)).toEqual(['v/big-70b-instruct', 'v/mid-49b-instruct'])
   })
 
+  it('does not count unserved (404) models against the probe limit', async () => {
+    // The live catalog: every smaller model listed first answers 404, and the first served one comes after.
+    const catalog = fakeCatalog(models, { tools: ['v/big-70b-instruct'], chat: ['v/tiny-3b-instruct'] })
+    catalog.probeChat.mockImplementation(async (model: string) =>
+      model === 'v/tiny-3b-instruct' ? { model, ok: true, ms: 5 } : { model, ok: false, ms: 1, reason: 'http_404', status: 404 },
+    )
+    const resolver = modelResolver({ catalog, store: memoryStore(), log: quietLog, refreshHours: 24, probeLimit: 1 })
+    expect(await resolver.current()).toMatchObject({ suggestions: 'v/tiny-3b-instruct', source: { suggestions: 'discovered' } })
+  })
+
+  it('stops after probeLimit real failures (timeouts, no tool call)', async () => {
+    const { resolver, catalog } = setup({ works: { tools: ['v/tiny-3b-instruct'], chat: [] }, probeLimit: 2 })
+    await expect(resolver.current()).rejects.toThrow(NoModelAvailableError)
+    expect(catalog.probeTools).toHaveBeenCalledTimes(2)
+  })
+
   it('treats rate limits as transient, not as a gone model', () => {
     expect(isModelGone(429)).toBe(false)
     expect(isModelGone(500)).toBe(false)
