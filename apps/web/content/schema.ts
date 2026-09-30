@@ -41,13 +41,27 @@ export const aboutSchema = z.object({
 })
 
 /**
- * Privacy, terms and colophon (specs/content-pages "About, Colophon and Legal"; task 10.5). `draft` marks text the
- * owner hasn't reviewed yet; the pages say so until it's cleared.
+ * Privacy, terms and colophon (specs/content-pages "About, Colophon and Legal"; task 10.5), sharing one date.
  */
-const legalSectionSchema = z.object({ title: text, paragraphs: z.array(text).min(1), items: z.array(text).optional() })
+const legalTableSchema = z
+  .object({ caption: text, columns: z.array(text).min(2), rows: z.array(z.array(text)).min(1) })
+  .refine((table) => table.rows.every((row) => row.length === table.columns.length), 'every row needs one cell per column')
+/** A plain-text flow drawing; `alt` says the same thing in words for screen readers. */
+const legalDiagramSchema = z.object({ caption: text, alt: text, drawing: text })
+/**
+ * Paragraphs and items may link with [label](/path) or [label](https://…). Blocks render in this order:
+ * paragraphs, diagram, table, items, then `after`.
+ */
+const legalSectionSchema = z.object({
+  title: text,
+  paragraphs: z.array(text).min(1),
+  diagram: legalDiagramSchema.optional(),
+  table: legalTableSchema.optional(),
+  items: z.array(text).optional(),
+  after: z.array(text).optional(),
+})
 const legalPageSchema = z.object({ title: text, summary: text, sections: z.array(legalSectionSchema).min(1) })
 export const legalSchema = z.object({
-  draft: z.boolean(),
   /** ISO date the text last changed. */
   updated: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   privacy: legalPageSchema,
