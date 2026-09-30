@@ -1,6 +1,7 @@
 {
   "name": "vishal-portfolio",
   "private": true,
+  "license": "SEE LICENSE IN LICENSE",
   "packageManager": "pnpm@9.15.0",
   "scripts": {
     "dev": "turbo run dev",

@@ -38,3 +38,11 @@ pnpm dev      # runs both apps via turbo
 - `apps/auth-server` deploys via Vercel, with Root Directory set to
   `apps/auth-server` and an ignored-build-step (`npx turbo-ignore`) so
   portfolio-only pushes don't trigger a rebuild.
+
+## Licence
+
+The source code is open source under the [MIT License](LICENSE). The licence
+covers the code only: Vishal Biyani's writing, photographs, name and personal
+branding keep their copyright, third-party fonts, logos and images keep their
+owners' licences, and `apps/auth-server` has its own licence. The Scope section
+of [LICENSE](LICENSE) lists exactly what is excluded.
