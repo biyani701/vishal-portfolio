@@ -1,7 +1,8 @@
 name: Web CI
 
-# Quality gates for apps/web (specs/web-platform "Quality gates") plus a Vercel preview per PR.
-# Production stays on apps/portfolio (deploy-portfolio.yml) until the P14 cut-over.
+# Quality gates for apps/web (specs/web-platform "Quality gates"), a Vercel preview per PR, and on main the
+# production deploy to GitHub Pages at vishal.biyani.xyz followed by the smoke test (task 14.2; apps/web/DEPLOY.md).
+# Rollback: re-run an earlier good main run (DEPLOY.md "Rollback").
 on:
   pull_request:
     branches: [main]
@@ -18,7 +19,8 @@ on:
 
 concurrency:
   group: web-ci-${{ github.ref }}
-  cancel-in-progress: true
+  # A new PR push supersedes the old run; runs on main queue instead, so a deploy is never cut off.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -97,6 +99,66 @@ jobs:
           name: web-dist
           path: apps/web/dist
           retention-days: 7
+
+      # The same tested build, packaged for Pages. Kept 90 days, so an earlier run's deploy can be re-run to roll back.
+      - name: Upload Pages artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/dist
+          retention-days: 90
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: checks
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # One deploy at a time across runs.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@v4
+
+  smoke:
+    name: Production smoke test
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install apps/web dependencies
+        working-directory: .
+        run: pnpm install --frozen-lockfile --filter web
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Smoke test vishal.biyani.xyz
+        run: pnpm smoke
+        env:
+          SMOKE_BASE_URL: https://vishal.biyani.xyz
+          SMOKE_API_URL: ${{ env.VITE_API_BASE_URL }}
 
   preview:
     name: Vercel preview

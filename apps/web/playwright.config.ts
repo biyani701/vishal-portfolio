@@ -3,6 +3,8 @@ import { viewportName, viewports } from './e2e/viewports.ts'
 
 const port = 4173
 const siteWide = /(theme|fonts|dev-routes|redirects)\.spec\.ts/
+// Production smoke test: run by playwright.smoke.config.ts against a deployed site, never the local build.
+const smoke = /[\\/]smoke[\\/]/
 
 // Runs against the production build (`vite preview`), one project per matrix viewport.
 export default defineConfig({
@@ -18,7 +20,7 @@ export default defineConfig({
   projects: [
     ...viewports.map((viewport) => ({
       name: viewportName(viewport),
-      testIgnore: siteWide,
+      testIgnore: [siteWide, smoke],
       // Expected layout mode, for the shell checks in layout.spec.ts.
       metadata: { mode: viewport.mode },
       use: {

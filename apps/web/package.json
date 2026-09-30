@@ -15,6 +15,7 @@
     "test:watch": "vitest",
     "lint": "eslint . && node scripts/check-deps.mjs",
     "e2e": "playwright test",
+    "smoke": "playwright test -c playwright.smoke.config.ts",
     "build:shell": "tsc -b && vite build"
   },
   "dependencies": {

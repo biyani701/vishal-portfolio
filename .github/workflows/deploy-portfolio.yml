@@ -1,11 +1,7 @@
 name: Deploy portfolio to GitHub Pages
+# Manual only: GitHub Pages now publishes apps/web from web-ci.yml (task 14.2). Deleted with apps/portfolio in 14.4.
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "apps/portfolio/**"
-      - ".github/workflows/deploy-portfolio.yml"
+  workflow_dispatch:
 jobs:
   deploy:
     runs-on: ubuntu-latest
