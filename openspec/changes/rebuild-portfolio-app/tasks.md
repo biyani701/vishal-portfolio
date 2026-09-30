@@ -69,7 +69,7 @@
 - [x] 10.2b Resend sender domain: add `biyani.xyz` (or a sending subdomain) in Resend and create its SPF/DKIM/return-path (and optional DMARC) records in Namecheap DNS (owner action); verify Resend shows the domain as verified and a test email passes SPF and DKIM
 - [x] 10.3 `POST /contact`: validation, honeypot, per-IP rate limit (`CONTACT_RATE_LIMIT_PER_IP_PER_HOUR`), store-then-email via Resend from `CONTACT_FROM_EMAIL` to `CONTACT_TO_EMAIL`, `pending_email` retry cron, and a retention purge driven by `CONTACT_RETENTION_DAYS`; verify tests for success, email outage (stored + retried), rate limit, and purge at a changed retention value
 - [x] 10.4 `/contact` page (intent picker, fields, success, failure alert, rate-limit message; no published email, owner decision 2026-09-27); verify the Playwright success and failure flows against a mocked endpoint
-- [ ] 10.5 `/legal/privacy`, `/legal/terms` and `/colophon` content, including contact storage/retention and AI conversation handling; verify the owner has reviewed the privacy text
+- [x] 10.5 `/legal/privacy`, `/legal/terms` and `/colophon` content, including contact storage/retention and AI conversation handling; verify the owner has reviewed the privacy text (reviewed 2026-09-30; production values checked in 14.2)
 
 ## 11. P11 — Ask
 
