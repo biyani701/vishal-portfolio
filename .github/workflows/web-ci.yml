@@ -31,7 +31,7 @@ jobs:
   checks:
     name: Lint, typecheck, test, build, e2e
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: apps/web
@@ -66,8 +66,20 @@ jobs:
       - name: Build
         run: pnpm build
 
+      # Pull requests also save a full-page screenshot per route × viewport × theme (task 12.1).
       - name: Playwright viewport matrix
         run: pnpm e2e
+        env:
+          MATRIX_SCREENSHOTS: ${{ github.event_name == 'pull_request' && '1' || '' }}
+
+      - name: Upload matrix screenshots
+        if: github.event_name == 'pull_request' && !cancelled()
+        uses: actions/upload-artifact@v4
+        with:
+          name: matrix-screenshots
+          path: apps/web/matrix-screenshots
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Upload Playwright report
         if: failure()

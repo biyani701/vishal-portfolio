@@ -36,7 +36,7 @@ const LINK_LABELS: Record<keyof ProjectMeta['links'], string> = {
 
 const kicker = 'font-mono text-mono-s text-muted uppercase'
 const ledger = 'border-t-2 border-border-strong pt-4'
-const textLink = 'inline-flex min-h-target items-center text-accent underline-offset-4 hover:underline'
+const textLink = 'inline-flex min-h-target min-w-target items-center text-accent underline-offset-4 hover:underline'
 
 function Fact({ label, children, className }: { label: string; children: ReactNode; className?: string }) {
   return (
@@ -197,7 +197,7 @@ export function Component() {
       <PageMeta title={meta.title} description={meta.summary} path={`/work/${meta.slug}`} />
       <header className="flex max-w-195 flex-col gap-3">
         <nav aria-label="Breadcrumb">
-          <Link to="/work" className={cn(kicker, 'inline-flex min-h-target items-center hover:text-accent')}>
+          <Link to="/work" className={cn(kicker, 'inline-flex min-h-target min-w-target items-center hover:text-accent')}>
             ← Work
           </Link>
         </nav>

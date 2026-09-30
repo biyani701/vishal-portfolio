@@ -3,7 +3,7 @@ import { profile } from '@/content/index.ts'
 
 // Static footer (specs/site-navigation, task 5.4): social and legal links. There is no consent banner (analytics
 // were dropped in P13), so there are no cookie preferences to link to.
-const linkClass = 'inline-flex min-h-target items-center text-accent underline-offset-4 hover:underline'
+const linkClass = 'inline-flex min-h-target min-w-target items-center text-accent underline-offset-4 hover:underline'
 
 export function Footer() {
   return (

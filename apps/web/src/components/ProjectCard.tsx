@@ -7,15 +7,25 @@ import { cn } from '@/lib/utils'
 // A project card for Home's selected work and /work (design package §4.4): a screenshot, or a typographic
 // architecture thumbnail drawn from tokens when there is none. No stock imagery and no invented metrics.
 
+/**
+ * Labels wrap between words and never inside one, so a box is at least as wide as its longest word. A host name
+ * (two or more dots, e.g. blog.biyani.xyz) may also break after a dot, or it alone would overflow a narrow card;
+ * names such as Auth.js stay whole.
+ */
+const breakAfterDots = (label: string) =>
+  label.split(/(\s+)/).flatMap((word, w) =>
+    (word.match(/\./g)?.length ?? 0) >= 2 ? word.split(/(?<=\.)(?=\S)/).flatMap((part, i) => (i ? [<wbr key={`${w}-${i}`} />, part] : [part])) : [word],
+  )
+
 /** The project's architecture as labelled boxes, left to right, joined by accent connectors. */
 export function ArchitectureThumb({ boxes, className }: { boxes: readonly string[]; className?: string }) {
   return (
-    <div aria-hidden="true" className={cn('flex items-center justify-center px-4', className)}>
+    <div aria-hidden="true" data-architecture-thumb className={cn('flex items-center justify-center px-3', className)}>
       {boxes.map((box, i) => (
         <Fragment key={box}>
-          {i > 0 && <span className="h-px w-4 shrink-0 bg-accent" />}
-          <span className="min-w-0 rounded-sm border border-border-strong bg-surface px-2 py-1.5 text-center font-mono text-mono-s text-ink">
-            {box}
+          {i > 0 && <span className="h-px w-3 shrink-0 bg-accent" />}
+          <span className="rounded-sm border border-border-strong bg-surface px-2 py-1.5 text-center font-mono text-mono-s text-ink">
+            {breakAfterDots(box)}
           </span>
         </Fragment>
       ))}
