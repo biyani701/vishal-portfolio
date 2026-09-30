@@ -61,7 +61,7 @@ export function Component() {
         <ul className="flex flex-wrap gap-x-6 gap-y-1">
           {[{ path: '/', label: 'Home' }, ...sections].map(({ path, label }) => (
             <li key={path}>
-              <Link to={path} className="inline-flex min-h-target items-center text-accent underline-offset-4 hover:underline">
+              <Link to={path} className="inline-flex min-h-target min-w-target items-center text-accent underline-offset-4 hover:underline">
                 {label}
               </Link>
             </li>
