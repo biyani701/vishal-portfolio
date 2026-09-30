@@ -35,7 +35,6 @@ export interface StoreOptions {
 const STORAGE_KEY = 'ask:conversation:v1'
 
 interface Saved {
-  threadId: string
   turns: Turn[]
   messages: Message[]
 }
@@ -43,7 +42,6 @@ interface Saved {
 export class AskStore {
   private state: AskState = { turns: [], suggestions: [] }
   private messages: Message[] = []
-  private threadId: string
   private listeners = new Set<() => void>()
   private running?: { turnId: string; controller: AbortController }
   private suggesting?: AbortController
@@ -53,7 +51,6 @@ export class AskStore {
   constructor(private readonly options: StoreOptions) {
     this.now = options.now ?? Date.now
     this.id = options.id ?? (() => crypto.randomUUID())
-    this.threadId = this.id()
     this.restore()
   }
 
@@ -88,7 +85,6 @@ export class AskStore {
       if (!raw) return
       const saved = JSON.parse(raw) as Saved
       if (!Array.isArray(saved.turns) || !Array.isArray(saved.messages)) return
-      this.threadId = saved.threadId || this.threadId
       this.messages = saved.messages
       this.state = { ...this.state, turns: saved.turns }
     } catch {
@@ -98,7 +94,7 @@ export class AskStore {
 
   private save() {
     try {
-      const saved: Saved = { threadId: this.threadId, turns: this.state.turns, messages: this.messages }
+      const saved: Saved = { turns: this.state.turns, messages: this.messages }
       this.options.storage?.setItem(STORAGE_KEY, JSON.stringify(saved))
     } catch {
       // Storage full or blocked: the conversation still works for this visit.
@@ -146,7 +142,6 @@ export class AskStore {
     this.stop()
     this.suggesting?.abort()
     this.messages = []
-    this.threadId = this.id()
     this.set({ turns: [], suggestions: [], pending: undefined })
     try {
       this.options.storage?.removeItem(STORAGE_KEY)
@@ -165,7 +160,9 @@ export class AskStore {
     try {
       messages = await this.options.transport.run(
         {
-          threadId: this.threadId,
+          // A fresh thread per run: the whole conversation is sent each time, so the server needs no thread of
+          // its own, and a run the server is still finishing (the page lost the connection) can't refuse this one.
+          threadId: this.id(),
           messages: this.messages,
           tools: [DRAFT_TOOL_DEF],
           context: turn.context ? [{ description: 'The visitor opened Ask from this page of the site', value: `${turn.context.title} (${turn.context.url}): ${turn.context.description}` }] : [],
@@ -192,8 +189,13 @@ export class AskStore {
       this.running = undefined
     }
 
+    // RUN_FINISHED or RUN_ERROR settles the turn. A stream that ended without either was cut off, not answered.
     const settled = this.turn(turnId)!
-    if (settled.status === 'streaming') this.setTurn(turnId, (t) => settle(t, controller.signal.aborted ? 'incomplete' : 'complete', this.now()))
+    if (settled.status === 'streaming') {
+      const now = this.now()
+      if (controller.signal.aborted) this.setTurn(turnId, (t) => settle(t, 'incomplete', now, undefined, { stopped: true }))
+      else this.setTurn(turnId, (t) => settle(t, t.text ? 'incomplete' : 'failed', now, 'network'))
+    }
     const final = this.turn(turnId)!
     if (messages && final.status === 'complete') this.messages = messages
     else this.messages = this.messages.slice(0, final.messagesBefore)

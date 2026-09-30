@@ -137,6 +137,30 @@ describe('AskStore', () => {
     expect(requests[1]!.messages.filter((m) => m.role === 'user').map((m) => m.content)).toEqual(['Tell me more'])
   })
 
+  it('treats a stream that ends without RUN_FINISHED as failed and leaves it out of the history', async () => {
+    // The server's answer to a run it refused: HTTP 200 and an empty stream (production, 2026-09-30).
+    const { store, requests } = setup([
+      async (request) => request.messages,
+      emits(...text('He led the PMO [/experience#corecard].')),
+    ])
+    await store.ask('What did he do at Cognizant?')
+    expect(store.getSnapshot().turns[0]).toMatchObject({ status: 'failed', error: 'network', text: '' })
+
+    await store.ask('What projects did he work on?')
+    expect(store.getSnapshot().turns[1]).toMatchObject({ status: 'complete' })
+    // The unanswered question isn't sent again as if it were part of the conversation.
+    expect(requests[1]!.messages.filter((m) => m.role === 'user').map((m) => m.content)).toEqual(['What projects did he work on?'])
+  })
+
+  it('starts each run on a new thread, so a run the server is still finishing never blocks the next', async () => {
+    const { store, requests } = setup([emits(...text('One.')), emits(...text('Two.'))])
+    await store.ask('First?')
+    await store.ask('Second?')
+    expect(requests[0]!.threadId).not.toBe(requests[1]!.threadId)
+    // The whole conversation still travels with each run.
+    expect(requests[1]!.messages.filter((m) => m.role === 'user').map((m) => m.content)).toEqual(['First?', 'Second?'])
+  })
+
   it('Stop keeps the partial answer, marked Incomplete and stopped', async () => {
     const { store } = setup([
       (_request, emit, signal) =>
