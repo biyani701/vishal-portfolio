@@ -95,7 +95,7 @@
 
 ## 14. P14 — Cut-over
 
-- [ ] 14.1 Namecheap DNS: `CNAME api.vishal.biyani.xyz → cname.vercel-dns.com` (owner action; existing Pages records untouched), production env values in Vercel, and runtime-config values; verify TLS, health, CORS and a real contact email on production
-- [ ] 14.2 Switch the Pages workflow to `apps/web/dist` (keeping CNAME and `404.html`), then run the production smoke test (routes, redirects, contact, Ask); verify the checklist passes
+- [x] 14.1 Namecheap DNS: `CNAME api.vishal.biyani.xyz → cname.vercel-dns.com` (owner action; existing Pages records untouched), production env values in Vercel, and runtime-config values; verify TLS, health, CORS and a real contact email on production
+- [x] 14.2 Switch the Pages workflow to `apps/web/dist` (keeping CNAME and `404.html`), then run the production smoke test (routes, redirects, contact, Ask); verify the checklist passes
 - [ ] 14.3 Document and test the rollback (republish `apps/portfolio`); verify the rollback runs on a preview
-- [ ] 14.4 After two stable weeks, remove `apps/portfolio`, its workflow and its dependencies; verify the workspace builds and CI is green
+- [x] 14.4 After two stable weeks, remove `apps/portfolio`, its workflow and its dependencies; verify the workspace builds and CI is green

@@ -3,7 +3,6 @@ node_modules
 .turbo
 
 # portfolio (CRA)
-apps/portfolio/build
 
 # auth-server (Next.js)
 apps/auth-server/.next

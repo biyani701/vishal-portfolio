@@ -62,8 +62,8 @@ To go back to an earlier good version:
 
 To take the site offline instead: Settings → Pages → *Unpublish site* (the API is unaffected).
 
-`apps/portfolio` was never live and its build fails, so "republish `apps/portfolio`" from the original plan does not
-apply.
+`apps/portfolio` was never live, and it was removed in 14.4, so "republish `apps/portfolio`" from the original plan
+does not apply.
 
 ## Deploy workflow
 
@@ -75,4 +75,4 @@ apply.
    deploy is never cut off.
 3. `smoke`: `pnpm smoke` against `https://vishal.biyani.xyz`.
 
-`deploy-portfolio.yml` is manual-only until 14.4 deletes it with `apps/portfolio`.
+`deploy-portfolio.yml` was deleted with `apps/portfolio` in 14.4.
