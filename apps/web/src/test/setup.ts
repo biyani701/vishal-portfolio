@@ -1,4 +1,5 @@
 import '@testing-library/jest-dom/vitest'
+import { destroyAnnouncer } from '@react-aria/live-announcer'
 import { cleanup } from '@testing-library/react'
 import { afterEach, beforeEach, vi } from 'vitest'
 import { stubMatchMedia } from './media.ts'
@@ -9,8 +10,11 @@ beforeEach(() => {
   vi.stubGlobal('scrollTo', () => {})
 })
 
-// Vitest globals are off, so Testing Library can't register its own cleanup.
+// Vitest globals are off, so Testing Library can't register its own cleanup. The live announcer is a module
+// singleton: its first message waits 100ms when not in act(), and that timer can outlive the file's jsdom
+// ("document is not defined"). Destroying it after each test turns a pending timer into a no-op.
 afterEach(() => {
   cleanup()
+  destroyAnnouncer()
   vi.unstubAllGlobals()
 })

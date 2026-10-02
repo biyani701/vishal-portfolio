@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://vishal.biyani.xyz/auth-docs/sitemap.xml
