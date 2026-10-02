@@ -60,7 +60,27 @@ To go back to an earlier good version:
    `gh run rerun <run-id>`). A re-run builds and deploys that run's commit.
 2. Then revert the bad commit on `main`, or the next push will deploy it again.
 
+Tested 2026-10-02 (task 14.3): re-running Web CI run 36971368984 (`1b10239`) deployed that commit to Pages in
+13 minutes with the smoke test green; re-running the latest run 36978402734 restored `2022cf9` the same way. Check
+which commit is live with
+`gh api "repos/biyani701/vishal-portfolio/deployments?environment=github-pages&per_page=1" -q '.[0].sha'`.
+
 To take the site offline instead: Settings → Pages → *Unpublish site* (the API is unaffected).
+
+### API (Vercel)
+
+The site and the API roll back independently. To put an earlier `apps/api` production deployment back:
+
+```bash
+vercel ls portfolio-api --prod                  # pick the last good Ready deployment
+vercel rollback <deployment-url> --yes          # it serves api.vishal.biyani.xyz within seconds
+curl https://api.vishal.biyani.xyz/health       # "version" is the commit now serving
+```
+
+Run these where the project is linked (`vercel link --project portfolio-api`). A rolled-back deployment keeps the
+environment values it was built with, so an older one can send contact mail to an older `CONTACT_TO_EMAIL`. After a
+rollback, Vercel stops assigning new production builds to the domain until you run
+`vercel promote <deployment-url>` (or *Undo rollback* in the dashboard) once the fix is deployed.
 
 `apps/portfolio` was never live, and it was removed in 14.4, so "republish `apps/portfolio`" from the original plan
 does not apply.
