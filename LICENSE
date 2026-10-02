@@ -32,22 +32,23 @@ licensed by this file:
    states otherwise:
    - written content: the Markdown in apps/web/content/projects and the text in
      apps/web/content/about.ts, credentials.ts, legal.ts, profile.ts, roles.ts
-     and skills.ts, and the written content of the earlier site in
-     apps/portfolio;
-   - photographs: apps/web/public/images/portrait.jpg,
+     and skills.ts, and the written content of the earlier site
+     (apps/portfolio, in this repository's history);
+   - photographs: apps/web/public/images/portrait.jpg, and
      apps/portfolio/public/images/DSC_0694.JPG and
-     apps/portfolio/public/images/MakePassportPhoto.jpg;
-   - the name "Vishal Biyani" as a mark, and personal branding:
-     apps/portfolio/public/images/my-logo.jpg.
+     apps/portfolio/public/images/MakePassportPhoto.jpg in the history;
+   - the name "Vishal Biyani" as a mark, and personal branding, including
+     apps/portfolio/public/images/my-logo.jpg in the history.
    You may quote and link to this content as the site's terms of use allow
    (https://vishal.biyani.xyz/legal/terms).
 
 2. Third-party material, under its owners' terms:
    - the fonts in apps/web/public/fonts, under the SIL Open Font License 1.1
      (the OFL-*.txt files next to them);
-   - company and product logos in apps/portfolio/public/images, which are
-     trademarks of their owners;
-   - template images in apps/portfolio/docs-site and apps/portfolio;
+   - company and product logos in apps/portfolio/public/images (in the
+     history), which are trademarks of their owners;
+   - template images in apps/portfolio/docs-site and apps/portfolio (in the
+     history);
    - dependencies installed by the package manager, under their own licences.
 
 3. apps/auth-server, which has its own licence (apps/auth-server/LICENSE).
