@@ -7,9 +7,9 @@ highlighted: 2
 status: "in-flight"
 summary: "A standalone blogging tool with an editor, drafts and publishing, replacing the blog that used to live inside this site."
 domains: ["web", "publishing"]
-stack: ["Markdown"]
+stack: ["Next.js", "Markdown", "Vercel"]
 outcomes: []
-links: {}
+links: {"github": "https://github.com/biyani701/blog"}
 site: {"url": "https://blog.biyani.xyz", "live": false}
 architecture: ["Editor", "Drafts · publish", "blog.biyani.xyz"]
 ---
@@ -20,10 +20,10 @@ The previous portfolio had an in-browser editor bolted onto a static site. This 
 
 ## Status
 
-In progress. The articles that used to live here are kept as its first content, and old `/blogs` links on this site lead to this page until the blog is live.
+In progress. The repository is up: a Next.js site that renders the three articles from Markdown, with drafts, an RSS feed and redirects from the old article ids. It isn't deployed yet, and old `/blogs` links on this site lead to this page until it is.
 
 ## Planned
 
-- An editor for writing and revising articles
-- Drafts, previews and publishing
-- The existing articles as the first published posts
+- An editor for writing and revising articles in the browser
+- Drafts, previews and publishing without a local checkout
+- Owner-only sign-in for the editor

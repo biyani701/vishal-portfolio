@@ -7,9 +7,9 @@ highlighted: 1
 status: "in-flight"
 summary: "A payments and capital-markets knowledge base, with a searchable glossary, moving from static files to Neon Postgres."
 domains: ["knowledge-management", "payments"]
-stack: ["PostgreSQL", "Neon"]
+stack: ["Next.js", "PostgreSQL", "Neon"]
 outcomes: []
-links: {}
+links: {"github": "https://github.com/biyani701/kb"}
 site: {"url": "https://kb.biyani.xyz", "live": false}
 architecture: ["Search · API", "Neon Postgres"]
 ---
@@ -18,10 +18,10 @@ The knowledge base collects notes from long delivery work across cards and payme
 
 ## Status
 
-In progress. The glossary and topics are kept as its first data, and old `/knowledge` links on this site lead to this page until it is live.
+In progress. The repository is up: the glossary and topics are seeded into Postgres, with full-text search, a read-only JSON API and the 3-D Secure flow as an interactive step-by-step view. It isn't deployed yet, and old `/knowledge` links on this site lead to this page until it is.
 
 ## Planned
 
-- Glossary and topics stored in Neon Postgres, with full-text search
-- An API over the content, so other tools can look terms up
-- The 3-D Secure authentication flow as an interactive, step-by-step explainer
+- Deployment on Vercel with Neon Postgres at `kb.biyani.xyz`
+- Ask on this site looking terms up through the knowledge base's API
+- Editing terms and topics without a redeploy
