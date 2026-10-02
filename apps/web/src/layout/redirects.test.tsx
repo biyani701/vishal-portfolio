@@ -95,5 +95,7 @@ describe('not found', () => {
     // Ask takes the question from the URL, asks it, and tidies the URL.
     expect(await screen.findByRole('heading', { level: 2, name: 'fixed price' })).toBeInTheDocument()
     expect(router.state.location.search).toBe('')
+    // The offline run settles as failed before the test ends, so nothing is left running.
+    expect(await screen.findByRole('button', { name: 'Try again' })).toBeInTheDocument()
   })
 })
