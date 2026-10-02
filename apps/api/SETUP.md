@@ -136,8 +136,9 @@ Generate a random value, e.g. `openssl rand -hex 32` (or any password manager's 
 it as `CRON_SECRET`, marked Sensitive. Vercel Cron then sends it as `Authorization: Bearer …` to the job in
 `apps/api/vercel.json` (`/cron/ai-models`, daily at 03:00 UTC); requests without it get 401.
 
-**Then redeploy:** **Deployments** → the latest deployment → **⋯ → Redeploy**. Environment changes apply only to
-new deployments.
+**Then redeploy:** **Deployments** → the latest **Ready** deployment → **⋯ → Redeploy**. Environment changes apply
+only to new deployments. Pick a Ready one: redeploying a skipped (Canceled) deployment is skipped again (see
+[Database migrations](#database-migrations)).
 
 ## 5. Point `api.vishal.biyani.xyz` at the project
 
@@ -236,8 +237,9 @@ fails, the build fails, the previous deployment keeps serving, and nothing parti
 
 **Preview builds only when the API changes.** `ignoreCommand` in `apps/api/vercel.json` skips a push that changes
 nothing under `apps/api` or the workspace's root package files (`package.json`, `pnpm-lock.yaml`,
-`pnpm-workspace.yaml`), so a web-only branch creates no API preview and no Neon branch. If the comparison can't run,
-the build goes ahead.
+`pnpm-workspace.yaml`), so a web-only branch creates no API preview and no Neon branch. Redeploying the commit that
+is already live always builds, so environment changes can go live, and if the comparison can't run, the build goes
+ahead.
 
 **Neon branch limit.** Every API preview gets its own Neon branch, and the free plan allows only a few. When they
 run out, preview builds fail with *"Branch limit reached. Upgrade your plan or delete unused branches."* To clear
