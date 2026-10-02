@@ -51,4 +51,5 @@ licensed by this file:
      history);
    - dependencies installed by the package manager, under their own licences.
 
-3. apps/auth-server, which has its own licence (apps/auth-server/LICENSE).
+3. apps/auth-server (in the history), which has its own licence
+   (apps/auth-server/LICENSE).

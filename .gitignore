@@ -2,12 +2,6 @@ node_modules
 .pnpm-store
 .turbo
 
-# portfolio (CRA)
-
-# auth-server (Next.js)
-apps/auth-server/.next
-apps/auth-server/out
-
 # env
 .env
 .env.local
