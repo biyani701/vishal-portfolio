@@ -7,7 +7,7 @@ import { about } from '../../content/about.ts'
 import { careerYears, yearsSince } from '../../content/derive.ts'
 import { profile } from '../../content/profile.ts'
 import { roles } from '../../content/roles.ts'
-import { checkConfidential, checkConfidentialSources } from './guard.ts'
+import { checkConfidential, checkConfidentialSources } from '@vishal/content-guard'
 import { buildAiContext, buildSearchIndex } from './indexes.ts'
 import { checkSources, loadContent, loadMarkdown } from './load.ts'
 

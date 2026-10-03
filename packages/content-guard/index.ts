@@ -1,7 +1,8 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
 
-// The confidentiality and accuracy guard (specs/portfolio-narrative "Confidentiality and accuracy guard"). Client and
+// The confidentiality and accuracy guard (specs/portfolio-narrative "Confidentiality and accuracy guard"), shared by
+// apps/web and apps/hub (openspec add-biyani-hub, D3). Client and
 // product names not cleared for publication, internal codenames, currency amounts and the "FNAM" misspelling must
 // never reach content/ or the generated indexes. The build fails naming the file and the term. The codename patterns
 // match the codenames' usage, not the bare words, so the privacy page can still talk about cookies.

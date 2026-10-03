@@ -1,0 +1,39 @@
+/* www.biyani.xyz: Tailwind, then the shared Programme fonts and tokens (packages/design), then the hub's own
+   decorative utilities. Colours always come from the tokens, so both themes follow automatically. */
+@import 'tailwindcss';
+@import '@vishal/design/fonts.css';
+@import '@vishal/design/tokens.css';
+
+/* A soft accent glow behind the top of the page, with a faint grid that fades out below the hero. */
+@utility hub-backdrop {
+  background-image:
+    radial-gradient(48rem 28rem at 12% -6%, color-mix(in oklab, var(--color-accent) 16%, transparent), transparent 70%),
+    radial-gradient(40rem 24rem at 95% 4%, color-mix(in oklab, var(--color-accent) 9%, transparent), transparent 70%),
+    linear-gradient(to right, color-mix(in oklab, var(--color-border) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--color-border) 55%, transparent) 1px, transparent 1px);
+  background-size:
+    auto,
+    auto,
+    3rem 3rem,
+    3rem 3rem;
+  mask-image: linear-gradient(to bottom, black 0, black 26rem, transparent 44rem);
+}
+
+/* Cards lift slightly and pick up the accent on hover; motion respects the reduced-motion gate in tokens.css. */
+@utility hub-card {
+  transition-property: border-color, background-color, translate, box-shadow;
+  transition-duration: var(--duration-colour);
+  transition-timing-function: var(--ease-enter);
+  &:where(a):hover {
+    border-color: var(--color-accent-soft-border);
+    translate: 0 -2px;
+    box-shadow: var(--shadow-overlay);
+  }
+}
+
+/* Gradient text for the accent mark in the name. */
+@utility hub-accent-text {
+  background: linear-gradient(120deg, var(--color-accent), var(--color-accent-hover));
+  background-clip: text;
+  color: transparent;
+}

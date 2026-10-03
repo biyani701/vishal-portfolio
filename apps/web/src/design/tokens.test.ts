@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { layoutModes } from './modes.ts'
 
 // Read from disk: Vitest stubs CSS imports, including ?raw.
-const css = readFileSync(new URL('./tokens.css', import.meta.url), 'utf8')
+const css = readFileSync(new URL('../../../../packages/design/tokens.css', import.meta.url), 'utf8')
 
 /** Custom properties declared directly inside the first block that follows `selector`. */
 function declarations(selector: string): Record<string, string> {

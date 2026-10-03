@@ -72,7 +72,7 @@ const packageFile = (pkg: string, file: string) => read(new URL(`../../node_modu
 
 const css = [
   read(require.resolve('tailwindcss/index.css')),
-  read(new URL('../design/tokens.css', import.meta.url)),
+  read(new URL('../../../../packages/design/tokens.css', import.meta.url)),
   packageFile('tw-animate-css', 'dist/tw-animate.css'),
   packageFile('shadcn', 'dist/tailwind.css'),
 ].join('\n')

@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test'
 
 // Touch targets (specs/responsive-layout "Touch targets and safe areas"): every visible interactive element is
 // at least 44×44 CSS px on touch layouts. A control's target is the larger of its own box and a `hit-target`
-// ::after (src/design/tokens.css). WCAG 2.5.8's inline exception applies: a link inside a sentence of running
+// ::after (packages/design/tokens.css). WCAG 2.5.8's inline exception applies: a link inside a sentence of running
 // text is sized by the text, so links whose block also holds other text are left out.
 
 export interface Undersized {

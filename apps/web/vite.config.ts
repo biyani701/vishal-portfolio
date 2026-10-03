@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { playwright } from '@vitest/browser-playwright'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
+import { designAssets } from '@vishal/design/vite'
 import { contentPlugin } from './scripts/content/plugin.ts'
 import { envCheck } from './scripts/env-check.ts'
 
@@ -19,7 +20,7 @@ const baseUiEntries = [
 ]
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), envCheck(), contentPlugin()],
+  plugins: [react(), tailwindcss(), designAssets(), envCheck(), contentPlugin()],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),

@@ -1,0 +1,16 @@
+{
+  "name": "@vishal/content-guard",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The confidentiality and accuracy guard shared by every site in the monorepo (specs/portfolio-narrative; openspec add-biyani-hub, D3).",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^5"
+  }
+}

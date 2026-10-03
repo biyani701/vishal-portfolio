@@ -1,9 +1,9 @@
 /*
  * Self-hosted variable fonts (design package §4.2), from Fontsource under the SIL Open Font License 1.1
- * (licence texts in public/fonts/OFL-*.txt). Bricolage Grotesque and Newsreader carry the wght + opsz axes;
+ * (licence texts in fonts/OFL-*.txt in this package). Bricolage Grotesque and Newsreader carry the wght + opsz axes;
  * JetBrains Mono carries wght. Each family is split into latin and latin-ext subsets by unicode-range, so a
  * page downloads only what its text needs. index.html preloads Bricolage latin; the rest swap in on first use.
- * Files live in public/fonts under stable names so they can be preloaded.
+ * Files live in this package's fonts/ and are served at /fonts/ under stable names (vite.ts), so they can be preloaded.
  */
 
 /* Bricolage Grotesque: display, headings, UI */
