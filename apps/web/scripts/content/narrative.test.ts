@@ -57,12 +57,10 @@ describe('project kinds', () => {
   })
 })
 
+// The term-by-term cases live in packages/content-guard, which uses stand-in words so this public repo doesn't name
+// the uncleared clients or codenames. Here: the plain-text rules, and the wiring into the content build.
 describe('confidentiality and accuracy guard', () => {
   it.each([
-    ['Goldman Sachs', 'Goldman Sachs'],
-    ['Apple', 'the Apple Card Family programme'],
-    ['Cookie (codename)', 'the Cookie and Jazz projects'],
-    ['Jazz (codename)', 'Jazz'],
     ['FNAM (misspelling of FNMA)', 'FNAM monthly files'],
     ['currency amount', 'worth $40M'],
     ['currency amount', 'USD 7m'],
@@ -79,8 +77,8 @@ describe('confidentiality and accuracy guard', () => {
   it('names the file when a content source carries a denylisted term', () => {
     const dir = mkdtempSync(join(tmpdir(), 'content-'))
     mkdirSync(join(dir, 'projects'))
-    writeFileSync(join(dir, 'projects', 'leak.md'), '---\nslug: "leak"\n---\nBuilt for Goldman Sachs.\n')
-    expect(() => checkConfidentialSources(dir)).toThrow('content/projects/leak.md: denylisted term "Goldman Sachs"')
+    writeFileSync(join(dir, 'projects', 'leak.md'), '---\nslug: "leak"\n---\nPaid $40M.\n')
+    expect(() => checkConfidentialSources(dir)).toThrow('content/projects/leak.md: denylisted term "currency amount"')
     expect(() => checkSources(dir)).toThrow(/^content\/projects\/leak\.md: denylisted term/)
   })
 

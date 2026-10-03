@@ -116,8 +116,8 @@ It SHALL also present "How I lead": four principles, each with one concrete proo
 
 ### Requirement: Confidentiality and accuracy guard
 Content, rendered pages and generated indexes (`search-index.json`, `ai-context.json`) SHALL NOT contain:
-- client or product names not cleared for publication (Goldman Sachs, Apple, Apple Card)
-- internal programme codenames (Cookie, Jazz)
+- client or product names not cleared for publication
+- internal programme codenames
 - currency amounts
 - revenue, pricing or P&L figures
 - the misspelling "FNAM"
@@ -126,7 +126,7 @@ Content, rendered pages and generated indexes (`search-index.json`, `ai-context.
 CoreCard work SHALL be described without naming the client, for example "a major US consumer card programme". The build SHALL fail, naming the file and term, when a denylisted term appears.
 
 #### Scenario: Denylisted term blocks the build
-- **WHEN** a project file mentions "Goldman Sachs"
+- **WHEN** a project file mentions an uncleared client name
 - **THEN** the content build fails and names the file and the term
 
 #### Scenario: Currency figure blocks the build

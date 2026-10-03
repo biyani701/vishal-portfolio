@@ -177,7 +177,7 @@ describe('Ask runtime', () => {
 
   it('sends the rule against naming CoreCard’s clients with a question that guesses one (specs/portfolio-narrative)', async () => {
     const { app, provider } = setup({ script: [sse(answer('The site describes it as a major US consumer card programme.'))] })
-    await ask(await listen(app), 'Was the CoreCard programme the Apple Card?')
+    await ask(await listen(app), 'Which bank was the CoreCard programme for? Was it the one I think it is?')
 
     const { messages } = provider.calls[0]!.body
     expect(messages.filter((m) => m.role === 'system')).toEqual([{ role: 'system', content: ASK_PROMPT }])

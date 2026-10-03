@@ -7,13 +7,13 @@ See proposal.md for the motivation. The facts below come from the owner's portfo
   - **150+ people**, cumulative, brought through the Agile delivery model by hands-on coaching. This figure appears only as a CoreCard outcome on Experience.
   - **~150 people**, the peak Development + QA + PMO population on the major card programme. This figure appears only in the CoreCard case study.
   - Neither figure is on the proof ledger, and the two never share a paragraph.
-- CoreCard has **not** cleared naming Goldman Sachs, Apple or Apple Card, so none of them is named on the site.
-- "Cookie" and "Jazz" are internal codenames and come off.
+- CoreCard has **not** cleared naming its client or the client’s product, so neither is named on the site (or in this repository).
+- Two internal client codenames were on the live site; they come off.
 - JPMorgan Chase data vendors other than FNMA (Fannie Mae) are parked.
 - **Formal title:** Principal Project Analyst, unchanged on Experience.
 - **Portrait caption:** Programme delivery lead · CoreCard.
 - **Naming:** JPMorgan Chase is the one spelling in public prose. The current "JPMorgan Chase" is normalised.
-- **Public sources:** the owner's public sources (Goldman Sachs, Fannie Mae, Freddie Mac) are validation material only. They never appear on the site, and they are never used to extend the owner's stated role.
+- **Public sources:** the owner's public sources (the client's public material, Fannie Mae, Freddie Mac) are validation material only. They never appear on the site, and they are never used to extend the owner's stated role.
 
 Current state that shapes the approach:
 
@@ -31,7 +31,7 @@ Current state that shapes the approach:
 
 **Non-Goals:**
 - No visual redesign, new tokens or new primitives.
-- No public-source citations or links to Goldman Sachs or Apple material. These are deferred until CoreCard clears the names.
+- No public-source citations or links to the client's material. These are deferred until CoreCard clears the names.
 - Not removing any existing project from `/work`. Only their Home placement and summaries change.
 
 ## Decisions
@@ -69,15 +69,15 @@ Extend `features/work/filters.ts` with `kind` (`programme` | `tool`), using the 
 - the emitted `search-index.json` and `ai-context.json`
 
 It checks them against a denylist and throws `<file>: denylisted term "<term>"`. The patterns are case-insensitive and word-bounded:
-- `goldman`, `apple`, `cookie project`, `jazz`, `fnam`
+- the uncleared client and product names and the internal codenames (stored as hashes; see `packages/content-guard`), and `fnam`
 - currency: `[$£€₹]\s?\d` and `\b(USD|GBP|INR|EUR)\s?\d`
 
-The privacy page's word "cookie" must stay allowed, so the codename patterns match the codename usage ("Cookie and Jazz", "Cookie project"), not the bare word.
+The privacy page's word "cookie" must stay allowed, so a codename that is also an ordinary word is matched only in its codename usages, not as the bare word.
 
 *Alternative:* an ESLint rule. Rejected, because Markdown and the generated JSON aren't linted.
 
 ### D7. Ask cannot volunteer the client
-The Ask model may know CoreCard's clients from its training data. `apps/api/src/ai/prompt.ts` gains one rule: "Do not name CoreCard's clients or their products. Refer to 'a major US consumer card programme'." `ask.test.ts` adds a fixture asking "Was this the Apple Card?" and expects no confirmation.
+The Ask model may know CoreCard's clients from its training data. `apps/api/src/ai/prompt.ts` gains one rule: "Do not name CoreCard's clients or their products. Refer to 'a major US consumer card programme'." `ask.test.ts` adds a fixture in which the visitor guesses the client, and checks the rule is sent.
 
 ### D8. Amend the in-flight content-pages spec
 Edit `openspec/changes/rebuild-portfolio-app/specs/content-pages/spec.md` in place:
@@ -178,7 +178,7 @@ Each has a headline, then context, problem, what I did and outcome.
 
 ### Experience outcome edits
 - **CoreCard** (title stays *Principal Project Analyst*):
-  - Drop "Cookie and Jazz".
+  - Drop the two internal codenames.
   - "Set up delivery structure and cadence for a major US consumer card programme: 7 teams, 104 people."
   - "Introduced Agile delivery across the programme and brought 150+ people through sprint planning, estimation and release cadence, until the team leads could run the model themselves." This replaces "coached 150+ team members on Agile principles". It appears here only, never on the proof ledger or in the case study.
   - "Led customer delivery discussions and release governance."
@@ -195,7 +195,7 @@ Each has a headline, then context, problem, what I did and outcome.
 ## Risks / Trade-offs
 
 - **[Risk]** Unnamed-client phrasing reads as evasive. → Use a concrete, honest descriptor ("a major US consumer card programme") and lean on people, cadence and outcomes. Revisit if CoreCard clears the names.
-- **[Risk]** The denylist blocks a legitimate word (e.g. "apple" in a future article). → The error names the term. Add a narrow allowlist entry when needed rather than weakening the pattern.
+- **[Risk]** The denylist blocks a legitimate word (e.g. an uncleared name that is also an everyday word). → The error names the term. Add a narrow allowlist entry when needed rather than weakening the pattern.
 - **[Risk]** The Ask model confirms the client from its own knowledge. → D7 adds a prompt rule and a test. This is not airtight against a determined user, which is acceptable for a portfolio.
 - **[Risk]** Agent-drafted copy is not in the owner's voice. → All copy above is a draft. The owner signs off before merge (task 8.2).
 - **[Trade-off]** "0 contractual SLA breaches" as the IFC headline is the boldest figure on the site. It's scoped by its label and backed in the case study. The proof ledger uses 50+ applications instead.

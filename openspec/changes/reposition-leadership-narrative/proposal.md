@@ -2,7 +2,7 @@
 
 The site reads as a developer portfolio: Home's "Selected work" and "Highlighted projects" are six software projects, the Work section has no programme case studies, and the About page is still marked draft. The owner's target audience is senior technology executives hiring for delivery, programme and technical-programme leadership. The site should tell that story (26 years in financial-services technology, from engineer to programme leader) and prove it with programmes, with the tools as supporting evidence that the owner improves the delivery system itself.
 
-Some live copy is also unsafe or out of date. It names internal client codenames ("Cookie", "Jazz"), says "25 years", and states "quadrupling throughput" without saying what was measured.
+Some live copy is also unsafe or out of date. It names two internal client codenames, says "25 years", and states "quadrupling throughput" without saying what was measured.
 
 ## What Changes
 
@@ -18,8 +18,8 @@ Some live copy is also unsafe or out of date. It names internal client codenames
 - **Experience.** Role outcomes are rewritten in the same voice. The codenames are removed. The JPMorgan Chase throughput claim is scoped to the whole system. IFC gains release cadence, the weekly management review and the SLA record. Project of the Year is attributed as Cognizant internal recognition.
 - **About completed.** The story follows the career arc. "How I lead" has four principles, each with a concrete proof point. `draft` is removed, so About enters Ask's corpus.
 - **Confidentiality guard.** A content test fails the build if any denylisted term appears in content or generated indexes:
-  - Client names not cleared by CoreCard (Goldman Sachs, Apple Card)
-  - The internal codenames (Cookie, Jazz)
+  - Client and product names not cleared by CoreCard
+  - The two internal codenames
   - Currency figures
   - The misspelling "FNAM"
 

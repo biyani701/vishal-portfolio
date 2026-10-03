@@ -6,13 +6,13 @@
 
 ## 2. Confidentiality guard
 
-- [x] 2.1 Add `scripts/content/guard.ts` (design D6), run it over `content/` sources and the emitted indexes in the content plugin. Verify tests: "Goldman Sachs" in a fixture project fails naming the file and term; "$40M" fails; "FNAM" fails; the privacy page's "cookie" passes
+- [x] 2.1 Add `scripts/content/guard.ts` (design D6), run it over `content/` sources and the emitted indexes in the content plugin. Verify tests: an uncleared client name in a fixture project fails naming the file; "$40M" fails; "FNAM" fails; the privacy page's "cookie" passes
 - [x] 2.2 Add the "don't name CoreCard's clients" rule to `apps/api/src/ai/prompt.ts`, with an `ask.test.ts` fixture. Verify `pnpm --filter api test` passes
 
 ## 3. Profile, roles and credentials
 
 - [x] 3.1 Update `profile.ts` with the design's draft copy: kicker, statement, lede, short lede, caption and the four proof items. Verify `pnpm --filter web test` (home and hero tests updated) passes and the hero contains no technology names
-- [x] 3.2 Rewrite role outcomes in `roles.ts` per the design: drop Cookie/Jazz, scope the JPMorgan Chase 4×, add the IFC cadence/review/SLA lines and the BFS UK troubled-programme line, keep 8 banks, replace the coaching line with the approved 150+ wording, normalise the client to "JPMorgan Chase", and keep the title Principal Project Analyst. Verify the guard passes and the experience tests pass
+- [x] 3.2 Rewrite role outcomes in `roles.ts` per the design: drop the codenames, scope the JPMorgan Chase 4×, add the IFC cadence/review/SLA lines and the BFS UK troubled-programme line, keep 8 banks, replace the coaching line with the approved 150+ wording, normalise the client to "JPMorgan Chase", and keep the title Principal Project Analyst. Verify the guard passes and the experience tests pass
 - [x] 3.3 Retitle the recognition in `credentials.ts` as "Project of the Year — Cognizant internal recognition, IFC portfolio". Verify the credentials ledger renders it on /about and /experience
 
 ## 4. Programme case studies
@@ -44,7 +44,7 @@
 - [x] 8.3 Run `pnpm --filter web lint`, `pnpm --filter web test`, `pnpm --filter web build` (with `VITE_API_BASE_URL` set) and e2e. Verify all pass
 - [x] 8.4 On the dev server, check Home, Work, three case studies, About and Experience in all four layout modes and both themes: no overflow, Home not longer than today's by more than one section, body text at prose/body sizes. Verify with screenshots in the PR — Done via the e2e layout matrix (every route, all viewports, both themes: no sideways scroll, touch targets, thumbnails fit); Home keeps six h2 sections, as before. Screenshots were not attached.
 - [x] 8.5 Final content sweep. Verify by putting the command output in the PR description:
-  - `rg -i "goldman|apple|cookie and|jazz|fnam\b|freddie|JP Morgan|JPMC|\$[0-9]" apps/web/content apps/web/dist` returns nothing
+  - the guard passes over `apps/web/content` and `apps/web/dist`, and `rg -i "fnam\b|freddie|JP Morgan|JPMC|\$[0-9]" apps/web/content apps/web/dist` returns nothing
   - "150+" appears only in `roles.ts`, and "approximately 150" only in the CoreCard case study
   - the 4× is never attached to the FNMA example
 - [x] 8.6 Commit on a feature branch, push to GitHub and open a GitHub pull request. Verify the PR link is shared with the owner
