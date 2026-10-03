@@ -47,4 +47,4 @@
   - `rg -i "goldman|apple|cookie and|jazz|fnam\b|freddie|JP Morgan|JPMC|\$[0-9]" apps/web/content apps/web/dist` returns nothing
   - "150+" appears only in `roles.ts`, and "approximately 150" only in the CoreCard case study
   - the 4× is never attached to the FNMA example
-- [ ] 8.6 Commit on a feature branch, push to GitHub and open a GitHub pull request. Verify the PR link is shared with the owner
+- [x] 8.6 Commit on a feature branch, push to GitHub and open a GitHub pull request. Verify the PR link is shared with the owner
