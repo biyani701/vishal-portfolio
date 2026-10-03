@@ -33,12 +33,12 @@
 ## 4. Publishing
 
 - [x] 4.1 Add `.github/workflows/hub-ci.yml` with the checks, publish and smoke jobs and the path filters (D5). Verify a PR runs only the checks job and publishes nothing
-- [ ] 4.2 Owner: generate the ed25519 deploy key, add the public key to `biyani701/biyani701.github.io` with write access, and save the private key as the `HUB_DEPLOY_KEY` secret in this repo. Verify with `gh secret list` (name only) and the repo's deploy-key list
+- [x] 4.2 Owner: generate the ed25519 deploy key, add the public key to `biyani701/biyani701.github.io` with write access, and save the private key as the `HUB_DEPLOY_KEY` secret in this repo. Verify with `gh secret list` (name only) and the repo's deploy-key list — Done 2026-10-03: deploy key "vishal-portfolio hub (hub-ci.yml)" added with write access; secret HUB_DEPLOY_KEY set; local key files deleted.
 - [x] 4.3 Before the first publish, back up the current `gh-pages` of `biyani701.github.io` locally (`git clone --branch gh-pages`). Verify that the backup folder contains `index.html` and `CNAME`
 
 ## 5. Copy sign-off, merge and cut-over
 
-- [ ] 5.1 Owner sign-off on the hub copy and look, after reviewing the built hub (owner asked to see the final product first). Verify approval in conversation and record any changes in `sites.ts`
+- [x] 5.1 Owner sign-off on the hub copy and look, after reviewing the built hub (owner asked to see the final product first). Verify approval in conversation and record any changes in `sites.ts` — Owner said to go ahead without a separate review (2026-10-03); changes can follow after launch.
 - [x] 5.2 Run all quality gates for hub and web: lint, typecheck, unit tests, build and e2e. Verify they all pass. Note any suites that can't run locally, with the reason
 - [ ] 5.3 Commit on a feature branch, push to GitHub and open a PR. After merge, confirm the publish and smoke jobs pass and that `https://www.biyani.xyz` serves the hub (build-id matches). Verify the PR link, the run link and a `curl` of the build-id
 - [ ] 5.4 Replace `main` of `biyani701/biyani701.github.io` with the README pointing to `apps/hub` (D7). Verify that the GitHub repo page shows only the README and that Pages still serves the hub
