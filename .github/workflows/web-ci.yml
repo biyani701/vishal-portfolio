@@ -51,7 +51,7 @@ jobs:
 
       - name: Install apps/web dependencies
         working-directory: .
-        run: pnpm install --frozen-lockfile --filter web
+        run: pnpm install --frozen-lockfile --filter "web..."
 
       - name: Lint
         run: pnpm lint
@@ -150,7 +150,7 @@ jobs:
 
       - name: Install apps/web dependencies
         working-directory: .
-        run: pnpm install --frozen-lockfile --filter web
+        run: pnpm install --frozen-lockfile --filter "web..."
 
       - name: Install Playwright browser
         run: pnpm exec playwright install --with-deps chromium

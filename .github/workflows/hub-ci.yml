@@ -132,7 +132,7 @@ jobs:
           cache: pnpm
       - name: Install dependencies
         working-directory: .
-        run: pnpm install --frozen-lockfile --filter hub
+        run: pnpm install --frozen-lockfile --filter "hub..."
       - name: Smoke test www.biyani.xyz
         run: pnpm smoke
         env:
