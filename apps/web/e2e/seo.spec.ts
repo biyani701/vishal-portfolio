@@ -9,7 +9,7 @@ test.beforeEach(() => {
 })
 
 const PAGES: [path: string, h1: string, title: string][] = [
-  ['/', 'I lead delivery', 'Vishal Biyani · Technical Program Manager · Delivery Director'],
+  ['/', 'I lead delivery', 'Vishal Biyani · Technology delivery &amp; programme leadership'],
   ['/work', 'Work', 'Work · Vishal Biyani'],
   ['/work/fast-jiraql', 'Fast-JiraQL', 'Fast-JiraQL · Vishal Biyani'],
   ['/experience', 'Experience', 'Experience · Vishal Biyani'],

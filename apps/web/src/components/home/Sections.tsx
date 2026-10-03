@@ -1,8 +1,8 @@
 import { useId, useState, type FormEvent, type ReactNode } from 'react'
 import { Link } from 'react-router'
+import type { ProjectMeta } from '@content/schema.ts'
 import { ProjectCard } from '@/components/ProjectCard.tsx'
-import { StatusChip } from '@/components/StatusChip.tsx'
-import { featuredProjects, highlightedProjects, profile, projects } from '@/content/index.ts'
+import { featuredProgrammes, featuredTools, profile, projects } from '@/content/index.ts'
 import { useOpenAsk } from '@/features/ask/entry-context.ts'
 import { AskLink } from '@/features/ask/entry.tsx'
 import { askHref } from '@/features/ask/request.ts'
@@ -10,8 +10,8 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/ui/button.tsx'
 import { Input } from '@/ui/input.tsx'
 
-// Home's sections below the hero and the Programme Line (specs/content-pages "Home"; the Programme canvas
-// Home artboards). Each opens with the 2px ledger rule (§3 "Plan, proof, status").
+// Home's sections below the hero and the Programme Line (specs/portfolio-narrative "Home story order"; the
+// Programme canvas Home artboards). Each opens with the 2px ledger rule (§3 "Plan, proof, status").
 
 const ledger = 'border-t-2 border-border-strong pt-4'
 const arrowLink = 'inline-flex min-h-target items-center font-semibold text-accent underline-offset-4 hover:underline'
@@ -46,21 +46,22 @@ export function ProofLedger() {
   )
 }
 
-export function SelectedWork() {
+function FeaturedProjects({ id, title, kind, items }: { id: string; title: string; kind: ProjectMeta['kind']; items: readonly ProjectMeta[] }) {
+  const all = projects.filter((project) => project.kind === kind).length
   return (
-    <section aria-labelledby="work-heading" className="flex flex-col gap-5">
+    <section aria-labelledby={id} className="flex flex-col gap-5">
       <SectionHeading
-        id="work-heading"
+        id={id}
         action={
-          <Link to="/work" className={arrowLink}>
-            All {projects.length} projects →
+          <Link to={`/work?kind=${kind}`} className={arrowLink}>
+            All {all} {kind === 'programme' ? 'programmes' : 'tools'} →
           </Link>
         }
       >
-        Selected work
+        {title}
       </SectionHeading>
       <ul className="grid gap-5 tablet:grid-cols-2 desktop:grid-cols-3 compact-landscape:grid-cols-2">
-        {featuredProjects.map((project) => (
+        {items.map((project) => (
           <li key={project.slug} className="flex">
             <ProjectCard project={project} thumbClassName="mobile:hidden" className="flex-1" />
           </li>
@@ -70,8 +71,18 @@ export function SelectedWork() {
   )
 }
 
+/** The programme case studies: the leadership story's proof, before any tool. */
+export function ProgrammesLed() {
+  return <FeaturedProjects id="programmes-heading" title="Programmes I’ve led" kind="programme" items={featuredProgrammes} />
+}
+
+/** Tools built to remove delivery friction: supporting evidence, after the programmes. */
+export function DeliveryTools() {
+  return <FeaturedProjects id="tools-heading" title="Delivery tools" kind="tool" items={featuredTools} />
+}
+
 // Starters shown under the question input; each opens Ask with the question filled in.
-const suggestions = ['Compare his engineering projects', 'What did he run at the IFC?', 'What is he building now?']
+const suggestions = ['How did he run delivery at CoreCard?', 'What did he change at the IFC?', 'Which tools has he built for delivery?']
 
 /** The Home question input: one of Ask's four entry points. It never opens Ask on its own. */
 export function AskPrompt() {
@@ -123,36 +134,6 @@ export function AskPrompt() {
           ))}
         </ul>
       </form>
-    </section>
-  )
-}
-
-/** The separately hosted projects (specs/content-pages "Home"), as rows so they don't repeat the cards above. */
-export function HighlightedProjects() {
-  return (
-    <section aria-labelledby="highlighted-heading" className="flex flex-col gap-2.5">
-      <SectionHeading id="highlighted-heading">Independent projects</SectionHeading>
-      <p className="font-serif text-lede text-ink-2">Separate sites and repositories, each with its own architecture.</p>
-      <ul>
-        {highlightedProjects.map((project) => (
-          <li key={project.slug}>
-            <Link
-              to={`/work/${project.slug}`}
-              className="flex min-h-target flex-col gap-2 border-b border-border py-3.5 text-ink hover:text-accent tablet:flex-row tablet:items-baseline tablet:justify-between tablet:gap-6 desktop:flex-row desktop:items-baseline desktop:justify-between desktop:gap-6"
-            >
-              <span className="flex flex-col gap-1">
-                <h3 className="font-sans text-h3 font-semibold">{project.title}</h3>
-                <span className="font-serif text-body text-ink-2">{project.summary}</span>
-              </span>
-              {project.status === 'in-flight' ? (
-                <StatusChip status="in-flight" className="self-start" />
-              ) : (
-                <StatusChip status="delivered" period={String(project.year)} className="self-start" />
-              )}
-            </Link>
-          </li>
-        ))}
-      </ul>
     </section>
   )
 }

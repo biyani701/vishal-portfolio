@@ -103,13 +103,20 @@ function Facts({ meta }: { meta: ProjectMeta }) {
   return (
     <dl className={cn(ledger, 'grid grid-cols-2 gap-x-6 gap-y-4 tablet:grid-cols-4 desktop:grid-cols-4 compact-landscape:grid-cols-4')}>
       <Fact label="Year">{meta.year}</Fact>
-      <Fact label="Type">{TYPE_LABELS[meta.type]}</Fact>
+      <Fact label="Type">{meta.kind === 'programme' ? 'Programme' : TYPE_LABELS[meta.type]}</Fact>
       <Fact label="Domain" className="col-span-2">
         <LinkList items={meta.domains.map((domain) => ({ to: `/work?domain=${domain}`, label: projectDomains[domain as keyof typeof projectDomains] ?? domain }))} />
       </Fact>
-      <Fact label="Stack" className={cn('col-span-2', links.length === 0 && 'col-span-full')}>
-        <LinkList items={meta.stack.map((name) => ({ to: `/work?stack=${stackSlug(name)}`, label: name }))} />
-      </Fact>
+      {meta.headline && (
+        <Fact label="Headline" className={cn('col-span-2', links.length === 0 && 'col-span-full')}>
+          <span className="font-semibold text-ink">{meta.headline.value}</span> <span className="text-ink-2">{meta.headline.label}</span>
+        </Fact>
+      )}
+      {meta.stack.length > 0 && (
+        <Fact label="Stack" className={cn('col-span-2', links.length === 0 && 'col-span-full')}>
+          <LinkList items={meta.stack.map((name) => ({ to: `/work?stack=${stackSlug(name)}`, label: name }))} />
+        </Fact>
+      )}
       {links.length > 0 && (
         <Fact label="Links" className="col-span-2">
           <LinkList items={links} />
@@ -149,7 +156,7 @@ function Aside({ meta, className }: { meta: ProjectMeta; className?: string }) {
       {builtIn.length > 0 && (
         <section aria-labelledby="roles-heading" className={cn(ledger, 'flex flex-col gap-2')}>
           <h2 id="roles-heading" className={kicker}>
-            Built during
+            {meta.kind === 'programme' ? 'Role' : 'Built during'}
           </h2>
           <LinkList items={builtIn.map((role) => ({ to: `/experience#${role.id}`, label: `${role.title}, ${role.label}` }))} />
         </section>
@@ -214,7 +221,7 @@ export function Component() {
       <div className="grid gap-x-10 gap-y-section tablet:grid-cols-8 desktop:grid-cols-12 compact-landscape:grid-cols-8">
         {hasToc && <TableOfContents headings={headings} className={cn(side, 'self-start tablet:sticky-below-header desktop:sticky-below-header compact-landscape:sticky-below-header')} />}
         <article className={cn('flex min-w-0 flex-col gap-8', reading)}>
-          <ArchitectureFigure title={meta.title} boxes={meta.architecture} />
+          {meta.architecture && <ArchitectureFigure title={meta.title} boxes={meta.architecture} />}
           <MarkdownContent html={html} />
         </article>
         <Aside

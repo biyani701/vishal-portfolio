@@ -4,7 +4,7 @@ import type { ProjectMeta } from '@content/schema.ts'
 import { StatusChip } from '@/components/StatusChip.tsx'
 import { cn } from '@/lib/utils'
 
-// A project card for Home's selected work and /work (design package §4.4): a screenshot, or a typographic
+// A project card for Home and /work (design package §4.4): a programme's headline outcome, a screenshot, or a typographic
 // architecture thumbnail drawn from tokens when there is none. No stock imagery and no invented metrics.
 
 /**
@@ -33,6 +33,16 @@ export function ArchitectureThumb({ boxes, className }: { boxes: readonly string
   )
 }
 
+/** A programme's headline outcome (specs/portfolio-narrative "Programme case studies"), in place of the thumbnail. */
+export function HeadlineThumb({ headline, className }: { headline: NonNullable<ProjectMeta['headline']>; className?: string }) {
+  return (
+    <div data-headline-thumb className={cn('flex flex-col justify-center gap-1 px-5', className)}>
+      <span className="font-sans text-h2 font-semibold text-ink tabular-nums">{headline.value}</span>
+      <span className="text-label text-muted">{headline.label}</span>
+    </div>
+  )
+}
+
 interface ProjectCardProps {
   project: ProjectMeta
   /** Extra classes for the thumbnail, e.g. to drop it on phones. */
@@ -52,10 +62,12 @@ export function ProjectCard({ project, thumbClassName, compact = false, classNam
         className,
       )}
     >
-      {compact ? null : project.screenshot ? (
+      {compact ? null : project.headline ? (
+        <HeadlineThumb headline={project.headline} className={thumb} />
+      ) : project.screenshot ? (
         <img src={project.screenshot} alt="" decoding="async" loading="lazy" className={cn(thumb, 'w-full object-cover')} />
       ) : (
-        <ArchitectureThumb boxes={project.architecture} className={thumb} />
+        project.architecture && <ArchitectureThumb boxes={project.architecture} className={thumb} />
       )}
       <div className={cn('flex flex-col gap-2.5', compact ? 'p-4' : 'p-5')}>
         <div className="flex flex-wrap items-center justify-between gap-2">
@@ -67,13 +79,15 @@ export function ProjectCard({ project, thumbClassName, compact = false, classNam
           )}
         </div>
         <p className="font-serif text-body text-ink-2">{project.summary}</p>
-        <ul aria-label="Stack" className="flex flex-wrap gap-1.5">
-          {project.stack.slice(0, 3).map((item) => (
-            <li key={item} className="rounded-sm border border-border px-2 py-0.5 text-label text-muted">
-              {item}
-            </li>
-          ))}
-        </ul>
+        {project.stack.length > 0 && (
+          <ul aria-label="Stack" className="flex flex-wrap gap-1.5">
+            {project.stack.slice(0, 3).map((item) => (
+              <li key={item} className="rounded-sm border border-border px-2 py-0.5 text-label text-muted">
+                {item}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </Link>
   )

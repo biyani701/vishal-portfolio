@@ -1,32 +1,33 @@
 import type { About } from './schema.ts'
 
-// The About page's story and working principles (design package §12.1: supplied by the owner). Until then this
-// is a DRAFT: the story restates facts from elsewhere in content/ (roles, credentials, proof) and the principles
-// are suggestions inferred from the role outcomes, for the owner to rewrite. `draft: true` makes the page mark
-// it as placeholder copy and keeps it out of Ask's corpus (scripts/content/indexes.ts).
+// The About page's story and "How I lead" principles (specs/portfolio-narrative "About page"), approved by the owner
+// in openspec/changes/reposition-leadership-narrative/design.md. The story follows the career arc; each principle
+// carries one concrete example from a role or case study. About is part of Ask's corpus.
 export const about = {
-  draft: true,
   story: [
-    'I joined Tata Infotech as a Senior Software Engineer in 2000, the year I finished an M.Tech at IIT Bombay, and have spent the years since in financial-services software: JP Morgan Chase, the World Bank Group’s IFC, eight UK banks, and now CoreCard.',
-    'Somewhere along the way the job changed from writing the code to running the programmes around it: scope, estimates, releases, P&L and the people doing the work. The engineering habit stayed. When a delivery question keeps coming up, I would rather build a tool that answers it than ask for another status report.',
-    'This site is part of that habit. The projects on it are tools built alongside delivery work, and the site itself is one of them.',
+    'I started in 2000 as a software engineer at Tata Infotech, the year I finished an M.Tech at IIT Bombay. At JPMorgan Chase, through Cognizant, I was technical lead on the Global Market Reference Data platform, and stayed hands-on with the C++ as the role grew into project and programme management. That is where I learned how much of a bank depends on data nobody sees until it is late.',
+    'Running the IFC’s portfolio of 50+ applications taught me that delivery is an operating rhythm: release windows, a weekly review with the client, and ticket ageing everyone can see. In UK banking the work widened to eight client accounts, fixed-price and T&M engagements, account P&L and RFP responses, including a multi-year programme inherited in trouble and brought home.',
+    'At CoreCard I set up the delivery structure for a major US consumer card programme: 104 people across seven teams, with a release cadence, estimates and customer commitments that engineering could actually meet.',
+    'The engineering habit stayed. When a delivery question keeps coming up, I would rather build something that answers it than ask for another status report. That is where the tools on this site come from.',
   ],
   principles: [
     {
+      title: 'Commit only what fits',
+      text: 'Dates are fixed up front, and scope is what flexes.',
+      evidence: 'CoreCard deliveries on a fixed 4-week, later 8-week cadence, with remaining work re-planned rather than squeezed in.',
+    },
+    {
+      title: 'Split the problem until it fits',
+      evidence: 'A deliverable needed in one month but estimated at two. The critical scenarios shipped in the month, and the rest followed in parallel.',
+    },
+    {
       title: 'Make delivery measurable',
-      text: 'Plans, risks and status should come from the work itself, so the numbers in a steering meeting are ones the team recognises.',
-    },
-    {
-      title: 'Remove blockers before adding process',
-      text: 'Most delays are dependencies nobody owns. Finding the owner usually does more than another ceremony.',
-    },
-    {
-      title: 'Coach, then step back',
-      text: 'Agile adoption sticks when teams run it themselves; the PMO’s job is to make that possible, not to run it for them.',
+      text: 'Status should come from the work itself.',
+      evidence: 'At the IFC, ticket ageing and SLA tracking were reviewed weekly with client managers, with no contractual SLA breaches.',
     },
     {
       title: 'Build the tool when the question repeats',
-      text: 'A small script that answers a recurring question saves more time than a better spreadsheet.',
+      evidence: 'Customer and internal Jira weren’t connected, so I wrote the sync. Release notes and traceability checks followed.',
     },
   ],
 } as const satisfies About

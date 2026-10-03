@@ -73,7 +73,7 @@ describe('buildProgramme', () => {
 describe('describeProgramme', () => {
   it('summarises every organisation, client and milestone', () => {
     expect(describeProgramme(organisations, roles, milestones)).toBe(
-      'Career timeline, 2000 to now: Tata Infotech 2000–2003; Cognizant 2003–2019 for JP Morgan Chase, IFC and BFS UK; CoreCard 2019–now. ' +
+      'Career timeline, 2000 to now: Tata Infotech 2000–2003; Cognizant 2003–2019 for JPMorgan Chase, IFC and BFS UK; CoreCard 2019–now. ' +
         'Milestones: Guiding Star Q4 2009, Project of the Year 2013, AWS Solutions Architect Sep 2020, Manager of the Quarter Q3 2021.',
     )
   })

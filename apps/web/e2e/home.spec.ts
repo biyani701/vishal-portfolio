@@ -19,13 +19,15 @@ test.beforeEach(async ({ page }) => {
 })
 
 test('shows every Home section', async ({ page }) => {
-  const sections = ['Programme line', 'Selected work', 'Ask the portfolio', 'Independent projects', /Let's talk/]
+  const sections = ['Programme line', 'Programmes I’ve led', 'Delivery tools', 'Ask the portfolio', /Let's talk/]
   for (const name of sections) {
     const section = page.getByRole('region', { name })
     await section.scrollIntoViewIfNeeded()
     await expect(section).toBeVisible()
   }
-  await expect(page.getByRole('region', { name: 'Selected work' }).getByRole('heading', { level: 3 })).toHaveCount(3)
+  await expect(page.getByRole('region', { name: 'Programmes I’ve led' }).getByRole('heading', { level: 3 })).toHaveCount(3)
+  await expect(page.getByRole('region', { name: 'Delivery tools' }).getByRole('heading', { level: 3 })).toHaveCount(3)
+  await expect(page.getByRole('region', { name: 'Independent projects' })).toHaveCount(0)
 })
 
 test('the statement, both actions and the start of the Programme Line fit the first screen on desktop', async ({ page }) => {
@@ -59,7 +61,7 @@ test('compact landscape moves the proof figures into the hero', async ({ page })
   const ledger = page.getByRole('region', { name: 'Proof' })
   if (mode() === 'compact-landscape') {
     await expect(ledger).toBeHidden()
-    await expect(page.getByText('25+').first()).toBeVisible()
+    await expect(page.getByText('4×').first()).toBeVisible()
   } else {
     await expect(ledger).toBeVisible()
   }

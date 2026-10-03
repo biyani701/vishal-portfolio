@@ -2,7 +2,7 @@ import type { Organisation, Role } from './schema.ts'
 
 // Employers and engagements (apps/portfolio Experience, CareerTimeline, ProfileSummaryNew). The Programme
 // Line is drawn from these dates only; a role without `end` is current. Newest first. Skills are only those
-// the outcomes state; `projects` links a role to the projects built in it (none are attributed yet).
+// the outcomes state; `projects` links a role to its programme case study.
 export const organisations = [
   { id: 'tata-infotech', name: 'Tata Infotech Ltd', short: 'Tata Infotech' },
   { id: 'cognizant', name: 'Cognizant Technology Solutions', short: 'Cognizant' },
@@ -18,12 +18,13 @@ export const roles = [
     start: '2019-11',
     location: 'Mumbai',
     outcomes: [
-      'Led the Agile PMO and coached 150+ team members on Agile principles, aligning product delivery with client goals.',
-      'Owned delivery and client relationships for key accounts, including the Cookie and Jazz projects.',
+      'Set up delivery structure and cadence for a major US consumer card programme: 7 teams, 104 people.',
+      'Introduced Agile delivery across the programme and brought 150+ people through sprint planning, estimation and release cadence, until the team leads could run the model themselves.',
+      'Led customer delivery discussions and release governance.',
       'Improved release management and operational efficiency, establishing release best practices.',
     ],
     skills: ['Agile PMO', 'Coaching', 'Release management', 'Client management'],
-    projects: [],
+    projects: ['corecard-predictable-delivery'],
   },
   {
     id: 'bfs-uk',
@@ -35,7 +36,7 @@ export const roles = [
     start: '2014-12',
     end: '2019-09',
     outcomes: [
-      'Directed scope, timelines and deliverables for eight UK banking clients across Time & Material and Fixed Price engagements.',
+      'Directed scope, timelines and deliverables for eight UK banking clients across Time & Material and Fixed Price engagements, including a multi-year programme inherited in a troubled state and delivered.',
       'Managed P&L for key portfolios, meeting top-line growth and bottom-line targets.',
       'Resolved cross-team dependencies and removed blockers to keep projects moving.',
       'Drove process improvements that raised resource utilisation and streamlined delivery.',
@@ -59,25 +60,27 @@ export const roles = [
       'Built Tableau reporting dashboards over BMC Remedy data.',
       'Ran development and releases for 50+ applications.',
       'Directed production support: incident management, prioritisation and root-cause analysis.',
+      'Replaced ad-hoc deployments with implementation windows, about weekly and later fortnightly, and set up a weekly management review with 6–7 client managers.',
+      'No contractual SLA breaches or penalties across the engagement.',
     ],
     skills: ['Application portfolio management', 'Production support', 'Tableau', 'BMC Remedy'],
-    projects: [],
+    projects: ['ifc-portfolio-stabilisation'],
   },
   {
     id: 'jpmc',
     org: 'cognizant',
-    client: 'JP Morgan Chase',
-    label: 'JP Morgan Chase',
+    client: 'JPMorgan Chase',
+    label: 'JPMorgan Chase',
     title: 'Technical Project Manager',
     start: '2003-10',
     end: '2012-11',
     outcomes: [
-      'Re-architected applications to scale horizontally, quadrupling throughput and improving stability.',
+      'Re-engineered reference-data processing; database analysis measured approximately 4× throughput across the whole system.',
       'Proposed and led 10+ automation initiatives that cut cost and raised productivity.',
       'Managed project and technical delivery for developer teams onsite and offshore.',
     ],
     skills: ['Architecture', 'Automation', 'Delivery management'],
-    projects: [],
+    projects: ['jpmorgan-reference-data'],
   },
   {
     id: 'tata-infotech',

@@ -33,11 +33,11 @@ export const profileSchema = z.object({
   portrait: z.object({ src: z.string().startsWith('/'), alt: text }),
 })
 
-/** The About page's words (design package §12.1). `draft` marks placeholder copy until the owner supplies it. */
+/** The About page's words (design package §12.1; specs/portfolio-narrative "About page"). */
 export const aboutSchema = z.object({
-  draft: z.boolean(),
   story: z.array(text).min(1),
-  principles: z.array(z.object({ title: text, text })).min(1),
+  /** "How I lead": each principle with one concrete example from a role or case study. */
+  principles: z.array(z.object({ title: text, text: text.optional(), evidence: text })).min(1),
 })
 
 /**
@@ -105,12 +105,20 @@ export const skillSchema = z.object({
 export const credentialsSchema = z.object({
   education: z.array(z.object({ id: slug, degree: text, institution: text, start: z.number().int(), end: z.number().int() })),
   certifications: z.array(z.object({ id: slug, title: text, short: text, issuer: text, date: period })),
-  recognition: z.array(z.object({ id: slug, title: text, date: period })),
+  /** `detail` says who gave it and for what (specs/portfolio-narrative "Experience copy"). */
+  recognition: z.array(z.object({ id: slug, title: text, detail: text.optional(), date: period })),
 })
 
 export const projectMetaSchema = z.object({
   slug,
   title: text,
+  /**
+   * A programme case study (led work, told as problem → action → outcome) or a tool built alongside it
+   * (specs/portfolio-narrative "Project kinds on Work"). Programmes list first.
+   */
+  kind: z.enum(['programme', 'tool']).default('tool'),
+  /** A programme's one headline outcome, shown on its card in place of the architecture thumbnail. */
+  headline: z.object({ value: text, label: text }).strict().optional(),
   year: z.number().int().min(2000).max(2100),
   type: z.enum(['personal', 'open-source', 'work']),
   /** "in-flight" while still being built (amber is reserved for In flight); delivered when omitted. */
@@ -118,7 +126,8 @@ export const projectMetaSchema = z.object({
   /** One line for cards and search. */
   summary: text,
   domains: z.array(slug).min(1),
-  stack: z.array(text).min(1),
+  /** Required for tools; a programme may leave it empty. */
+  stack: z.array(text).default([]),
   /** Measured results only; never invented. Empty is fine. */
   outcomes: z.array(text),
   links: z
@@ -130,13 +139,17 @@ export const projectMetaSchema = z.object({
    * until the site is public; the case study then says it's in progress instead of linking to it.
    */
   site: z.object({ url, live: z.boolean() }).strict().optional(),
-  /** Boxes left to right for the typographic architecture thumbnail, used when there's no screenshot. */
-  architecture: z.array(text).min(2).max(4),
+  /** Boxes left to right for the typographic architecture thumbnail, used when there's no screenshot. Tools only. */
+  architecture: z.array(text).min(2).max(4).optional(),
   screenshot: z.string().startsWith('/').optional(),
-  /** Position among Home's selected work (1–3); omitted otherwise. */
+  /** Position on Home among projects of the same kind (1–3); omitted otherwise. */
   featured: z.number().int().min(1).max(3).optional(),
-  /** Position among Home's highlighted, separately hosted projects (1–3); omitted otherwise. */
-  highlighted: z.number().int().min(1).max(3).optional(),
+}).superRefine((project, ctx) => {
+  // specs/portfolio-narrative "Project kinds on Work": a programme leads with its outcome, a tool with its build.
+  const missing = (path: string, message: string) => ctx.addIssue({ code: 'custom', path: [path], message })
+  if (project.kind === 'programme' && !project.headline) missing('headline', 'a programme needs a headline')
+  if (project.kind === 'tool' && project.stack.length === 0) missing('stack', 'a tool needs at least one item')
+  if (project.kind === 'tool' && !project.architecture) missing('architecture', 'a tool needs an architecture')
 })
 
 export type Profile = z.infer<typeof profileSchema>

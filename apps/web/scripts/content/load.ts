@@ -28,6 +28,8 @@ import {
   type Skill,
 } from '../../content/schema.ts'
 import { skills } from '../../content/skills.ts'
+import { byListingOrder } from '../../content/derive.ts'
+import { checkConfidentialSources, ConfidentialityError } from './guard.ts'
 import { renderMarkdown, type RenderedMarkdown } from './markdown.ts'
 
 // Loads and validates everything under content/ (specs/content-pages "Content layer"). Every failure is a
@@ -176,22 +178,30 @@ export function checkReferences(content: Content) {
       if (!(domain in projectDomains)) throw new ContentError(`${project.file}: domains: no label for "${domain}" in content/project-domains.ts`)
     }
   }
-  for (const field of ['featured', 'highlighted'] as const) {
-    const positions = content.projects.flatMap((project) => (project.meta[field] ? [project.meta[field]] : []))
-    unique('content/projects', field, positions.map(String))
+  // Home shows up to three of each kind, so a `featured` position is unique within its kind.
+  for (const kind of ['programme', 'tool'] as const) {
+    const positions = content.projects.flatMap(({ meta }) => (meta.kind === kind && meta.featured ? [meta.featured] : []))
+    unique('content/projects', `featured (${kind})`, positions.map(String))
+  }
+}
+
+/** The confidentiality guard over content/ sources, as a ContentError naming the file and term. */
+export function checkSources(dir = CONTENT_DIR) {
+  try {
+    checkConfidentialSources(dir)
+  } catch (error) {
+    throw error instanceof ConfidentialityError ? new ContentError(error.message) : error
   }
 }
 
 /** Loads, validates and cross-checks all content, in a stable order. */
 export async function loadContent(collections: Collections = { profile, about, legal, organisations, roles, skills, credentials }): Promise<Content> {
+  checkSources()
   const validated = validateCollections(collections)
   const projects = await loadCollection('projects')
   const content: Content = {
     ...validated,
-    projects: projects.sort(
-      (a, b) =>
-        (a.meta.featured ?? 99) - (b.meta.featured ?? 99) || b.meta.year - a.meta.year || a.meta.slug.localeCompare(b.meta.slug),
-    ),
+    projects: projects.sort((a, b) => byListingOrder(a.meta, b.meta)),
   }
   checkReferences(content)
   return content

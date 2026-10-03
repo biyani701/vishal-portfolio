@@ -3,7 +3,7 @@ slug: "admin-dashboard"
 title: "Admin Dashboard"
 year: 2023
 type: "work"
-summary: "A Flask-Admin console for teams, users and NLP training data."
+summary: "Manages teams, users and NLP training data from one console. Flask-Admin."
 domains: ["internal-tools"]
 stack: ["Python", "Flask", "Flask-Admin", "SQLAlchemy", "PostgreSQL", "KeePass", "uWSGI", "WTForms"]
 outcomes: []

@@ -7,8 +7,8 @@ import type { Content } from './load.ts'
 // fixed order and without timestamps, so the same content always produces byte-identical files.
 
 const PAGES: [path: string, title: string, summary: string][] = [
-  ['/', 'Home', 'Who Vishal is, the Programme Line and selected work'],
-  ['/work', 'Work', 'All projects, filterable by domain and stack'],
+  ['/', 'Home', 'Who Vishal is, the Programme Line, programmes led and delivery tools'],
+  ['/work', 'Work', 'Programmes led and tools built, filterable by kind, domain and stack'],
   ['/experience', 'Experience', 'Roles, engagements, skills over time and credentials'],
   ['/about', 'About', 'Story, principles and credentials'],
   ['/ask', 'Ask', 'Ask a question about this portfolio'],
@@ -73,9 +73,13 @@ export function buildAiContext(content: Content) {
       skills: role.skills,
       url: `/experience#${role.id}`,
     })),
-    // Placeholder copy is not a fact about the owner, so Ask doesn't see About until it's supplied.
-    about: content.about.draft ? null : { story: content.about.story, principles: content.about.principles },
-    milestones: milestonesOf(content.credentials).map((m) => ({ ...m, when: periodLabel(m.date) })),
+    about: { story: content.about.story, principles: content.about.principles },
+    // Recognition carries who gave it (e.g. Cognizant internal), so Ask never presents it as an external award.
+    milestones: milestonesOf(content.credentials).map((m) => ({
+      ...m,
+      when: periodLabel(m.date),
+      detail: content.credentials.recognition.find((r) => r.id === m.id)?.detail,
+    })),
     skills: content.skills,
     education: content.credentials.education,
     projects: content.projects.map(({ meta, body }) => ({ ...meta, url: `/work/${meta.slug}`, body })),

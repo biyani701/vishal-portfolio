@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { about, credentials, profile } from '@/content/index.ts'
 import { Component as About } from './about.tsx'
 
-// Task 7.2: /about (specs/content-pages "About, Colophon and Legal").
+// /about (specs/portfolio-narrative "About page"; specs/content-pages "About, Colophon and Legal").
 function renderAbout() {
   return render(
     <MemoryRouter>
@@ -19,7 +19,7 @@ describe('/about', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'About' })).toBeInTheDocument()
     const story = screen.getByRole('region', { name: /^Story/ })
     for (const paragraph of about.story) expect(within(story).getByText(paragraph)).toBeInTheDocument()
-    const principles = screen.getByRole('region', { name: /^How I work/ })
+    const principles = screen.getByRole('region', { name: /^How I lead/ })
     expect(within(principles).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(about.principles.map((p) => p.title))
     const ledger = screen.getByRole('region', { name: 'Credentials' })
     expect(within(ledger).getByText(credentials.education[0]!.degree)).toBeInTheDocument()
@@ -31,13 +31,19 @@ describe('/about', () => {
     expect(screen.queryByRole('img', { name: profile.portrait.alt })).toBeNull()
   })
 
-  it('clearly marks placeholder copy while About is a draft', () => {
-    expect(about.draft).toBe(true)
+  it('is final copy: no draft marking, and four principles each with an example', () => {
+    const { container } = renderAbout()
+    expect(container.querySelector('[data-placeholder]')).toBeNull()
+    expect(screen.queryByText(/Draft copy|Placeholder copy/)).toBeNull()
+    const principles = screen.getByRole('region', { name: /^How I lead/ })
+    expect(about.principles).toHaveLength(4)
+    for (const principle of about.principles) expect(within(principles).getByText(principle.evidence)).toBeInTheDocument()
+  })
+
+  it('says who gave the Project of the Year (specs/portfolio-narrative "Scoped recognition")', () => {
     renderAbout()
-    expect(screen.getByRole('complementary', { name: 'Placeholder copy' })).toHaveTextContent('are a draft')
-    expect(within(screen.getByRole('region', { name: /^Story/ })).getByText('Draft copy')).toBeInTheDocument()
-    expect(within(screen.getByRole('region', { name: /^How I work/ })).getByText('Draft copy')).toBeInTheDocument()
-    expect(within(screen.getByRole('region', { name: 'Credentials' })).queryByText('Draft copy')).toBeNull()
+    const recognition = document.getElementById('recognition')!
+    expect(within(recognition).getByText(/Cognizant internal recognition/)).toBeInTheDocument()
   })
 
   it('keeps the legacy #summary, #education and #recognition anchors working', () => {

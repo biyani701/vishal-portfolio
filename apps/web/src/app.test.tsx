@@ -13,7 +13,7 @@ describe('app smoke test', () => {
   it('renders the home route through the router', async () => {
     renderApp()
     // The lazy Home module can take over a second to load in jsdom on a cold run.
-    const hero = await screen.findByRole('heading', { level: 1, name: 'I lead delivery. I build tools. I explain payments.' }, { timeout: 3000 })
+    const hero = await screen.findByRole('heading', { level: 1, name: 'I lead delivery. I understand payments. I build tools.' }, { timeout: 3000 })
     expect(hero).toBeInTheDocument()
   })
 })

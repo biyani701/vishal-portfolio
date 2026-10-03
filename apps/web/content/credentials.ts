@@ -30,7 +30,12 @@ export const credentials = {
   ],
   recognition: [
     { id: 'guiding-star', title: 'Guiding Star', date: '2009-Q4' },
-    { id: 'project-of-the-year', title: 'Project of the Year', date: '2013' },
+    {
+      id: 'project-of-the-year',
+      title: 'Project of the Year',
+      detail: 'Cognizant internal recognition for the scale, complexity and delivery performance of the IFC portfolio',
+      date: '2013',
+    },
     { id: 'manager-of-the-quarter', title: 'Manager of the Quarter', date: '2021-Q3' },
   ],
 } as const satisfies Credentials

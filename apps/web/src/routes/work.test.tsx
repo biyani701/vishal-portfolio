@@ -5,8 +5,8 @@ import { describe, expect, it } from 'vitest'
 import { projects } from '@/content/index.ts'
 import { Component as Work } from './work.tsx'
 
-// Task 8.1: /work lists every project and filters by domain and stack, synced to the URL
-// (specs/content-pages "Work").
+// /work lists every project, programmes first, and filters by kind, domain and stack, synced to the URL
+// (specs/content-pages "Work"; specs/portfolio-narrative "Project kinds on Work").
 function renderWork(url = '/work') {
   const router = createMemoryRouter([{ path: '/work', element: <Work /> }], { initialEntries: [url] })
   render(<RouterProvider router={router} />)
@@ -17,6 +17,7 @@ const cardTitles = () =>
   within(screen.getByRole('region', { name: 'Projects' }))
     .queryAllByRole('heading', { level: 3 })
     .map((h) => h.textContent)
+const group = (name: string) => within(screen.getByRole('group', { name }))
 const titlesWith = (test: (p: (typeof projects)[number]) => boolean) => projects.filter(test).map((p) => p.title)
 
 describe('/work', () => {
@@ -25,7 +26,32 @@ describe('/work', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Work' })).toBeInTheDocument()
     expect(cardTitles()).toEqual(projects.map((p) => p.title))
     expect(screen.getByRole('status')).toHaveTextContent(`${projects.length} projects`)
-    expect(screen.getByRole('button', { name: /^All/ })).toHaveAttribute('aria-pressed', 'true')
+    for (const name of ['Kind', 'Domain']) expect(group(name).getByRole('button', { name: /^All/ })).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('lists the programme case studies before the tools', () => {
+    renderWork()
+    const kinds = projects.map((p) => p.kind)
+    expect(kinds.slice(0, 3)).toEqual(['programme', 'programme', 'programme'])
+    expect(kinds.slice(3).every((kind) => kind === 'tool')).toBe(true)
+  })
+
+  it('specs/portfolio-narrative scenario: ?kind=programme lists only the three programmes and shows the filter selected', () => {
+    renderWork('/work?kind=programme')
+    expect(cardTitles()).toEqual([
+      'Building predictable delivery at scale',
+      'Stabilising a 50+ application portfolio',
+      'Re-engineering market reference-data processing',
+    ])
+    expect(group('Kind').getByRole('button', { name: /^Programmes/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('status')).toHaveTextContent(`3 of ${projects.length} projects`)
+  })
+
+  it('filters by kind, writing it to the URL', async () => {
+    const router = renderWork()
+    await userEvent.click(group('Kind').getByRole('button', { name: /^Tools/ }))
+    expect(router.state.location.search).toBe('?kind=tool')
+    expect(cardTitles()).toEqual(titlesWith((p) => p.kind === 'tool'))
   })
 
   it('specs/content-pages scenario: ?stack=python lists only Python projects and shows the filter selected', () => {
@@ -57,7 +83,7 @@ describe('/work', () => {
   it('says so when nothing matches', () => {
     renderWork('/work?domain=publishing&stack=python')
     expect(cardTitles()).toEqual([])
-    expect(screen.getByText(/No project matches both filters/)).toBeInTheDocument()
+    expect(screen.getByText(/No project matches these filters/)).toBeInTheDocument()
   })
 
   it('ignores filter values that match nothing', () => {

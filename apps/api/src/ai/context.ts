@@ -47,7 +47,7 @@ export interface AiContext {
   }
   roles: AiRole[]
   about: { story?: unknown; principles?: unknown } | null
-  milestones: { id: string; title: string; kind?: string; when: string }[]
+  milestones: { id: string; title: string; kind?: string; when: string; detail?: string }[]
   skills: { name: string; group: string; since?: string; until?: string; use?: string }[]
   education: { id: string; degree: string; institution: string; start?: number; end?: number }[]
   projects: AiProject[]

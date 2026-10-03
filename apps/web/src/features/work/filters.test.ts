@@ -1,9 +1,9 @@
 import type { ProjectMeta } from '@content/schema.ts'
 import { describe, expect, it } from 'vitest'
-import { domainOptions, filterProjects, readFilters, stackOptions, stackSlug, writeFilters } from './filters.ts'
+import { domainOptions, filterProjects, kindOptions, readFilters, stackOptions, stackSlug, writeFilters } from './filters.ts'
 
-const project = (slug: string, domains: string[], stack: string[]) =>
-  ({ slug, domains, stack }) as Pick<ProjectMeta, 'slug' | 'domains' | 'stack'> as ProjectMeta
+const project = (slug: string, domains: string[], stack: string[], kind: ProjectMeta['kind'] = 'tool') =>
+  ({ slug, domains, stack, kind }) as Pick<ProjectMeta, 'slug' | 'domains' | 'stack' | 'kind'> as ProjectMeta
 
 const projects = [
   project('api', ['apis', 'web'], ['Python', 'FastAPI']),
@@ -58,5 +58,18 @@ describe('work filters', () => {
     expect(slugs({ stack: 'python' })).toEqual(['api', 'dash'])
     expect(slugs({ domain: 'web', stack: 'python' })).toEqual(['api'])
     expect(slugs({ domain: 'dashboards', stack: 'next-js' })).toEqual([])
+  })
+
+  it('offers the kinds in use, programmes first, and filters by kind', () => {
+    const mixed = [...projects, project('ifc', ['programme-delivery'], [], 'programme')]
+    expect(kindOptions(mixed)).toEqual([
+      { value: 'programme', label: 'Programmes', count: 1 },
+      { value: 'tool', label: 'Tools', count: 3 },
+    ])
+    expect(kindOptions(projects).map((option) => option.value)).toEqual(['tool'])
+    expect(readFilters(new URLSearchParams('kind=programme'), [], [], kindOptions(mixed))).toEqual({ kind: 'programme' })
+    expect(readFilters(new URLSearchParams('kind=essay'), [], [], kindOptions(mixed))).toEqual({})
+    expect(filterProjects(mixed, { kind: 'programme' }).map((p) => p.slug)).toEqual(['ifc'])
+    expect(writeFilters(new URLSearchParams(), { kind: 'tool' }).toString()).toBe('kind=tool')
   })
 })
