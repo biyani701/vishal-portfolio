@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { cn, shadowTokens, spacingTokens, textSizes } from './utils.ts'
 
-const tokens = readFileSync(new URL('../design/tokens.css', import.meta.url), 'utf8')
+const tokens = readFileSync(new URL('../../../../packages/design/tokens.css', import.meta.url), 'utf8')
 const names = (prefix: string) =>
   [...tokens.matchAll(new RegExp(`--${prefix}-([a-z0-9-]+?):`, 'g'))].map((m) => m[1]).filter((n) => !n!.includes('--'))
 

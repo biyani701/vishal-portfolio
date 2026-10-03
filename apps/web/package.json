@@ -22,6 +22,8 @@
     "@ag-ui/client": "0.0.59",
     "@base-ui/react": "^1.8.0",
     "@react-aria/live-announcer": "3.5.1",
+    "@vishal/content-guard": "workspace:*",
+    "@vishal/design": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.4.0",
     "lucide-react": "^0.511.0",

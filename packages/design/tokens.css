@@ -5,7 +5,7 @@
  * components can only use these tokens and the four layout-mode variants.
  */
 
-/* ── Layout modes (§7). Mutually exclusive; src/design/modes.ts mirrors these queries for useLayoutMode. ── */
+/* ── Layout modes (§7). Mutually exclusive; apps/web/src/design/modes.ts mirrors these queries for useLayoutMode. ── */
 @custom-variant compact-landscape {
   @media (orientation: landscape) and (height <= 500px) {
     @slot;
@@ -27,7 +27,7 @@
   }
 }
 
-/* Theme is always resolved to data-theme="light" | "dark" on <html> by the inline script in index.html. */
+/* Theme is always resolved to data-theme="light" | "dark" on <html> by each app's inline script in index.html. */
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
 @theme {

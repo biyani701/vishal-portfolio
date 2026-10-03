@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths: &web-paths
       - "apps/web/**"
+      - "packages/**"
       - "package.json"
       - "pnpm-lock.yaml"
       - "pnpm-workspace.yaml"

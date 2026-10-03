@@ -29,7 +29,7 @@ import {
 } from '../../content/schema.ts'
 import { skills } from '../../content/skills.ts'
 import { byListingOrder } from '../../content/derive.ts'
-import { checkConfidentialSources, ConfidentialityError } from './guard.ts'
+import { checkConfidentialSources, ConfidentialityError } from '@vishal/content-guard'
 import { renderMarkdown, type RenderedMarkdown } from './markdown.ts'
 
 // Loads and validates everything under content/ (specs/content-pages "Content layer"). Every failure is a

@@ -1,0 +1,23 @@
+{
+  "name": "@vishal/design",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The Programme design tokens and self-hosted fonts, shared by every site in the monorepo (openspec add-biyani-hub, D2).",
+  "exports": {
+    "./tokens.css": "./tokens.css",
+    "./fonts.css": "./fonts.css",
+    "./vite": "./vite.ts",
+    "./fonts/*": "./fonts/*"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "peerDependencies": {
+    "vite": "^8"
+  },
+  "devDependencies": {
+    "vite": "^8.3.1",
+    "vitest": "^5"
+  }
+}

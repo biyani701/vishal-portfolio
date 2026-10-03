@@ -1,6 +1,6 @@
 import { relative, sep } from 'node:path'
 import type { Plugin } from 'vite'
-import { checkConfidential, ConfidentialityError } from './guard.ts'
+import { checkConfidential, ConfidentialityError } from '@vishal/content-guard'
 import { buildAiContext, buildSearchIndex } from './indexes.ts'
 import { CONTENT_DIR, collectionOf, ContentError, loadContent, loadMarkdown } from './load.ts'
 

@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test'
 import { expect, test } from './fixtures.ts'
 
-// Design package §4.2 fonts, self-hosted from /fonts (src/design/fonts.css).
+// Design package §4.2 fonts, self-hosted from /fonts (packages/design/fonts.css).
 const FACES = [
   { family: 'Bricolage Grotesque', probe: '600 16px "Bricolage Grotesque"' },
   { family: 'Newsreader', probe: '400 18px "Newsreader"' },

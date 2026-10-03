@@ -1,0 +1,139 @@
+name: Hub CI
+
+# www.biyani.xyz (openspec add-biyani-hub, D5): checks on every PR; on main, publish the build to the gh-pages branch
+# of biyani701/biyani701.github.io (the user site, which owns www.biyani.xyz) and smoke-test the live domain.
+# Rollback: re-run the publish job of an earlier good main run.
+on:
+  pull_request:
+    branches: [main]
+    paths: &hub-paths
+      - "apps/hub/**"
+      - "packages/**"
+      - "apps/web/content/projects/blog-platform.md"
+      - "apps/web/content/projects/knowledge-base.md"
+      - "apps/web/eslint/**"
+      - "package.json"
+      - "pnpm-lock.yaml"
+      - "pnpm-workspace.yaml"
+      - "turbo.json"
+      - ".github/workflows/hub-ci.yml"
+  push:
+    branches: [main]
+    paths: *hub-paths
+
+concurrency:
+  group: hub-ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    name: Lint, typecheck, test, build, e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: apps/hub
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      # The hub's lint config reuses apps/web's ESLint rules, so web's dependencies are installed too.
+      - name: Install dependencies
+        working-directory: .
+        run: pnpm install --frozen-lockfile --filter hub --filter web --filter "./packages/*"
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit tests (hub and shared packages)
+        run: pnpm test && pnpm --filter "./packages/*" test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Install Playwright browser
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Playwright
+        run: pnpm e2e
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hub-playwright-report
+          path: |
+            apps/hub/playwright-report
+            apps/hub/test-results
+          retention-days: 7
+
+      - name: Upload build
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: hub-dist
+          path: apps/hub/dist
+          include-hidden-files: true
+          retention-days: 90
+
+  publish:
+    name: Publish to biyani701.github.io
+    needs: checks
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: hub-publish
+      cancel-in-progress: false
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: hub-dist
+          path: dist
+
+      # One fresh commit each time (force_orphan): gh-pages only ever holds the user site, and the old site's
+      # history is not carried forward. Project pages are published from their own repos and are unaffected.
+      - name: Publish
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          deploy_key: ${{ secrets.HUB_DEPLOY_KEY }}
+          external_repository: biyani701/biyani701.github.io
+          publish_branch: gh-pages
+          publish_dir: dist
+          force_orphan: true
+          cname: www.biyani.xyz
+          enable_jekyll: false
+          commit_message: "Publish hub from biyani701/vishal-portfolio@${{ github.sha }}"
+
+  smoke:
+    name: Production smoke test
+    needs: publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: apps/hub
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install dependencies
+        working-directory: .
+        run: pnpm install --frozen-lockfile --filter hub
+      - name: Smoke test www.biyani.xyz
+        run: pnpm smoke
+        env:
+          EXPECTED_BUILD: ${{ github.sha }}
