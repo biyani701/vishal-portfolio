@@ -88,11 +88,18 @@ export const roles = [
     label: 'Tata Infotech',
     early: true,
     title: 'Senior Software Engineer',
+    note: 'Deputed to Tata Consultancy Services',
     start: '2000-05',
     end: '2003-10',
     location: 'Mumbai and Singapore',
-    outcomes: [],
-    skills: [],
+    // The owner's own account (2026-10-03): the start of the financial-services story.
+    outcomes: [
+      'Joined Tata Infotech in 2000 and, after three to four months of training, was deputed to Tata Consultancy Services.',
+      'Worked on the Network Custody & Clearing System (NCS, now part of Tata BaNCS) for Standard Chartered’s rollout across 12 APAC regions, including about 11 months in Singapore: trade settlement, corporate actions, securities safekeeping, SWIFT and IBM MQSeries.',
+      'Owned the Communication Interface module, which sent files to custody systems in Japan, Hong Kong, Singapore, Malaysia and other APAC locations, and provided 24×7 production and month-end support.',
+      'After returning from Singapore, worked on DBS (Development Bank of Singapore), converting the Communication Interface module from DB2 to Oracle because of detailed knowledge of how it behaved.',
+    ],
+    skills: ['Custody and clearing', 'Trade settlement', 'SWIFT', 'IBM MQSeries', 'Production support', 'DB2 to Oracle migration'],
     projects: [],
   },
 ] as const satisfies readonly Role[]

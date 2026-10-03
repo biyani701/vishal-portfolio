@@ -94,7 +94,7 @@ describe('ProgrammeLine', () => {
     const rows = within(table).getAllByRole('row').slice(1)
     expect(rows).toHaveLength(roles.length)
     expect(rows[0]).toHaveTextContent('Nov 2019 – nowCoreCard · Principal Project AnalystIn flight')
-    expect(within(rows[4]!).getByRole('link', { name: 'Tata Infotech · Senior Software Engineer' })).toHaveAttribute(
+    expect(within(rows[4]!).getByRole('link', { name: 'Tata Infotech · Senior Software Engineer · Deputed to Tata Consultancy Services' })).toHaveAttribute(
       'href',
       '/experience#tata-infotech',
     )
