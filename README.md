@@ -8,7 +8,7 @@ Monorepo for [vishal.biyani.xyz](https://vishal.biyani.xyz): the portfolio site 
   `.github/workflows/web-ci.yml`. Runbook: [`apps/web/DEPLOY.md`](apps/web/DEPLOY.md).
 - `apps/api` — Hono API (contact form, Ask), deployed to **Vercel** (`api.vishal.biyani.xyz`). Setup:
   [`apps/api/SETUP.md`](apps/api/SETUP.md).
-- `apps/hub` — the front door at `www.biyani.xyz`: static HTML listing the sites and Labs under the domain,
+- `apps/hub` — the front door at `biyani.xyz` (`www` redirects to it): static HTML listing the sites and Labs under the domain,
   published to the `gh-pages` branch of `biyani701/biyani701.github.io` by `.github/workflows/hub-ci.yml`
   (needs the `HUB_DEPLOY_KEY` secret).
 

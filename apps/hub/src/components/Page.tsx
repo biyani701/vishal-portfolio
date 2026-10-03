@@ -3,7 +3,7 @@ import { hostOf, labUrl } from '../../content/sites.ts'
 import { cn } from '../cn.ts'
 import { Status } from './Status.tsx'
 
-// The whole of www.biyani.xyz (specs/domain-hub "Hub content"): identity with the portfolio as the primary action,
+// The whole of biyani.xyz (specs/domain-hub "Hub content"): identity with the portfolio as the primary action,
 // then Sites, then the quieter Labs, then the footer. Rendered to static HTML at build time (scripts/render.ts).
 
 const kicker = 'font-mono text-mono-s uppercase text-muted'
@@ -56,7 +56,7 @@ function Identity({ hub }: { hub: Hub }) {
   const { identity } = hub
   return (
     <section aria-labelledby="identity-heading" className={cn(container, 'flex flex-col gap-6 pt-12 tablet:pt-16 desktop:pt-24')}>
-      <p className={kicker}>www.biyani.xyz</p>
+      <p className={kicker}>biyani.xyz</p>
       <h1 id="identity-heading" className="max-w-4xl font-sans text-display font-semibold">
         {identity.name}
         <span className="hub-accent-text">.</span>

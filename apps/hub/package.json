@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "www.biyani.xyz: the front door to the sites under the domain (openspec add-biyani-hub).",
+  "description": "biyani.xyz: the front door to the sites under the domain (openspec add-biyani-hub).",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr && node scripts/render.ts",

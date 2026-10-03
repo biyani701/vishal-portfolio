@@ -1,8 +1,8 @@
 import { hub, labUrl } from '../content/sites.ts'
 
-// Production smoke test (specs/domain-hub "Publishing"): wait until https://www.biyani.xyz serves this build (its
+// Production smoke test (specs/domain-hub "Publishing"): wait until https://biyani.xyz serves this build (its
 // hub-build meta tag), then check that every Labs page still responds.
-const base = process.env.SMOKE_BASE_URL ?? 'https://www.biyani.xyz'
+const base = process.env.SMOKE_BASE_URL ?? 'https://biyani.xyz'
 const expected = process.env.EXPECTED_BUILD
 const deadline = Date.now() + 10 * 60_000
 

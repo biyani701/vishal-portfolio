@@ -72,10 +72,10 @@ The workflow has three jobs:
    - `external_repository: biyani701/biyani701.github.io`
    - `publish_branch: gh-pages`
    - `force_orphan: true`
-   - `cname: www.biyani.xyz`
+   - `cname: biyani.xyz` (see D8)
 
    The build includes `.nojekyll`.
-3. **smoke:** fetches `https://www.biyani.xyz` until it serves the published build's marker (a build-id meta tag), then checks each Labs link for 200.
+3. **smoke:** fetches `https://biyani.xyz` until it serves the published build's marker (a build-id meta tag), then checks each Labs link for 200.
 
 The deploy key is an ed25519 key. Its public half is added to `biyani701.github.io` with write access, and its private half is stored as the `HUB_DEPLOY_KEY` secret here.
 
@@ -128,3 +128,8 @@ Heading: **Labs**. Intro: "Earlier experiments, kept online as they were."
 3. The owner adds the apex records for `biyani.xyz` at Namecheap: A records 185.199.108.153, .109, .110 and .111, and AAAA records 2606:50c0:8000::153 to 8003::153. GitHub then redirects the apex to `www`.
 
 **Rollback:** re-run the previous successful hub-ci publish job. Or, in an emergency, push the old `gh-pages` content back from a local backup, which is taken as a task before the first publish.
+
+## Post-launch decision
+
+### D8. The bare domain is primary
+On 2026-10-04, while GitHub was issuing a certificate that covered the bare domain, the owner set the Pages custom domain to `biyani.xyz`. GitHub now serves the hub at `https://biyani.xyz` and redirects `www.biyani.xyz` (and `http://`) to it, with one certificate covering both names. The hub's `CNAME`, canonical URL, Labs origin and smoke test follow that, so the next publish doesn't switch it back. Links of the form `www.biyani.xyz/<repo>/` keep working through the redirect.
