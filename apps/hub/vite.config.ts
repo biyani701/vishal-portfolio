@@ -3,7 +3,7 @@ import { designAssets } from '@vishal/design/vite'
 import type { Plugin } from 'vite'
 import { defineConfig } from 'vitest/config'
 
-// www.biyani.xyz (openspec add-biyani-hub). The production build renders the page in scripts/render.ts; in dev this
+// biyani.xyz (openspec add-biyani-hub). The production build renders the page in scripts/render.ts; in dev this
 // plugin renders it on every request, so `pnpm --filter hub dev` shows the real page.
 function devRender(): Plugin {
   return {

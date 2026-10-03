@@ -1,4 +1,4 @@
-/* www.biyani.xyz: Tailwind, then the shared Programme fonts and tokens (packages/design), then the hub's own
+/* biyani.xyz: Tailwind, then the shared Programme fonts and tokens (packages/design), then the hub's own
    decorative utilities. Colours always come from the tokens, so both themes follow automatically. */
 @import 'tailwindcss';
 @import '@vishal/design/fonts.css';

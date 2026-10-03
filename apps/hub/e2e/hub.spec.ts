@@ -82,7 +82,7 @@ test('the build is static: no app script beyond the theme', async ({ request }) 
 
 // specs/domain-hub "Labs entry": every Labs link answers on the live domain. Network-dependent, so it runs where
 // the network is allowed (CI and the smoke test) and can be skipped with HUB_SKIP_NETWORK=1.
-test('every Labs page responds with 200 on www.biyani.xyz', async ({ request }) => {
+test('every Labs page responds with 200 on biyani.xyz', async ({ request }) => {
   test.skip(!!process.env.HUB_SKIP_NETWORK, 'network checks disabled')
   test.skip(test.info().project.name !== 'desktop-1440x900', 'checked once')
   for (const lab of hub.labs.entries) {

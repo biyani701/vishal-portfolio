@@ -1,20 +1,20 @@
 ## Purpose
 
-Defines what `www.biyani.xyz` presents: a front door to the sites and experiments under the domain, led by the portfolio. It also covers how the hub is published from the monorepo, how its statuses stay consistent with the portfolio, and the confidentiality rules it shares with the portfolio.
+Defines what `biyani.xyz` presents: a front door to the sites and experiments under the domain, led by the portfolio. It also covers how the hub is published from the monorepo, how its statuses stay consistent with the portfolio, and the confidentiality rules it shares with the portfolio.
 
 ## ADDED Requirements
 
 ### Requirement: Hub content
-`www.biyani.xyz` SHALL present, in this order:
+`biyani.xyz` SHALL present, in this order (`www.biyani.xyz` SHALL redirect to it):
 1. The owner's name, with a single positioning line consistent with the portfolio's positioning. The portfolio (`https://vishal.biyani.xyz`) SHALL be the primary call to action.
 2. **Sites**: the portfolio, the blog (`blog.biyani.xyz`) and the knowledge base (`kb.biyani.xyz`). Each shows a one-line purpose and a status.
-3. **Labs**: older experiments served at `www.biyani.xyz/<repo>`, each with a one-line description. Labs SHALL be visually secondary to Sites.
+3. **Labs**: older experiments served at `biyani.xyz/<repo>`, each with a one-line description. Labs SHALL be visually secondary to Sites.
 4. A footer linking the portfolio's contact page.
 
 A site that isn't live yet SHALL show "In progress" and SHALL NOT link to its address. The hub SHALL NOT list the previous portfolio (`/portfolio/`) or any project whose page returns an error.
 
 #### Scenario: Portfolio leads
-- **WHEN** a visitor opens `https://www.biyani.xyz` on any viewport
+- **WHEN** a visitor opens `https://biyani.xyz` on any viewport
 - **THEN** the name, positioning line and a link to `https://vishal.biyani.xyz` are visible without scrolling, before any Labs entry
 
 #### Scenario: Site not live yet
@@ -23,7 +23,7 @@ A site that isn't live yet SHALL show "In progress" and SHALL NOT link to its ad
 
 #### Scenario: Labs entry
 - **WHEN** a visitor follows a Labs entry
-- **THEN** it opens `https://www.biyani.xyz/<repo>/`, and that page responds with 200 at the time the hub is built and tested
+- **THEN** it opens `https://biyani.xyz/<repo>/`, and that page responds with 200 at the time the hub is built and tested
 
 ### Requirement: Consistency with the portfolio
 The live or in-progress status of the blog and knowledge base on the hub SHALL match the `site.live` flags in the portfolio's content records. The build SHALL fail when they differ.
@@ -46,14 +46,14 @@ The hub SHALL be served as prerendered HTML that is complete without JavaScript.
 ### Requirement: Publishing
 On every push to `main` that changes the hub or its shared packages, CI SHALL lint, test and build the hub. When those pass, it SHALL publish the build to the `gh-pages` branch of `biyani701/biyani701.github.io`:
 - as a single commit that replaces the branch's previous content and history
-- with a `CNAME` file containing `www.biyani.xyz`
+- with a `CNAME` file containing `biyani.xyz`
 - with a `.nojekyll` file
 
-Pull requests SHALL run the checks but SHALL NOT publish. A production smoke test SHALL then confirm that `https://www.biyani.xyz` serves the new build and that every Labs link responds.
+Pull requests SHALL run the checks but SHALL NOT publish. A production smoke test SHALL then confirm that `https://biyani.xyz` serves the new build and that every Labs link responds.
 
 #### Scenario: Publish from main
 - **WHEN** a hub change is merged to `main`
-- **THEN** the user-site repo's `gh-pages` branch holds exactly one commit with the new build and `CNAME`, and the smoke test passes against `https://www.biyani.xyz`
+- **THEN** the user-site repo's `gh-pages` branch holds exactly one commit with the new build and `CNAME`, and the smoke test passes against `https://biyani.xyz`
 
 #### Scenario: Pull request
 - **WHEN** a pull request changes `apps/hub`
@@ -61,7 +61,7 @@ Pull requests SHALL run the checks but SHALL NOT publish. A production smoke tes
 
 #### Scenario: Project pages unaffected
 - **WHEN** the hub is published
-- **THEN** `https://www.biyani.xyz/click-tracker/` and the other Labs project pages still respond
+- **THEN** `https://biyani.xyz/click-tracker/` and the other Labs project pages still respond
 
 ### Requirement: Shared confidentiality guard
 The hub's content and built HTML SHALL pass the same confidentiality guard as the portfolio, and the build SHALL fail, naming the file and term, when they don't.

@@ -1,7 +1,7 @@
 name: Hub CI
 
-# www.biyani.xyz (openspec add-biyani-hub, D5): checks on every PR; on main, publish the build to the gh-pages branch
-# of biyani701/biyani701.github.io (the user site, which owns www.biyani.xyz) and smoke-test the live domain.
+# biyani.xyz (openspec add-biyani-hub, D5): checks on every PR; on main, publish the build to the gh-pages branch
+# of biyani701/biyani701.github.io (the user site, which owns biyani.xyz; www redirects to it) and smoke-test the live domain.
 # Rollback: re-run the publish job of an earlier good main run.
 on:
   pull_request:
@@ -111,7 +111,7 @@ jobs:
           publish_branch: gh-pages
           publish_dir: dist
           force_orphan: true
-          cname: www.biyani.xyz
+          cname: biyani.xyz
           enable_jekyll: false
           commit_message: "Publish hub from biyani701/vishal-portfolio@${{ github.sha }}"
 
@@ -133,7 +133,7 @@ jobs:
       - name: Install dependencies
         working-directory: .
         run: pnpm install --frozen-lockfile --filter "hub..."
-      - name: Smoke test www.biyani.xyz
+      - name: Smoke test biyani.xyz
         run: pnpm smoke
         env:
           EXPECTED_BUILD: ${{ github.sha }}

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-// Everything www.biyani.xyz says (specs/domain-hub "Hub content"; copy from openspec/changes/add-biyani-hub/design.md).
+// Everything biyani.xyz says (specs/domain-hub "Hub content"; copy from openspec/changes/add-biyani-hub/design.md).
 // `live` for the blog and knowledge base must match `site.live` in apps/web/content/projects (sites.test.ts).
 
 const text = z.string().trim().min(1)
@@ -16,7 +16,7 @@ export const siteSchema = z.object({
 
 export const labSchema = z.object({
   name: text,
-  /** Served by GitHub Pages at www.biyani.xyz/<path>/. */
+  /** Served by GitHub Pages at biyani.xyz/<path>/. */
   path: z.string().regex(/^[a-z0-9-]+$/, 'a repo name, e.g. click-tracker'),
   description: text,
 })
@@ -31,7 +31,7 @@ export type Hub = z.infer<typeof hubSchema>
 export type Site = z.infer<typeof siteSchema>
 export type Lab = z.infer<typeof labSchema>
 
-export const LABS_ORIGIN = 'https://www.biyani.xyz'
+export const LABS_ORIGIN = 'https://biyani.xyz'
 
 export const hub: Hub = hubSchema.parse({
   identity: {

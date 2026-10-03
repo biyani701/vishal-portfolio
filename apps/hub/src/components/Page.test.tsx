@@ -36,7 +36,7 @@ describe('hub page', () => {
     expect(sites.innerHTML).not.toMatch(/href="https:\/\/(blog|kb)\.biyani\.xyz/)
   })
 
-  it('links each Labs entry to its page under www.biyani.xyz, and never the old portfolio or shortfall', () => {
+  it('links each Labs entry to its page under biyani.xyz, and never the old portfolio or shortfall', () => {
     renderPage()
     const labs = screen.getByRole('region', { name: 'Labs' })
     expect(within(labs).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual(hub.labs.entries.map(labUrl))
