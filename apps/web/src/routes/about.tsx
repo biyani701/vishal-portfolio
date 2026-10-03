@@ -5,31 +5,17 @@ import { about, profile } from '@/content/index.ts'
 import { PageMeta } from '@/layout/PageMeta.tsx'
 import { PageShell } from '@/layout/PageShell.tsx'
 
-// /about (specs/content-pages "About, Colophon and Legal"; task 7.2): story, working principles and credentials,
-// without the portrait (DD-4: Home only, lint-enforced). While content/about.ts is a draft, the page says so at
-// the top and marks each draft section, so placeholder copy is never mistaken for the owner's words.
+// /about (specs/portfolio-narrative "About page"): the story as a career arc, "How I lead" with one example under
+// each principle, and credentials, without the portrait (DD-4: Home only, lint-enforced).
 
-const firstName = profile.name.split(' ')[0]
-const kicker = 'font-mono text-mono-s text-muted uppercase'
 const arrowLink = 'inline-flex min-h-target items-center font-semibold text-accent underline-offset-4 hover:underline'
 
-function DraftMark() {
-  return (
-    <span data-placeholder className="rounded-full border border-dashed border-border-control px-2.5 py-0.5 font-mono text-mono-s text-muted uppercase">
-      Draft copy
-    </span>
-  )
-}
-
-function Section({ id, title, draft = false, children }: { id: string; title: string; draft?: boolean; children: ReactNode }) {
+function Section({ id, title, children }: { id: string; title: string; children: ReactNode }) {
   return (
     <section id={id} aria-labelledby={`${id}-title`} className="flex flex-col gap-5 border-t-2 border-border-strong pt-4">
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <h2 id={`${id}-title`} className="font-sans text-h2 font-semibold">
-          {title}
-        </h2>
-        {draft && <DraftMark />}
-      </div>
+      <h2 id={`${id}-title`} className="font-sans text-h2 font-semibold">
+        {title}
+      </h2>
       {children}
     </section>
   )
@@ -44,17 +30,7 @@ export function Component() {
         <p className="font-serif text-lede text-ink-2">{profile.lede}</p>
       </div>
 
-      {about.draft && (
-        <aside aria-label="Placeholder copy" data-placeholder className="flex max-w-195 flex-col gap-1 rounded-md border border-dashed border-border-control bg-sunken p-4">
-          <p className={kicker}>Placeholder copy</p>
-          <p className="text-body text-ink-2">
-            The story and principles on this page are a draft assembled from the Experience record. They will be replaced
-            with {firstName}’s own words.
-          </p>
-        </aside>
-      )}
-
-      <Section id="summary" title="Story" draft={about.draft}>
+      <Section id="summary" title="Story">
         <div className="flex max-w-195 flex-col gap-5 font-serif text-prose text-ink-2">
           {about.story.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
@@ -62,7 +38,7 @@ export function Component() {
         </div>
       </Section>
 
-      <Section id="principles" title="How I work" draft={about.draft}>
+      <Section id="principles" title="How I lead">
         <ol className="grid gap-x-10 gap-y-6 tablet:grid-cols-2 desktop:grid-cols-2 compact-landscape:grid-cols-2">
           {about.principles.map((principle, i) => (
             <li key={principle.title} className="flex flex-col gap-2 border-t border-border pt-3">
@@ -70,7 +46,11 @@ export function Component() {
                 {String(i + 1).padStart(2, '0')}
               </span>
               <h3 className="font-sans text-h3 font-semibold">{principle.title}</h3>
-              <p className="font-serif text-body text-ink-2">{principle.text}</p>
+              {'text' in principle && <p className="font-serif text-body text-ink-2">{principle.text}</p>}
+              <p className="text-label text-muted">
+                <span className="font-semibold text-ink-2">In practice: </span>
+                {principle.evidence}
+              </p>
             </li>
           ))}
         </ol>
@@ -85,7 +65,7 @@ export function Component() {
           Roles and outcomes →
         </Link>
         <Link to="/work" className={arrowLink}>
-          Projects →
+          Programmes and tools →
         </Link>
         <a href={profile.links.linkedin} className={arrowLink}>
           LinkedIn ↗

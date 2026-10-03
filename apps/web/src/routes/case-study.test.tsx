@@ -6,6 +6,7 @@ import { loadProject, projects } from '@/content/index.ts'
 import { routes } from '@/router.tsx'
 import { stubMatchMedia } from '@/test/media.ts'
 import { Toaster } from '@/ui/toast.tsx'
+import { renderMarkdown } from '../../scripts/content/markdown.ts'
 import { Component as CaseStudy, loader } from './case-study.tsx'
 
 // Task 8.2: /work/:slug renders every case study with its facts, ToC, architecture figure, prose and aside
@@ -35,7 +36,9 @@ describe('/work/:slug', () => {
       expect(screen.getByRole('heading', { level: heading.depth, name: heading.text })).toHaveAttribute('id', heading.id)
     }
 
-    expect(screen.getByRole('img', { name: `${meta.title} architecture: ${meta.architecture.join(', then ')}` })).toBeInTheDocument()
+    // A tool draws its architecture; a programme shows its headline outcome instead (specs/portfolio-narrative).
+    if (meta.architecture) expect(screen.getByRole('img', { name: `${meta.title} architecture: ${meta.architecture.join(', then ')}` })).toBeInTheDocument()
+    if (meta.headline) expect(screen.getByText('Headline').nextElementSibling).toHaveTextContent(`${meta.headline.value} ${meta.headline.label}`)
     expect(screen.getByText('Year').nextElementSibling).toHaveTextContent(String(meta.year))
     const aside = screen.getByRole('complementary', { name: 'About this project' })
     expect(within(aside).getByRole('link', { name: 'Ask about this →' })).toHaveAttribute(
@@ -71,10 +74,20 @@ describe('/work/:slug', () => {
     stubMatchMedia({ width: 1440, height: 900 })
     const writeText = vi.fn().mockResolvedValue(undefined)
     vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } })
-    renderCaseStudy('confluence-pages-details')
+    // No published case study carries a code block today, so render one through the real Markdown pipeline.
+    const withCode = async () => {
+      const project = (await loadProject('fast-jiraql'))!
+      return { ...project, ...(await renderMarkdown('## Install\n\n```bash\nuv add fast-jiraql\n```\n')) }
+    }
+    const router = createMemoryRouter([{ path: '/work/:slug', loader: withCode, Component: CaseStudy }], { initialEntries: ['/work/fast-jiraql'] })
+    render(
+      <Toaster>
+        <RouterProvider router={router} />
+      </Toaster>,
+    )
 
     await userEvent.click(await screen.findByRole('button', { name: 'Copy bash code' }))
-    expect(writeText).toHaveBeenCalledWith('pip install get-confluence-space-pages-details')
+    expect(writeText).toHaveBeenCalledWith('uv add fast-jiraql')
     expect(await screen.findByText('Copied to clipboard')).toBeInTheDocument()
   })
 

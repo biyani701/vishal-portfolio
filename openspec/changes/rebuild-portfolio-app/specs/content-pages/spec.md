@@ -16,14 +16,16 @@ All portfolio facts (profile, roles, projects, skills, credentials) SHALL live i
 - **THEN** its card uses the typographic architecture thumbnail, and no invented metric appears
 
 ### Requirement: Home
-Home SHALL present:
+Home SHALL present, in this order (amended by the reposition-leadership-narrative change; specs/portfolio-narrative "Home story order"):
 - the hero (statement, lede, primary and secondary actions, portrait)
 - the Programme Line
 - the proof ledger
-- three selected projects
+- "Programmes I've led": three programme case studies
+- "Delivery tools": three tools
 - the Ask question input
-- highlighted projects: the separately hosted projects (blog platform, knowledge base, auth POC), each linking to its case study
 - the contact band
+
+The separately hosted projects (blog platform, knowledge base, auth POC) are listed on `/work`, not on Home.
 
 #### Scenario: Home on desktop
 - **WHEN** Home renders at 1440×900
@@ -37,7 +39,7 @@ Home SHALL present:
 - **THEN** the BFS UK role is selected and in view
 
 ### Requirement: Work
-`/work` SHALL list all projects with filters (domain, stack), synced to the URL. `/work/:slug` SHALL render a case study: header with status chips, a facts list, table of contents, prose, architecture figure, code blocks, and an aside with "Ask about this" and related items.
+`/work` SHALL list all projects, programmes first, with filters (kind, domain, stack), synced to the URL. `/work/:slug` SHALL render a case study: header with status chips, a facts list, table of contents, prose, architecture figure, code blocks, and an aside with "Ask about this" and related items.
 
 Writing, knowledge articles and the glossary are not part of this site: each is its own project, hosted separately and presented here as a case study. A case study for a separately hosted project SHALL link to its live site and repository when they exist, and SHALL say plainly when it is still in progress.
 
@@ -50,7 +52,7 @@ Writing, knowledge articles and the glossary are not part of this site: each is 
 - **THEN** the case study describes the knowledge base, and links to `kb.biyani.xyz` once it is live, or states that it is in progress
 
 ### Requirement: About, Colophon and Legal
-`/about` SHALL present the story, working principles and credentials, without the portrait. `/colophon` SHALL describe the stack and credits. `/legal/privacy` and `/legal/terms` SHALL cover cookies, analytics, AI conversations and contact-message storage and retention.
+`/about` SHALL present the story, working principles ("How I lead"), each with a concrete example, and credentials, without the portrait. About is final copy, not marked as draft (specs/portfolio-narrative "About page"). `/colophon` SHALL describe the stack and credits. `/legal/privacy` and `/legal/terms` SHALL cover cookies, analytics, AI conversations and contact-message storage and retention.
 
 #### Scenario: Privacy coverage
 - **WHEN** a visitor reads `/legal/privacy`

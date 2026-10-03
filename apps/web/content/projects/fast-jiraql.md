@@ -4,7 +4,7 @@ title: "Fast-JiraQL"
 year: 2023
 type: "open-source"
 featured: 1
-summary: "One API for the questions delivery teams keep asking Jira: REST and GraphQL over Jira data in PostgreSQL."
+summary: "Answers the delivery questions teams keep asking Jira, through one API. REST and GraphQL over Jira data in PostgreSQL."
 domains: ["delivery-tooling", "apis"]
 stack: ["Python", "FastAPI", "GraphQL", "Strawberry GraphQL", "PostgreSQL", "Redis", "SQLAlchemy", "MkDocs", "pytest"]
 outcomes: []

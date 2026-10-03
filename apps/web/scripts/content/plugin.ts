@@ -1,5 +1,6 @@
 import { relative, sep } from 'node:path'
 import type { Plugin } from 'vite'
+import { checkConfidential, ConfidentialityError } from './guard.ts'
 import { buildAiContext, buildSearchIndex } from './indexes.ts'
 import { CONTENT_DIR, collectionOf, ContentError, loadContent, loadMarkdown } from './load.ts'
 
@@ -52,7 +53,14 @@ export function contentPlugin(): Plugin {
     async generateBundle() {
       const content = await loadContent()
       for (const [path, build] of Object.entries(ARTEFACTS)) {
-        this.emitFile({ type: 'asset', fileName: path.slice(1), source: `${JSON.stringify(build(content))}\n` })
+        const source = `${JSON.stringify(build(content))}\n`
+        // The generated indexes pass the same guard as content/ (specs/portfolio-narrative).
+        try {
+          checkConfidential(path.slice(1), source)
+        } catch (error) {
+          this.error(error instanceof ConfidentialityError ? error.message : (error as Error))
+        }
+        this.emitFile({ type: 'asset', fileName: path.slice(1), source })
       }
     },
 

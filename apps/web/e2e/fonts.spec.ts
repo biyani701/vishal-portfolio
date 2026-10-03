@@ -70,7 +70,7 @@ test.describe('with font files blocked', () => {
 
     const heading = page.getByRole('heading', { level: 1 })
     await expect(heading).toBeVisible()
-    await expect(heading).toHaveText('I lead delivery. I build tools. I explain payments.')
+    await expect(heading).toHaveText('I lead delivery. I understand payments. I build tools.')
     expect((await heading.boundingBox())!.height).toBeGreaterThan(0)
 
     // The web font failed, so the browser is painting with the fallback families from tokens.css.

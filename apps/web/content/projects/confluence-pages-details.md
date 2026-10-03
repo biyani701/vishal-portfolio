@@ -2,13 +2,13 @@
 slug: "confluence-pages-details"
 title: "Confluence Space Pages Details"
 year: 2023
-type: "open-source"
+type: "personal"
 featured: 3
-summary: "Async extraction of Confluence spaces into structured data, published on PyPI."
+summary: "Pulls a whole Confluence space into structured data in one pass. Async Python."
 domains: ["developer-tools", "knowledge-management"]
 stack: ["Python", "asyncio", "KeePass", "Confluence API", "JSON"]
 outcomes: []
-links: {"github": "https://github.com/vishalbiyani/get-confluence-space-pages-details", "docs": "https://get-confluence-space-pages-details.readthedocs.io/", "pypi": "https://pypi.org/project/get-confluence-space-pages-details/"}
+links: {}
 architecture: ["Confluence API", "async extractor", "JSON"]
 ---
 
@@ -23,8 +23,4 @@ A Python tool that automates extracting and formatting the pages of a Confluence
 - Makes asynchronous API requests
 - Enriches glossary descriptions with external data
 
-## Install
-
-```bash
-pip install get-confluence-space-pages-details
-```
+The code is in a private repository.

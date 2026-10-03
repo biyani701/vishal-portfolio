@@ -1,6 +1,9 @@
 // Display names for the `domains` tags in content/projects/*.md, used by the /work domain filter. Every tag a
 // project uses must be listed here (scripts/content checks it).
 export const projectDomains = {
+  'programme-delivery': 'Programme delivery',
+  'production-operations': 'Production operations',
+  'market-data': 'Market data',
   apis: 'APIs',
   dashboards: 'Dashboards',
   'delivery-tooling': 'Delivery tooling',

@@ -67,8 +67,8 @@ export function documents(context: AiContext): SearchDoc[] {
       section: 'Experience' as const,
       title: milestone.title,
       url: '/experience#credentials',
-      snippet: `${milestone.title}, ${milestone.when}`,
-      text: plain([milestone.title, milestone.kind, milestone.when]),
+      snippet: clip([`${milestone.title}, ${milestone.when}`, milestone.detail].filter(Boolean).join('. ')),
+      text: plain([milestone.title, milestone.kind, milestone.when, milestone.detail]),
     })),
     ...context.education.map((entry) => ({
       kind: 'education' as const,

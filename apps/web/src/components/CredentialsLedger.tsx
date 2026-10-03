@@ -46,7 +46,7 @@ export function CredentialsLedger({ credentials = allCredentials, className }: {
       </Column>
       <Column id="recognition" title="Recognition">
         {credentials.recognition.map((item) => (
-          <Entry key={item.id} title={item.title} when={periodLabel(item.date)} />
+          <Entry key={item.id} title={item.title} detail={item.detail} when={periodLabel(item.date)} />
         ))}
       </Column>
     </div>

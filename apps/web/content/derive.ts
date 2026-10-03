@@ -1,4 +1,6 @@
-import type { Credentials, Role } from './schema.ts'
+import type { Credentials, ProjectMeta, Role } from './schema.ts'
+
+type ProjectOrder = Pick<ProjectMeta, 'kind' | 'featured' | 'year' | 'slug'>
 
 // Values derived from the records, shared by the site and the build-time indexes.
 
@@ -47,6 +49,21 @@ export function roleYears(role: Pick<Role, 'start' | 'end'>) {
   const end = role.end.slice(0, 4)
   return `${start} – ${end.slice(0, 2) === start.slice(0, 2) ? end.slice(2) : end}`
 }
+
+/** Whole years from a YYYY-MM start to `now`: 2000-05 → 26 on 2026-10-03 (specs/portfolio-narrative "Positioning"). */
+export function yearsSince(start: string, now: Date = new Date()): number {
+  const [year, month] = start.split('-').map(Number)
+  const months = (now.getFullYear() - year!) * 12 + now.getMonth() + 1 - month!
+  return Math.floor(months / 12)
+}
+
+/** Years in financial-services technology: from the earliest role's start. */
+export const careerYears = (roles: readonly Pick<Role, 'start'>[], now?: Date) =>
+  yearsSince(roles.map((role) => role.start).sort()[0]!, now)
+
+/** Projects in listing order (specs/portfolio-narrative "Project kinds on Work"): programmes first, then by `featured`, newest year and slug. */
+export const byListingOrder = (a: ProjectOrder, b: ProjectOrder) =>
+  Number(a.kind === 'tool') - Number(b.kind === 'tool') || (a.featured ?? 99) - (b.featured ?? 99) || b.year - a.year || a.slug.localeCompare(b.slug)
 
 /** Status language (design package §5): a role without an end date is in flight. */
 export type RoleStatus = 'in-flight' | 'delivered'

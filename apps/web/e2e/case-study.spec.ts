@@ -40,13 +40,15 @@ test('the ToC collapses on phones and stays open elsewhere; a ToC link scrolls t
   )
 })
 
-test('Copy on a code block confirms with a toast', async ({ page, context, browserName }) => {
-  test.skip(browserName !== 'chromium', 'clipboard permissions are Chromium-only')
-  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
-  await page.goto('/work/confluence-pages-details')
-  await page.getByRole('button', { name: 'Copy bash code' }).click()
-  await expect(page.getByText('Copied to clipboard')).toBeVisible()
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('pip install get-confluence-space-pages-details')
+// Copy on a code block is covered by src/routes/case-study.test.tsx: no published case study carries a code block
+// since the Confluence project's unpublished pip install was removed.
+
+test('specs/portfolio-narrative: a programme case study shows its headline and no stack', async ({ page }) => {
+  await page.goto('/work/jpmorgan-reference-data')
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Re-engineering market reference-data processing')
+  await expect(page.getByText('4× system-wide throughput')).toBeVisible()
+  await expect(page.getByText('FNMA (Fannie Mae)')).toBeVisible()
+  await expect(page.getByText('Stack', { exact: true })).toHaveCount(0)
 })
 
 test('specs/content-pages "Separately hosted project": the knowledge base says it is in progress', async ({ page }) => {

@@ -17,9 +17,17 @@ const collections = { profile, about, legal, organisations, roles, skills, crede
 describe('content records (task 4.2)', () => {
   it('migrates every record from apps/portfolio', async () => {
     const content = await loadContent()
-    expect(content.projects).toHaveLength(8) // 5 migrated + blog platform, knowledge base, auth POC
+    expect(content.projects).toHaveLength(11) // 5 migrated + blog platform, knowledge base, auth POC + 3 programmes
     expect(content.roles).toHaveLength(5) // engagements
-    expect(content.projects.filter((p) => p.meta.featured)).toHaveLength(3)
+    // Home shows three of each kind, programmes first (specs/portfolio-narrative "Home story order").
+    expect(content.projects.filter((p) => p.meta.featured).map((p) => p.meta.slug)).toEqual([
+      'corecard-predictable-delivery',
+      'ifc-portfolio-stabilisation',
+      'jpmorgan-reference-data',
+      'fast-jiraql',
+      'jira-dashboard',
+      'confluence-pages-details',
+    ])
   })
 
   it('has exactly one current role, and dates in order', () => {
@@ -100,7 +108,7 @@ describe('build artefacts (task 4.4)', () => {
     expect(new Set(entries.map((e) => e.id)).size).toBe(entries.length)
     const count = (group: string) => entries.filter((e) => e.group === group).length
     expect(count('role')).toBe(5)
-    expect(count('project')).toBe(8)
+    expect(count('project')).toBe(11)
     expect(entries.map((e) => e.group).filter((g) => !['page', 'role', 'project'].includes(g))).toEqual([])
     expect(entries.filter((e) => /^\/(writing|knowledge)(\/|$)/.test(e.url))).toEqual([])
   })
@@ -113,15 +121,18 @@ describe('build artefacts (task 4.4)', () => {
     expect(Object.keys(context.profile).sort()).toEqual(
       ['currentRole', 'links', 'location', 'name', 'positioning', 'proof', 'summary'].sort(),
     )
-    expect(context.projects.map((p) => p.slug)).toHaveLength(8)
+    expect(context.projects.map((p) => p.slug)).toHaveLength(11)
     expect(Object.keys(context).filter((key) => ['articles', 'knowledge', 'glossary'].includes(key))).toEqual([])
     expect(context.roles.find((r) => r.id === 'corecard')).toMatchObject({ status: 'in-flight', end: null })
     expect(context.milestones.map((m) => m.when)).toEqual(['Q4 2009', '2013', 'Sep 2020', 'Q3 2021'])
   })
 
-  it('keep draft About copy out of Ask, and include it once supplied', async () => {
-    expect(buildAiContext(await loadContent()).about).toBeNull()
-    const supplied = await loadContent({ ...collections, about: { ...about, draft: false } })
-    expect(buildAiContext(supplied).about).toEqual({ story: about.story, principles: about.principles })
+  it('give Ask the About story and principles (specs/portfolio-narrative "About page")', async () => {
+    expect(buildAiContext(await loadContent()).about).toEqual({ story: about.story, principles: about.principles })
+  })
+
+  it('say who gave the recognition, so Ask never presents it as an external award', async () => {
+    const context = buildAiContext(await loadContent())
+    expect(context.milestones.find((m) => m.id === 'project-of-the-year')?.detail).toMatch(/^Cognizant internal recognition/)
   })
 })
